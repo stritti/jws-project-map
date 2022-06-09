@@ -13,14 +13,6 @@
 body {
   font-family: Roboto, sans-serif;
 }
-footer > p, footer  a {
-  font-size: 12px;
-  margin: 0;
-  padding: 1rem;
-  color: #fff;
-  background-color: #000;
-  text-decoration: none;
-}
 h1 {
   color: rgb(61, 94, 158);
   font-size: 48px;

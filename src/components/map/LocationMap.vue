@@ -54,14 +54,16 @@
         </div>
       </template>
       <template #footer>
-        <footer>
+        <div class="map__sidepanel-footer">
           <p>
-            <strong>Jörg Wolff Stiftung</strong>,
-            Kölner Straße 8, 70376 Stuttgart, Germany,
+            <strong><a href="https://www.joerg-wolff-stiftung.de/">Jörg Wolff Stiftung</a></strong>,
+            Kölner Straße 8, 70376 Stuttgart, Germany
+          </p>
+          <p>
             Tel. +49 (0) 711/540 04-10,
             <a href="mailto:info@joerg-wolff-stiftung.de">info@joerg-wolff-stiftung.de</a>
           </p>
-        </footer>
+        </div>
       </template>
     </VueSidePanel>
 
@@ -88,7 +90,7 @@ export default {
   data () {
     return {
       map: null,
-      zoom: 6,
+      zoom: 5,
       currentCenter: [10.125649489417905, -1.9710101407658698],
       locations: [],
       isOpened: false,
@@ -119,11 +121,11 @@ export default {
 
 .map {
   width: auto;
-  height: 80vh;
+  height: calc(100vh - 155px);
 
   &__teaser-img {
-    max-width: 240px;
-    max-height: 240px;
+    max-width: 440px;
+    max-height: 380px;
     height: auto;
   }
 
@@ -147,11 +149,18 @@ export default {
   }
 
   &__sidepanel-footer {
-    background-color: rgb(61, 94, 158);
-    color: white;
-    font-weight: 700;
-
-    padding: 20px;
+    margin: 0;
+    padding: 1rem;
+    background-color: #000;
+    color: #fff;
+    p  {
+      font-size: 12px;
+    }
+    a {
+      background-color: #000;
+      color: #fff;
+      text-decoration: none;
+    }
   }
 }
 
