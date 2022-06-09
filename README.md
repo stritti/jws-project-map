@@ -1,5 +1,7 @@
 # jws-project-map
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/5988496d-934c-45f8-9a59-df1fc3e75c16/deploy-status)](https://app.netlify.com/sites/jws-projects-map/deploys)
+
 ## Project setup
 ```
 yarn install

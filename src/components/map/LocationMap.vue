@@ -17,22 +17,54 @@
         :key="loc.id"
         :lat-lng="[loc.latitude, loc.longitude]"
         :title="loc.name"
+        @click="onMarkerClick(loc)"
       >
         <l-tooltip>
           {{ loc.name }}
         </l-tooltip>
-        <l-popup>
-          <h3>{{ loc.name }}</h3>
-          <div v-if="loc.teaserImg">
-            <img
-              class="map__teaser-img"
-              :src="loc.teaserImg[0].thumbnails.large.url" />
-          </div>
-          <p v-if="loc.notes"
-            v-html="loc.notes"></p>
-        </l-popup>
       </l-marker>
     </l-map>
+
+    <VueSidePanel
+      v-model="isOpened"
+      :overlay-opacity="0"
+      z-index="9999"
+      side="right"
+      :no-close="false"
+      lock-scroll
+      hide-close-btn
+    >
+      <template #header>
+        <div class="map__sidepanel-header">
+          <span class="close-btn" @click="onSidePanelClose">x</span>
+          <h2>Project Details</h2>
+        </div>
+      </template>
+      <template #default>
+        <div v-if="selectedLocation"
+          class="map__sidepanel-content">
+          <h2>{{ selectedLocation.name }}</h2>
+          <div v-if="selectedLocation.teaserImg">
+            <img
+              class="map__teaser-img"
+              :src="selectedLocation.teaserImg[0].thumbnails.large.url" />
+          </div>
+          <p v-if="selectedLocation.notes"
+            v-html="selectedLocation.notes"></p>
+        </div>
+      </template>
+      <template #footer>
+        <footer>
+          <p>
+            <strong>Jörg Wolff Stiftung</strong>,
+            Kölner Straße 8, 70376 Stuttgart, Germany,
+            Tel. +49 (0) 711/540 04-10,
+            <a href="mailto:info@joerg-wolff-stiftung.de">info@joerg-wolff-stiftung.de</a>
+          </p>
+        </footer>
+      </template>
+    </VueSidePanel>
+
   </div>
 </template>
 
@@ -42,7 +74,6 @@ import {
   LTileLayer,
   LMarker,
   LTooltip,
-  LPopup
 } from '@vue-leaflet/vue-leaflet'
 import projectService from '@/services/project.service'
 
@@ -52,8 +83,7 @@ export default {
     LMap,
     LMarker,
     LTileLayer,
-    LTooltip,
-    LPopup
+    LTooltip
   },
   data () {
     return {
@@ -61,24 +91,24 @@ export default {
       zoom: 6,
       currentCenter: [10.125649489417905, -1.9710101407658698],
       locations: [],
-      geojsonOptions: {
-        // Options that don't rely on Leaflet methods.
-      },
+      isOpened: false,
+      selectedLocation: null
     }
-  },
-  async beforeMount() {
-    // HERE is where to load Leaflet components!
-    const { circleMarker } = await import("leaflet/dist/leaflet-src.esm");
-
-    // And now the Leaflet circleMarker function can be used by the options:
-    this.geojsonOptions.pointToLayer = (feature, latLng) =>
-      circleMarker(latLng, { radius: 8 });
-    this.mapIsReady = true;
   },
   mounted () {
     projectService.getLocations().then(locations => {
       this.locations = locations;
     })
+  },
+  methods: {
+    onMarkerClick (location) {
+      this.selectedLocation = location
+      this.isOpened = true
+    },
+    onSidePanelClose () {
+      this.selectedLocation = null
+      this.isOpened = false
+    }
   }
 
 }
@@ -95,6 +125,33 @@ export default {
     max-width: 240px;
     max-height: 240px;
     height: auto;
+  }
+
+  &__sidepanel-header {
+    background-color: rgb(61, 94, 158);
+    color: white;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 20px;
+
+    .close-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 10px;
+      cursor: pointer;
+    }
+  }
+  &__sidepanel-content {
+    padding: 20px;
+  }
+
+  &__sidepanel-footer {
+    background-color: rgb(61, 94, 158);
+    color: white;
+    font-weight: 700;
+
+    padding: 20px;
   }
 }
 

@@ -2227,6 +2227,11 @@ body-parser@1.20.0:
     type-is "~1.6.18"
     unpipe "1.0.0"
 
+body-scroll-lock@^4.0.0-beta.0:
+  version "4.0.0-beta.0"
+  resolved "https://registry.yarnpkg.com/body-scroll-lock/-/body-scroll-lock-4.0.0-beta.0.tgz#4f78789d10e6388115c0460cd6d7d4dd2bbc4f7e"
+  integrity sha512-a7tP5+0Mw3YlUJcGAKUqIBkYYGlYxk2fnCasq/FUph1hadxlTRjF+gAcZksxANnaMnALjxEddmSi/H3OR8ugcQ==
+
 bonjour-service@^1.0.11:
   version "1.0.13"
   resolved "https://registry.npmmirror.com/bonjour-service/-/bonjour-service-1.0.13.tgz#4ac003dc1626023252d58adf2946f57e5da450c1"
@@ -6819,6 +6824,13 @@ vue-template-es2015-compiler@^1.9.0:
   version "1.9.1"
   resolved "https://registry.npmmirror.com/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.9.1.tgz#1ee3bc9a16ecbf5118be334bb15f9c46f82f5825"
   integrity sha512-4gDntzrifFnCEvyoO8PqyJDmguXgVPxKiIxrBKjIowvL9l+N66196+72XVYR8BBf1Uv1Fgt3bGevJ+sEmxfZzw==
+
+vue3-side-panel@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/vue3-side-panel/-/vue3-side-panel-1.0.2.tgz#21c6949d04da4a55b012cd363b9325483f00eeaa"
+  integrity sha512-T+wsWihY9KxsvYa3Ca8WkOkYmYsbaXfUtV1PWTXK2YGWWkzYVWwBXv5FcwOqoda5o0KuOmTpHTRzAVhwGJ/qcw==
+  dependencies:
+    body-scroll-lock "^4.0.0-beta.0"
 
 vue@^3.2.13:
   version "3.2.37"
