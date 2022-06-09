@@ -157,6 +157,10 @@ export default {
   }
   &__sidepanel-content {
     padding: 20px;
+
+    img {
+      max-width: 100%;
+    }
   }
 
   &__sidepanel-footer {
