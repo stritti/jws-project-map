@@ -36,7 +36,7 @@
     >
       <template #header>
         <div class="map__sidepanel-header">
-          <span class="close-btn" @click="onSidePanelClose">x</span>
+          <span class="close-btn" @click="onSidePanelClose">&#10006;</span>
           <h2>Project Details</h2>
         </div>
       </template>
@@ -138,10 +138,21 @@ export default {
 
     .close-btn {
       position: absolute;
-      top: 0;
-      right: 0;
-      padding: 10px;
+      height: 10px;
+      width: 10px;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.5rem;
+      font-weight: 900;
+      font-size: 10px;
       cursor: pointer;
+      border: #fff solid 1px;
+      border-radius: 10%;
+
+      &:hover {
+        background-color: #fff;
+        color: rgb(61, 94, 158);
+      }
     }
   }
   &__sidepanel-content {
