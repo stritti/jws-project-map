@@ -22,3 +22,7 @@ yarn lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+### Libraries
+
+- https://github.com/vue-leaflet/vue-leaflet
