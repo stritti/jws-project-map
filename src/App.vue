@@ -6,7 +6,7 @@
 
 <style lang="scss">
 body {
-  font-family: Roboto, sans-serif;
+  font-family: Roboto, sans-serif !important;
 }
 h1 {
   color: rgb(61, 94, 158);

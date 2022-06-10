@@ -36,15 +36,16 @@ const projectService = {
   },
 
   getLocationTypeImage (location) {
-    const imageName = location.type
-      .toLowerCase()
-      .replace(' ', '-')
-      .replace('/', '-')
-    try {
+    if( location?.type) {
+      const imageName = location.type
+        .toLowerCase()
+        .replace(' ', '-')
+        .replace('+', '-')
+        .replace('/', '-')
+
       return `/pins/${imageName}.png`
-    } catch (e) {
-      console.error(`No icon associated to this location type '${location.type}': ${imageName}.png`)
-      return null
+    } else {
+      return '/pins/default.png'
     }
   }
 }

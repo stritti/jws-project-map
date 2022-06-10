@@ -16,57 +16,25 @@
         v-for="loc in locations"
         :key="loc.id"
         :lat-lng="[loc.latitude, loc.longitude]"
-        :title="loc.name"
+        :id="loc.id"
+        :layer-type="loc.type"
         @click="onMarkerClick(loc)"
       >
+        <l-icon
+          :icon-url="getPin(loc)"
+          :class-name="pinClass(loc)"
+          :icon-size="[28, 39]"
+          :icon-anchor="[14, 39]"
+        ></l-icon>
         <l-tooltip>
           {{ loc.name }}
         </l-tooltip>
       </l-marker>
     </l-map>
-
-    <VueSidePanel
-      v-model="isOpened"
-      :overlay-opacity="0"
-      z-index="9999"
-      side="right"
-      :no-close="false"
-      lock-scroll
-      hide-close-btn
-    >
-      <template #header>
-        <div class="map__sidepanel-header">
-          <span class="close-btn" @click="onSidePanelClose">&#10006;</span>
-          <h2>Project Details</h2>
-        </div>
-      </template>
-      <template #default>
-        <div v-if="selectedLocation"
-          class="map__sidepanel-content">
-          <h2>{{ selectedLocation.name }}</h2>
-          <div v-if="selectedLocation.teaserImg">
-            <img
-              class="map__teaser-img"
-              :src="selectedLocation.teaserImg[0].thumbnails.large.url" />
-          </div>
-          <p v-if="selectedLocation.notes"
-            v-html="selectedLocation.notes"></p>
-        </div>
-      </template>
-      <template #footer>
-        <div class="map__sidepanel-footer">
-          <p>
-            <strong><a href="https://www.joerg-wolff-stiftung.de/">Jörg Wolff Stiftung</a></strong>,
-            Kölner Straße 8, 70376 Stuttgart, Germany
-          </p>
-          <p>
-            Tel. +49 (0) 711/540 04-10,
-            <a href="mailto:info@joerg-wolff-stiftung.de">info@joerg-wolff-stiftung.de</a>
-          </p>
-        </div>
-      </template>
-    </VueSidePanel>
-
+    <project-details
+     :project="selectedLocation"
+     :is-opened="isOpened"
+     @close="onSidePanelClose" />
   </div>
 </template>
 
@@ -75,8 +43,10 @@ import {
   LMap,
   LTileLayer,
   LMarker,
+  LIcon,
   LTooltip,
 } from '@vue-leaflet/vue-leaflet'
+import ProjectDetails from '@/components/ProjectDetails.vue'
 import projectService from '@/services/project.service'
 
 export default {
@@ -84,8 +54,10 @@ export default {
   components: {
     LMap,
     LMarker,
+    LIcon,
     LTileLayer,
-    LTooltip
+    LTooltip,
+    ProjectDetails
   },
   data () {
     return {
@@ -110,24 +82,35 @@ export default {
     onSidePanelClose () {
       this.selectedLocation = null
       this.isOpened = false
+    },
+    getPin (location) {
+      return projectService.getLocationTypeImage(location)
+    },
+    pinClass (current) {
+      return this.selectedLocation?.id === current.id ? 'marker-selected' : ''
     }
   }
 
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import "~leaflet/dist/leaflet.css";
+
+  .leaflet-marker-icon {
+    &:hover {
+      transform: scale(1.5);
+      filter: drop-shadow(0px 0px 10px rgba(210, 28, 28, 0.75));
+    }
+  }
+  .marker-selected {
+    transform: scale(1.25);
+    filter: drop-shadow(0px 0px 4px rgb(178, 14, 14));
+  }
 
 .map {
   width: auto;
   height: calc(100vh - 155px);
-
-  &__teaser-img {
-    max-width: 440px;
-    max-height: 380px;
-    height: auto;
-  }
 
   &__sidepanel-header {
     background-color: rgb(61, 94, 158);
@@ -155,11 +138,17 @@ export default {
       }
     }
   }
+
   &__sidepanel-content {
     padding: 20px;
 
     img {
       max-width: 100%;
+    }
+    .teaser-img {
+      max-width: 440px;
+      max-height: 380px;
+      height: auto;
     }
   }
 
