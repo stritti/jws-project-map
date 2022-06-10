@@ -11,14 +11,14 @@
 
     >
       <template #header>
-        <div class="map__sidepanel-header">
+        <div class="sidepanel__header">
           <span class="close-btn" @click="onSidePanelClose">&#10006;</span>
           <h2>Project Details </h2>
         </div>
       </template>
       <template #default>
         <div
-          class="map__sidepanel-content">
+          class="sidepanel__content">
           <h2>
             <img :src="getPin(project)" :alt="project?.type"/>
             {{ project.name }} <sup><type-badge :type="project?.type" /></sup>
@@ -40,7 +40,7 @@
         </div>
       </template>
       <template #footer>
-        <div class="map__sidepanel-footer">
+        <div class="sidepanel__footer">
           <p>
             <strong><a href="https://www.joerg-wolff-stiftung.de/">Jörg Wolff Stiftung</a></strong>,
             Kölner Straße 8, 70376 Stuttgart, Germany
@@ -106,3 +106,62 @@ export default {
     components: { TypeBadge }
 }
 </script>
+
+<style lang="scss">
+.sidepanel {
+  &__header {
+    background-color: rgb(61, 94, 158);
+    color: white;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 20px;
+
+    .close-btn {
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.5rem;
+      font-weight: 900;
+      font-size: 10px;
+      cursor: pointer;
+      border: #fff solid 1px;
+      border-radius: 10%;
+
+      &:hover {
+        background-color: #fff;
+        color: rgb(61, 94, 158);
+      }
+    }
+  }
+
+  &__content {
+    padding: 20px;
+
+    img {
+      max-width: 100%;
+    }
+    .teaser-img {
+      max-width: 440px;
+      max-height: 380px;
+      height: auto;
+    }
+  }
+
+  &__footer {
+    margin: 0;
+    padding: 1rem;
+    background-color: #000;
+    color: #fff;
+    p  {
+      font-size: 12px;
+    }
+    a {
+      background-color: #000;
+      color: #fff;
+      text-decoration: none;
+    }
+  }
+}
+</style>

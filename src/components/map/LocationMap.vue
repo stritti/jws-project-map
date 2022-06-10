@@ -97,75 +97,19 @@ export default {
 <style lang="scss">
 @import "~leaflet/dist/leaflet.css";
 
-  .leaflet-marker-icon {
-    &:hover {
-      transform: scale(1.5);
-      filter: drop-shadow(0px 0px 10px rgba(210, 28, 28, 0.75));
-    }
+.leaflet-marker-icon {
+  &:hover {
+    transform: scale(1.5);
+    filter: drop-shadow(0px 0px 10px rgba(210, 28, 28, 0.75));
   }
-  .marker-selected {
-    transform: scale(1.25);
-    filter: drop-shadow(0px 0px 4px rgb(178, 14, 14));
-  }
+}
+.marker-selected {
+  transform: scale(1.25);
+  filter: drop-shadow(0px 0px 4px rgb(178, 14, 14));
+}
 
 .map {
   width: auto;
   height: calc(100vh - 155px);
-
-  &__sidepanel-header {
-    background-color: rgb(61, 94, 158);
-    color: white;
-    font-weight: 700;
-    text-transform: uppercase;
-    padding: 20px;
-
-    .close-btn {
-      position: absolute;
-      height: 10px;
-      width: 10px;
-      top: 1rem;
-      right: 1rem;
-      padding: 0.5rem;
-      font-weight: 900;
-      font-size: 10px;
-      cursor: pointer;
-      border: #fff solid 1px;
-      border-radius: 10%;
-
-      &:hover {
-        background-color: #fff;
-        color: rgb(61, 94, 158);
-      }
-    }
-  }
-
-  &__sidepanel-content {
-    padding: 20px;
-
-    img {
-      max-width: 100%;
-    }
-    .teaser-img {
-      max-width: 440px;
-      max-height: 380px;
-      height: auto;
-    }
-  }
-
-  &__sidepanel-footer {
-    margin: 0;
-    padding: 1rem;
-    background-color: #000;
-    color: #fff;
-    p  {
-      font-size: 12px;
-    }
-    a {
-      background-color: #000;
-      color: #fff;
-      text-decoration: none;
-    }
-  }
 }
-
 </style>
