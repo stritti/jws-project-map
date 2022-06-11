@@ -6,11 +6,15 @@
       v-model:zoom="zoom" :center="currentCenter"
       crs="EPSG:4326"
       :min-zoom="4"
+      :zoom="zoom"
+      :bounds="bounds"
+      :max-bounds="maxBounds"
     >
       <l-tile-layer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         layer-type="base"
         name="OpenStreetMap"
+        attribution="&copy; <a href=&quot;https://www.openstreetmap.org/copyright&quot;>OpenStreetMap</a> contributors"
       ></l-tile-layer>
       <l-marker
         v-for="loc in locations"
@@ -39,6 +43,7 @@
 </template>
 
 <script>
+import { latLngBounds } from "leaflet";
 import {
   LMap,
   LTileLayer,
@@ -64,9 +69,17 @@ export default {
       map: null,
       zoom: 5,
       currentCenter: [10.125649489417905, -1.9710101407658698],
+      bounds: latLngBounds([
+        [-14.59812590, 5.89972330],
+        [8.94900750, 11.32232600]
+      ]),
+      maxBounds: latLngBounds([
+        [-14.59812590, 5.89972330],
+        [8.94900750, 11.32232600]
+      ]),
       locations: [],
       isOpened: false,
-      selectedLocation: null
+      selectedLocation: null,
     }
   },
   mounted () {
@@ -110,6 +123,6 @@ export default {
 
 .map {
   width: auto;
-  height: calc(100vh - 155px);
+  height: 100vh;
 }
 </style>

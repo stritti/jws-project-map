@@ -1,7 +1,9 @@
 <template>
   <div class="home">
     <h1>JWF + Humanaktiv: Wells and Schools in Westafrica</h1>
-    <location-map />
+    <div class="project-map">
+      <location-map />
+    </div>
   </div>
 </template>
 
@@ -15,3 +17,24 @@ export default {
   }
 }
 </script>
+<style lang="scss" scoped>
+.home {
+  h1 {
+    top: 0;
+    right: 0;
+    padding: 1rem;
+    position: absolute;
+    z-index: 999;
+    background-color: rgba($color: #ffffff, $alpha: .5);
+  }
+
+  .project-map {
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    z-index: 1;
+  }
+}
+</style>

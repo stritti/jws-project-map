@@ -20,15 +20,17 @@
         <div
           class="sidepanel__content">
           <h2>
-            <img :src="getPin(project)" :alt="project?.type"/>
+            <b-img :src="getPin(project)" :alt="project?.type" />
             {{ project.name }} <sup><type-badge :type="project?.type" /></sup>
           </h2>
           <hr />
 
           <div v-if="project.teaserImg">
-            <img
-              class="teaser-img"
-              :src="project.teaserImg[0].thumbnails.large.url" />
+            <b-img
+              :src="project.teaserImg[0].thumbnails.large.url"
+              :alt="project.name"
+              fluid
+            />
           </div>
           <p v-if="project.notes"
             v-html="project.notes"></p>
@@ -141,11 +143,6 @@ export default {
 
     img {
       max-width: 100%;
-    }
-    .teaser-img {
-      max-width: 440px;
-      max-height: 380px;
-      height: auto;
     }
   }
 
