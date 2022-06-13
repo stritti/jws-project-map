@@ -47,6 +47,28 @@ const projectService = {
     } else {
       return '/pins/default.png'
     }
+  },
+  getProject (id) {
+    return new Promise((resolve, reject) => {
+      base(BASE_NAME)
+        .find(id, function (err, record) {
+          if (err) {
+            console.error(err)
+            reject(err)
+          }
+          const project = ({
+            id: record.id,
+            name: record.fields?.Name,
+            teaserImg: record.fields?.TeaserImage,
+            type: record.fields?.Type,
+            notes: record.fields.Notes ? record.fields.Notes.replaceAll('"<http', '"http').replaceAll('>"', '"'): "",
+            latitude: record.fields?.Latitude,
+            longitude: record.fields?.Longitude,
+            link: record.fields?.Link,
+          })
+          resolve(project)
+        })
+    })
   }
 }
 

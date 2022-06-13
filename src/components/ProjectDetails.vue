@@ -13,18 +13,18 @@
       <template #header>
         <div class="sidepanel__header">
           <span class="close-btn" @click="onSidePanelClose">&#10006;</span>
-          <h2>Project Details </h2>
+          <h2>
+            <b-img
+              class="pin"
+              :src="getPin(project)" :alt="project?.type" />
+            <router-link :to="`/project/${project.id}`">{{ project.name }}</router-link>
+          </h2>
+          <type-badge :type="project?.type" />
         </div>
       </template>
       <template #default>
         <div
           class="sidepanel__content">
-          <h2>
-            <b-img :src="getPin(project)" :alt="project?.type" />
-            {{ project.name }} <sup><type-badge :type="project?.type" /></sup>
-          </h2>
-          <hr />
-
           <div v-if="project.teaserImg">
             <b-img
               :src="project.teaserImg[0].thumbnails.large.url"
@@ -32,8 +32,8 @@
               fluid
             />
           </div>
-          <p v-if="project.notes"
-            v-html="project.notes"></p>
+          <markdown-text v-if="project.notes" :text="project.notes" />
+
           <div v-if="project.link">
             <b-button :href="project.link" variant="primary">
               more &hellip;
@@ -59,6 +59,7 @@
 <script>
 import projectService from '@/services/project.service'
 import TypeBadge from './TypeBadge.vue'
+import MarkdownText from './MarkdownText.vue';
 
 export default {
     name: "ProjectDetails",
@@ -105,18 +106,22 @@ export default {
         }
       }
     },
-    components: { TypeBadge }
+    components: { TypeBadge, MarkdownText }
 }
 </script>
 
 <style lang="scss">
 .sidepanel {
   &__header {
-    background-color: rgb(61, 94, 158);
+    background-color: rgb(150, 150, 150);
     color: white;
     font-weight: 700;
     text-transform: uppercase;
     padding: 20px;
+
+    .pin {
+      margin-right: 1rem;
+    }
 
     .close-btn {
       position: absolute;
@@ -135,6 +140,9 @@ export default {
         background-color: #fff;
         color: rgb(61, 94, 158);
       }
+    }
+    a {
+      text-decoration: none;
     }
   }
 

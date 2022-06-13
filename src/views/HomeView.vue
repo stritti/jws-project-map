@@ -23,6 +23,7 @@ export default {
     top: 0;
     right: 0;
     padding: 1rem;
+    margin-left: 60px;
     position: absolute;
     z-index: 999;
     background-color: rgba($color: #ffffff, $alpha: .5);

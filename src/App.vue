@@ -1,8 +1,21 @@
 <template>
+  <nav>
+    <main-menu />
+  </nav>
   <main>
     <router-view />
   </main>
 </template>
+
+<script>
+import MainMenu from '@/components/MainMenu.vue'
+export default {
+  name: 'App',
+  components: {
+    MainMenu
+  }
+}
+</script>
 
 <style lang="scss">
 body {
