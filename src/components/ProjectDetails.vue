@@ -15,11 +15,14 @@
           <span class="close-btn" @click="onSidePanelClose">&#10006;</span>
           <h2>
             <b-img
+              v-for="category in project.category"
+              v-bind:key="category.id"
               class="pin"
-              :src="getPin(project)" :alt="project?.type" />
+              :src="getPin(category.name)" :alt="project?.name" />
             <router-link :to="`/project/${project.id}`">{{ project.name }}</router-link>
           </h2>
-          <type-badge :type="project?.type" />
+          <type-badge v-for="category in project.category"
+              v-bind:key="category.id" :category="category" />
         </div>
       </template>
       <template #default>
@@ -57,27 +60,26 @@
 </template>
 
 <script>
-import projectService from '@/services/project.service'
-import TypeBadge from './TypeBadge.vue'
+import TypeBadge from './CategoryBadge.vue'
 import MarkdownText from './MarkdownText.vue';
 
 export default {
     name: "ProjectDetails",
     props: {
-        project: {
-            type: Object,
-            required: false,
-            default: null
-        },
-        isOpened: {
-            type: Boolean,
-            required: true
-        }
+      project: {
+        type: Object,
+        required: false,
+        default: null
+      },
+      isOpened: {
+        type: Boolean,
+        required: true
+      }
     },
     data() {
-        return {
-            showPanel: false
-        };
+      return {
+          showPanel: false
+      }
     },
     methods: {
         onSidePanelOpen() { },
@@ -85,8 +87,8 @@ export default {
             this.showPanel = false;
             this.$emit("close");
         },
-        getPin(location) {
-            return projectService.getLocationTypeImage(location);
+        getPin(category) {
+            return `/pins/${category}.png`;
         },
     },
     watch: {

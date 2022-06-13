@@ -6,14 +6,14 @@
 export default {
   name: 'TypeBadge',
   props: {
-    type: {
-      type: String,
+    category: {
+      type: Object,
       required: true
     }
   },
   computed: {
     typeVariant () {
-      switch (this.type) {
+      switch (this.category.name) {
         case 'well':
           return 'primary'
         case 'school':
@@ -25,15 +25,13 @@ export default {
       }
     },
     displayName () {
-    switch (this.type) {
+    switch (this.category.name) {
       case 'well':
         return 'Well'
       case 'school':
         return 'School'
-      case 'school+well':
-        return 'School & Well'
       default:
-        return 'Unknown'
+        return this.category.name
     }
     }
   }

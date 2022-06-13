@@ -78,14 +78,17 @@ export default {
         [8.94900750, 11.32232600]
       ]),
       locations: [],
+      categories: [],
       isOpened: false,
       selectedLocation: null,
     }
   },
-  mounted () {
+  async mounted () {
+
     projectService.getLocations().then(locations => {
-      this.locations = locations;
+      this.locations = locations
     })
+
   },
   methods: {
     onMarkerClick (location) {
@@ -97,7 +100,22 @@ export default {
       this.isOpened = false
     },
     getPin (location) {
-      return projectService.getLocationTypeImage(location)
+      if( location.category.length === 0) {
+        return '/pins/default.png'
+      } else if( location.category.length === 1) {
+
+        return `/pins/${location.category[0].name}.png`
+      } else if( location.category.length > 1) {
+
+        let name = ''
+        location.category.forEach( (obj, i) => {
+          name += `${location.category[i].name}-`
+        })
+        name = name.slice(0, -1)
+        return `/pins/${name}.png`
+      } else {
+        return '/pins/default.png'
+      }
     },
     pinClass (current) {
       return this.selectedLocation?.id === current.id ? 'marker-selected' : ''

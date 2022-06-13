@@ -31,7 +31,7 @@ export default {
   name: "ProjectDetailsView",
   data () {
     return {
-      lading: false,
+      loading: false,
       projectList: []
     }
   },

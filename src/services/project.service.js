@@ -1,52 +1,50 @@
 import base from './airtable.service'
+import categoryService from '@/services/category.service'
 
 const BASE_NAME = 'Project'
 
 const projectService = {
   getLocations () {
     return new Promise((resolve, reject) => {
-      const locations = []
-      base(BASE_NAME)
-        .select({
-          view: 'published'
-        }).eachPage(
-          function page (partialRecords, fetchNextPage) {
-            partialRecords.forEach((partialRecords) => {
-              locations.push({
-                id: partialRecords.id,
-                name: partialRecords.fields?.Name,
-                teaserImg: partialRecords.fields?.TeaserImage,
-                type: partialRecords.fields?.Type,
-                notes: partialRecords.fields.Notes ? partialRecords.fields.Notes.replaceAll('"<http', '"http').replaceAll('>"', '"'): "",
-                latitude: partialRecords.fields?.Latitude,
-                longitude: partialRecords.fields?.Longitude,
-                link: partialRecords.fields?.Link,
+      categoryService.getAll().then((categories) => {
+
+        const locations = []
+        base(BASE_NAME)
+          .select({
+            view: 'published'
+          }).eachPage(
+            function page (partialRecords, fetchNextPage) {
+              partialRecords.forEach((partialRecords) => {
+                let item = {
+                  id: partialRecords.id,
+                  name: partialRecords.fields?.Name,
+                  teaserImg: partialRecords.fields?.TeaserImage,
+                  category: partialRecords.fields?.Category,
+                  notes: partialRecords.fields.Notes ? partialRecords.fields.Notes.replaceAll('"<http', '"http').replaceAll('>"', '"'): "",
+                  latitude: partialRecords.fields?.Latitude,
+                  longitude: partialRecords.fields?.Longitude,
+                  link: partialRecords.fields?.Link,
+                }
+
+                locations.push(item)
               })
+              fetchNextPage()
+            }, function done (err) {
+              if (err) {
+                console.log(err)
+                reject(err)
+              }
+              // console.log('Locations: ', locations)
+              locations.forEach(item => {
+                item.category.forEach( (obj, i) => {
+                  item.category[i] = categories.find((category) => obj === category.id)
+                })
+                item.category.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
+              })
+              resolve(locations)
             })
-            fetchNextPage()
-          }, function done (err) {
-            if (err) {
-              console.log(err)
-              reject(err)
-            }
-            // console.log('Locations: ', locations)
-            resolve(locations)
           })
-    })
-  },
-
-  getLocationTypeImage (location) {
-    if( location?.type) {
-      const imageName = location.type
-        .toLowerCase()
-        .replace(' ', '-')
-        .replace('+', '-')
-        .replace('/', '-')
-
-      return `/pins/${imageName}.png`
-    } else {
-      return '/pins/default.png'
-    }
+      })
   },
   getProject (id) {
     return new Promise((resolve, reject) => {
@@ -60,7 +58,7 @@ const projectService = {
             id: record.id,
             name: record.fields?.Name,
             teaserImg: record.fields?.TeaserImage,
-            type: record.fields?.Type,
+            category: record.fields?.Category,
             notes: record.fields.Notes ? record.fields.Notes.replaceAll('"<http', '"http').replaceAll('>"', '"'): "",
             latitude: record.fields?.Latitude,
             longitude: record.fields?.Longitude,
