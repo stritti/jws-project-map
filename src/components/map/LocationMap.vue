@@ -45,7 +45,10 @@
 </template>
 
 <script>
-import { latLngBounds } from "leaflet";
+import { mapState } from "pinia"
+import { useCategoryStore } from "@/store/category.store"
+
+import { latLngBounds } from "leaflet"
 import {
   LMap,
   LTileLayer,
@@ -53,7 +56,7 @@ import {
   LIcon,
   LTooltip,
 } from '@vue-leaflet/vue-leaflet'
-import ProjectDetails from '@/components/ProjectDetails.vue'
+import ProjectDetails from '@/components/project/ProjectDetails.vue'
 import projectService from '@/services/project.service'
 
 export default {
@@ -87,7 +90,7 @@ export default {
   },
   async mounted () {
     this.loadingData = true
-    this.locations = await projectService.getLocations()
+    this.locations = await projectService.getAll()
 
     this.$nextTick(() => {
       this.maxBounds = this.locations.map(loc => { return [loc.latitude, loc.longitude]})
@@ -107,19 +110,19 @@ export default {
       this.isOpened = false
     },
     getPin (location) {
-      if( location.category.length === 0) {
+      if(location.category && location.category.length === 0) {
         return '/pins/default.png'
-      } else if( location.category.length === 1) {
+      } else if(location.category && location.category.length === 1) {
 
-        return `/pins/${location.category[0].name}.png`
-      } else if( location.category.length > 1) {
+        return `/pins/${this.getCategoryById(location.category[0]).name.toLowerCase()}.png`
+      } else if(location.category && location.category.length > 1) {
 
         let name = ''
         location.category.forEach( (obj, i) => {
-          name += `${location.category[i].name}-`
+          name += `${this.getCategoryById(location.category[i]).name}-`
         })
         name = name.slice(0, -1)
-        return `/pins/${name}.png`
+        return `/pins/${name.toLowerCase()}.png`
       } else {
         return '/pins/default.png'
       }
@@ -127,7 +130,12 @@ export default {
     pinClass (current) {
       return this.selectedLocation?.id === current.id ? 'marker-selected' : ''
     }
-  }
+  },
+  computed: {
+    ...mapState(useCategoryStore, {
+      getCategoryById: store => store.getById
+    })
+  },
 
 }
 </script>

@@ -1,45 +1,41 @@
 <template>
-  <b-badge pill :variant="typeVariant">{{displayName}}</b-badge>
+  <span
+    v-if="categoryId"
+    class="category-badge badge rounded-pill text-decoration-none"
+    :style="categoryStyle"
+    pill
+  >{{displayName}}</span>
 </template>
 
 <script>
+import { mapState } from 'pinia'
+import { useCategoryStore } from '@/store/category.store'
+
 export default {
-  name: 'TypeBadge',
+  name: 'CategoryBadge',
   props: {
-    category: {
-      type: Object,
+    categoryId: {
+      type: String,
       required: true
     }
   },
   computed: {
-    typeVariant () {
-      switch (this.category.name) {
-        case 'well':
-          return 'primary'
-        case 'school':
-          return 'warning'
-        case 'school+well':
-          return 'danger'
-        default:
-          return 'secondary'
-      }
-    },
+    ...mapState(useCategoryStore, {
+      getById: store => store.getById
+    }),
     displayName () {
-    switch (this.category.name) {
-      case 'well':
-        return 'Well'
-      case 'school':
-        return 'School'
-      default:
-        return this.category.name
-    }
+      return this.getById(this.categoryId).name
+    },
+    categoryStyle () {
+      return `background-color: ${this.getById(this.categoryId).color};`
     }
   }
-
-
 }
 </script>
 
 <style>
-
+.category-badge {
+  padding: 0.5rem 1rem;
+  margin: 0.25rem;
+}
 </style>

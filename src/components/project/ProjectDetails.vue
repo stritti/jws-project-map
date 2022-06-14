@@ -16,14 +16,14 @@
           <h2>
             <b-img
               v-for="category in project.category"
-              v-bind:key="category.id"
+              v-bind:key="category"
               class="pin"
-              :src="getPin(category.name)" :alt="project?.name" />
+              :src="getPin(category)" :alt="project?.name" />
             <router-link :to="`/project/${project.id}`">{{ project.name }}</router-link>
           </h2>
-          <h3>{{project.country}}</h3>
-          <type-badge v-for="category in project.category"
-              v-bind:key="category.id" :category="category" />
+          <h3><country-label :country-id="project.country" /></h3>
+          <category-badge v-for="category in project.category"
+              v-bind:key="category" :category-id="category" />
         </div>
       </template>
       <template #default>
@@ -36,33 +36,28 @@
               fluid
             />
           </div>
-          <markdown-text v-if="project.notes" :text="project.notes" />
-
-          <div v-if="project.link">
-            <b-button :href="project.link" variant="primary">
-              more &hellip;
-            </b-button>
-          </div>
+          <markdown-text :text="project.notes" />
+          <b-button :href="`/project/${project.id}`" variant="primary">
+            more &hellip;
+          </b-button>
         </div>
       </template>
       <template #footer>
         <div class="sidepanel__footer">
-          <p>
-            <strong><a href="https://www.joerg-wolff-stiftung.de/">Jörg Wolff Stiftung</a></strong>,
-            Kölner Straße 8, 70376 Stuttgart, Germany
-          </p>
-          <p>
-            Tel. +49 (0) 711/540 04-10,
-            <a href="mailto:info@joerg-wolff-stiftung.de">info@joerg-wolff-stiftung.de</a>
-          </p>
+         <site-footer />
         </div>
       </template>
     </VueSidePanel>
 </template>
 
 <script>
-import TypeBadge from './CategoryBadge.vue'
-import MarkdownText from './MarkdownText.vue';
+import { mapState } from "pinia"
+import { useCategoryStore } from "@/store/category.store"
+
+import CategoryBadge from '@/components/CategoryBadge.vue'
+import SiteFooter from '@/components/SiteFooter.vue';
+import CountryLabel from '@/components/CountryLabel.vue';
+import MarkdownText from '../MarkdownText.vue';
 
 export default {
     name: "ProjectDetails",
@@ -89,8 +84,13 @@ export default {
             this.$emit("close");
         },
         getPin(category) {
-            return `/pins/${category}.png`;
+            return `/pins/${this.getCategoryById(category).name}.png`;
         },
+    },
+    computed: {
+      ...mapState(useCategoryStore, {
+        getCategoryById: store => store.getById
+      })
     },
     watch: {
       isOpened(val) {
@@ -109,7 +109,7 @@ export default {
         }
       }
     },
-    components: { TypeBadge, MarkdownText }
+    components: { CategoryBadge, SiteFooter, CountryLabel, MarkdownText }
 }
 </script>
 
@@ -132,15 +132,16 @@ export default {
       width: 18px;
       top: 1rem;
       right: 1rem;
-      padding: 0.5rem;
+      padding: 0;
+      padding-left: 0.25rem;
       font-weight: 900;
       font-size: 10px;
       cursor: pointer;
-      border: #fff solid 1px;
+      border: rgb(182, 182, 182) solid 1px;
       border-radius: 10%;
 
       &:hover {
-        background-color: #fff;
+        background-color: rgb(182, 182, 182);
         color: rgb(61, 94, 158);
       }
     }
@@ -154,21 +155,6 @@ export default {
 
     img {
       max-width: 100%;
-    }
-  }
-
-  &__footer {
-    margin: 0;
-    padding: 1rem;
-    background-color: #000;
-    color: #fff;
-    p  {
-      font-size: 12px;
-    }
-    a {
-      background-color: #000;
-      color: #fff;
-      text-decoration: none;
     }
   }
 }

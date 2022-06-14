@@ -6990,6 +6990,11 @@ vue3-markdown-it@^1.0.10:
     markdown-it-task-lists "^2.1.1"
     markdown-it-toc-done-right "^4.2.0"
 
+vue3-picture-swipe@^3.0.6:
+  version "3.0.6"
+  resolved "https://registry.yarnpkg.com/vue3-picture-swipe/-/vue3-picture-swipe-3.0.6.tgz#852669cb970543756b3408eef5dac5eaff86a43d"
+  integrity sha512-tCoWJr5cXZMk8hlycPPdo9UCl5m3ZChDVdDhHdiJedtkTZL6H0wYV6mZvL8Lz6e80kpiIXxsoltJobcePnKB0A==
+
 vue3-side-panel@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/vue3-side-panel/-/vue3-side-panel-1.0.2.tgz#21c6949d04da4a55b012cd363b9325483f00eeaa"
