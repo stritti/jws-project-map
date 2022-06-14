@@ -1,1 +1,9 @@
+// Option A: Include all of Bootstrap
+
+// Include any default variable overrides here (though functions won't be available)
+
 $primary: rgb(61, 94, 158);
+
+@import "/node_modules/bootstrap/scss/bootstrap";
+@import "bootstrap-vue-3/dist/bootstrap-vue-3.css"
+// Then add additional custom code here

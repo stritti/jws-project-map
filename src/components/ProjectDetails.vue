@@ -21,6 +21,7 @@
               :src="getPin(category.name)" :alt="project?.name" />
             <router-link :to="`/project/${project.id}`">{{ project.name }}</router-link>
           </h2>
+          <h3>{{project.country}}</h3>
           <type-badge v-for="category in project.category"
               v-bind:key="category.id" :category="category" />
         </div>
