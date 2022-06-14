@@ -1,5 +1,6 @@
 <template>
   <div class="map">
+    <b-overlay :show="loadingData" class="map__overlay">
     <l-map
       ref="map"
       class="map"
@@ -35,6 +36,7 @@
         </l-tooltip>
       </l-marker>
     </l-map>
+    </b-overlay>
     <project-details
      :project="selectedLocation"
      :is-opened="isOpened"
@@ -66,7 +68,6 @@ export default {
   },
   data () {
     return {
-      map: null,
       zoom: 5,
       currentCenter: [10.125649489417905, -1.9710101407658698],
       bounds: latLngBounds([
@@ -81,14 +82,20 @@ export default {
       categories: [],
       isOpened: false,
       selectedLocation: null,
+      loadingData: false
     }
   },
   async mounted () {
+    this.loadingData = true
+    this.locations = await projectService.getLocations()
 
-    projectService.getLocations().then(locations => {
-      this.locations = locations
+    this.$nextTick(() => {
+      this.maxBounds = this.locations.map(loc => { return [loc.latitude, loc.longitude]})
+      this.$refs.map.leafletObject.fitBounds(this.maxBounds)
+      this.$nextTick(() => {
+        this.loadingData = false
+      })
     })
-
   },
   methods: {
     onMarkerClick (location) {
@@ -142,5 +149,12 @@ export default {
 .map {
   width: auto;
   height: 100vh;
+
+  &__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100vh;
+  }
 }
 </style>
