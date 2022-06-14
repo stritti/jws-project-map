@@ -24,6 +24,7 @@ const projectService = {
                   latitude: partialRecords.fields?.Latitude,
                   longitude: partialRecords.fields?.Longitude,
                   link: partialRecords.fields?.Link,
+                  gallery: partialRecords.fields?.Gallery
                 }
 
                 locations.push(item)
@@ -63,6 +64,7 @@ const projectService = {
             latitude: record.fields?.Latitude,
             longitude: record.fields?.Longitude,
             link: record.fields?.Link,
+            gallery: record.fields?.Gallery
           })
           resolve(project)
         })
