@@ -45,7 +45,6 @@ export default {
       projectList: 'projects'
     })
   }
-
 }
 </script>
 
