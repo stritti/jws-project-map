@@ -1,6 +1,6 @@
 import base from './airtable.service'
 
-const BASE_NAME = 'Category'
+const BASE_NAME = 'Country'
 
 const categoryService = {
   getAll () {
@@ -12,8 +12,7 @@ const categoryService = {
             partialRecords.forEach((partialRecords) => {
               locations.push({
                 id: partialRecords.id,
-                name: partialRecords.fields?.Name,
-                color: partialRecords.fields?.Color
+                name: partialRecords.fields?.Name
               })
             })
             fetchNextPage()

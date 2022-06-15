@@ -2,6 +2,7 @@
   <div class="map">
     <b-overlay :show="loadingData" class="map__overlay">
     <l-map
+      v-if="locations"
       ref="map"
       class="map"
       v-model:zoom="zoom" :center="currentCenter"
@@ -45,7 +46,13 @@
 </template>
 
 <script>
-import { latLngBounds } from "leaflet";
+import { mapState } from "pinia"
+import { mapActions } from 'pinia'
+import { useLoadingStore } from "@/store/loading.store"
+import { useCategoryStore } from "@/store/category.store"
+import { useProjectStore } from "@/store/project.store"
+
+import { latLngBounds } from "leaflet"
 import {
   LMap,
   LTileLayer,
@@ -53,8 +60,8 @@ import {
   LIcon,
   LTooltip,
 } from '@vue-leaflet/vue-leaflet'
-import ProjectDetails from '@/components/ProjectDetails.vue'
-import projectService from '@/services/project.service'
+import ProjectDetails from '@/components/project/ProjectDetails.vue'
+// import projectService from '@/services/project.service'
 
 export default {
   name: 'LocationMap',
@@ -78,24 +85,32 @@ export default {
         [-14.59812590, 5.89972330],
         [8.94900750, 11.32232600]
       ]),
-      locations: [],
+      //locations: [],
       categories: [],
       isOpened: false,
-      selectedLocation: null,
-      loadingData: false
+      selectedLocation: null
     }
   },
   async mounted () {
-    this.loadingData = true
-    this.locations = await projectService.getLocations()
-
-    this.$nextTick(() => {
-      this.maxBounds = this.locations.map(loc => { return [loc.latitude, loc.longitude]})
-      this.$refs.map.leafletObject.fitBounds(this.maxBounds)
-      this.$nextTick(() => {
-        this.loadingData = false
-      })
+    /* const store = useProjectStore()
+    this.locations = await store.projects
+    if(this.locations == null || this.locations.length == 0) {
+      // TODO: why fallback?
+      this.locations = await projectService.getAll()
+    } else {
+      console.info('Using cached projects')
+    }
+    */
+    if (this.locations) {
+      this.updateMaxBounds()
+    }
+    const store = useProjectStore()
+    // this subscription will be kept after the component is unmounted
+    store.$subscribe(() => {
+      this.updateMaxBounds()
     })
+
+
   },
   methods: {
     onMarkerClick (location) {
@@ -107,28 +122,45 @@ export default {
       this.isOpened = false
     },
     getPin (location) {
-      if( location.category.length === 0) {
+      if(location.category && location.category.length === 0) {
         return '/pins/default.png'
-      } else if( location.category.length === 1) {
+      } else if(location.category && location.category.length === 1) {
 
-        return `/pins/${location.category[0].name}.png`
-      } else if( location.category.length > 1) {
+        return `/pins/${this.getCategoryById(location.category[0]).name.toLowerCase()}.png`
+      } else if(location.category && location.category.length > 1) {
 
         let name = ''
         location.category.forEach( (obj, i) => {
-          name += `${location.category[i].name}-`
+          name += `${this.getCategoryById(location.category[i]).name}-`
         })
         name = name.slice(0, -1)
-        return `/pins/${name}.png`
+        return `/pins/${name.toLowerCase()}.png`
       } else {
         return '/pins/default.png'
       }
     },
     pinClass (current) {
       return this.selectedLocation?.id === current.id ? 'marker-selected' : ''
-    }
+    },
+    updateMaxBounds () {
+      if(this.locations && this.locations.size > 0 &&  this.$refs.map) {
+        this.maxBounds = this.locations.map(loc => { return [loc.latitude, loc.longitude]})
+        this.$refs.map.leafletObject.fitBounds(this.maxBounds)
+      }
+    },
+    ...mapActions(useLoadingStore, ['updateLoading']),
+  },
+  computed: {
+    ...mapState(useCategoryStore, {
+      getCategoryById: store => store.getById
+    }),
+    ...mapState(useLoadingStore, {
+      loadingData: store => store.showLoadingSpinner
+    }),
+    ...mapState(useProjectStore, {
+      locations: store => store.projects
+    })
   }
-
 }
 </script>
 
