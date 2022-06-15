@@ -37,7 +37,7 @@
             />
           </div>
           <markdown-text :text="project.notes" />
-          <b-button :href="`/project/${project.id}`" variant="primary">
+          <b-button :to="`/project/${project.id}`" variant="primary">
             more &hellip;
           </b-button>
         </div>
