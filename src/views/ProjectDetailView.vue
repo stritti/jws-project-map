@@ -14,6 +14,7 @@
       </template>
 
       <div v-if="project">
+        <back-button class="back-btn"/>
         <h1>{{ project.name }}</h1>
         <h3><country-label :country-id="project.country" /></h3>
       </div>
@@ -54,9 +55,10 @@ import CountryLabel from '@/components/CountryLabel.vue'
 import MarkdownText from '@/components/MarkdownText.vue'
 import SiteFooter from '@/components/SiteFooter.vue'
 import { useLoadingStore } from '@/store/loading.store'
+import BackButton from '@/components/BackButton.vue'
 
 export default {
-  components: { CountryLabel, MarkdownText, VuePictureSwipe, SiteFooter },
+  components: { CountryLabel, MarkdownText, VuePictureSwipe, SiteFooter, BackButton },
   name: "ProjectDetailsView",
   computed: {
     ...mapState(useLoadingStore, {
@@ -87,10 +89,14 @@ export default {
   min-height: calc(100vh - 7rem);
   padding: 1rem;
 }
-
+.back-btn {
+  margin-right: 1rem;
+  float: left;
+}
 .gallery-thumbnail {
   img {
     width: 220px;
+    margin: 0.25rem
   }
 }
 </style>

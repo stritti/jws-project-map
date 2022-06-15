@@ -11,7 +11,7 @@ export const useProjectStore = defineStore('project', {
     getById: (state) => (id) => state.projects.find((project) => project.id === id)
   },
   actions: {
-    init () {
+    async init () {
       const loadingStore = useLoadingStore()
       loadingStore.updateLoading(true)
       this.projects = projectService.getAll().then(result => {

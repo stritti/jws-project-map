@@ -37,7 +37,6 @@ export default {
   components: { ProjectListItem, SiteFooter },
   name: "ProjectDetailsView",
 
-
   computed: {
     ...mapState( useLoadingStore, {
       loading: 'showLoadingSpinner'

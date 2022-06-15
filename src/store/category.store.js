@@ -11,7 +11,7 @@ export const useCategoryStore = defineStore('category', {
     getById: (state) => (id) => state.categories.find((category) => category.id === id)
   },
   actions: {
-    init () {
+    async init () {
       const loadingStore = useLoadingStore()
       loadingStore.updateLoading(true)
       categoryService.getAll().then(list => {

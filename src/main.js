@@ -16,12 +16,16 @@ import { useCountryStore } from '@/store/country.store'
 import { useCategoryStore } from '@/store/category.store'
 import { useProjectStore } from '@/store/project.store'
 
-const app = createApp(App).use(createPinia()).use(router)
 
+const pinia = createPinia()
+const app = createApp(App)
+
+app.use(pinia)
+app.use(router)
 app.use(BootstrapVue3)
 app.use(VueSidePanel)
 
-app.component('vue-picture-swipe', VuePictureSwipe);
+app.component('vue-picture-swipe', VuePictureSwipe)
 
 const projectStore = useProjectStore()
 projectStore.init()
@@ -31,5 +35,6 @@ countryStore.init()
 
 const categoryStore = useCategoryStore()
 categoryStore.init()
+
 
 app.mount('#app')

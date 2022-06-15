@@ -11,7 +11,7 @@ export const useCountryStore = defineStore('countries', {
     getById: (state) => (id) => state.countries.find((country) => country.id === id)
   },
   actions: {
-    init () {
+    async init () {
       const loadingStore = useLoadingStore()
       loadingStore.updateLoading(true)
       countryService.getAll().then(list => {
