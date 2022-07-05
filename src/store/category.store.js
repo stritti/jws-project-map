@@ -4,7 +4,7 @@ import { useLoadingStore } from '@/store/loading.store'
 
 export const useCategoryStore = defineStore('category', {
   state: () => ({
-    categories: null
+    categories: []
   }),
   getters: {
     getAll: state => state.categories,
