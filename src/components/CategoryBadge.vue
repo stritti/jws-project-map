@@ -36,6 +36,6 @@ export default {
 <style>
 .category-badge {
   padding: 0.5rem 1rem;
-  margin: 0.25rem;
+  margin-right: 0.25rem;
 }
 </style>

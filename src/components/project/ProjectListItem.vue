@@ -19,6 +19,7 @@
           v-bind:key="category"
           :category-id="category"
         />
+        <div>Project State: {{ project.state }}</div>
       </b-card-body>
     </b-card>
   </router-link>
@@ -41,10 +42,15 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .project-list-item {
   width: 320px;
   margin: 10px;
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 
   &__title {
     padding: 1rem;
