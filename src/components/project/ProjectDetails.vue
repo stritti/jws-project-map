@@ -29,6 +29,7 @@
       <template #default>
         <div
           class="sidepanel__content">
+
           <div v-if="project.teaserImg">
             <b-img
               :src="project.teaserImg[0].thumbnails.large.url"
@@ -36,6 +37,7 @@
               fluid
             />
           </div>
+          <p>Project State: {{ project.state }}</p>
           <markdown-text :text="project.notes" />
           <b-button :to="`/project/${project.id}`" variant="primary">
             more &hellip;
@@ -123,7 +125,7 @@ export default {
     padding: 20px;
 
     .pin {
-      margin-right: 1rem;
+      margin-right: 0.25rem;
     }
 
     .close-btn {

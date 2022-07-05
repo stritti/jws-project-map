@@ -33,7 +33,8 @@
           :icon-anchor="[14, 39]"
         ></l-icon>
         <l-tooltip>
-          {{ loc.name }}
+          <span>{{ loc.name }}</span>
+          <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
         </l-tooltip>
       </l-marker>
     </l-map>
@@ -185,15 +186,14 @@ export default {
   filter: drop-shadow(0px 0px 10px rgba(210, 28, 28, 0.75));
 }
 
-.marker-state-in-progress {
-  filter: grayscale(90%);
+.marker-state-planned {
+  filter: grayscale(90%) opacity(0.5);
 }
-.marker-state-in-progress {
-  filter: grayscale(90%);
+.marker-state-under-construction {
+  filter: grayscale(80%) opacity(0.9);
 }
-.marker-state-in-progress {
-  filter: grayscale(100%);
-  fill-opacity: 50%;
+.marker-state-finished {
+  filter: opacity(1);
 }
 
 
