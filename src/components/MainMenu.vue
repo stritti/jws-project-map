@@ -1,9 +1,17 @@
 <template>
   <div class="main-menu">
-    <b-dropdown id="dropdown-dropup" dropup text="Menu" variant="primary" class="m-2">
-        <b-dropdown-item to="/">Map</b-dropdown-item>
-        <b-dropdown-item to="/project/">List</b-dropdown-item>
-        <b-dropdown-item to="/about">About</b-dropdown-item>
+    <b-dropdown
+      id="dropdown-dropup"
+      dropup
+      variant="primary"
+      class="m-2"
+    >
+      <template #button-content>
+        <i class="bi bi-list" role="img" aria-label="Menu"></i> Menu
+      </template>
+      <b-dropdown-item to="/">Map</b-dropdown-item>
+      <b-dropdown-item to="/project/">List</b-dropdown-item>
+      <b-dropdown-item to="/about">About</b-dropdown-item>
     </b-dropdown>
   </div>
 </template>
