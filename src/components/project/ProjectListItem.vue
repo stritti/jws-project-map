@@ -6,7 +6,6 @@
         :src="project.teaserImg[0].thumbnails.large.url"
         :alt="project.name"
         top
-        fluid
       />
       <div v-else class="teaser-img-placeholder"></div>
 
@@ -56,9 +55,8 @@ export default {
   }
 }
 .teaser-img {
-  width: 100%;
   width: 320px;
-  max-height: 200px;
+  height: 200px;
   object-fit: cover;
   object-position: 100% 0;
 }
