@@ -140,7 +140,9 @@ export default {
       }
     },
     pinClass (current) {
-      return this.selectedLocation?.id === current.id ? 'marker-selected' : ''
+      let cssClass = this.selectedLocation?.id === current.id ? 'marker-selected' : ''
+      cssClass += ' marker-state-' + current.state.toLowerCase().replace(' ', '-')
+      return cssClass
     },
     updateMaxBounds () {
       if(this.locations && this.locations.size > 0 &&  this.$refs.map) {
@@ -177,6 +179,23 @@ export default {
   transform: scale(1.25);
   filter: drop-shadow(0px 0px 4px rgb(178, 14, 14));
 }
+
+.marker-selected:hover {
+  transform: scale(1.5);
+  filter: drop-shadow(0px 0px 10px rgba(210, 28, 28, 0.75));
+}
+
+.marker-state-in-progress {
+  filter: grayscale(90%);
+}
+.marker-state-in-progress {
+  filter: grayscale(90%);
+}
+.marker-state-in-progress {
+  filter: grayscale(100%);
+  fill-opacity: 50%;
+}
+
 
 .map {
   width: auto;
