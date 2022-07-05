@@ -5,7 +5,7 @@
         class="teaser-img"
         :src="project.teaserImg[0].thumbnails.large.url"
         :alt="project.name"
-        img-top
+        top
         fluid
       />
       <div v-else class="teaser-img-placeholder"></div>
@@ -52,12 +52,19 @@ export default {
     font-size: 1.2em;
     text-decoration: none;
     color: #eee;
-    background-color: rgb(61, 94, 158);;
+    background-color: rgb(61, 94, 158);
   }
+}
+.teaser-img {
+  width: 100%;
+  width: 320px;
+  max-height: 200px;
+  object-fit: cover;
+  object-position: 100% 0;
 }
 .teaser-img-placeholder {
   width: 320px;
-  height: 220px;
+  height: 200px;
   background-color: #eee;
 }
 
