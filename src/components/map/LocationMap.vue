@@ -8,9 +8,11 @@
       v-model:zoom="zoom" :center="currentCenter"
       crs="EPSG:4326"
       :min-zoom="4"
+      :max-zoom="18"
       :zoom="zoom"
       :bounds="bounds"
-      :max-bounds="maxBounds"
+      :use-global-leaflet="true"
+      :options="mapOptions"
     >
       <l-tile-layer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -18,24 +20,28 @@
         name="OpenStreetMap"
         attribution="&copy; <a href=&quot;https://www.openstreetmap.org/copyright&quot;>OpenStreetMap</a> contributors"
       ></l-tile-layer>
-      <l-marker
-        v-for="loc in locations"
-        :key="loc.id"
-        :lat-lng="[loc.latitude, loc.longitude]"
-        :id="loc.id"
-        :layer-type="loc.type"
-        @click="onMarkerClick(loc)"
+      <LCustomMarkerCluster
+        :options="markerClusterOptions"
       >
-        <l-icon
-          :icon-url="getPin(loc)"
-          :class-name="pinClass(loc)"
-          :icon-size="[28, 39]"
-          :icon-anchor="[14, 39]"
-        ></l-icon>
-        <l-tooltip>
-          {{ loc.name }}
-        </l-tooltip>
-      </l-marker>
+        <l-marker
+          v-for="loc in markers"
+          :key="loc.id"
+          :lat-lng="[loc.latitude, loc.longitude]"
+          :id="loc.id"
+          :layer-type="loc.type"
+          @click="onMarkerClick(loc)"
+        >
+          <l-icon
+            :icon-url="getPin(loc)"
+            :class-name="pinClass(loc)"
+            :icon-size="[28, 39]"
+            :icon-anchor="[14, 39]"
+          ></l-icon>
+          <l-tooltip>
+            {{ loc.name }}
+          </l-tooltip>
+        </l-marker>
+      </LCustomMarkerCluster>
     </l-map>
     </b-overlay>
     <project-details
@@ -60,8 +66,8 @@ import {
   LIcon,
   LTooltip,
 } from '@vue-leaflet/vue-leaflet'
+import LCustomMarkerCluster from '@/components/map/LCustomMarkerCluster'
 import ProjectDetails from '@/components/project/ProjectDetails.vue'
-// import projectService from '@/services/project.service'
 
 export default {
   name: 'LocationMap',
@@ -71,12 +77,13 @@ export default {
     LIcon,
     LTileLayer,
     LTooltip,
+    LCustomMarkerCluster,
     ProjectDetails
   },
   data () {
     return {
       zoom: 5,
-      currentCenter: [10.125649489417905, -1.9710101407658698],
+      currentCenter: [10.12564948, -1.97101014],
       bounds: latLngBounds([
         [-14.59812590, 5.89972330],
         [8.94900750, 11.32232600]
@@ -85,22 +92,18 @@ export default {
         [-14.59812590, 5.89972330],
         [8.94900750, 11.32232600]
       ]),
-      //locations: [],
-      categories: [],
       isOpened: false,
-      selectedLocation: null
+      selectedLocation: null,
+      mapOptions: {
+        zoomSnap: 0.5
+      },
+      markerClusterOptions: { // Put here options handled by leaflet-markerCluster (https://github.com/Leaflet/Leaflet.markercluster#options)
+        animateAddingMarkers: true,
+        maxClusterRadius: 30
+      }
     }
   },
   async mounted () {
-    /* const store = useProjectStore()
-    this.locations = await store.projects
-    if(this.locations == null || this.locations.length == 0) {
-      // TODO: why fallback?
-      this.locations = await projectService.getAll()
-    } else {
-      console.info('Using cached projects')
-    }
-    */
     if (this.locations) {
       this.updateMaxBounds()
     }
@@ -109,8 +112,6 @@ export default {
     store.$subscribe(() => {
       this.updateMaxBounds()
     })
-
-
   },
   methods: {
     onMarkerClick (location) {
@@ -122,19 +123,8 @@ export default {
       this.isOpened = false
     },
     getPin (location) {
-      if(location.category && location.category.length === 0) {
-        return '/pins/default.png'
-      } else if(location.category && location.category.length === 1) {
-
-        return `/pins/${this.getCategoryById(location.category[0]).name.toLowerCase()}.png`
-      } else if(location.category && location.category.length > 1) {
-
-        let name = ''
-        location.category.forEach( (obj, i) => {
-          name += `${this.getCategoryById(location.category[i]).name}-`
-        })
-        name = name.slice(0, -1)
-        return `/pins/${name.toLowerCase()}.png`
+      if(location.pincat !== null) {
+        return `/pins/${location.pincat?.name.toLowerCase()}.png`
       } else {
         return '/pins/default.png'
       }
@@ -159,7 +149,22 @@ export default {
     }),
     ...mapState(useProjectStore, {
       locations: store => store.projects
-    })
+    }),
+    markers () {
+      const marker = []
+      if (this.locations && this.locations.length > 0) {
+        this.locations.forEach(loc => {
+          loc.category.forEach(cat => {
+            marker.push({
+              ...loc,
+              pincat: this.getCategoryById(cat)
+            })
+          })
+        })
+      }
+      return marker
+
+    }
   }
 }
 </script>
