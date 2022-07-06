@@ -22,6 +22,7 @@ const projectService = {
                   latitude: partialRecords.fields?.Latitude,
                   longitude: partialRecords.fields?.Longitude,
                   link: partialRecords.fields?.Link,
+                  state: partialRecords.fields?.State,
                   gallery: partialRecords.fields?.Gallery
                 }
 

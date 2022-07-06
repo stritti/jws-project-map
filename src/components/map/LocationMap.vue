@@ -33,7 +33,8 @@
           :icon-anchor="[14, 39]"
         ></l-icon>
         <l-tooltip>
-          {{ loc.name }}
+          <span>{{ loc.name }}</span>
+          <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
         </l-tooltip>
       </l-marker>
     </l-map>
@@ -140,7 +141,9 @@ export default {
       }
     },
     pinClass (current) {
-      return this.selectedLocation?.id === current.id ? 'marker-selected' : ''
+      let cssClass = this.selectedLocation?.id === current.id ? 'marker-selected' : ''
+      cssClass += ' marker-state-' + current.state.toLowerCase().replace(' ', '-')
+      return cssClass
     },
     updateMaxBounds () {
       if(this.locations && this.locations.size > 0 &&  this.$refs.map) {
@@ -177,6 +180,22 @@ export default {
   transform: scale(1.25);
   filter: drop-shadow(0px 0px 4px rgb(178, 14, 14));
 }
+
+.marker-selected:hover {
+  transform: scale(1.5);
+  filter: drop-shadow(0px 0px 10px rgba(210, 28, 28, 0.75));
+}
+
+.marker-state-planned {
+  filter: grayscale(90%) opacity(0.5);
+}
+.marker-state-under-construction {
+  filter: grayscale(80%) opacity(0.9);
+}
+.marker-state-finished {
+  filter: opacity(1);
+}
+
 
 .map {
   width: auto;
