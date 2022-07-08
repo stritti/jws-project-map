@@ -2,13 +2,15 @@
   <span
     v-if="countryId"
     class="country-label"
-    v-text="countryLabel"
-  ></span>
+  >
+    <span :class="countryClass"></span>&nbsp;{{countryLabel}}
+  </span>
 </template>
 
 <script>
 import { mapState } from 'pinia'
 import { useCountryStore } from '@/store/country.store'
+import 'flag-icons/sass/flag-icons.scss'
 
 export default {
   name: 'CountryLabel',
@@ -25,6 +27,9 @@ export default {
     }),
     countryLabel () {
       return this.getById(this.countryId[0]).name
+    },
+      countryClass () {
+      return `fi fis fi-${this.getById(this.countryId[0]).code}`
     }
   }
 }
