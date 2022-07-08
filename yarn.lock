@@ -959,6 +959,13 @@
     "@babel/helper-validator-identifier" "^7.16.7"
     to-fast-properties "^2.0.0"
 
+"@dvuckovic/vue3-bootstrap-icons@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@dvuckovic/vue3-bootstrap-icons/-/vue3-bootstrap-icons-1.0.5.tgz#61bab07dcc8121e507be5c2a54d38a9df0784097"
+  integrity sha512-1trLedEPwk8UmaVDT5xYwUCJl8Hvcwp8BIpjHVfCsuOGwLuZVd/eVBG03L5kJmbThuwzFNfCG45NZpuSgUHMvQ==
+  dependencies:
+    bootstrap-icons "^1.4.1"
+
 "@eslint/eslintrc@^0.4.3":
   version "0.4.3"
   resolved "https://registry.npmmirror.com/@eslint/eslintrc/-/eslintrc-0.4.3.tgz#9e42981ef035beb3dd49add17acb96e8ff6f394c"
@@ -2256,6 +2263,11 @@ boolbase@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmmirror.com/boolbase/-/boolbase-1.0.0.tgz#68dff5fbe60c51eb37725ea9e3ed310dcc1e776e"
   integrity sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==
+
+bootstrap-icons@^1.4.1:
+  version "1.8.3"
+  resolved "https://registry.yarnpkg.com/bootstrap-icons/-/bootstrap-icons-1.8.3.tgz#14c15e26deaddd42af9f88c4d81f7c45bf26aa98"
+  integrity sha512-s5kmttnbq4BXbx3Bwnj39y+t7Vc3blTtyD77W3aYQ1LlNoS3lNbbGvSYhIbg26Im8KmjScyFpHEevlPOBcIDdA==
 
 bootstrap-vue-3@^0.1.13:
   version "0.1.13"
