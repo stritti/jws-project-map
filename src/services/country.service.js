@@ -12,7 +12,8 @@ const categoryService = {
             partialRecords.forEach((partialRecords) => {
               locations.push({
                 id: partialRecords.id,
-                name: partialRecords.fields?.Name
+                name: partialRecords.fields?.Name,
+                code: partialRecords.fields?.Code
               })
             })
             fetchNextPage()
