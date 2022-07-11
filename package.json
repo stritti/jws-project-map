@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@cloudgeek/vue3-video-player": "^0.3.10",
     "@dvuckovic/vue3-bootstrap-icons": "^1.0.5",
     "@popperjs/core": "^2.11.5",
     "@vue-leaflet/vue-leaflet": "^0.6.1",

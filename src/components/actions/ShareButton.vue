@@ -3,8 +3,9 @@
     v-if="isShareable"
     @click="shareDetails"
     class="share-button"
+    title="share"
     aria-hidden="false"
-    aria-label="Teilen"
+    aria-label="Share"
   >
     <bootstrap-icon
       icon="share-fill"
