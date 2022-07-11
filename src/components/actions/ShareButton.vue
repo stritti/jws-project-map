@@ -3,9 +3,9 @@
     v-if="isShareable"
     @click="shareDetails"
     class="share-button"
-    title="share"
+    title="Share this Page"
     aria-hidden="false"
-    aria-label="Share"
+    aria-label="Share this Page"
   >
     <bootstrap-icon
       icon="share-fill"

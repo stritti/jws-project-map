@@ -1,11 +1,36 @@
 <template>
-  <div>
+  <div class="header">
+    <b-container>
+      <b-skeleton-wrapper :loading="loading">
+        <template #loading>
+          <b-row>
+            <b-col cols="2">
+              <b-skeleton width="25%" height="10px" />
+            </b-col>
+            <b-col cols="20">
+              <h1><b-skeleton width="75%" height="2rem"></b-skeleton></h1>
+              <h3><b-skeleton with="5em"></b-skeleton></h3>
+            </b-col>
+          </b-row>
+        </template>
+        <div v-if="project">
+          <b-row>
+            <b-col cols="3">
+              <back-button class="back-btn"/>
+            </b-col>
+            <b-col>
+              <h1>{{ project.name }}</h1>
+              <h3><country-label :country-id="project.country" /></h3>
+            </b-col>
+          </b-row>
+        </div>
+      </b-skeleton-wrapper>
+    </b-container>
+  </div>
   <b-container>
     <div class="project-details">
     <b-skeleton-wrapper :loading="loading">
       <template #loading>
-        <h1><b-skeleton width="75%" height="2rem"><h1></h1></b-skeleton></h1>
-        <div><b-skeleton with="5em"></b-skeleton></div>
         <p>
           <b-skeleton width="85%"></b-skeleton>
           <b-skeleton width="55%"></b-skeleton>
@@ -14,37 +39,62 @@
       </template>
 
       <div v-if="project">
-        <back-button class="back-btn"/>
-        <h1>{{ project.name }}</h1>
-        <h3><country-label :country-id="project.country" /></h3>
-      </div>
-      <div v-if="project.teaserImg">
-        <b-img
+        <div class="teaser">
+          <b-img
+            v-if="project.teaserImg"
             :src="project.teaserImg[0].thumbnails.large.url"
             :alt="project.name"
             fluid
+          />
+          <div class="action-bar">
+            <share-button
+              class="action-btn share"
+              :title="project.name"
+              :text="project.name"
+              :url="$route.path"
+              :fixed="true"
+            />
+            <navigate-button
+              class="action-btn navigate"
+              :lat="project.latitude"
+              :lng="project.longitude"
+            />
+          </div>
+        </div>
+
+        <markdown-text
+          v-if="project.notes"
+          :text="project.notes"
         />
-      </div>
-      <markdown-text v-if="project.notes" :text="project.notes" />
 
-      <div v-if="project.gallery">
-        <h2>Gallery</h2>
-        <vue-picture-swipe
-          :items="images"
-          :options="{shareEl: false}"
-        ></vue-picture-swipe>
-      </div>
+        <div v-if="project.gallery">
+          <h2>Gallery</h2>
+          <vue-picture-swipe
+            :items="images"
+            :options="{shareEl: false}"
+          ></vue-picture-swipe>
 
-      <div v-if="project.link">
-        <b-button :href="project.link" variant="primary">
-          more &hellip;
-        </b-button>
+          <div
+            v-for="video in videos"
+            :key="video.src"
+            class="gallery__video">
+            <vue3-video-player
+              :src="video.src"
+              >
+            </vue3-video-player>
+          </div>
+        </div>
+
+        <div v-if="project.link">
+          <b-button :href="project.link" variant="primary">
+            more &hellip;
+          </b-button>
+        </div>
       </div>
     </b-skeleton-wrapper>
     </div>
   </b-container>
   <site-footer />
-  </div>
 </template>
 
 <script>
@@ -55,10 +105,12 @@ import CountryLabel from '@/components/CountryLabel.vue'
 import MarkdownText from '@/components/MarkdownText.vue'
 import SiteFooter from '@/components/SiteFooter.vue'
 import { useLoadingStore } from '@/store/loading.store'
-import BackButton from '@/components/BackButton.vue'
+import BackButton from '@/components/actions/BackButton.vue'
+import ShareButton from '@/components/actions/ShareButton.vue'
+import NavigateButton from '../components/actions/NavigateButton.vue'
 
 export default {
-  components: { CountryLabel, MarkdownText, VuePictureSwipe, SiteFooter, BackButton },
+  components: { CountryLabel, MarkdownText, VuePictureSwipe, SiteFooter, BackButton, ShareButton, NavigateButton },
   name: "ProjectDetailsView",
   computed: {
     ...mapState(useLoadingStore, {
@@ -71,20 +123,55 @@ export default {
       return this.projectById(this.$route.params.projectId)
     },
     images () {
-      return this.project.gallery.map(img => {
-        return {
-          src: img.url,
-          w: img.width,
-          h: img.height,
-          thumbnail: img.thumbnails.large.url
-        }
+      return this.project.gallery
+        .filter(img => img.type.startsWith('image'))
+        .map(img => {
+          return {
+            src: img.url,
+            w: img.width,
+            h: img.height,
+            thumbnail: img.thumbnails.large.url
+          }
+      })
+    },
+    videos () {
+      return this.project.gallery
+        .filter(item => item.type.startsWith('video'))
+        .map(item => {
+          return {
+            src: item.url,
+            type: item.type,
+            size: item.size
+          }
       })
     }
   }
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+.header {
+  padding: 1rem;
+  background-color: #969696;
+  border-bottom: 1px solid #e5e5e5;
+  h3 {
+    color: #e5e5e5;
+  }
+}
+.teaser {
+  position: relative;
+  min-height: 3rem;
+  .action-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+}
+.action-btn {
+  margin: 0.5rem;
+  filter: opacity(0.75);
+}
 .project-details {
   min-height: calc(100vh - 7rem);
   padding: 1rem;
@@ -95,8 +182,16 @@ export default {
 }
 .gallery-thumbnail {
   img {
-    width: 220px;
-    margin: 0.25rem
+    min-width: 220px;
+    width: auto;
+    max-width: 80vw;
+    margin: 0.25rem;
   }
+}
+.gallery__video {
+    min-width: 220px;
+  width: auto;
+  max-width: 80vw;
+  margin: 0.25rem;
 }
 </style>
