@@ -25,7 +25,7 @@ export default {
     padding: 1rem;
     margin-left: 60px;
     position: absolute;
-    z-index: 999;
+    z-index: 10;
     background-color: rgba($color: #ffffff, $alpha: .5);
   }
 

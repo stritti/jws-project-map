@@ -6,6 +6,9 @@ import 'vue3-side-panel/dist/vue3-side-panel.css'
 
 import VuePictureSwipe from 'vue3-picture-swipe';
 
+import Vue3VideoPlayer from '@cloudgeek/vue3-video-player'
+import '@cloudgeek/vue3-video-player/dist/vue3-video-player.css'
+
 import App from './App.vue'
 import router from './router'
 
@@ -33,6 +36,9 @@ app.use(pinia)
 app.use(router)
 app.use(BootstrapVue3)
 app.use(VueSidePanel)
+app.use(Vue3VideoPlayer, {
+    lang: 'en'
+  })
 
 app.component('vue-picture-swipe', VuePictureSwipe)
 

@@ -10,7 +10,9 @@
       :min-zoom="4"
       :zoom="zoom"
       :bounds="bounds"
-      :max-bounds="maxBounds"
+      :max--bounds="maxBounds"
+      :use-global-leaflet="true"
+      :options="mapOptions"
     >
       <l-tile-layer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -89,7 +91,10 @@ export default {
       //locations: [],
       categories: [],
       isOpened: false,
-      selectedLocation: null
+      selectedLocation: null,
+      mapOptions: {
+        zoomSnap: 0.5
+      },
     }
   },
   async mounted () {
@@ -109,9 +114,15 @@ export default {
     // this subscription will be kept after the component is unmounted
     store.$subscribe(() => {
       this.updateMaxBounds()
+
+      /*
+      this.$refs.map.leafletObject.addEventListener('mousemove', (event) => {
+        let lat = Math.round(event.latlng.lat * 100000) / 100000
+        let lng = Math.round(event.latlng.lng * 100000) / 100000
+        console.log(lat, lng)
+      })
+      */
     })
-
-
   },
   methods: {
     onMarkerClick (location) {

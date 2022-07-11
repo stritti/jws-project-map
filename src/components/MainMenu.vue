@@ -7,7 +7,7 @@
       class="m-2"
     >
       <template #button-content>
-        <i class="bi bi-list" role="img" aria-label="Menu"></i> Menu
+        <bootstrap-icon icon="list"/> Menu
       </template>
       <b-dropdown-item to="/">Map</b-dropdown-item>
       <b-dropdown-item to="/project/">List</b-dropdown-item>
@@ -17,7 +17,10 @@
 </template>
 
 <script>
+import BootstrapIcon from '@dvuckovic/vue3-bootstrap-icons'
 export default {
+  name: 'MainMenu',
+  components: {BootstrapIcon}
 
 }
 </script>
