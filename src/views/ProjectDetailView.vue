@@ -15,7 +15,7 @@
         </template>
         <div v-if="project">
           <b-row>
-            <b-col cols="3">
+            <b-col cols="3" md="1">
               <back-button class="back-btn"/>
             </b-col>
             <b-col>
@@ -61,12 +61,16 @@
             />
           </div>
         </div>
-
-        <markdown-text
-          v-if="project.notes"
-          :text="project.notes"
-        />
-
+        <div class="project-details__meta">
+          <div><strong>Project State:</strong> {{ project.state }}</div>
+        </div>
+        <p>
+          <markdown-text
+            v-if="project.notes"
+            class="project-details__notes"
+            :text="project.notes"
+          />
+        </p>
         <div v-if="project.gallery">
           <h2>Gallery</h2>
           <vue-picture-swipe
@@ -110,8 +114,14 @@ import ShareButton from '@/components/actions/ShareButton.vue'
 import NavigateButton from '../components/actions/NavigateButton.vue'
 
 export default {
-  components: { CountryLabel, MarkdownText, VuePictureSwipe, SiteFooter, BackButton, ShareButton, NavigateButton },
   name: "ProjectDetailsView",
+  props: {
+    projectId: {
+      type: String,
+      required: true
+    }
+  },
+  components: { CountryLabel, MarkdownText, VuePictureSwipe, SiteFooter, BackButton, ShareButton, NavigateButton },
   computed: {
     ...mapState(useLoadingStore, {
       loading: state => state.showLoadingSpinner
@@ -172,9 +182,14 @@ export default {
   margin: 0.5rem;
   filter: opacity(0.75);
 }
+
 .project-details {
   min-height: calc(100vh - 7rem);
   padding: 1rem;
+  &__meta, &__notes {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
 }
 .back-btn {
   margin-right: 1rem;
