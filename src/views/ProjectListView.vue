@@ -14,7 +14,7 @@
         </template>
         <b-card-group>
           <project-list-item
-            v-for="project in projectList"
+            v-for="project in filteredProjectList"
             v-bind:key="project.id"
             :project="project"
           />
@@ -43,7 +43,12 @@ export default {
     }),
     ...mapState( useProjectStore, {
       projectList: 'projects'
-    })
+    }),
+    filteredProjectList () {
+      return this.projectList.filter(project => {
+        return project.state === 'finished' || project.state === 'under construction'
+      })
+    }
   }
 }
 </script>
