@@ -37,6 +37,16 @@ const projectService = {
               resolve(locations)
             })
           })
+  },
+  add(latLng, name) {
+    base(BASE_NAME).create([{
+      fields: {
+        Name: name,
+        Published: "draft",
+        Longitude: latLng.lng,
+        Latitude: latLng.lat,
+      }
+    }])
   }
 }
 

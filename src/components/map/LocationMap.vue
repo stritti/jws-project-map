@@ -1,44 +1,60 @@
 <template>
   <div class="map">
-    <b-overlay :show="loadingData" class="map__overlay">
+    <b-overlay :show="showLoadingSpinner" class="map__overlay">
     <l-map
       v-if="locations"
       ref="map"
       class="map"
-      v-model:zoom="zoom" :center="currentCenter"
+      v-model:zoom="zoom"
+      :center="currentCenter"
       crs="EPSG:4326"
       :min-zoom="4"
       :zoom="zoom"
+      :max-zoom="17"
       :bounds="bounds"
       :max--bounds="maxBounds"
       :use-global-leaflet="true"
       :options="mapOptions"
+      @click="addMarker"
     >
+      <l-control-layers ref="control"></l-control-layers>
+      <l-tile-layer
+        url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+        layer-type="base"
+        name="Satellite"
+        attribution="Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
+      ></l-tile-layer>
+
       <l-tile-layer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         layer-type="base"
         name="OpenStreetMap"
         attribution="&copy; <a href=&quot;https://www.openstreetmap.org/copyright&quot;>OpenStreetMap</a> contributors"
       ></l-tile-layer>
-      <l-marker
-        v-for="loc in locations"
-        :key="loc.id"
-        :lat-lng="[loc.latitude, loc.longitude]"
-        :id="loc.id"
-        :layer-type="loc.type"
-        @click="onMarkerClick(loc)"
+      <l-layer-group
+        layerType="overlay"
+        name="Projects"
       >
-        <l-icon
-          :icon-url="getPin(loc)"
-          :class-name="pinClass(loc)"
-          :icon-size="[28, 39]"
-          :icon-anchor="[14, 39]"
-        ></l-icon>
-        <l-tooltip>
-          <span>{{ loc.name }}</span>
-          <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
-        </l-tooltip>
-      </l-marker>
+        <l-marker
+          v-for="loc in locations"
+          :key="loc.id"
+          :lat-lng="[loc.latitude, loc.longitude]"
+          :id="loc.id"
+          :layer-type="loc.type"
+          @click="onMarkerClick(loc)"
+        >
+          <l-icon
+            :icon-url="getPin(loc)"
+            :class-name="pinClass(loc)"
+            :icon-size="[28, 39]"
+            :icon-anchor="[14, 39]"
+          ></l-icon>
+          <l-tooltip>
+            <span>{{ loc.name }}</span>
+            <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+          </l-tooltip>
+        </l-marker>
+      </l-layer-group>
     </l-map>
     </b-overlay>
     <project-details
@@ -58,18 +74,22 @@ import { useProjectStore } from "@/store/project.store"
 import { latLngBounds } from "leaflet"
 import {
   LMap,
+  LControlLayers,
+  LLayerGroup,
   LTileLayer,
   LMarker,
   LIcon,
   LTooltip,
 } from '@vue-leaflet/vue-leaflet'
 import ProjectDetails from '@/components/project/ProjectDetails.vue'
-// import projectService from '@/services/project.service'
+import projectService from '@/services/project.service'
 
 export default {
   name: 'LocationMap',
   components: {
     LMap,
+    LControlLayers,
+    LLayerGroup,
     LMarker,
     LIcon,
     LTileLayer,
@@ -88,7 +108,6 @@ export default {
         [-14.59812590, 5.89972330],
         [8.94900750, 11.32232600]
       ]),
-      //locations: [],
       categories: [],
       isOpened: false,
       selectedLocation: null,
@@ -98,15 +117,6 @@ export default {
     }
   },
   async mounted () {
-    /* const store = useProjectStore()
-    this.locations = await store.projects
-    if(this.locations == null || this.locations.length == 0) {
-      // TODO: why fallback?
-      this.locations = await projectService.getAll()
-    } else {
-      console.info('Using cached projects')
-    }
-    */
     if (this.locations) {
       this.updateMaxBounds()
     }
@@ -125,6 +135,19 @@ export default {
     })
   },
   methods: {
+    addMarker(event) {
+      if(
+        this.zoom >= 9 &&
+        event.latlng &&
+        event.originalEvent.ctrlKey &&
+        event.originalEvent.altKey
+      ) {
+        const name = prompt("Enter name:", "__TBD__");
+        if(name) {
+          projectService.add(event.latlng, name)
+        }
+      }
+    },
     onMarkerClick (location) {
       this.selectedLocation = location
       this.isOpened = true
@@ -137,8 +160,8 @@ export default {
       if(location.category && location.category.length === 0) {
         return '/pins/default.png'
       } else if(location.category && location.category.length === 1) {
-
-        return `/pins/${this.getCategoryById(location.category[0]).name.toLowerCase()}.png`
+        const category = this.getCategoryById(location.category[0])
+        return `/pins/${category?.name.toLowerCase()}.png`
       } else if(location.category && location.category.length > 1) {
 
         let name = ''
@@ -153,7 +176,7 @@ export default {
     },
     pinClass (current) {
       let cssClass = this.selectedLocation?.id === current.id ? 'marker-selected' : ''
-      cssClass += ' marker-state-' + current.state.toLowerCase().replace(' ', '-')
+      cssClass += ' marker-state-' + current.state?.toLowerCase().replace(' ', '-')
       return cssClass
     },
     updateMaxBounds () {
@@ -169,7 +192,7 @@ export default {
       getCategoryById: store => store.getById
     }),
     ...mapState(useLoadingStore, {
-      loadingData: store => store.showLoadingSpinner
+      showLoadingSpinner: store => store.showLoadingSpinner
     }),
     ...mapState(useProjectStore, {
       locations: store => store.projects
@@ -181,6 +204,9 @@ export default {
 <style lang="scss">
 @import "~leaflet/dist/leaflet.css";
 
+.leaflet-top {
+    top: 5rem;
+}
 .leaflet-marker-icon {
   &:hover {
     transform: scale(1.5);
