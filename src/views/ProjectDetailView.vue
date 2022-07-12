@@ -42,6 +42,7 @@
         <div class="teaser">
           <b-img
             v-if="project.teaserImg"
+            class="teaser__img"
             :src="project.teaserImg[0].thumbnails.large.url"
             :alt="project.name"
             fluid
@@ -61,17 +62,46 @@
             />
           </div>
         </div>
-        <div class="project-details__meta">
-          <div><strong>Project State:</strong> {{ project.state }}</div>
-        </div>
-        <p>
+        <h2>Details</h2>
+        <table class="project-details__meta">
+          <tr>
+            <th>State:</th>
+            <td>{{ project.state }}</td>
+          </tr>
+          <tr>
+            <th>Category:</th>
+            <td>
+              <category-badge
+                v-for="category in project.category"
+                v-bind:key="category"
+                :category-id="category"
+              />
+            </td>
+          </tr>
+        </table>
+        <div
+          v-if="project.notes"
+          class="project-details__description"
+        >
+          <hr />
+          <h2>Description</h2>
           <markdown-text
-            v-if="project.notes"
+
             class="project-details__notes"
             :text="project.notes"
           />
-        </p>
-        <div v-if="project.gallery">
+        </div>
+        <div v-if="project.link">
+          <b-button :href="project.link" variant="primary">
+            more &hellip;
+          </b-button>
+        </div>
+
+        <div
+          v-if="project.gallery"
+          class="project-details__gallery"
+        >
+          <hr />
           <h2>Gallery</h2>
           <vue-picture-swipe
             :items="images"
@@ -88,12 +118,6 @@
             </vue3-video-player>
           </div>
         </div>
-
-        <div v-if="project.link">
-          <b-button :href="project.link" variant="primary">
-            more &hellip;
-          </b-button>
-        </div>
       </div>
     </b-skeleton-wrapper>
     </div>
@@ -106,6 +130,7 @@ import { mapState } from 'pinia'
 import { useProjectStore } from '@/store/project.store'
 import VuePictureSwipe from 'vue3-picture-swipe'
 import CountryLabel from '@/components/CountryLabel.vue'
+import CategoryBadge from '@/components/CategoryBadge.vue'
 import MarkdownText from '@/components/MarkdownText.vue'
 import SiteFooter from '@/components/SiteFooter.vue'
 import { useLoadingStore } from '@/store/loading.store'
@@ -121,7 +146,7 @@ export default {
       required: true
     }
   },
-  components: { CountryLabel, MarkdownText, VuePictureSwipe, SiteFooter, BackButton, ShareButton, NavigateButton },
+  components: { CountryLabel, CategoryBadge, MarkdownText, VuePictureSwipe, SiteFooter, BackButton, ShareButton, NavigateButton },
   computed: {
     ...mapState(useLoadingStore, {
       loading: state => state.showLoadingSpinner
@@ -171,6 +196,14 @@ export default {
 .teaser {
   position: relative;
   min-height: 3rem;
+  &__img {
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-height: 40vh;
+    object-fit: cover;
+    object-position: 100% 0;
+  }
   .action-bar {
     position: absolute;
     bottom: 0;
