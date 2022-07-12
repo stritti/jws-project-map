@@ -27,9 +27,7 @@
         </div>
       </template>
       <template #default>
-        <div
-          class="sidepanel__content">
-
+        <div class="sidepanel__content">
           <div v-if="project.teaserImg">
             <b-img
               :src="project.teaserImg[0].thumbnails.large.url"
@@ -40,15 +38,11 @@
           <p>Project State: {{ project.state }}</p>
           <markdown-text :text="project.notes" />
           <b-button :to="`/project/${project.id}`" variant="primary">
-            more &hellip;
+            Project page &hellip;
           </b-button>
         </div>
       </template>
-      <template #footer>
-        <div class="sidepanel__footer">
-         <site-footer />
-        </div>
-      </template>
+
     </VueSidePanel>
 </template>
 
@@ -57,9 +51,8 @@ import { mapState } from "pinia"
 import { useCategoryStore } from "@/store/category.store"
 
 import CategoryBadge from '@/components/CategoryBadge.vue'
-import SiteFooter from '@/components/SiteFooter.vue';
-import CountryLabel from '@/components/CountryLabel.vue';
-import MarkdownText from '../MarkdownText.vue';
+import CountryLabel from '@/components/CountryLabel.vue'
+import MarkdownText from '@/components/MarkdownText.vue'
 
 export default {
     name: "ProjectDetails",
@@ -111,7 +104,7 @@ export default {
         }
       }
     },
-    components: { CategoryBadge, SiteFooter, CountryLabel, MarkdownText }
+    components: { CategoryBadge, CountryLabel, MarkdownText }
 }
 </script>
 
