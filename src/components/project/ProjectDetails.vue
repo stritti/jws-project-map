@@ -40,6 +40,11 @@
           <b-button :to="`/project/${project.id}`" variant="primary">
             Project page &hellip;
           </b-button>
+          <navigate-button
+            class="navigate-btn"
+            :lat="project.latitude"
+            :lng="project.longitude"
+          />
         </div>
       </template>
 
@@ -53,6 +58,7 @@ import { useCategoryStore } from "@/store/category.store"
 import CategoryBadge from '@/components/CategoryBadge.vue'
 import CountryLabel from '@/components/CountryLabel.vue'
 import MarkdownText from '@/components/MarkdownText.vue'
+import NavigateButton from '@/components/actions/NavigateButton.vue'
 
 export default {
     name: "ProjectDetails",
@@ -104,7 +110,7 @@ export default {
         }
       }
     },
-    components: { CategoryBadge, CountryLabel, MarkdownText }
+    components: { CategoryBadge, CountryLabel, MarkdownText, NavigateButton }
 }
 </script>
 
@@ -151,6 +157,12 @@ export default {
     img {
       max-width: 100%;
       max-width: 340px;
+    }
+    .share-btn {
+      margin-left: 0.5rem;
+    }
+    .navigate-btn {
+      margin-left: 0.5rem;
     }
   }
 }
