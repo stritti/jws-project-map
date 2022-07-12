@@ -15,7 +15,7 @@ import router from './router'
 import '@/assets/style-config.scss'
 
 import { createPinia } from 'pinia'
-import persistedstate from 'pinia-persistedstate'
+//import persistedstate from 'pinia-persistedstate'
 
 import { useCountryStore } from '@/store/country.store'
 import { useCategoryStore } from '@/store/category.store'
@@ -23,12 +23,13 @@ import { useProjectStore } from '@/store/project.store'
 
 
 const pinia = createPinia()
-pinia.use(
+/*pinia.use(
     persistedstate({
       key: 'jws-pinia-state',
-      // paths: ['dataStore', 'dataStore.count']  // Keep state, use module id, or state
+      paths: ['category', 'country', 'project']  // Keep state, use module id, or state
     })
   )
+*/
 
 const app = createApp(App)
 
