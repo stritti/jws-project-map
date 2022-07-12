@@ -13,7 +13,7 @@
         {{ project.name }}
         <span v-if="project.country"> - <country-label :country-id="project.country" /></span>
       </h3>
-      <b-card-body>
+      <b-card-body sub-title="">
         <category-badge
           v-for="category in project.category"
           v-bind:key="category"
@@ -43,14 +43,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
 .project-list-item {
   width: 320px;
   margin: 10px;
-
-  a {
-    color: inherit;
-    text-decoration: none;
-  }
 
   &__title {
     padding: 1rem;
