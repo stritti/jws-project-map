@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 
 export const useLoadingStore = defineStore('loading', {
   state: () => ({
-    loading: false
+    loading: 0
   }),
   getters: {
     showLoadingSpinner: (state) => state.loading > 0
@@ -10,10 +10,10 @@ export const useLoadingStore = defineStore('loading', {
   actions: {
     /**
      * Update Loading Spinner
-     * @param {boolean} loading
+     * @param {boolean} flag
      */
-    updateLoading (loading) {
-      if(loading) {
+    updateLoading (flag) {
+      if(flag) {
         this.loading++
       } else {
         this.loading--
