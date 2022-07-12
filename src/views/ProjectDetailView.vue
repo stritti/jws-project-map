@@ -64,11 +64,23 @@
         </div>
         <h2>Details</h2>
         <table class="project-details__meta">
-          <tr>
+          <tr v-if="project.name">
+            <th>Name:</th>
+            <td>{{ project.name }}</td>
+          </tr>
+          <tr v-if="project.country">
+            <th>Country:</th>
+            <td><country-label :country-id="project.country" /></td>
+          </tr>
+          <tr v-if="project.state">
             <th>State:</th>
             <td>{{ project.state }}</td>
           </tr>
-          <tr>
+          <tr v-if="project.since">
+            <th>Since:</th>
+            <td>{{ project.since }}</td>
+          </tr>
+          <tr v-if="project.category">
             <th>Category:</th>
             <td>
               <category-badge
@@ -86,11 +98,11 @@
           <hr />
           <h2>Description</h2>
           <markdown-text
-
             class="project-details__notes"
             :text="project.notes"
           />
         </div>
+
         <div v-if="project.link">
           <b-button :href="project.link" variant="primary">
             more &hellip;
@@ -202,7 +214,7 @@ export default {
     width: 100%;
     max-height: 40vh;
     object-fit: cover;
-    object-position: 100% 0;
+    object-position: 50% 0;
   }
   .action-bar {
     position: absolute;
