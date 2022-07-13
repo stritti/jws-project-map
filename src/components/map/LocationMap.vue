@@ -98,7 +98,7 @@ export default {
   },
   data () {
     return {
-      zoom: 5,
+      zoom: 5.5,
       currentCenter: [10.125649489417905, -1.9710101407658698],
       bounds: latLngBounds([
         [-14.59812590, 5.89972330],
