@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <h1>JWF + Humanaktiv: Wells and Schools in Westafrica</h1>
+    <h1>JWF + Humanaktiv: Projects in Westafrica</h1>
     <div class="project-map">
       <location-map />
     </div>
