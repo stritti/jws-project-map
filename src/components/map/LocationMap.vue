@@ -166,7 +166,8 @@ export default {
 
         let name = ''
         location.category.forEach( (obj, i) => {
-          name += `${this.getCategoryById(location.category[i]).name}-`
+          const category = this.getCategoryById(location.category[i])
+          name += `${category?.name}-`
         })
         name = name.slice(0, -1)
         return `/pins/${name.toLowerCase()}.png`
