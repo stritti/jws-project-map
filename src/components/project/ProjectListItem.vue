@@ -11,14 +11,14 @@
 
       <h3 class="project-list-item__title">
         {{ project.name }}
-        <span v-if="project.country"> - <country-label :country-id="project.country" /></span>
       </h3>
-      <b-card-body sub-title="">
+      <b-card-body :sub-title="null">
         <category-badge
           v-for="category in project.category"
           v-bind:key="category"
           :category-id="category"
         />
+        <div v-if="project.country"><country-label :country-id="project.country" /></div>
         <div>Project State: {{ project.state }}</div>
       </b-card-body>
     </b-card>
@@ -61,13 +61,13 @@ a {
   }
 }
 .teaser-img {
-  width: 320px;
+  width: auto;
   height: 200px;
   object-fit: cover;
   object-position: 100% 0;
 }
 .teaser-img-placeholder {
-  width: 320px;
+  width: auto;
   height: 200px;
   background-color: #eee;
 }
