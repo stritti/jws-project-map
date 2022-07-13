@@ -212,9 +212,9 @@ export default {
     top: 0;
     left: 0;
     width: 100%;
-    max-height: 40vh;
+    max-height: 50vh;
     object-fit: cover;
-    object-position: 50% 0;
+    object-position: 50% 50%;
   }
   .action-bar {
     position: absolute;
