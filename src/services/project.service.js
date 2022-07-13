@@ -23,6 +23,7 @@ const projectService = {
                   longitude: partialRecords.fields?.Longitude,
                   link: partialRecords.fields?.Link,
                   state: partialRecords.fields?.State,
+                  since: partialRecords.fields?.Since,
                   gallery: partialRecords.fields?.Gallery
                 }
 
