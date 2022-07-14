@@ -98,14 +98,14 @@ export default {
   },
   data () {
     return {
-      zoom: 5.5,
-      currentCenter: [10.125649489417905, -1.9710101407658698],
+      zoom: 5,
+      currentCenter: [7.0, -3.5],
       bounds: latLngBounds([
         [-14.59812590, 5.89972330],
         [8.94900750, 11.32232600]
       ]),
       maxBounds: latLngBounds([
-        [-14.59812590, 5.89972330],
+        [-14.6000000, 5.900000000],
         [8.94900750, 11.32232600]
       ]),
       categories: [],
