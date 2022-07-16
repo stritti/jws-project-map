@@ -271,10 +271,10 @@ export default {
       return `Projects (${this.projectsFinished.length})`
     },
     layerLabelProjectsUnderConstruction () {
-      return `Projects: under construction (${this.projectsUnderConstruction.length})`
+      return `Projects under construction (${this.projectsUnderConstruction.length})`
     },
     layerLabelProjectsPlanned () {
-      return `Projects:planned (${this.projectsPlanned.length})`
+      return `planned Projects (${this.projectsPlanned.length})`
     }
   }
 }
