@@ -2,7 +2,7 @@
   <div class="map">
     <b-overlay :show="showLoadingSpinner && locations.length > 0" class="map__overlay">
     <l-map
-      v-if="locations"
+      v-if="locations.length > 0"
       ref="map"
       class="map"
       v-model:zoom="zoom"
@@ -33,7 +33,7 @@
       ></l-tile-layer>
       <l-layer-group
         layerType="overlay"
-        :name="`Projects (${ projectsFinished.length })`"
+        :name="layerLabelProjectsFinished"
       >
         <l-marker
           v-for="loc in projectsFinished"
@@ -57,7 +57,7 @@
       </l-layer-group>
       <l-layer-group
         layerType="overlay"
-        :name="`Projects: under construction (${projectsUnderConstruction.length})`"
+        :name="layerLabelProjectsUnderConstruction"
       >
         <l-marker
           v-for="loc in projectsUnderConstruction"
@@ -81,7 +81,7 @@
       </l-layer-group>
 <l-layer-group
         layerType="overlay"
-        :name="`Projects: planned (${projectsPlanned.length})`"
+        :name="layerLabelProjectsPlanned"
       >
         <l-marker
           v-for="loc in projectsPlanned"
@@ -266,6 +266,15 @@ export default {
       } else {
         return []
       }
+    },
+    layerLabelProjectsFinished () {
+      return `Projects (${this.projectsFinished.length})`
+    },
+    layerLabelProjectsUnderConstruction () {
+      return `Projects: under construction (${this.projectsUnderConstruction.length})`
+    },
+    layerLabelProjectsPlanned () {
+      return `Projects:planned (${this.projectsPlanned.length})`
     }
   }
 }
