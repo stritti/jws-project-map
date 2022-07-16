@@ -1,6 +1,6 @@
 <template>
   <div class="map">
-    <b-overlay :show="showLoadingSpinner" class="map__overlay">
+    <b-overlay :show="showLoadingSpinner && locations.length > 0" class="map__overlay">
     <l-map
       v-if="locations"
       ref="map"
@@ -33,10 +33,58 @@
       ></l-tile-layer>
       <l-layer-group
         layerType="overlay"
-        name="Projects"
+        :name="`Projects (${ projectsFinished.length })`"
       >
         <l-marker
-          v-for="loc in locations"
+          v-for="loc in projectsFinished"
+          :key="loc.id"
+          :lat-lng="[loc.latitude, loc.longitude]"
+          :id="loc.id"
+          :layer-type="loc.type"
+          @click="onMarkerClick(loc)"
+        >
+          <l-icon
+            :icon-url="getPin(loc)"
+            :class-name="pinClass(loc)"
+            :icon-size="[28, 39]"
+            :icon-anchor="[14, 39]"
+          ></l-icon>
+          <l-tooltip>
+            <span>{{ loc.name }}</span>
+            <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+          </l-tooltip>
+        </l-marker>
+      </l-layer-group>
+      <l-layer-group
+        layerType="overlay"
+        :name="`Projects: under construction (${projectsUnderConstruction.length})`"
+      >
+        <l-marker
+          v-for="loc in projectsUnderConstruction"
+          :key="loc.id"
+          :lat-lng="[loc.latitude, loc.longitude]"
+          :id="loc.id"
+          :layer-type="loc.type"
+          @click="onMarkerClick(loc)"
+        >
+          <l-icon
+            :icon-url="getPin(loc)"
+            :class-name="pinClass(loc)"
+            :icon-size="[28, 39]"
+            :icon-anchor="[14, 39]"
+          ></l-icon>
+          <l-tooltip>
+            <span>{{ loc.name }}</span>
+            <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+          </l-tooltip>
+        </l-marker>
+      </l-layer-group>
+<l-layer-group
+        layerType="overlay"
+        :name="`Projects: planned (${projectsPlanned.length})`"
+      >
+        <l-marker
+          v-for="loc in projectsPlanned"
           :key="loc.id"
           :lat-lng="[loc.latitude, loc.longitude]"
           :id="loc.id"
@@ -190,14 +238,35 @@ export default {
   },
   computed: {
     ...mapState(useCategoryStore, {
-      getCategoryById: store => store.getById
+      getCategoryById: 'getById'
     }),
     ...mapState(useLoadingStore, {
-      showLoadingSpinner: store => store.showLoadingSpinner
+      showLoadingSpinner: 'showLoadingSpinner'
     }),
-    ...mapState(useProjectStore, {
-      locations: store => store.projects
-    })
+    ...mapState( useProjectStore, {
+      locations: 'projects'
+    }),
+    projectsFinished () {
+      if (this.locations.length > 0) {
+        return this.locations.filter(loc => loc.state === 'finished')
+      } else {
+        return []
+      }
+    },
+    projectsUnderConstruction () {
+      if (this.locations.length > 0) {
+        return this.locations.filter(loc => loc.state === 'under construction')
+      } else {
+        return []
+      }
+    },
+    projectsPlanned () {
+      if (this.locations.length > 0) {
+        return this.locations.filter(loc => loc.state === 'planned')
+      } else {
+        return []
+      }
+    }
   }
 }
 </script>
