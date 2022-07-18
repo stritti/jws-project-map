@@ -9,7 +9,6 @@
             </b-col>
             <b-col cols="20">
               <h1><b-skeleton width="75%" height="2rem"></b-skeleton></h1>
-              <h3><b-skeleton with="5em"></b-skeleton></h3>
             </b-col>
           </b-row>
         </template>
@@ -19,14 +18,48 @@
               <back-button class="back-btn"/>
             </b-col>
             <b-col>
-              <h1>{{ project.name }}</h1>
-              <h3><country-label :country-id="project.country" /></h3>
+              <h1>
+                {{ project.name }}
+              </h1>
+            </b-col>
+            <b-col cols="3" class="text-end">
+              <category-badge
+                v-for="category in project.category"
+                v-bind:key="category"
+                :category-id="category"
+              />
             </b-col>
           </b-row>
         </div>
       </b-skeleton-wrapper>
     </b-container>
   </div>
+    <b-container fluid>
+      <b-skeleton-wrapper :loading="loading">
+        <div class="teaser" v-if="project">
+          <div
+            v-if="project.teaserImg"
+            class="teaser__img"
+            :style="{ backgroundImage: `url(${project.teaserImg[0].thumbnails.large.url})` }"
+          >
+            <div class="action-bar container">
+              <share-button
+                class="action-btn share"
+                :title="project.name"
+                :text="project.name"
+                :url="$route.path"
+                :fixed="true"
+              />
+              <navigate-button
+                class="action-btn navigate"
+                :lat="project.latitude"
+                :lng="project.longitude"
+              />
+            </div>
+          </div>
+        </div>
+      </b-skeleton-wrapper>
+    </b-container>
   <b-container>
     <div class="project-details">
     <b-skeleton-wrapper :loading="loading">
@@ -39,29 +72,7 @@
       </template>
 
       <div v-if="project">
-        <div class="teaser">
-          <b-img
-            v-if="project.teaserImg"
-            class="teaser__img"
-            :src="project.teaserImg[0].thumbnails.large.url"
-            :alt="project.name"
-            fluid
-          />
-          <div class="action-bar">
-            <share-button
-              class="action-btn share"
-              :title="project.name"
-              :text="project.name"
-              :url="$route.path"
-              :fixed="true"
-            />
-            <navigate-button
-              class="action-btn navigate"
-              :lat="project.latitude"
-              :lng="project.longitude"
-            />
-          </div>
-        </div>
+
         <h2>Details</h2>
         <table class="project-details__meta">
           <tr v-if="project.name">
@@ -126,6 +137,9 @@
             class="gallery__video">
             <vue3-video-player
               :src="video.src"
+              :type="video.type"
+              :muted="false"
+              preload="auto"
               >
             </vue3-video-player>
           </div>
@@ -148,7 +162,7 @@ import SiteFooter from '@/components/SiteFooter.vue'
 import { useLoadingStore } from '@/store/loading.store'
 import BackButton from '@/components/actions/BackButton.vue'
 import ShareButton from '@/components/actions/ShareButton.vue'
-import NavigateButton from '../components/actions/NavigateButton.vue'
+import NavigateButton from '@/components/actions/NavigateButton.vue'
 
 export default {
   name: "ProjectDetailsView",
@@ -197,24 +211,30 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.container-fluid {
+  padding: 0;
+}
 .header {
-  padding: 1rem;
+  position: sticky;
+  padding-top: 1rem;
   background-color: #969696;
-  border-bottom: 1px solid #e5e5e5;
-  h3 {
-    color: #e5e5e5;
-  }
+  border-bottom: 1px solid #4d4d4d;
+  z-index: 99;
 }
 .teaser {
-  position: relative;
-  min-height: 3rem;
+  height: 66vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  perspective: 2px;
   &__img {
-    top: 0;
-    left: 0;
-    width: 100%;
-    max-height: 50vh;
-    object-fit: cover;
-    object-position: 50% 50%;
+    /* Full height */
+    height: 100%;
+
+    /* Create the parallax scrolling effect */
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
   }
   .action-bar {
     position: absolute;
