@@ -4,7 +4,7 @@ import BootstrapVue3 from 'bootstrap-vue-3'
 import VueSidePanel from 'vue3-side-panel'
 import 'vue3-side-panel/dist/vue3-side-panel.css'
 
-import VuePictureSwipe from 'vue3-picture-swipe';
+import VuePictureSwipe from 'vue3-picture-swipe'
 
 import Vue3VideoPlayer from '@cloudgeek/vue3-video-player'
 import '@cloudgeek/vue3-video-player/dist/vue3-video-player.css'
