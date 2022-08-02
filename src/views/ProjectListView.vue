@@ -12,6 +12,11 @@
             <b-skeleton width="70%"></b-skeleton>
           </p>
         </template>
+        <p>
+          Projects: {{ projectCount }}
+          (including: {{ projectsUnderConstruction.length }} under construction,
+          {{ projectsPlanned.length }} planned)
+        </p>
         <b-card-group>
           <project-list-item
             v-for="project in filteredProjectList"
@@ -44,10 +49,34 @@ export default {
     ...mapState( useProjectStore, {
       projectList: 'projects'
     }),
+    projectCount () {
+      return this.projectList.length
+    },
     filteredProjectList () {
       return this.projectList.filter(project => {
-        return project.state === 'finished' || project.state === 'under construction'
+        return project.state === 'finished' || project.state === 'under construction' || project.state === 'planned'
       })
+    },
+    projectsFinished () {
+      if (this.projectList.length > 0) {
+        return this.projectList.filter(loc => loc.state === 'finished')
+      } else {
+        return []
+      }
+    },
+    projectsUnderConstruction () {
+      if (this.projectList.length > 0) {
+        return this.projectList.filter(loc => loc.state === 'under construction')
+      } else {
+        return []
+      }
+    },
+    projectsPlanned () {
+      if (this.projectList.length > 0) {
+        return this.projectList.filter(loc => loc.state === 'planned')
+      } else {
+        return []
+      }
     }
   }
 }
