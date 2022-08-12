@@ -17,6 +17,13 @@
           (including: {{ projectsUnderConstruction.length }} under construction,
           {{ projectsPlanned.length }} planned)
         </p>
+        
+        <div id="myBtnContainer">
+          <button class="btn active" @click="filterSelection('showall')">Show All</button>
+          <button class="btn active" @click="filterSelection('finished')">Finished</button>
+          <button class="btn active" @click="filterSelection('under construction')">Under Construction</button>
+          <button class="btn active" @click="filterSelection('planned')">Planned</button>
+        </div>
         <b-card-group>
           <project-list-item
             v-for="project in filteredProjectList"
@@ -41,7 +48,11 @@ import SiteFooter from '@/components/SiteFooter.vue'
 export default {
   components: { ProjectListItem, SiteFooter },
   name: "ProjectDetailsView",
-
+  data() {
+    return {
+      filter: ['showall']
+    }
+  },
   computed: {
     ...mapState( useLoadingStore, {
       loading: 'showLoadingSpinner'
@@ -54,7 +65,12 @@ export default {
     },
     filteredProjectList () {
       return this.projectList.filter(project => {
-        return project.state === 'finished' || project.state === 'under construction' || project.state === 'planned'
+        if (this.filter == 'showall') {
+          return project.state === 'finished' || project.state === 'under construction' || project.state === 'planned'
+        }
+        else {
+          return project.state === this.filter[0]
+        }
       })
     },
     projectsFinished () {
@@ -78,6 +94,12 @@ export default {
         return []
       }
     }
+  },
+  methods: {
+    filterSelection (filter) {
+      console.log(filter)
+      this.filter = [filter]
+    } 
   }
 }
 </script>
