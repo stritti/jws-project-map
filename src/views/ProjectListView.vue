@@ -17,6 +17,13 @@
           (including: {{ projectsUnderConstruction.length }} under construction,
           {{ projectsPlanned.length }} planned)
         </p>
+        <b-form-group label="Project State Filter">
+          <b-form-checkbox-group
+            v-model="stateFilter"
+            :options="stateOptions"
+          >
+          </b-form-checkbox-group>
+        </b-form-group>
         <b-card-group>
           <project-list-item
             v-for="project in filteredProjectList"
@@ -41,7 +48,16 @@ import SiteFooter from '@/components/SiteFooter.vue'
 export default {
   components: { ProjectListItem, SiteFooter },
   name: "ProjectDetailsView",
-
+  data() {
+    return {
+      stateFilter: ['finished', 'planned', 'under construction'],
+      stateOptions: [
+        { text: 'finished', value: 'finished' },
+        { text: 'under construction', value: 'under construction' },
+        { text: 'planned', value: 'planned' }
+      ]
+    }
+  },
   computed: {
     ...mapState( useLoadingStore, {
       loading: 'showLoadingSpinner'
@@ -53,9 +69,13 @@ export default {
       return this.projectList.length
     },
     filteredProjectList () {
-      return this.projectList.filter(project => {
-        return project.state === 'finished' || project.state === 'under construction' || project.state === 'planned'
-      })
+      let filteredList = []
+      for ( let i = 0; i < this.projectList.length; i++ ) {
+        if ( this.stateFilter.includes(this.projectList[i].state) ) {
+          filteredList.push(this.projectList[i])
+        }
+      }
+      return filteredList
     },
     projectsFinished () {
       if (this.projectList.length > 0) {
