@@ -17,13 +17,13 @@
           (including: {{ projectsUnderConstruction.length }} under construction,
           {{ projectsPlanned.length }} planned)
         </p>
-        
-        <div id="myBtnContainer">
-          <button class="btn active" @click="filterSelection('showall')">Show All</button>
-          <button class="btn active" @click="filterSelection('finished')">Finished</button>
-          <button class="btn active" @click="filterSelection('under construction')">Under Construction</button>
-          <button class="btn active" @click="filterSelection('planned')">Planned</button>
-        </div>
+        <b-form-group label="Project State Filter">
+          <b-form-checkbox-group
+            v-model="stateFilter"
+            :options="stateOptions"
+          >
+          </b-form-checkbox-group>
+        </b-form-group>
         <b-card-group>
           <project-list-item
             v-for="project in filteredProjectList"
@@ -50,7 +50,12 @@ export default {
   name: "ProjectDetailsView",
   data() {
     return {
-      filter: ['showall']
+      stateFilter: ['finished', 'planned', 'under construction'],
+      stateOptions: [
+        { text: 'finished', value: 'finished' },
+        { text: 'under construction', value: 'under construction' },
+        { text: 'planned', value: 'planned' }
+      ]
     }
   },
   computed: {
@@ -64,14 +69,13 @@ export default {
       return this.projectList.length
     },
     filteredProjectList () {
-      return this.projectList.filter(project => {
-        if (this.filter == 'showall') {
-          return project.state === 'finished' || project.state === 'under construction' || project.state === 'planned'
+      let filteredList = []
+      for ( let i = 0; i < this.projectList.length; i++ ) {
+        if ( this.stateFilter.includes(this.projectList[i].state) ) {
+          filteredList.push(this.projectList[i])
         }
-        else {
-          return project.state === this.filter[0]
-        }
-      })
+      }
+      return filteredList
     },
     projectsFinished () {
       if (this.projectList.length > 0) {
@@ -94,12 +98,6 @@ export default {
         return []
       }
     }
-  },
-  methods: {
-    filterSelection (filter) {
-      console.log(filter)
-      this.filter = [filter]
-    } 
   }
 }
 </script>
