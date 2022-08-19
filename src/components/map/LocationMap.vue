@@ -79,7 +79,7 @@
           </l-tooltip>
         </l-marker>
       </l-layer-group>
-<l-layer-group
+      <l-layer-group
         layerType="overlay"
         :name="layerLabelProjectsPlanned"
       >
@@ -268,13 +268,13 @@ export default {
       }
     },
     layerLabelProjectsFinished () {
-      return `Projects (${this.projectsFinished.length})`
+      return `Projects: finished (${this.projectsFinished.length})`
     },
     layerLabelProjectsUnderConstruction () {
-      return `Projects under construction (${this.projectsUnderConstruction.length})`
+      return `Projects: under construction (${this.projectsUnderConstruction.length})`
     },
     layerLabelProjectsPlanned () {
-      return `planned Projects (${this.projectsPlanned.length})`
+      return `Projects: planned (${this.projectsPlanned.length})`
     }
   }
 }
