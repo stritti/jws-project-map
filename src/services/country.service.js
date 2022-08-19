@@ -7,7 +7,10 @@ const categoryService = {
     return new Promise((resolve, reject) => {
       const locations = []
       base(BASE_NAME)
-        .select().eachPage(
+        .select({
+            sort: [{field: 'Name', direction: 'asc'}],
+            filterByFormula: 'COUNTA(Project) > 0'
+          }).eachPage(
           function page (partialRecords, fetchNextPage) {
             partialRecords.forEach((partialRecords) => {
               locations.push({
