@@ -38,9 +38,8 @@
       <b-skeleton-wrapper :loading="loading">
         <div class="teaser" v-if="project">
           <div
-            v-if="project.teaserImg"
             class="teaser__img"
-            :style="{ backgroundImage: `url(${project.teaserImg[0].thumbnails.large.url})` }"
+            :style="{ backgroundImage: `url(${teaserImage})` }"
           >
             <div class="action-bar container">
               <share-button
@@ -182,6 +181,14 @@ export default {
     }),
     project () {
       return this.projectById(this.$route.params.projectId)
+    },
+    teaserImage () {
+      if(this.project.teaserImg) {
+        return this.project.teaserImg[0].thumbnails.large.url
+      } else {
+        return '/placeholder.png'
+      }
+
     },
     images () {
       return this.project.gallery

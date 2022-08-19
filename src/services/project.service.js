@@ -8,6 +8,7 @@ const projectService = {
         const locations = []
         base(BASE_NAME)
           .select({
+            sort: [{field: 'Name', direction: 'asc'}],
             view: 'published'
           }).eachPage(
             function page (partialRecords, fetchNextPage) {

@@ -1,15 +1,13 @@
 <template>
   <router-link :to="`/project/${project.id}`">
     <b-card class="project-list-item" no-body>
-      <b-card-img v-if="project.teaserImg"
-        class="teaser-img"
-        :src="project.teaserImg[0].thumbnails.large.url"
+      <b-card-img
+        :class="imageStyleClasses"
+        :src="teaserImage"
         :alt="project.name"
         top
       />
-      <div v-else class="teaser-img-placeholder"></div>
-
-      <h3 class="project-list-item__title">
+      <h3 class="project-list-item__title text-truncate">
         {{ project.name }}
       </h3>
       <b-card-body :sub-title="null">
@@ -35,8 +33,20 @@ export default {
   props: {
     project: {
       type: Object,
-      required: false,
-      default: null
+      required: true
+    }
+  },
+  computed: {
+    teaserImage () {
+      if(this.project.teaserImg) {
+        return this.project.teaserImg[0].thumbnails.large.url
+      } else {
+        return '/placeholder.png'
+      }
+
+    },
+    imageStyleClasses () {
+      return this.project.state.replace(' ', '-')
     }
   }
 }
@@ -49,8 +59,7 @@ a {
 }
 
 .project-list-item {
-  width: 320px;
-  margin: 10px;
+
 
   &__title {
     padding: 1rem;
@@ -58,18 +67,43 @@ a {
     text-decoration: none;
     color: #eee;
     background-color: rgb(61, 94, 158);
+
+  }
+
+  .card-img-top {
+    max-height: 280px;
+    object-fit: cover;
+    object-position: 100% 0;
+
+    &.under-construction {
+      filter:grayscale(0.85)
+
+      &::after {
+        content: "... still under construction ...";
+        position: absolute;
+        top: 80px;
+        white-space: pre;
+        right: 15px;
+        font-weight: bold;
+        text-align: right;
+        font-size: 30px;
+      }
+    }
+
+    &.planned {
+      filter:grayscale(0.85)
+
+      &::after {
+        content: "just planned";
+        position: absolute;
+        top: 80px;
+        white-space: pre;
+        right: 15px;
+        font-weight: bold;
+        text-align: right;
+        font-size: 30px;
+      }
+    }
   }
 }
-.teaser-img {
-  width: auto;
-  height: 200px;
-  object-fit: cover;
-  object-position: 100% 0;
-}
-.teaser-img-placeholder {
-  width: auto;
-  height: 200px;
-  background-color: #eee;
-}
-
 </style>
