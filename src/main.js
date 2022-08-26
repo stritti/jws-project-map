@@ -18,6 +18,7 @@ import { createPinia } from 'pinia'
 import { useCountryStore } from '@/store/country.store'
 import { useCategoryStore } from '@/store/category.store'
 import { useProjectStore } from '@/store/project.store'
+import './registerServiceWorker'
 
 
 const pinia = createPinia()

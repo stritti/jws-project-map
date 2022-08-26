@@ -20,8 +20,8 @@ export default {
 <style lang="scss" scoped>
 .home {
   h1 {
-    top: 0;
-    right: 0;
+    top: env(safe-area-inset-top);
+    right: env(safe-area-inset-right);
     padding: 1rem;
     margin-left: 60px;
     position: absolute;

@@ -22,6 +22,7 @@
     "pinia": "^2.0.20",
     "primeicons": "^5.0.0",
     "primevue": "^3.16.2",
+    "register-service-worker": "^1.7.2",
     "router": "^1.3.7",
     "vue": "^3.2.13",
     "vue-router": "^4.1.4",
@@ -34,6 +35,7 @@
     "@babel/eslint-parser": "^7.12.16",
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
+    "@vue/cli-plugin-pwa": "~5.0.0",
     "@vue/cli-plugin-router": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "eslint": "^8.22.0",
@@ -57,9 +59,6 @@
     "rules": {}
   },
   "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead",
-    "not ie 11"
+    "> 0.1% and last 3 versions and not dead and not ie 11"
   ]
 }

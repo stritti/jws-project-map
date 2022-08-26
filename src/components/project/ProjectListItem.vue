@@ -41,7 +41,7 @@ export default {
       if(this.project.teaserImg) {
         return this.project.teaserImg[0].thumbnails.large.url
       } else {
-        return '/placeholder.png'
+        return '/img/placeholder.png'
       }
 
     },
