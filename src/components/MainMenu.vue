@@ -20,16 +20,13 @@
 import BootstrapIcon from '@dvuckovic/vue3-bootstrap-icons'
 export default {
   name: 'MainMenu',
-  components: {BootstrapIcon}
+  components: { BootstrapIcon }
 
 }
 </script>
 
 <style lang="scss" scoped>
 .main-menu {
-  position: fixed;
-  bottom: 1rem;
-  top: calc(100vh - 4rem);
   z-index: 999;
   filter: drop-shadow(4px 4px 4px rgb(25, 25, 25));
 }

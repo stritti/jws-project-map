@@ -1,6 +1,5 @@
 <template>
   <div class="map">
-    <b-overlay :show="showLoadingSpinner && locations.length > 0" class="map__overlay">
     <l-map
       v-if="locations.length > 0"
       ref="map"
@@ -17,7 +16,7 @@
       :options="mapOptions"
       @click="addMarker"
     >
-      <l-control-layers ref="control"></l-control-layers>
+      <l-control-layers ref="control" position="bottomright"></l-control-layers>
       <l-tile-layer
         url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
         layer-type="base"
@@ -104,7 +103,6 @@
         </l-marker>
       </l-layer-group>
     </l-map>
-    </b-overlay>
     <project-details
      :project="selectedLocation"
      :is-opened="isOpened"
@@ -284,7 +282,20 @@ export default {
 @import "~leaflet/dist/leaflet.css";
 
 .leaflet-top {
-    top: 5rem;
+  top: calc(5rem + env(safe-area-inset-top));
+}
+.leaflet-left {
+  left: env(safe-area-inset-left);
+}
+.leaflet-right {
+  right: env(safe-area-inset-right);
+}
+.leaflet-bottom {
+  bottom: env(safe-area-inset-bottom);
+}
+.leaflet-control-attribution {
+  max-width: calc(100vw - 8.5rem);
+  font-size: 0.75rem;
 }
 .leaflet-marker-icon {
   &:hover {
@@ -312,17 +323,8 @@ export default {
   filter: opacity(1);
 }
 
-
 .map {
-  width: auto;
-  height: 100vh;
-
-  &__overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-  }
+  width: 100%;
+  height: 100%;
 }
 </style>
