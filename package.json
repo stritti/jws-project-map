@@ -19,7 +19,7 @@
     "flag-icons": "^6.6.6",
     "leaflet": "^1.8.0",
     "leaflet.path.drag": "^0.0.6",
-    "pinia": "^2.0.20",
+    "pinia": "^2.0.21",
     "primeicons": "^5.0.0",
     "primevue": "^3.16.2",
     "register-service-worker": "^1.7.2",
