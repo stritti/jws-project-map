@@ -6191,10 +6191,10 @@ primeicons@^5.0.0:
   resolved "https://registry.yarnpkg.com/primeicons/-/primeicons-5.0.0.tgz#73a0b6028a77c58a9eeb331ad13aaf085e8451ee"
   integrity sha512-heygWF0X5HFI1otlZE62pp6ye7sZ8om78J9au2BRkg8O7Y8AHTZ9qKMRzchZUHLe8zUAvdi6hZzzm9XxgwIExw==
 
-primevue@^3.16.2:
-  version "3.16.2"
-  resolved "https://registry.yarnpkg.com/primevue/-/primevue-3.16.2.tgz#07b3b519e12579921801d17836c060a0973f71bc"
-  integrity sha512-wvZj0kEnpVFZDb3vLy7SFrjZaPBjrznt4iq/CiLmofcPETwxQjbr7E+8ZFtPiQR1oUvhXyQ/Lyu9yTj9TjA0+g==
+primevue@^3.17.0:
+  version "3.17.0"
+  resolved "https://registry.yarnpkg.com/primevue/-/primevue-3.17.0.tgz#42936873808966a3eaf48345efcbad37262cff39"
+  integrity sha512-z7ZCHk4kgkHJ29hg0izN1M8Xst2MOObimq62waE2TDE8ztH9mp2sAdGGsQu1shMa4/23dZ+fcN4t+KpYNICRyQ==
 
 process-nextick-args@~2.0.0:
   version "2.0.1"
@@ -7580,10 +7580,10 @@ vue3-picture-swipe@^3.0.6:
   resolved "https://registry.yarnpkg.com/vue3-picture-swipe/-/vue3-picture-swipe-3.0.6.tgz#852669cb970543756b3408eef5dac5eaff86a43d"
   integrity sha512-tCoWJr5cXZMk8hlycPPdo9UCl5m3ZChDVdDhHdiJedtkTZL6H0wYV6mZvL8Lz6e80kpiIXxsoltJobcePnKB0A==
 
-vue3-side-panel@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/vue3-side-panel/-/vue3-side-panel-1.0.2.tgz#21c6949d04da4a55b012cd363b9325483f00eeaa"
-  integrity sha512-T+wsWihY9KxsvYa3Ca8WkOkYmYsbaXfUtV1PWTXK2YGWWkzYVWwBXv5FcwOqoda5o0KuOmTpHTRzAVhwGJ/qcw==
+vue3-side-panel@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/vue3-side-panel/-/vue3-side-panel-1.0.3.tgz#8d86d5265f45eb62dbef1321a2a21a51f1a4f172"
+  integrity sha512-mfpn+gXAK5Yt3dJRzZX9mZla63qsmW/7XeFYQhCFnXhQFWPXRSsRwAmVDCSGOsu862h6YErno1JZ+Ih9560/BA==
   dependencies:
     body-scroll-lock "^4.0.0-beta.0"
 
