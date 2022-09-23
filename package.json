@@ -17,7 +17,7 @@
     "bootstrap-vue-3": "^0.3.3",
     "core-js": "^3.25.2",
     "flag-icons": "^6.6.6",
-    "leaflet": "^1.8.0",
+    "leaflet": "^1.9.0",
     "leaflet.path.drag": "^0.0.6",
     "pinia": "^2.0.22",
     "primeicons": "^5.0.0",
