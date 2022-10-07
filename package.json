@@ -13,7 +13,7 @@
     "@popperjs/core": "^2.11.5",
     "@vue-leaflet/vue-leaflet": "^0.6.1",
     "airtable": "^0.11.5",
-    "bootstrap": "^5.2.1",
+    "bootstrap": "^5.2.2",
     "bootstrap-vue-3": "^0.3.11",
     "core-js": "^3.25.3",
     "flag-icons": "^6.6.6",
