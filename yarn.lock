@@ -2382,10 +2382,10 @@ bootstrap-icons@^1.4.1:
   resolved "https://registry.yarnpkg.com/bootstrap-icons/-/bootstrap-icons-1.9.1.tgz#cf22d91a25447645e45c49ebde4e56eafdfe761b"
   integrity sha512-d4ZkO30MIkAhQ2nNRJqKXJVEQorALGbLWTuRxyCTJF96lRIV6imcgMehWGJUiJMJhglN0o2tqLIeDnMdiQEE9g==
 
-bootstrap-vue-3@^0.3.7:
-  version "0.3.7"
-  resolved "https://registry.yarnpkg.com/bootstrap-vue-3/-/bootstrap-vue-3-0.3.7.tgz#7918c5637fff26e5dbd7d3ef3fb7a1a0c29e255d"
-  integrity sha512-QiFdZcrcuApEOVetmsAMBnbQHUwqikaKAH4nmbnOFwscjaJ0uNlCgRfgDBCjALIe2gYGDHBjzDp+GtrAj0zZjg==
+bootstrap-vue-3@^0.3.11:
+  version "0.3.11"
+  resolved "https://registry.yarnpkg.com/bootstrap-vue-3/-/bootstrap-vue-3-0.3.11.tgz#05aa0d6fe8b9a09fcc3b3ee6c463eec60f1f3ef5"
+  integrity sha512-CpT8uYx9ijldAObYi2WXBLQhXAutdl6ph20pZcW0YWnss8S+CWFOoLqioXWtgDBmww+kJN8B6lz08spgor1ONQ==
 
 bootstrap@^5.2.1:
   version "5.2.1"
