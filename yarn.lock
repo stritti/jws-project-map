@@ -7512,10 +7512,10 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-vue-cli-plugin-pinia@~0.1.5:
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/vue-cli-plugin-pinia/-/vue-cli-plugin-pinia-0.1.5.tgz#a1eb08bec739475e61c6b7b9f471e5bdece3b397"
-  integrity sha512-rIdNlmRRIhsS9eCbWmMjWweTyFxwvdhWgscFrZ5FLX+yxgIyNWSKdbY2pluIqzFV2lSfsrZlcFkZaRkChBZV0w==
+vue-cli-plugin-pinia@~0.1.6:
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/vue-cli-plugin-pinia/-/vue-cli-plugin-pinia-0.1.6.tgz#f419ebf387b064f23af0d603d266f0a0ede39ff2"
+  integrity sha512-zZ4+fH7nbrQ0BwBxasCTIzdKG5Y8quRHoX99zz41P67o7Z6ilTioMobFA7Fb1C1gVWc0A33z5z8UdsZKiz7FVA==
 
 vue-demi@*:
   version "0.13.8"
