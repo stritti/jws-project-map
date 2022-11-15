@@ -2418,10 +2418,10 @@ bootstrap-icons@^1.4.1:
   resolved "https://registry.yarnpkg.com/bootstrap-icons/-/bootstrap-icons-1.9.1.tgz#cf22d91a25447645e45c49ebde4e56eafdfe761b"
   integrity sha512-d4ZkO30MIkAhQ2nNRJqKXJVEQorALGbLWTuRxyCTJF96lRIV6imcgMehWGJUiJMJhglN0o2tqLIeDnMdiQEE9g==
 
-bootstrap-vue-3@^0.4.7:
-  version "0.4.7"
-  resolved "https://registry.yarnpkg.com/bootstrap-vue-3/-/bootstrap-vue-3-0.4.7.tgz#8bdbc981ff35ccc7754646f344d07a558a75bbcc"
-  integrity sha512-1/ZsnUgSc+O8XKW9xL8xKpSK94qzZpInIZZFQub2ThDL6jntmocS6Eo11vSQKcYCGE1CKuy7rLEe0GYJCB0D9w==
+bootstrap-vue-3@^0.4.8:
+  version "0.4.8"
+  resolved "https://registry.yarnpkg.com/bootstrap-vue-3/-/bootstrap-vue-3-0.4.8.tgz#b03b8c2c16ed77d51d50406e2d50cf944108a037"
+  integrity sha512-e3aOt25rujE0dxLC1gyGVV9ziIgcIqLBMTvuWtTVjc/PFL/+gMn86TPxSlWfh8o6UcJiyVH+MRkGuttsFqaSMw==
   dependencies:
     "@nuxt/kit" "3.0.0-rc.12"
 
