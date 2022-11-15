@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import LocationMap from '@/components/map/LocationMap.vue'
+import LocationMap from '../components/map/LocationMap.vue'
 
 export default {
   name: 'HomeView',

@@ -24,8 +24,8 @@
 </template>
 
 <script>
-import CategoryBadge from '@/components/CategoryBadge.vue'
-import CountryLabel from '@/components/CountryLabel.vue'
+import CategoryBadge from '../../components/CategoryBadge.vue'
+import CountryLabel from '../../components/CountryLabel.vue'
 
 export default {
   components: { CategoryBadge, CountryLabel },

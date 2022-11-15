@@ -12,12 +12,12 @@ import '@cloudgeek/vue3-video-player/dist/vue3-video-player.css'
 import App from './App.vue'
 import router from './router'
 
-import '@/assets/style-config.scss'
+import './assets/style-config.scss'
 
 import { createPinia } from 'pinia'
-import { useCountryStore } from '@/store/country.store'
-import { useCategoryStore } from '@/store/category.store'
-import { useProjectStore } from '@/store/project.store'
+import { useCountryStore } from './store/country.store'
+import { useCategoryStore } from './store/category.store'
+import { useProjectStore } from './store/project.store'
 import './registerServiceWorker'
 
 

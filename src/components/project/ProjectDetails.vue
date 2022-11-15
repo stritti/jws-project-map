@@ -53,12 +53,12 @@
 
 <script>
 import { mapState } from "pinia"
-import { useCategoryStore } from "@/store/category.store"
+import { useCategoryStore } from "../../store/category.store"
 
-import CategoryBadge from '@/components/CategoryBadge.vue'
-import CountryLabel from '@/components/CountryLabel.vue'
-import MarkdownText from '@/components/MarkdownText.vue'
-import NavigateButton from '@/components/actions/NavigateButton.vue'
+import CategoryBadge from '../../components/CategoryBadge.vue'
+import CountryLabel from '../../components/CountryLabel.vue'
+import MarkdownText from '../../components/MarkdownText.vue'
+import NavigateButton from '../../components/actions/NavigateButton.vue'
 
 export default {
     name: "ProjectDetails",

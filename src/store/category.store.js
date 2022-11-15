@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import categoryService from '@/services/category.service'
-import { useLoadingStore } from '@/store/loading.store'
+import categoryService from '../services/category.service'
+import { useLoadingStore } from './loading.store'
 
 export const useCategoryStore = defineStore('category', {
   state: () => ({

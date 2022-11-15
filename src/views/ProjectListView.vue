@@ -75,14 +75,14 @@
 
 <script>
 import { mapState } from 'pinia'
-import { useLoadingStore } from '@/store/loading.store'
-import { useProjectStore } from '@/store/project.store'
-import { useCategoryStore } from '@/store/category.store'
-import { useCountryStore } from '@/store/country.store'
+import { useLoadingStore } from '../store/loading.store'
+import { useProjectStore } from '../store/project.store'
+import { useCategoryStore } from '../store/category.store'
+import { useCountryStore } from '../store/country.store'
 
 import BootstrapIcon from '@dvuckovic/vue3-bootstrap-icons'
-import ProjectListItem from '@/components/project/ProjectListItem.vue'
-import SiteFooter from '@/components/SiteFooter.vue'
+import ProjectListItem from '../components/project/ProjectListItem.vue'
+import SiteFooter from '../components/SiteFooter.vue'
 
 export default {
   components: { BootstrapIcon, ProjectListItem, SiteFooter },

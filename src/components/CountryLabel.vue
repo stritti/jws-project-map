@@ -9,7 +9,7 @@
 
 <script>
 import { mapState } from 'pinia'
-import { useCountryStore } from '@/store/country.store'
+import { useCountryStore } from '../store/country.store'
 import 'flag-icons/sass/flag-icons.scss'
 
 export default {

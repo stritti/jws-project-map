@@ -9,7 +9,7 @@
 
 <script>
 import { mapState } from 'pinia'
-import { useCategoryStore } from '@/store/category.store'
+import { useCategoryStore } from '../store/category.store'
 
 export default {
   name: 'CategoryBadge',

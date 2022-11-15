@@ -152,16 +152,16 @@
 
 <script>
 import { mapState } from 'pinia'
-import { useProjectStore } from '@/store/project.store'
+import { useProjectStore } from '../store/project.store'
 import VuePictureSwipe from 'vue3-picture-swipe'
-import CountryLabel from '@/components/CountryLabel.vue'
-import CategoryBadge from '@/components/CategoryBadge.vue'
-import MarkdownText from '@/components/MarkdownText.vue'
-import SiteFooter from '@/components/SiteFooter.vue'
-import { useLoadingStore } from '@/store/loading.store'
-import BackButton from '@/components/actions/BackButton.vue'
-import ShareButton from '@/components/actions/ShareButton.vue'
-import NavigateButton from '@/components/actions/NavigateButton.vue'
+import CountryLabel from '../components/CountryLabel.vue'
+import CategoryBadge from '../components/CategoryBadge.vue'
+import MarkdownText from '../components/MarkdownText.vue'
+import SiteFooter from '../components/SiteFooter.vue'
+import { useLoadingStore } from '../store/loading.store'
+import BackButton from '../components/actions/BackButton.vue'
+import ShareButton from '../components/actions/ShareButton.vue'
+import NavigateButton from '../components/actions/NavigateButton.vue'
 
 export default {
   name: "ProjectDetailsView",

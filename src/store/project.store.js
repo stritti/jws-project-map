@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import projectService from '@/services/project.service'
-import { useLoadingStore } from '@/store/loading.store'
+import projectService from '../services/project.service'
+import { useLoadingStore } from './loading.store'
 
 export const useProjectStore = defineStore('project', {
   state: () => ({

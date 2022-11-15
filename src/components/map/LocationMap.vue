@@ -113,9 +113,9 @@
 <script>
 import { mapState } from "pinia"
 import { mapActions } from 'pinia'
-import { useLoadingStore } from "@/store/loading.store"
-import { useCategoryStore } from "@/store/category.store"
-import { useProjectStore } from "@/store/project.store"
+import { useLoadingStore } from "../../store/loading.store"
+import { useCategoryStore } from "../../store/category.store"
+import { useProjectStore } from "../../store/project.store"
 
 import { latLngBounds } from "leaflet"
 import {
@@ -127,8 +127,8 @@ import {
   LIcon,
   LTooltip,
 } from '@vue-leaflet/vue-leaflet'
-import ProjectDetails from '@/components/project/ProjectDetails.vue'
-import projectService from '@/services/project.service'
+import ProjectDetails from '../../components/project/ProjectDetails.vue'
+import projectService from '../../services/project.service'
 
 export default {
   name: 'LocationMap',
