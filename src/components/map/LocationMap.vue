@@ -15,6 +15,7 @@
       :use-global-leaflet="true"
       :options="mapOptions"
       @click="addMarker"
+      @ready="mapLoaded"
     >
       <l-control-layers ref="control" position="bottomright"></l-control-layers>
       <l-tile-layer
@@ -103,10 +104,13 @@
         </l-marker>
       </l-layer-group>
     </l-map>
+
     <project-details
      :project="selectedLocation"
      :is-opened="isOpened"
      @close="onSidePanelClose" />
+
+     <b-overlay :show="isLoadingMap" z-index="9999" fixed style="height:100vh" :opacity="0.5"></b-overlay>
   </div>
 </template>
 
@@ -156,6 +160,7 @@ export default {
       ]),
       categories: [],
       isOpened: false,
+      isLoadingMap: false,
       selectedLocation: null,
       mapOptions: {
         zoomSnap: 0.5
@@ -163,6 +168,7 @@ export default {
     }
   },
   async mounted () {
+    this.isLoadingMap = true
     if (this.locations) {
       this.updateMaxBounds()
     }
@@ -181,6 +187,9 @@ export default {
     })
   },
   methods: {
+    mapLoaded() {
+      this.isLoadingMap = false
+    },
     addMarker(event) {
       if(
         this.zoom >= 9 &&
