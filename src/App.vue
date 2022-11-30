@@ -3,19 +3,19 @@
     <router-view />
   </main>
   <nav>
-    <main-menu  class="menu" />
+    <main-menu class="menu" />
   </nav>
 </template>
 
 <script>
-import MainMenu from './components/MainMenu.vue'
+import MainMenu from './components/MainMenu.vue';
 
 export default {
   name: 'App',
   components: {
-    MainMenu
-  }
-}
+    MainMenu,
+  },
+};
 </script>
 
 <style lang="scss">
@@ -30,7 +30,6 @@ h1 {
   @media screen and (max-width: 768px) {
     font-size: 24px;
   }
-
 }
 p {
   font-size: 16px;
@@ -52,4 +51,3 @@ p {
   left: calc(1rem + env(safe-area-inset-left));
 }
 </style>
-

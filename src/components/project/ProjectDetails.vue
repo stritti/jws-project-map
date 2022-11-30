@@ -1,117 +1,122 @@
 <template>
   <VueSidePanel
     v-if="project"
-      v-model="showPanel"
-      :overlay-opacity="0"
-      z-index="9999"
-      side="right"
-      :no-close="false"
-      lock-scroll
-      hide-close-btn
-
-    >
-      <template #header>
-        <div class="sidepanel__header">
-          <span class="close-btn" @click="onSidePanelClose">&#10006;</span>
-          <h2>
-            <b-img
-              v-for="category in project.category"
-              v-bind:key="category"
-              class="pin"
-              :src="getPin(category)" :alt="project?.name" />
-            <router-link :to="`/project/${project.id}`">{{ project.name }}</router-link>
-          </h2>
-          <h3><country-label :country-id="project.country" /></h3>
-          <category-badge v-for="category in project.category"
-              v-bind:key="category" :category-id="category" />
-        </div>
-      </template>
-      <template #default>
-        <div class="sidepanel__content">
-          <div v-if="project.teaserImg">
-            <b-img
-              :src="project.teaserImg[0].thumbnails.large.url"
-              :alt="project.name"
-              fluid
-            />
-          </div>
-          <p>Project State: {{ project.state }}</p>
-          <markdown-text :text="project.notes" />
-          <b-button :to="`/project/${project.id}`" variant="primary">
-            Project page &hellip;
-          </b-button>
-          <navigate-button
-            class="navigate-btn"
-            :lat="project.latitude"
-            :lng="project.longitude"
+    v-model="showPanel"
+    :overlay-opacity="0"
+    z-index="9999"
+    side="right"
+    :no-close="false"
+    lock-scroll
+    hide-close-btn
+  >
+    <template #header>
+      <div class="sidepanel__header">
+        <span class="close-btn" @click="onSidePanelClose">&#10006;</span>
+        <h2>
+          <b-img
+            v-for="category in project.category"
+            :key="category"
+            class="pin"
+            :src="getPin(category)"
+            :alt="project?.name"
+          />
+          <router-link :to="`/project/${project.id}`">{{
+            project.name
+          }}</router-link>
+        </h2>
+        <h3><country-label :country-id="project.country" /></h3>
+        <category-badge
+          v-for="category in project.category"
+          :key="category"
+          :category-id="category"
+        />
+      </div>
+    </template>
+    <template #default>
+      <div class="sidepanel__content">
+        <div v-if="project.teaserImg">
+          <b-img
+            :src="project.teaserImg[0].thumbnails.large.url"
+            :alt="project.name"
+            fluid
           />
         </div>
-      </template>
-
-    </VueSidePanel>
+        <p>Project State: {{ project.state }}</p>
+        <markdown-text :text="project.notes" />
+        <b-button :to="`/project/${project.id}`" variant="primary">
+          Project page &hellip;
+        </b-button>
+        <navigate-button
+          class="navigate-btn"
+          :lat="project.latitude"
+          :lng="project.longitude"
+        />
+      </div>
+    </template>
+  </VueSidePanel>
 </template>
 
 <script>
-import { mapState } from "pinia"
-import { useCategoryStore } from "../../store/category.store"
+import { mapState } from 'pinia';
+import { useCategoryStore } from '../../store/category.store';
 
-import CategoryBadge from '../../components/CategoryBadge.vue'
-import CountryLabel from '../../components/CountryLabel.vue'
-import MarkdownText from '../../components/MarkdownText.vue'
-import NavigateButton from '../../components/actions/NavigateButton.vue'
+import CategoryBadge from '../../components/CategoryBadge.vue';
+import CountryLabel from '../../components/CountryLabel.vue';
+import MarkdownText from '../../components/MarkdownText.vue';
+import NavigateButton from '../../components/actions/NavigateButton.vue';
 
 export default {
-    name: "ProjectDetails",
-    props: {
-      project: {
-        type: Object,
-        required: false,
-        default: null
-      },
-      isOpened: {
-        type: Boolean,
-        required: true
+  name: 'ProjectDetails',
+  components: { CategoryBadge, CountryLabel, MarkdownText, NavigateButton },
+  props: {
+    project: {
+      type: Object,
+      required: false,
+      default: null,
+    },
+    isOpened: {
+      type: Boolean,
+      required: true,
+    },
+  },
+  emits: ['close'],
+  data() {
+    return {
+      showPanel: false,
+    };
+  },
+  computed: {
+    ...mapState(useCategoryStore, {
+      getCategoryById: (store) => store.getById,
+    }),
+  },
+  watch: {
+    isOpened(val) {
+      this.showPanel = val;
+    },
+    showPanel(val) {
+      if (val) {
+        this.$nextTick(() => {
+          this.onSidePanelOpen();
+        });
+      } else {
+        this.$nextTick(() => {
+          this.onSidePanelClose();
+        });
       }
     },
-    data() {
-      return {
-          showPanel: false
-      }
+  },
+  methods: {
+    onSidePanelOpen() {},
+    onSidePanelClose() {
+      this.showPanel = false;
+      this.$emit('close');
     },
-    methods: {
-        onSidePanelOpen() { },
-        onSidePanelClose() {
-            this.showPanel = false;
-            this.$emit("close");
-        },
-        getPin(category) {
-            return `/pins/${this.getCategoryById(category).name}.png`;
-        },
+    getPin(category) {
+      return `/pins/${this.getCategoryById(category).name}.png`;
     },
-    computed: {
-      ...mapState(useCategoryStore, {
-        getCategoryById: store => store.getById
-      })
-    },
-    watch: {
-      isOpened(val) {
-          this.showPanel = val;
-      },
-      showPanel(val) {
-        if (val) {
-          this.$nextTick(() => {
-            this.onSidePanelOpen();
-          });
-        }
-        else {
-          this.$nextTick(() => {
-              this.onSidePanelClose();
-          });
-        }
-      }
-    },
-    components: { CategoryBadge, CountryLabel, MarkdownText, NavigateButton }
-}
+  },
+};
 </script>
 
 <style lang="scss">

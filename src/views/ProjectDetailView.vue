@@ -15,7 +15,7 @@
         <div v-if="project">
           <b-row>
             <b-col cols="3" md="1">
-              <back-button class="back-btn"/>
+              <back-button class="back-btn" />
             </b-col>
             <b-col>
               <h1>
@@ -25,7 +25,7 @@
             <b-col cols="3" class="text-end">
               <category-badge
                 v-for="category in project.category"
-                v-bind:key="category"
+                :key="category"
                 :category-id="category"
               />
             </b-col>
@@ -34,187 +34,189 @@
       </b-skeleton-wrapper>
     </b-container>
   </div>
-    <b-container fluid>
-      <b-skeleton-wrapper :loading="loading">
-        <div class="teaser" v-if="project">
-          <div
-            class="teaser__img"
-            :style="{ backgroundImage: `url(${teaserImage})` }"
-          >
-            <div class="action-bar container">
-              <share-button
-                class="action-btn share"
-                :title="project.name"
-                :text="project.name"
-                :url="$route.path"
-                :fixed="true"
-              />
-              <navigate-button
-                class="action-btn navigate"
-                :lat="project.latitude"
-                :lng="project.longitude"
-              />
-            </div>
-          </div>
-        </div>
-      </b-skeleton-wrapper>
-    </b-container>
-  <b-container>
-    <div class="project-details">
+  <b-container fluid>
     <b-skeleton-wrapper :loading="loading">
-      <template #loading>
-        <p>
-          <b-skeleton width="85%"></b-skeleton>
-          <b-skeleton width="55%"></b-skeleton>
-          <b-skeleton width="70%"></b-skeleton>
-        </p>
-      </template>
-
-      <div v-if="project">
-
-        <h2>Details</h2>
-        <table class="project-details__meta">
-          <tr v-if="project.name">
-            <th>Name:</th>
-            <td>{{ project.name }}</td>
-          </tr>
-          <tr v-if="project.country">
-            <th>Country:</th>
-            <td><country-label :country-id="project.country" /></td>
-          </tr>
-          <tr v-if="project.state">
-            <th>State:</th>
-            <td>{{ project.state }}</td>
-          </tr>
-          <tr v-if="project.since">
-            <th>Since:</th>
-            <td>{{ project.since }}</td>
-          </tr>
-          <tr v-if="project.category">
-            <th>Category:</th>
-            <td>
-              <category-badge
-                v-for="category in project.category"
-                v-bind:key="category"
-                :category-id="category"
-              />
-            </td>
-          </tr>
-        </table>
+      <div v-if="project" class="teaser">
         <div
-          v-if="project.notes"
-          class="project-details__description"
+          class="teaser__img"
+          :style="{ backgroundImage: `url(${teaserImage})` }"
         >
-          <hr />
-          <h2>Description</h2>
-          <markdown-text
-            class="project-details__notes"
-            :text="project.notes"
-          />
-        </div>
-
-        <div v-if="project.link">
-          <b-button :href="project.link" variant="primary">
-            more &hellip;
-          </b-button>
-        </div>
-
-        <div
-          v-if="project.gallery"
-          class="project-details__gallery"
-        >
-          <hr />
-          <h2>Gallery</h2>
-          <vue-picture-swipe
-            :items="images"
-            :options="{shareEl: false}"
-          ></vue-picture-swipe>
-
-          <div
-            v-for="video in videos"
-            :key="video.src"
-            class="gallery__video">
-            <vue3-video-player
-              :src="video.src"
-              :type="video.type"
-              :muted="false"
-              preload="auto"
-              >
-            </vue3-video-player>
+          <div class="action-bar container">
+            <share-button
+              class="action-btn share"
+              :title="project.name"
+              :text="project.name"
+              :url="$route.path"
+              :fixed="true"
+            />
+            <navigate-button
+              class="action-btn navigate"
+              :lat="project.latitude"
+              :lng="project.longitude"
+            />
           </div>
         </div>
       </div>
     </b-skeleton-wrapper>
+  </b-container>
+  <b-container>
+    <div class="project-details">
+      <b-skeleton-wrapper :loading="loading">
+        <template #loading>
+          <p>
+            <b-skeleton width="85%"></b-skeleton>
+            <b-skeleton width="55%"></b-skeleton>
+            <b-skeleton width="70%"></b-skeleton>
+          </p>
+        </template>
+
+        <div v-if="project">
+          <h2>Details</h2>
+          <table class="project-details__meta">
+            <tr v-if="project.name">
+              <th>Name:</th>
+              <td>{{ project.name }}</td>
+            </tr>
+            <tr v-if="project.country">
+              <th>Country:</th>
+              <td><country-label :country-id="project.country" /></td>
+            </tr>
+            <tr v-if="project.state">
+              <th>State:</th>
+              <td>{{ project.state }}</td>
+            </tr>
+            <tr v-if="project.since">
+              <th>Since:</th>
+              <td>{{ project.since }}</td>
+            </tr>
+            <tr v-if="project.category">
+              <th>Category:</th>
+              <td>
+                <category-badge
+                  v-for="category in project.category"
+                  :key="category"
+                  :category-id="category"
+                />
+              </td>
+            </tr>
+          </table>
+          <div v-if="project.notes" class="project-details__description">
+            <hr />
+            <h2>Description</h2>
+            <markdown-text
+              class="project-details__notes"
+              :text="project.notes"
+            />
+          </div>
+
+          <div v-if="project.link">
+            <b-button :href="project.link" variant="primary">
+              more &hellip;
+            </b-button>
+          </div>
+
+          <div v-if="project.gallery" class="project-details__gallery">
+            <hr />
+            <h2>Gallery</h2>
+            <vue-picture-swipe
+              :items="images"
+              :options="{ shareEl: false }"
+            ></vue-picture-swipe>
+
+            <div
+              v-for="video in videos"
+              :key="video.src"
+              class="gallery__video"
+            >
+              <vue3-video-player
+                :src="video.src"
+                :type="video.type"
+                :muted="false"
+                preload="auto"
+              >
+              </vue3-video-player>
+            </div>
+          </div>
+        </div>
+      </b-skeleton-wrapper>
     </div>
   </b-container>
   <site-footer />
 </template>
 
 <script>
-import { mapState } from 'pinia'
-import { useProjectStore } from '../store/project.store'
-import VuePictureSwipe from 'vue3-picture-swipe'
-import CountryLabel from '../components/CountryLabel.vue'
-import CategoryBadge from '../components/CategoryBadge.vue'
-import MarkdownText from '../components/MarkdownText.vue'
-import SiteFooter from '../components/SiteFooter.vue'
-import { useLoadingStore } from '../store/loading.store'
-import BackButton from '../components/actions/BackButton.vue'
-import ShareButton from '../components/actions/ShareButton.vue'
-import NavigateButton from '../components/actions/NavigateButton.vue'
+import { mapState } from 'pinia';
+import { useProjectStore } from '../store/project.store';
+import VuePictureSwipe from 'vue3-picture-swipe';
+import CountryLabel from '../components/CountryLabel.vue';
+import CategoryBadge from '../components/CategoryBadge.vue';
+import MarkdownText from '../components/MarkdownText.vue';
+import SiteFooter from '../components/SiteFooter.vue';
+import { useLoadingStore } from '../store/loading.store';
+import BackButton from '../components/actions/BackButton.vue';
+import ShareButton from '../components/actions/ShareButton.vue';
+import NavigateButton from '../components/actions/NavigateButton.vue';
 
 export default {
-  name: "ProjectDetailsView",
+  name: 'ProjectDetailsView',
+  components: {
+    CountryLabel,
+    CategoryBadge,
+    MarkdownText,
+    VuePictureSwipe,
+    SiteFooter,
+    BackButton,
+    ShareButton,
+    NavigateButton,
+  },
   props: {
     projectId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
-  components: { CountryLabel, CategoryBadge, MarkdownText, VuePictureSwipe, SiteFooter, BackButton, ShareButton, NavigateButton },
   computed: {
     ...mapState(useLoadingStore, {
-      loading: state => state.showLoadingSpinner
+      loading: (state) => state.showLoadingSpinner,
     }),
     ...mapState(useProjectStore, {
-      projectById: state => state.getById
+      projectById: (state) => state.getById,
     }),
-    project () {
-      return this.projectById(this.$route.params.projectId)
+    project() {
+      return this.projectById(this.$route.params.projectId);
     },
-    teaserImage () {
-      if(this.project.teaserImg) {
-        return this.project.teaserImg[0].thumbnails.large.url
+    teaserImage() {
+      if (this.project.teaserImg) {
+        return this.project.teaserImg[0].thumbnails.large.url;
       } else {
-        return '/img/placeholder.png'
+        return '/img/placeholder.png';
       }
-
     },
-    images () {
+    images() {
       return this.project.gallery
-        .filter(img => img.type.startsWith('image'))
-        .map(img => {
+        .filter((img) => img.type.startsWith('image'))
+        .map((img) => {
           return {
             src: img.url,
             w: img.width,
             h: img.height,
-            thumbnail: img.thumbnails.large.url
-          }
-      })
+            thumbnail: img.thumbnails.large.url,
+          };
+        });
     },
-    videos () {
+    videos() {
       return this.project.gallery
-        .filter(item => item.type.startsWith('video'))
-        .map(item => {
+        .filter((item) => item.type.startsWith('video'))
+        .map((item) => {
           return {
             src: item.url,
             type: item.type,
-            size: item.size
-          }
-      })
-    }
-  }
-}
+            size: item.size,
+          };
+        });
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -258,7 +260,8 @@ export default {
 .project-details {
   min-height: calc(100vh - 7rem);
   padding: 1rem;
-  &__meta, &__notes {
+  &__meta,
+  &__notes {
     padding-top: 1rem;
     padding-bottom: 1rem;
   }
@@ -276,7 +279,7 @@ export default {
   }
 }
 .gallery__video {
-    min-width: 220px;
+  min-width: 220px;
   width: auto;
   max-width: 80vw;
   margin: 0.25rem;

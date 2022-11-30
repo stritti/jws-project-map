@@ -4,33 +4,34 @@
     class="category-badge badge rounded-pill text-decoration-none"
     :style="categoryStyle"
     pill
-  >{{displayName}}</span>
+    >{{ displayName }}</span
+  >
 </template>
 
 <script>
-import { mapState } from 'pinia'
-import { useCategoryStore } from '../store/category.store'
+import { mapState } from 'pinia';
+import { useCategoryStore } from '../store/category.store';
 
 export default {
   name: 'CategoryBadge',
   props: {
     categoryId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   computed: {
     ...mapState(useCategoryStore, {
-      getById: store => store.getById
+      getById: (store) => store.getById,
     }),
-    displayName () {
-      return this.getById(this.categoryId).name
+    displayName() {
+      return this.getById(this.categoryId).name;
     },
-    categoryStyle () {
-      return `background-color: ${this.getById(this.categoryId).color};`
-    }
-  }
-}
+    categoryStyle() {
+      return `background-color: ${this.getById(this.categoryId).color};`;
+    },
+  },
+};
 </script>
 
 <style>

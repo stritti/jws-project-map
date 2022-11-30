@@ -8,14 +8,14 @@
 </template>
 
 <script>
-import LocationMap from '../components/map/LocationMap.vue'
+import LocationMap from '../components/map/LocationMap.vue';
 
 export default {
   name: 'HomeView',
   components: {
-    LocationMap
-  }
-}
+    LocationMap,
+  },
+};
 </script>
 <style lang="scss" scoped>
 .home {
@@ -26,7 +26,7 @@ export default {
     margin-left: 60px;
     position: absolute;
     z-index: 10;
-    background-color: rgba($color: #ffffff, $alpha: .5);
+    background-color: rgba($color: #ffffff, $alpha: 0.5);
   }
 
   .project-map {

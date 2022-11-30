@@ -14,21 +14,21 @@
         </template>
 
         <h3 class="my-3">
-          Projects: {{ projectCount }}
-          (including: {{ projectsUnderConstruction.length }} under construction,
+          Projects: {{ projectCount }} (including:
+          {{ projectsUnderConstruction.length }} under construction,
           {{ projectsPlanned.length }} planned)
         </h3>
 
         <b-button v-b-toggle.collapse-filter variant="primary">
-          <bootstrap-icon icon="filter"/>
+          <bootstrap-icon icon="filter" />
           Filter
         </b-button>
         <b-collapse id="collapse-filter">
           <b-card bg-variant="light" class="mb-5">
             <b-form-group label="Project State:">
               <b-form-checkbox-group
-                name="stateFilter"
                 v-model="stateFilter"
+                name="stateFilter"
                 :options="stateOptions"
                 size="sm"
               >
@@ -64,7 +64,7 @@
       <b-card-group columns class="my-3">
         <project-list-item
           v-for="project in filteredProjectList"
-          v-bind:key="project.id"
+          :key="project.id"
           :project="project"
         />
       </b-card-group>
@@ -74,89 +74,94 @@
 </template>
 
 <script>
-import { mapState } from 'pinia'
-import { useLoadingStore } from '../store/loading.store'
-import { useProjectStore } from '../store/project.store'
-import { useCategoryStore } from '../store/category.store'
-import { useCountryStore } from '../store/country.store'
+import { mapState } from 'pinia';
+import { useLoadingStore } from '../store/loading.store';
+import { useProjectStore } from '../store/project.store';
+import { useCategoryStore } from '../store/category.store';
+import { useCountryStore } from '../store/country.store';
 
-import BootstrapIcon from '@dvuckovic/vue3-bootstrap-icons'
-import ProjectListItem from '../components/project/ProjectListItem.vue'
-import SiteFooter from '../components/SiteFooter.vue'
+import BootstrapIcon from '@dvuckovic/vue3-bootstrap-icons';
+import ProjectListItem from '../components/project/ProjectListItem.vue';
+import SiteFooter from '../components/SiteFooter.vue';
 
 export default {
+  name: 'ProjectDetailsView',
   components: { BootstrapIcon, ProjectListItem, SiteFooter },
-  name: "ProjectDetailsView",
   data() {
     return {
       stateFilter: ['finished', 'planned', 'under construction'],
       stateOptions: [
         { text: 'finished', value: 'finished' },
         { text: 'under construction', value: 'under construction' },
-        { text: 'planned', value: 'planned' }
+        { text: 'planned', value: 'planned' },
       ],
       categoryFilter: [],
       countryFilter: [],
-    }
+    };
   },
   computed: {
-    ...mapState( useLoadingStore, {
-      loading: 'loading'
+    ...mapState(useLoadingStore, {
+      loading: 'loading',
     }),
-    ...mapState( useProjectStore, {
-      projectList: 'projects'
+    ...mapState(useProjectStore, {
+      projectList: 'projects',
     }),
-    ...mapState( useCategoryStore, {
-      categoryList: 'categories'
+    ...mapState(useCategoryStore, {
+      categoryList: 'categories',
     }),
-    ...mapState( useCountryStore, {
-      countryList: 'countries'
+    ...mapState(useCountryStore, {
+      countryList: 'countries',
     }),
-    filteredProjectList () {
-      const loadingStore = useLoadingStore()
-      loadingStore.updateLoading(true)
-      const filteredList = []
+    filteredProjectList() {
+      const loadingStore = useLoadingStore();
+      loadingStore.updateLoading(true);
+      const filteredList = [];
 
-      for ( let i = 0; i < this.projectList.length; i++ ) {
-        const project = this.projectList[i]
+      for (let i = 0; i < this.projectList.length; i++) {
+        const project = this.projectList[i];
         if (
-          (this.stateFilter.length === 0 || this.stateFilter.includes(project.state)) &&
-          (this.categoryFilter.length === 0 || this.categoryFilter.some(r => project.category.includes(r))) &&
-          (this.countryFilter.length === 0 || this.countryFilter.includes(project.country[0]))
+          (this.stateFilter.length === 0 ||
+            this.stateFilter.includes(project.state)) &&
+          (this.categoryFilter.length === 0 ||
+            this.categoryFilter.some((r) => project.category.includes(r))) &&
+          (this.countryFilter.length === 0 ||
+            this.countryFilter.includes(project.country[0]))
         ) {
-          filteredList.push(project)
+          filteredList.push(project);
         }
       }
 
-      loadingStore.updateLoading(false)
-      return filteredList
+      loadingStore.updateLoading(false);
+      return filteredList;
     },
-    projectCount () {
-      return this.projectList.length
+    projectCount() {
+      return this.projectList.length;
     },
-    projectsFinished () {
+    projectsFinished() {
       if (this.projectList.length > 0) {
-        return this.projectList.filter(loc => loc.state === 'finished')
+        return this.projectList.filter((loc) => loc.state === 'finished');
       } else {
-        return []
+        return [];
       }
     },
-    projectsUnderConstruction () {
+    projectsUnderConstruction() {
       if (this.projectList.length > 0) {
-        return this.projectList.filter(loc => loc.state === 'under construction')
+        return this.projectList.filter(
+          (loc) => loc.state === 'under construction'
+        );
       } else {
-        return []
+        return [];
       }
     },
-    projectsPlanned () {
+    projectsPlanned() {
       if (this.projectList.length > 0) {
-        return this.projectList.filter(loc => loc.state === 'planned')
+        return this.projectList.filter((loc) => loc.state === 'planned');
       } else {
-        return []
+        return [];
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
