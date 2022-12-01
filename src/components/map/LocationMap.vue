@@ -1,5 +1,6 @@
 <template>
   <div class="map">
+    <b-overlay :show="isLoadingMap" fixed style="height:100vh" :opacity="0.5">
     <l-map
       v-if="locations.length > 0"
       ref="map"
@@ -104,13 +105,11 @@
         </l-marker>
       </l-layer-group>
     </l-map>
-
+    </b-overlay>
     <project-details
      :project="selectedLocation"
      :is-opened="isOpened"
      @close="onSidePanelClose" />
-
-     <b-overlay :show="isLoadingMap" z-index="9999" fixed style="height:100vh" :opacity="0.5"></b-overlay>
   </div>
 </template>
 
