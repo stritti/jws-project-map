@@ -982,10 +982,10 @@
     load-script "^1.0.0"
     vue "^3.0.0"
 
-"@dvuckovic/vue3-bootstrap-icons@^1.0.5":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@dvuckovic/vue3-bootstrap-icons/-/vue3-bootstrap-icons-1.0.5.tgz#61bab07dcc8121e507be5c2a54d38a9df0784097"
-  integrity sha512-1trLedEPwk8UmaVDT5xYwUCJl8Hvcwp8BIpjHVfCsuOGwLuZVd/eVBG03L5kJmbThuwzFNfCG45NZpuSgUHMvQ==
+"@dvuckovic/vue3-bootstrap-icons@^1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@dvuckovic/vue3-bootstrap-icons/-/vue3-bootstrap-icons-1.0.6.tgz#993702da4f74b54470eb83a159b7be87ab82ed2a"
+  integrity sha512-UkVwD4wRmFPIgMV8u8L6tTyhYMaF0UWM9f+zYsTiR3O4N08QSgB9CUabffIcVc3X4acnRxr+ypLfRKQreme7BA==
   dependencies:
     bootstrap-icons "^1.4.1"
 
