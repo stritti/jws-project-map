@@ -1,17 +1,14 @@
 <template>
-  <VueSidePanel
+  <vue-side-panel
     v-if="project"
     v-model="showPanel"
-    :overlay-opacity="0"
+    :overlay-opacity="0.5"
     z-index="9999"
     side="right"
     :no-close="false"
-    lock-scroll
-    hide-close-btn
   >
-    <template #header>
+    <template #default>
       <div class="sidepanel__header">
-        <span class="close-btn" @click="onSidePanelClose">&#10006;</span>
         <h2>
           <b-img
             v-for="category in project.category"
@@ -31,8 +28,6 @@
           :category-id="category"
         />
       </div>
-    </template>
-    <template #default>
       <div class="sidepanel__content">
         <div v-if="project.teaserImg">
           <b-img
@@ -53,7 +48,7 @@
         />
       </div>
     </template>
-  </VueSidePanel>
+  </vue-side-panel>
 </template>
 
 <script lang="ts">
@@ -64,7 +59,6 @@ import CategoryBadge from '../../components/CategoryBadge.vue';
 import CountryLabel from '../../components/CountryLabel.vue';
 import MarkdownText from '../../components/MarkdownText.vue';
 import NavigateButton from '../../components/actions/NavigateButton.vue';
-import type { Project } from '../../interfaces/Project';
 
 export default {
   name: 'ProjectDetails',
@@ -127,6 +121,7 @@ export default {
 
 <style lang="scss">
 .sidepanel {
+  max-width: 85%;
   &__header {
     background-color: rgb(150, 150, 150);
     color: white;
@@ -138,25 +133,6 @@ export default {
       margin-right: 0.25rem;
     }
 
-    .close-btn {
-      position: absolute;
-      height: 18px;
-      width: 18px;
-      top: 1rem;
-      right: 1rem;
-      padding: 0;
-      padding-left: 0.25rem;
-      font-weight: 900;
-      font-size: 10px;
-      cursor: pointer;
-      border: rgb(182, 182, 182) solid 1px;
-      border-radius: 10%;
-
-      &:hover {
-        background-color: rgb(182, 182, 182);
-        color: rgb(61, 94, 158);
-      }
-    }
     a {
       text-decoration: none;
     }
@@ -167,7 +143,7 @@ export default {
 
     img {
       max-width: 100%;
-      max-width: 340px;
+      max-height: 50vh;
     }
     .share-btn {
       margin-left: 0.5rem;
