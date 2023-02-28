@@ -6,6 +6,7 @@
         :src="teaserImage"
         :alt="project.name"
         top
+        lazy
       />
       <h3 class="project-list-item__title text-truncate">
         {{ project.name }}
@@ -60,6 +61,7 @@ a {
 }
 
 .project-list-item {
+  min-height: 24rem;
   &__title {
     padding: 1rem;
     font-size: 1.2em;
@@ -69,35 +71,36 @@ a {
   }
 
   .card-img-top {
-    max-height: 280px;
+    min-height: 15rem;
+    max-height: 15rem;
     object-fit: cover;
     object-position: 100% 0;
+  }
+}
 
-    &.under-construction {
-      filter:grayscale(0.85) &::after {
-        content: '... still under construction ...';
-        position: absolute;
-        top: 80px;
-        white-space: pre;
-        right: 15px;
-        font-weight: bold;
-        text-align: right;
-        font-size: 30px;
-      }
-    }
+.under-construction {
+  filter:grayscale(0.85) &::after {
+    content: '... still under construction ...';
+    position: absolute;
+    top: 80px;
+    white-space: pre;
+    right: 15px;
+    font-weight: bold;
+    text-align: right;
+    font-size: 30px;
+  }
+}
 
-    &.planned {
-      filter:grayscale(0.85) &::after {
-        content: 'just planned';
-        position: absolute;
-        top: 80px;
-        white-space: pre;
-        right: 15px;
-        font-weight: bold;
-        text-align: right;
-        font-size: 30px;
-      }
-    }
+.planned {
+  filter:grayscale(0.85) &::after {
+    content: 'just planned';
+    position: absolute;
+    top: 80px;
+    white-space: pre;
+    right: 15px;
+    font-weight: bold;
+    text-align: right;
+    font-size: 30px;
   }
 }
 </style>
