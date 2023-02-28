@@ -1,15 +1,16 @@
+import type { Country } from '@/interfaces/Country';
 import { defineStore } from 'pinia';
 import countryService from '../services/country.service';
 import { useLoadingStore } from './loading.store';
 
 export const useCountryStore = defineStore('countries', {
   state: () => ({
-    countries: null,
+    countries: null as Array<Country> | unknown
   }),
   getters: {
     getAll: (state) => state.countries,
-    getById: (state) => (id) =>
-      state.countries.find((country) => country.id === id),
+    getById: (state) => (id: string) =>
+      state.countries?.find((country: Country) => country.id === id),
   },
   actions: {
     async init() {

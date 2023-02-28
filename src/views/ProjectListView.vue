@@ -73,16 +73,17 @@
   <site-footer />
 </template>
 
-<script>
-import { mapState } from 'pinia';
-import { useLoadingStore } from '../store/loading.store';
-import { useProjectStore } from '../store/project.store';
-import { useCategoryStore } from '../store/category.store';
-import { useCountryStore } from '../store/country.store';
+<script lang="ts">
+import { mapState } from 'pinia'
+import { useLoadingStore } from '../stores/loading.store'
+import { useProjectStore } from '../stores/project.store'
+import { useCategoryStore } from '../stores/category.store'
+import { useCountryStore } from '../stores/country.store'
 
-import BootstrapIcon from '@dvuckovic/vue3-bootstrap-icons';
-import ProjectListItem from '../components/project/ProjectListItem.vue';
-import SiteFooter from '../components/SiteFooter.vue';
+import BootstrapIcon from '@dvuckovic/vue3-bootstrap-icons'
+import ProjectListItem from '../components/project/ProjectListItem.vue'
+import SiteFooter from '../components/SiteFooter.vue'
+import type { Project } from '../interfaces/Project'
 
 export default {
   name: 'ProjectDetailsView',
@@ -113,12 +114,11 @@ export default {
       countryList: 'countries',
     }),
     filteredProjectList() {
-      const loadingStore = useLoadingStore();
-      loadingStore.updateLoading(true);
-      const filteredList = [];
+      const loadingStore = useLoadingStore()
+      loadingStore.updateLoading(true)
+      const filteredList = [] as Array<Project>
 
-      for (let i = 0; i < this.projectList.length; i++) {
-        const project = this.projectList[i];
+      this.projectList.forEach( (project: Project) => {
         if (
           (this.stateFilter.length === 0 ||
             this.stateFilter.includes(project.state)) &&
@@ -129,7 +129,7 @@ export default {
         ) {
           filteredList.push(project);
         }
-      }
+      })
 
       loadingStore.updateLoading(false);
       return filteredList;

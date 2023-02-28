@@ -1,11 +1,12 @@
-import base from './airtable.service';
+import base from './airtable.service'
+import type { Project } from '@/interfaces/Project'
 
 const BASE_NAME = 'Project';
 
 const projectService = {
   getAll() {
     return new Promise((resolve, reject) => {
-      const locations = [];
+      const locations:Array<Project> = [];
       base(BASE_NAME)
         .select({
           sort: [{ field: 'Name', direction: 'asc' }],
@@ -14,9 +15,9 @@ const projectService = {
         .eachPage(
           function page(partialRecords, fetchNextPage) {
             partialRecords.forEach((partialRecords) => {
-              let item = {
+              let item:Project = {
                 id: partialRecords.id,
-                name: partialRecords.fields?.Name,
+                name: partialRecords.fields.Name,
                 teaserImg: partialRecords.fields?.TeaserImage,
                 category: partialRecords.fields?.Category,
                 notes: partialRecords.fields.Notes

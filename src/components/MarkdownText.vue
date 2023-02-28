@@ -2,7 +2,7 @@
   <markdown :source="text" breaks html typographer />
 </template>
 
-<script>
+<script lang="ts">
 import Markdown from 'vue3-markdown-it';
 
 export default {
@@ -19,5 +19,3 @@ export default {
   },
 };
 </script>
-
-<style></style>

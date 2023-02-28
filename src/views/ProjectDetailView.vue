@@ -23,11 +23,7 @@
               </h1>
             </b-col>
             <b-col cols="3" class="text-end">
-              <category-badge
-                v-for="category in project.category"
-                :key="category"
-                :category-id="category"
-              />
+              <category-badge v-for="category in project.category" :key="category" :category-id="category" />
             </b-col>
           </b-row>
         </div>
@@ -37,10 +33,7 @@
   <b-container fluid>
     <b-skeleton-wrapper :loading="loading">
       <div v-if="project" class="teaser">
-        <div
-          class="teaser__img"
-          :style="{ backgroundImage: `url(${teaserImage})` }"
-        >
+        <div class="teaser__img" :style="{ backgroundImage: `url(${teaserImage})` }">
           <div class="action-bar container">
             <share-button
               class="action-btn share"
@@ -49,11 +42,7 @@
               :url="$route.path"
               :fixed="true"
             />
-            <navigate-button
-              class="action-btn navigate"
-              :lat="project.latitude"
-              :lng="project.longitude"
-            />
+            <navigate-button class="action-btn navigate" :lat="project.latitude" :lng="project.longitude" />
           </div>
         </div>
       </div>
@@ -92,49 +81,27 @@
             <tr v-if="project.category">
               <th>Category:</th>
               <td>
-                <category-badge
-                  v-for="category in project.category"
-                  :key="category"
-                  :category-id="category"
-                />
+                <category-badge v-for="category in project.category" :key="category" :category-id="category" />
               </td>
             </tr>
           </table>
           <div v-if="project.notes" class="project-details__description">
             <hr />
             <h2>Description</h2>
-            <markdown-text
-              class="project-details__notes"
-              :text="project.notes"
-            />
+            <markdown-text class="project-details__notes" :text="project.notes" />
           </div>
 
           <div v-if="project.link">
-            <b-button :href="project.link" variant="primary">
-              more &hellip;
-            </b-button>
+            <b-button :href="project.link" variant="primary"> more &hellip; </b-button>
           </div>
 
           <div v-if="project.gallery" class="project-details__gallery">
             <hr />
             <h2>Gallery</h2>
-            <vue-picture-swipe
-              :items="images"
-              :options="{ shareEl: false }"
-            ></vue-picture-swipe>
+            <vue-picture-swipe :items="images" :options="{ shareEl: false }"></vue-picture-swipe>
 
-            <div
-              v-for="video in videos"
-              :key="video.src"
-              class="gallery__video"
-            >
-              <vue3-video-player
-                :src="video.src"
-                :type="video.type"
-                :muted="false"
-                preload="auto"
-              >
-              </vue3-video-player>
+            <div v-for="video in videos" :key="video.src" class="gallery__video">
+              <vue3-video-player :src="video.src" :type="video.type" :muted="false" preload="auto"> </vue3-video-player>
             </div>
           </div>
         </div>
@@ -144,18 +111,18 @@
   <site-footer />
 </template>
 
-<script>
-import { mapState } from 'pinia';
-import { useProjectStore } from '../store/project.store';
-import VuePictureSwipe from 'vue3-picture-swipe';
-import CountryLabel from '../components/CountryLabel.vue';
-import CategoryBadge from '../components/CategoryBadge.vue';
-import MarkdownText from '../components/MarkdownText.vue';
-import SiteFooter from '../components/SiteFooter.vue';
-import { useLoadingStore } from '../store/loading.store';
-import BackButton from '../components/actions/BackButton.vue';
-import ShareButton from '../components/actions/ShareButton.vue';
-import NavigateButton from '../components/actions/NavigateButton.vue';
+<script lang="ts">
+import { mapState } from 'pinia'
+import { useProjectStore } from '../stores/project.store'
+import VuePictureSwipe from 'vue3-picture-swipe'
+import CountryLabel from '../components/CountryLabel.vue'
+import CategoryBadge from '../components/CategoryBadge.vue'
+import MarkdownText from '../components/MarkdownText.vue'
+import SiteFooter from '../components/SiteFooter.vue'
+import { useLoadingStore } from '../stores/loading.store'
+import BackButton from '../components/actions/BackButton.vue'
+import ShareButton from '../components/actions/ShareButton.vue'
+import NavigateButton from '../components/actions/NavigateButton.vue'
 
 export default {
   name: 'ProjectDetailsView',
@@ -167,29 +134,29 @@ export default {
     SiteFooter,
     BackButton,
     ShareButton,
-    NavigateButton,
+    NavigateButton
   },
   props: {
     projectId: {
       type: String,
-      required: true,
-    },
+      required: true
+    }
   },
   computed: {
     ...mapState(useLoadingStore, {
-      loading: (state) => state.showLoadingSpinner,
+      loading: (state) => state.showLoadingSpinner
     }),
     ...mapState(useProjectStore, {
-      projectById: (state) => state.getById,
+      projectById: (state) => state.getById
     }),
     project() {
-      return this.projectById(this.$route.params.projectId);
+      return this.projectById(this.$route.params.projectId)
     },
     teaserImage() {
       if (this.project.teaserImg) {
-        return this.project.teaserImg[0].thumbnails.large.url;
+        return this.project.teaserImg[0].thumbnails.large.url
       } else {
-        return '/img/placeholder.png';
+        return '/img/placeholder.png'
       }
     },
     images() {
@@ -200,9 +167,9 @@ export default {
             src: img.url,
             w: img.width,
             h: img.height,
-            thumbnail: img.thumbnails.large.url,
-          };
-        });
+            thumbnail: img.thumbnails.large.url
+          }
+        })
     },
     videos() {
       return this.project.gallery
@@ -211,12 +178,12 @@ export default {
           return {
             src: item.url,
             type: item.type,
-            size: item.size,
-          };
-        });
-    },
-  },
-};
+            size: item.size
+          }
+        })
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>

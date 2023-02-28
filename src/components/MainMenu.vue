@@ -9,7 +9,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import BootstrapIcon from '@dvuckovic/vue3-bootstrap-icons';
 export default {
   name: 'MainMenu',

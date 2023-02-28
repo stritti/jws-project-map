@@ -25,7 +25,7 @@
   </router-link>
 </template>
 
-<script>
+<script lang="ts">
 import CategoryBadge from '../../components/CategoryBadge.vue';
 import CountryLabel from '../../components/CountryLabel.vue';
 

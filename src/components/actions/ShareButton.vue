@@ -10,7 +10,7 @@
     <bootstrap-icon icon="share-fill" variant="light" />
   </b-button>
 </template>
-<script>
+<script lang="ts">
 import BootstrapIcon from '@dvuckovic/vue3-bootstrap-icons';
 
 export default {

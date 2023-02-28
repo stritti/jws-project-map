@@ -105,12 +105,12 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState } from 'pinia';
 import { mapActions } from 'pinia';
-import { useLoadingStore } from '../../store/loading.store';
-import { useCategoryStore } from '../../store/category.store';
-import { useProjectStore } from '../../store/project.store';
+import { useLoadingStore } from '../../stores/loading.store';
+import { useCategoryStore } from '../../stores/category.store';
+import { useProjectStore } from '../../stores/project.store';
 
 import { latLngBounds } from 'leaflet';
 import {
@@ -124,6 +124,7 @@ import {
 } from '@vue-leaflet/vue-leaflet';
 import ProjectDetails from '../../components/project/ProjectDetails.vue';
 import projectService from '../../services/project.service';
+import type { Project } from '@/interfaces/Project'
 
 export default {
   name: 'LocationMap',
@@ -139,7 +140,7 @@ export default {
   },
   data() {
     return {
-      zoom: 5,
+      zoom: 5 as number,
       currentCenter: [7.0, -3.5],
       bounds: latLngBounds([
         [-14.5981259, 5.8997233],
@@ -150,8 +151,8 @@ export default {
         [8.9490075, 11.322326],
       ]),
       categories: [],
-      isOpened: false,
-      selectedLocation: null,
+      isOpened: false as boolean,
+      selectedLocation: null as Project | null,
       mapOptions: {
         zoomSnap: 0.5,
       },
@@ -159,25 +160,24 @@ export default {
   },
   computed: {
     ...mapState(useCategoryStore, {
-      getCategoryById: 'getById',
+      getCategoryById: 'getById'
     }),
     ...mapState(useLoadingStore, {
-      showLoadingSpinner: 'showLoadingSpinner',
+      showLoadingSpinner: 'showLoadingSpinner'
     }),
     ...mapState(useProjectStore, {
-      locations: 'projects',
+      locations: 'projects'
     }),
     projectsFinished() {
       if (this.locations.length > 0) {
-        return this.locations.filter((loc) => loc.state === 'finished');
+        return this.locations.filter((loc: Project) => loc.state === 'finished');
       } else {
         return [];
       }
     },
     projectsUnderConstruction() {
       if (this.locations.length > 0) {
-        return this.locations.filter(
-          (loc) => loc.state === 'under construction'
+        return this.locations.filter((loc: Project) => loc.state === 'under construction'
         );
       } else {
         return [];
@@ -185,7 +185,7 @@ export default {
     },
     projectsPlanned() {
       if (this.locations.length > 0) {
-        return this.locations.filter((loc) => loc.state === 'planned');
+        return this.locations.filter((loc: Project) => loc.state === 'planned');
       } else {
         return [];
       }
@@ -201,7 +201,7 @@ export default {
     },
   },
   async mounted() {
-    if (this.locations) {
+    if (this.locations.length > 0) {
       this.updateMaxBounds();
     }
     const store = useProjectStore();
@@ -219,7 +219,7 @@ export default {
     });
   },
   methods: {
-    addMarker(event) {
+    addMarker(event: { latlng: any; originalEvent: { ctrlKey: any; altKey: any; }; }) {
       if (
         this.zoom >= 9 &&
         event.latlng &&
@@ -232,7 +232,7 @@ export default {
         }
       }
     },
-    onMarkerClick(location) {
+    onMarkerClick(location: null) {
       this.selectedLocation = location;
       this.isOpened = true;
     },
@@ -240,7 +240,7 @@ export default {
       this.selectedLocation = null;
       this.isOpened = false;
     },
-    getPin(location) {
+    getPin(location: Project) {
       if (location.category && location.category.length === 0) {
         return '/pins/default.png';
       } else if (location.category && location.category.length === 1) {
@@ -248,7 +248,7 @@ export default {
         return `/pins/${category?.name.toLowerCase()}.png`;
       } else if (location.category && location.category.length > 1) {
         let name = '';
-        location.category.forEach((obj, i) => {
+        location.category.forEach((obj: any, i: string | number) => {
           const category = this.getCategoryById(location.category[i]);
           name += `${category?.name}-`;
         });
@@ -258,7 +258,7 @@ export default {
         return '/pins/default.png';
       }
     },
-    pinClass(current) {
+    pinClass(current: Project) {
       let cssClass =
         this.selectedLocation?.id === current.id ? 'marker-selected' : '';
       cssClass +=
@@ -267,7 +267,7 @@ export default {
     },
     updateMaxBounds() {
       if (this.locations && this.locations.size > 0 && this.$refs.map) {
-        this.maxBounds = this.locations.map((loc) => {
+        this.maxBounds = this.locations.map((loc: { latitude: any; longitude: any; }) => {
           return [loc.latitude, loc.longitude];
         });
         this.$refs.map.leafletObject.fitBounds(this.maxBounds);
@@ -279,7 +279,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import '~leaflet/dist/leaflet.css';
+@import 'leaflet/dist/leaflet.css';
 
 .leaflet-top {
   top: calc(5rem + env(safe-area-inset-top));

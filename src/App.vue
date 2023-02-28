@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import MainMenu from './components/MainMenu.vue';
+</script>
+
 <template>
   <main>
     <router-view />
@@ -6,17 +10,6 @@
     <main-menu class="menu" />
   </nav>
 </template>
-
-<script>
-import MainMenu from './components/MainMenu.vue';
-
-export default {
-  name: 'App',
-  components: {
-    MainMenu,
-  },
-};
-</script>
 
 <style lang="scss">
 body {

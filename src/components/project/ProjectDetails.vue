@@ -56,14 +56,15 @@
   </VueSidePanel>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState } from 'pinia';
-import { useCategoryStore } from '../../store/category.store';
+import { useCategoryStore } from '../../stores/category.store';
 
 import CategoryBadge from '../../components/CategoryBadge.vue';
 import CountryLabel from '../../components/CountryLabel.vue';
 import MarkdownText from '../../components/MarkdownText.vue';
 import NavigateButton from '../../components/actions/NavigateButton.vue';
+import type { Project } from '../../interfaces/Project';
 
 export default {
   name: 'ProjectDetails',
@@ -82,7 +83,7 @@ export default {
   emits: ['close'],
   data() {
     return {
-      showPanel: false,
+      showPanel: false as boolean,
     };
   },
   computed: {
@@ -112,8 +113,13 @@ export default {
       this.showPanel = false;
       this.$emit('close');
     },
-    getPin(category) {
-      return `/pins/${this.getCategoryById(category).name}.png`;
+    getPin(categoryId:string) {
+      const category = this.getCategoryById(categoryId)
+      if(category) {
+        return `/pins/${category.name}.png`;
+      } else {
+        return '/pins/unknown.png'
+      }
     },
   },
 };
