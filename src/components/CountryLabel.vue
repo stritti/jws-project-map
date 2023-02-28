@@ -13,7 +13,7 @@ export default {
   name: 'CountryLabel',
   props: {
     countryId: {
-      type: Array,
+      type: Array<string>,
       required: false,
       default: null,
     },
@@ -23,10 +23,18 @@ export default {
       getById: (store) => store.getById,
     }),
     countryLabel() {
-      return this.getById(this.countryId[0]).name;
+      if(this.countryId[0] && this.getById(this.countryId[0])) {
+        return this.getById(this.countryId[0]).name;
+      } else {
+        return '';
+      }
     },
     countryClass() {
-      return `fi fis fi-${this.getById(this.countryId[0]).code}`;
+      if(this.countryId[0] && this.getById(this.countryId[0])) {
+        return `fi fis fi-${this.getById(this.countryId[0]).code}`;
+      } else {
+        return '';
+      }
     },
   },
 };

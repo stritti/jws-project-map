@@ -17,8 +17,8 @@ const projectService = {
             partialRecords.forEach((partialRecords) => {
               let item:Project = {
                 id: partialRecords.id,
-                name: partialRecords.fields.Name,
-                teaserImg: partialRecords.fields?.TeaserImage,
+                name: partialRecords.fields.Name as string,
+                teaserImg: partialRecords.fields?.TeaserImage as object[],
                 category: partialRecords.fields?.Category,
                 notes: partialRecords.fields.Notes
                   ? partialRecords.fields.Notes.replaceAll(
@@ -26,10 +26,10 @@ const projectService = {
                       '"http'
                     ).replaceAll('>"', '"')
                   : '',
-                country: partialRecords.fields?.Country,
-                latitude: partialRecords.fields?.Latitude,
-                longitude: partialRecords.fields?.Longitude,
-                link: partialRecords.fields?.Link,
+                country: partialRecords.fields?.Country ,
+                latitude: partialRecords.fields?.Latitude as number,
+                longitude: partialRecords.fields?.Longitude as number,
+                link: partialRecords.fields?.Link as string,
                 state: partialRecords.fields?.State,
                 since: partialRecords.fields?.Since,
                 gallery: partialRecords.fields?.Gallery,

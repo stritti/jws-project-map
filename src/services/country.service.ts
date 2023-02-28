@@ -6,7 +6,7 @@ const BASE_NAME = 'Country';
 const categoryService = {
   getAll() {
     return new Promise((resolve, reject) => {
-      const locations:Array<Country> = [];
+      const locations:Array<Country> = new Array(0);
       base(BASE_NAME)
         .select({
           sort: [{ field: 'Name', direction: 'asc' }],
@@ -17,8 +17,8 @@ const categoryService = {
             partialRecords.forEach((partialRecords) => {
               locations.push({
                 id: partialRecords.id,
-                name: partialRecords.fields?.Name,
-                code: partialRecords.fields?.Code,
+                name: '' + partialRecords.fields.Name,
+                code: '' + partialRecords.fields.Code,
               });
             });
             fetchNextPage();
