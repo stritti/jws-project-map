@@ -125,7 +125,7 @@ import ShareButton from '../components/actions/ShareButton.vue'
 import NavigateButton from '../components/actions/NavigateButton.vue'
 
 export default {
-  name: 'ProjectDetailsView',
+  name: 'ProjectDetailView',
   components: {
     CountryLabel,
     CategoryBadge,
