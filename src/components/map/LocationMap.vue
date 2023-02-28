@@ -1,5 +1,6 @@
 <template>
   <div class="map">
+    <b-overlay :show="isLoadingMap" fixed style="height:100vh" :opacity="0.5">
     <l-map
       v-if="locations.length > 0"
       ref="map"
@@ -15,6 +16,7 @@
       :use-global-leaflet="true"
       :options="mapOptions"
       @click="addMarker"
+      @ready="mapLoaded"
     >
       <l-control-layers ref="control" position="bottomright"></l-control-layers>
       <l-tile-layer
@@ -97,6 +99,7 @@
         </l-marker>
       </l-layer-group>
     </l-map>
+    </b-overlay>
     <project-details
       :project="selectedLocation"
       :is-opened="isOpened"
@@ -152,6 +155,7 @@ export default {
       ]),
       categories: [],
       isOpened: false as boolean,
+      isLoadingMap: false as boolean,
       selectedLocation: null as Project | null,
       mapOptions: {
         zoomSnap: 0.5,
@@ -201,6 +205,7 @@ export default {
     },
   },
   async mounted() {
+    this.isLoadingMap = true
     if (this.locations.length > 0) {
       this.updateMaxBounds();
     }
@@ -219,6 +224,9 @@ export default {
     });
   },
   methods: {
+    mapLoaded() {
+      this.isLoadingMap = false
+    },
     addMarker(event: { latlng: any; originalEvent: { ctrlKey: any; altKey: any; }; }) {
       if (
         this.zoom >= 9 &&

@@ -60,14 +60,15 @@
           </b-card>
         </b-collapse>
       </b-skeleton-wrapper>
-
-      <b-card-group columns class="my-3">
-        <project-list-item
-          v-for="project in filteredProjectList"
-          :key="project.id"
-          :project="project"
-        />
-      </b-card-group>
+      <b-overlay :show="loading > 0" fixed :opacity="0.5">
+        <b-card-group columns class="my-3">
+          <project-list-item
+            v-for="project in filteredProjectList"
+            :key="project.id"
+            :project="project"
+          />
+        </b-card-group>
+      </b-overlay>
     </div>
   </b-container>
   <site-footer />
