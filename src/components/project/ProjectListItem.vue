@@ -27,11 +27,12 @@
 </template>
 
 <script lang="ts">
-import CategoryBadge from '../../components/CategoryBadge.vue';
-import CountryLabel from '../../components/CountryLabel.vue';
+import { defineComponent } from "vue";
+import CategoryBadge from "../../components/CategoryBadge.vue";
+import CountryLabel from "../../components/CountryLabel.vue";
 
-export default {
-  name: 'ProjectListItem',
+export default defineComponent({
+  name: "ProjectListItem",
   components: { CategoryBadge, CountryLabel },
   props: {
     project: {
@@ -44,14 +45,14 @@ export default {
       if (this.project.teaserImg) {
         return this.project.teaserImg[0].thumbnails.large.url;
       } else {
-        return '/img/placeholder.png';
+        return "/img/placeholder.png";
       }
     },
     imageStyleClasses() {
-      return this.project.state.replace(' ', '-');
+      return this.project.state.replace(" ", "-");
     },
   },
-};
+});
 </script>
 
 <style lang="scss" scoped>
@@ -80,7 +81,7 @@ a {
 
 .under-construction {
   filter:grayscale(0.85) &::after {
-    content: '... still under construction ...';
+    content: "... still under construction ...";
     position: absolute;
     top: 80px;
     white-space: pre;
@@ -93,7 +94,7 @@ a {
 
 .planned {
   filter:grayscale(0.85) &::after {
-    content: 'just planned';
+    content: "just planned";
     position: absolute;
     top: 80px;
     white-space: pre;

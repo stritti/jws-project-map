@@ -1,17 +1,17 @@
-import type { Country } from '@/interfaces/Country';
-import { defineStore } from 'pinia';
-import countryService from '../services/country.service';
-import { useLoadingStore } from './loading.store';
+import type { Country } from "@/interfaces/Country";
+import { defineStore } from "pinia";
+import countryService from "../services/country.service";
+import { useLoadingStore } from "./loading.store";
 
 interface State {
-  countries: Country[]
+  countries: Country[];
 }
 
-export const useCountryStore = defineStore('countries', {
+export const useCountryStore = defineStore("countries", {
   state: (): State => {
     return {
-      countries: []
-    }
+      countries: [],
+    };
   },
   getters: {
     getAll: (state) => state.countries,
@@ -23,7 +23,7 @@ export const useCountryStore = defineStore('countries', {
       const loadingStore = useLoadingStore();
       loadingStore.updateLoading(true);
       countryService.getAll().then((list) => {
-        this.countries = list;
+        this.countries = list as Array<Country>;
         loadingStore.updateLoading(false);
       });
     },

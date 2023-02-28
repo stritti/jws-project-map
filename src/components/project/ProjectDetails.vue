@@ -52,16 +52,17 @@
 </template>
 
 <script lang="ts">
-import { mapState } from 'pinia';
-import { useCategoryStore } from '../../stores/category.store';
+import { mapState } from "pinia";
+import { defineComponent } from "vue";
+import { useCategoryStore } from "../../stores/category.store";
 
-import CategoryBadge from '../../components/CategoryBadge.vue';
-import CountryLabel from '../../components/CountryLabel.vue';
-import MarkdownText from '../../components/MarkdownText.vue';
-import NavigateButton from '../../components/actions/NavigateButton.vue';
+import CategoryBadge from "../../components/CategoryBadge.vue";
+import CountryLabel from "../../components/CountryLabel.vue";
+import MarkdownText from "../../components/MarkdownText.vue";
+import NavigateButton from "../../components/actions/NavigateButton.vue";
 
-export default {
-  name: 'ProjectDetails',
+export default defineComponent({
+  name: "ProjectDetails",
   components: { CategoryBadge, CountryLabel, MarkdownText, NavigateButton },
   props: {
     project: {
@@ -74,7 +75,7 @@ export default {
       required: true,
     },
   },
-  emits: ['close'],
+  emits: ["close"],
   data() {
     return {
       showPanel: false as boolean,
@@ -105,18 +106,18 @@ export default {
     onSidePanelOpen() {},
     onSidePanelClose() {
       this.showPanel = false;
-      this.$emit('close');
+      this.$emit("close");
     },
-    getPin(categoryId:string) {
-      const category = this.getCategoryById(categoryId)
-      if(category) {
+    getPin(categoryId: string) {
+      const category = this.getCategoryById(categoryId);
+      if (category) {
         return `/pins/${category.name}.png`;
       } else {
-        return '/pins/unknown.png'
+        return "/pins/unknown.png";
       }
     },
   },
-};
+});
 </script>
 
 <style lang="scss">

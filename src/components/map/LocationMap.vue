@@ -1,104 +1,106 @@
 <template>
   <div class="map">
-    <b-overlay :show="isLoadingMap" fixed style="height:100vh" :opacity="0.5">
-    <l-map
-      v-if="locations.length > 0"
-      ref="map"
-      v-model:zoom="zoom"
-      class="map"
-      :center="currentCenter"
-      crs="EPSG:4326"
-      :min-zoom="4"
-      :zoom="zoom"
-      :max-zoom="17"
-      :bounds="bounds"
-      :max--bounds="maxBounds"
-      :use-global-leaflet="true"
-      :options="mapOptions"
-      @click="addMarker"
-      @ready="mapLoaded"
-    >
-      <l-control-layers ref="control" position="bottomright"></l-control-layers>
-      <l-tile-layer
-        url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-        layer-type="base"
-        name="Satellite"
-        attribution="Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
-      ></l-tile-layer>
-
-      <l-tile-layer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        layer-type="base"
-        name="OpenStreetMap"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      ></l-tile-layer>
-      <l-layer-group layer-type="overlay" :name="layerLabelProjectsFinished">
-        <l-marker
-          v-for="loc in projectsFinished"
-          :id="loc.id"
-          :key="loc.id"
-          :lat-lng="[loc.latitude, loc.longitude]"
-          :layer-type="loc.type"
-          @click="onMarkerClick(loc)"
-        >
-          <l-icon
-            :icon-url="getPin(loc)"
-            :class-name="pinClass(loc)"
-            :icon-size="[28, 39]"
-            :icon-anchor="[14, 39]"
-          ></l-icon>
-          <l-tooltip>
-            <span>{{ loc.name }}</span>
-            <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
-          </l-tooltip>
-        </l-marker>
-      </l-layer-group>
-      <l-layer-group
-        layer-type="overlay"
-        :name="layerLabelProjectsUnderConstruction"
+    <b-overlay :show="isLoadingMap" fixed style="height: 100vh" :opacity="0.5">
+      <l-map
+        v-if="locations.length > 0"
+        ref="map"
+        v-model:zoom="zoom"
+        class="map"
+        :center="currentCenter"
+        crs="EPSG:4326"
+        :min-zoom="4"
+        :max-zoom="17"
+        :bounds="bounds"
+        :max--bounds="maxBounds"
+        :use-global-leaflet="true"
+        :options="mapOptions"
+        @click="addMarker"
+        @ready="mapLoaded"
       >
-        <l-marker
-          v-for="loc in projectsUnderConstruction"
-          :id="loc.id"
-          :key="loc.id"
-          :lat-lng="[loc.latitude, loc.longitude]"
-          :layer-type="loc.type"
-          @click="onMarkerClick(loc)"
+        <l-control-layers
+          ref="control"
+          position="bottomright"
+        ></l-control-layers>
+        <l-tile-layer
+          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+          layer-type="base"
+          name="Satellite"
+          attribution="Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
+        ></l-tile-layer>
+
+        <l-tile-layer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          layer-type="base"
+          name="OpenStreetMap"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        ></l-tile-layer>
+        <l-layer-group layer-type="overlay" :name="layerLabelProjectsFinished">
+          <l-marker
+            v-for="loc in projectsFinished"
+            :id="loc.id"
+            :key="loc.id"
+            :lat-lng="[loc.latitude, loc.longitude]"
+            layer-type="project"
+            @click="onMarkerClick(loc)"
+          >
+            <l-icon
+              :icon-url="getPin(loc)"
+              :class-name="pinClass(loc)"
+              :icon-size="[28, 39]"
+              :icon-anchor="[14, 39]"
+            ></l-icon>
+            <l-tooltip>
+              <span>{{ loc.name }}</span>
+              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+            </l-tooltip>
+          </l-marker>
+        </l-layer-group>
+        <l-layer-group
+          layer-type="overlay"
+          :name="layerLabelProjectsUnderConstruction"
         >
-          <l-icon
-            :icon-url="getPin(loc)"
-            :class-name="pinClass(loc)"
-            :icon-size="[28, 39]"
-            :icon-anchor="[14, 39]"
-          ></l-icon>
-          <l-tooltip>
-            <span>{{ loc.name }}</span>
-            <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
-          </l-tooltip>
-        </l-marker>
-      </l-layer-group>
-      <l-layer-group layer-type="overlay" :name="layerLabelProjectsPlanned">
-        <l-marker
-          v-for="loc in projectsPlanned"
-          :id="loc.id"
-          :key="loc.id"
-          :lat-lng="[loc.latitude, loc.longitude]"
-          :layer-type="loc.type"
-          @click="onMarkerClick(loc)"
-        >
-          <l-icon
-            :icon-url="getPin(loc)"
-            :class-name="pinClass(loc)"
-            :icon-size="[28, 39]"
-            :icon-anchor="[14, 39]"
-          ></l-icon>
-          <l-tooltip>
-            <span>{{ loc.name }}</span>
-            <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
-          </l-tooltip>
-        </l-marker>
-      </l-layer-group>
-    </l-map>
+          <l-marker
+            v-for="loc in projectsUnderConstruction"
+            :id="loc.id"
+            :key="loc.id"
+            :lat-lng="[loc.latitude, loc.longitude]"
+            layer-type="project"
+            @click="onMarkerClick(loc)"
+          >
+            <l-icon
+              :icon-url="getPin(loc)"
+              :class-name="pinClass(loc)"
+              :icon-size="[28, 39]"
+              :icon-anchor="[14, 39]"
+            ></l-icon>
+            <l-tooltip>
+              <span>{{ loc.name }}</span>
+              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+            </l-tooltip>
+          </l-marker>
+        </l-layer-group>
+        <l-layer-group layer-type="overlay" :name="layerLabelProjectsPlanned">
+          <l-marker
+            v-for="loc in projectsPlanned"
+            :id="loc.id"
+            :key="loc.id"
+            :lat-lng="[loc.latitude, loc.longitude]"
+            layer-type="project"
+            @click="onMarkerClick(loc)"
+          >
+            <l-icon
+              :icon-url="getPin(loc)"
+              :class-name="pinClass(loc)"
+              :icon-size="[28, 39]"
+              :icon-anchor="[14, 39]"
+            ></l-icon>
+            <l-tooltip>
+              <span>{{ loc.name }}</span>
+              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+            </l-tooltip>
+          </l-marker>
+        </l-layer-group>
+      </l-map>
     </b-overlay>
     <project-details
       :project="selectedLocation"
@@ -109,13 +111,14 @@
 </template>
 
 <script lang="ts">
-import { mapState } from 'pinia';
-import { mapActions } from 'pinia';
-import { useLoadingStore } from '../../stores/loading.store';
-import { useCategoryStore } from '../../stores/category.store';
-import { useProjectStore } from '../../stores/project.store';
+import { defineComponent } from "vue";
+import { mapState } from "pinia";
+import { mapActions } from "pinia";
+import { useLoadingStore } from "../../stores/loading.store";
+import { useCategoryStore } from "../../stores/category.store";
+import { useProjectStore } from "../../stores/project.store";
 
-import { latLngBounds } from 'leaflet';
+import { LatLngBounds, latLngBounds } from "leaflet";
 import {
   LMap,
   LControlLayers,
@@ -124,13 +127,14 @@ import {
   LMarker,
   LIcon,
   LTooltip,
-} from '@vue-leaflet/vue-leaflet';
-import ProjectDetails from '../../components/project/ProjectDetails.vue';
-import projectService from '../../services/project.service';
-import type { Project } from '@/interfaces/Project'
+} from "@vue-leaflet/vue-leaflet";
+import ProjectDetails from "../../components/project/ProjectDetails.vue";
+import projectService from "../../services/project.service";
+import type { Project } from "@/interfaces/Project";
+import type { Category } from "@/interfaces/Category";
 
-export default {
-  name: 'LocationMap',
+export default defineComponent({
+  name: "LocationMap",
   components: {
     LMap,
     LControlLayers,
@@ -148,11 +152,11 @@ export default {
       bounds: latLngBounds([
         [-14.5981259, 5.8997233],
         [8.9490075, 11.322326],
-      ]),
+      ]) as LatLngBounds,
       maxBounds: latLngBounds([
         [-14.6, 5.9],
         [8.9490075, 11.322326],
-      ]),
+      ]) as LatLngBounds,
       categories: [],
       isOpened: false as boolean,
       isLoadingMap: false as boolean,
@@ -164,48 +168,51 @@ export default {
   },
   computed: {
     ...mapState(useCategoryStore, {
-      getCategoryById: 'getById'
+      getCategoryById: (store) => store.getById as unknown as Category,
     }),
     ...mapState(useLoadingStore, {
-      showLoadingSpinner: 'showLoadingSpinner'
+      showLoadingSpinner: (store) => store.showLoadingSpinner as boolean,
     }),
     ...mapState(useProjectStore, {
-      locations: 'projects'
+      locations: (store) => store.projects as Array<Project>,
     }),
-    projectsFinished() {
+    projectsFinished(): Array<Project> {
       if (this.locations.length > 0) {
-        return this.locations.filter((loc: Project) => loc.state === 'finished');
-      } else {
-        return [];
-      }
-    },
-    projectsUnderConstruction() {
-      if (this.locations.length > 0) {
-        return this.locations.filter((loc: Project) => loc.state === 'under construction'
+        return this.locations.filter(
+          (loc: Project) => loc.state === "finished"
         );
       } else {
         return [];
       }
     },
-    projectsPlanned() {
+    projectsUnderConstruction(): Array<Project> {
       if (this.locations.length > 0) {
-        return this.locations.filter((loc: Project) => loc.state === 'planned');
+        return this.locations.filter(
+          (loc: Project) => loc.state === "under construction"
+        );
       } else {
         return [];
       }
     },
-    layerLabelProjectsFinished() {
+    projectsPlanned(): Array<Project> {
+      if (this.locations.length > 0) {
+        return this.locations.filter((loc: Project) => loc.state === "planned");
+      } else {
+        return [];
+      }
+    },
+    layerLabelProjectsFinished(): string {
       return `Projects: finished (${this.projectsFinished.length})`;
     },
-    layerLabelProjectsUnderConstruction() {
+    layerLabelProjectsUnderConstruction(): string {
       return `Projects: under construction (${this.projectsUnderConstruction.length})`;
     },
-    layerLabelProjectsPlanned() {
+    layerLabelProjectsPlanned(): string {
       return `Projects: planned (${this.projectsPlanned.length})`;
     },
   },
   async mounted() {
-    this.isLoadingMap = true
+    this.isLoadingMap = true;
     if (this.locations.length > 0) {
       this.updateMaxBounds();
     }
@@ -224,38 +231,41 @@ export default {
     });
   },
   methods: {
-    mapLoaded() {
-      this.isLoadingMap = false
+    mapLoaded(): void {
+      this.isLoadingMap = false;
     },
-    addMarker(event: { latlng: any; originalEvent: { ctrlKey: any; altKey: any; }; }) {
+    addMarker(event: {
+      latlng: any;
+      originalEvent: { ctrlKey: any; altKey: any };
+    }): void {
       if (
         this.zoom >= 9 &&
         event.latlng &&
         event.originalEvent.ctrlKey &&
         event.originalEvent.altKey
       ) {
-        const name = prompt('Enter name:', '__TBD__');
+        const name = prompt("Enter name:", "__TBD__");
         if (name) {
           projectService.add(event.latlng, name);
         }
       }
     },
-    onMarkerClick(location: null) {
+    onMarkerClick(location: Project): void {
       this.selectedLocation = location;
       this.isOpened = true;
     },
-    onSidePanelClose() {
+    onSidePanelClose(): void {
       this.selectedLocation = null;
       this.isOpened = false;
     },
-    getPin(location: Project) {
+    getPin(location: Project): string {
       if (location.category && location.category.length === 0) {
-        return '/pins/default.png';
+        return "/pins/default.png";
       } else if (location.category && location.category.length === 1) {
         const category = this.getCategoryById(location.category[0]);
         return `/pins/${category?.name.toLowerCase()}.png`;
       } else if (location.category && location.category.length > 1) {
-        let name = '';
+        let name = "";
         location.category.forEach((obj: any, i: string | number) => {
           const category = this.getCategoryById(location.category[i]);
           name += `${category?.name}-`;
@@ -263,31 +273,33 @@ export default {
         name = name.slice(0, -1);
         return `/pins/${name.toLowerCase()}.png`;
       } else {
-        return '/pins/default.png';
+        return "/pins/default.png";
       }
     },
-    pinClass(current: Project) {
+    pinClass(current: Project): string {
       let cssClass =
-        this.selectedLocation?.id === current.id ? 'marker-selected' : '';
+        this.selectedLocation?.id === current.id ? "marker-selected" : "";
       cssClass +=
-        ' marker-state-' + current.state?.toLowerCase().replace(' ', '-');
+        " marker-state-" + current.state?.toLowerCase().replace(" ", "-");
       return cssClass;
     },
-    updateMaxBounds() {
-      if (this.locations && this.locations.size > 0 && this.$refs.map) {
-        this.maxBounds = this.locations.map((loc: { latitude: any; longitude: any; }) => {
-          return [loc.latitude, loc.longitude];
-        });
-        this.$refs.map.leafletObject.fitBounds(this.maxBounds);
+    updateMaxBounds(): void {
+      if (this.locations && this.locations.length > 0 && this.$refs.map) {
+        this.maxBounds = this.locations.map(
+          (loc: { latitude: number; longitude: number }) => {
+            return { latitude: loc.latitude, longitude: loc.longitude };
+          }
+        );
+        (this.$refs.map as any).leafletObject.fitBounds(this.maxBounds);
       }
     },
-    ...mapActions(useLoadingStore, ['updateLoading']),
+    ...mapActions(useLoadingStore, ["updateLoading"]),
   },
-};
+});
 </script>
 
 <style lang="scss">
-@import 'leaflet/dist/leaflet.css';
+@import "leaflet/dist/leaflet.css";
 
 .leaflet-top {
   top: calc(5rem + env(safe-area-inset-top));

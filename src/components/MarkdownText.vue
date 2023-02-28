@@ -3,10 +3,12 @@
 </template>
 
 <script lang="ts">
-import Markdown from 'vue3-markdown-it';
+import Markdown from "vue3-markdown-it";
 
-export default {
-  name: 'MarkdownText',
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "MarkdownText",
   components: {
     Markdown,
   },
@@ -17,5 +19,5 @@ export default {
       default: null,
     },
   },
-};
+});
 </script>

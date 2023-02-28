@@ -1,6 +1,6 @@
-import { defineStore } from 'pinia';
+import { defineStore } from "pinia";
 
-export const useLoadingStore = defineStore('loading', {
+export const useLoadingStore = defineStore("loading", {
   state: () => ({
     loading: 0,
   }),
@@ -12,7 +12,7 @@ export const useLoadingStore = defineStore('loading', {
      * Update Loading Spinner
      * @param {boolean} flag
      */
-    updateLoading(flag) {
+    updateLoading(flag: boolean) {
       if (flag) {
         this.loading++;
       } else {

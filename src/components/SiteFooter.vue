@@ -19,9 +19,11 @@
 </template>
 
 <script lang="ts">
-export default {
-  name: 'SiteFooter',
-};
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "SiteFooter",
+});
 </script>
 
 <style lang="scss" scoped>

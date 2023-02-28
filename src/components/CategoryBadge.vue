@@ -9,11 +9,12 @@
 </template>
 
 <script lang="ts">
-import { mapState } from 'pinia';
-import { useCategoryStore } from '../stores/category.store';
+import { mapState } from "pinia";
+import { useCategoryStore } from "../stores/category.store";
+import { defineComponent } from "vue";
 
-export default {
-  name: 'CategoryBadge',
+export default defineComponent({
+  name: "CategoryBadge",
   props: {
     categoryId: {
       type: String,
@@ -25,13 +26,17 @@ export default {
       getById: (store) => store.getById,
     }),
     displayName() {
-      return this.getById(this.categoryId) ? this.getById(this.categoryId)?.name : ''
+      return this.getById(this.categoryId)
+        ? this.getById(this.categoryId)?.name
+        : "";
     },
     categoryStyle() {
-      return this.getById(this.categoryId) ? `background-color: ${this.getById(this.categoryId)?.color};` : ''
+      return this.getById(this.categoryId)
+        ? `background-color: ${this.getById(this.categoryId)?.color};`
+        : "";
     },
   },
-};
+});
 </script>
 
 <style>

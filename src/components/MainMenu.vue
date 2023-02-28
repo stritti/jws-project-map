@@ -10,11 +10,13 @@
 </template>
 
 <script lang="ts">
-import BootstrapIcon from '@dvuckovic/vue3-bootstrap-icons';
-export default {
-  name: 'MainMenu',
+import BootstrapIcon from "@dvuckovic/vue3-bootstrap-icons";
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "MainMenu",
   components: { BootstrapIcon },
-};
+});
 </script>
 
 <style lang="scss" scoped>

@@ -10,10 +10,12 @@
   </b-button>
 </template>
 <script lang="ts">
-import BootstrapIcon from '@dvuckovic/vue3-bootstrap-icons';
+import BootstrapIcon from "@dvuckovic/vue3-bootstrap-icons";
 
-export default {
-  name: 'NavigateButton',
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "NavigateButton",
   components: { BootstrapIcon },
   props: {
     lat: {
@@ -32,7 +34,7 @@ export default {
       );
     },
   },
-};
+});
 </script>
 <style lang="scss" scoped>
 .share-button {

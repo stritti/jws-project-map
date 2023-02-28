@@ -5,12 +5,14 @@
 </template>
 
 <script lang="ts">
-import { mapState } from 'pinia';
-import { useCountryStore } from '../stores/country.store';
-import 'flag-icons/sass/flag-icons.scss';
+import { mapState } from "pinia";
+import { useCountryStore } from "../stores/country.store";
+import "flag-icons/sass/flag-icons.scss";
 
-export default {
-  name: 'CountryLabel',
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "CountryLabel",
   props: {
     countryId: {
       type: Array<string>,
@@ -22,20 +24,20 @@ export default {
     ...mapState(useCountryStore, {
       getById: (store) => store.getById,
     }),
-    countryLabel() {
-      if(this.countryId[0] && this.getById(this.countryId[0])) {
-        return this.getById(this.countryId[0]).name;
+    countryLabel(): string {
+      if (this.countryId[0] && this.getById(this.countryId[0])) {
+        return this.getById(this.countryId[0])?.name as string;
       } else {
-        return '';
+        return "";
       }
     },
     countryClass() {
-      if(this.countryId[0] && this.getById(this.countryId[0])) {
-        return `fi fis fi-${this.getById(this.countryId[0]).code}`;
+      if (this.countryId[0] && this.getById(this.countryId[0])) {
+        return `fi fis fi-${this.getById(this.countryId[0])?.code}`;
       } else {
-        return '';
+        return "";
       }
     },
   },
-};
+});
 </script>

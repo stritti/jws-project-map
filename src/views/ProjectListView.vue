@@ -3,7 +3,7 @@
     <div class="project-list">
       <h1>JWF + Humanaktiv: Project Overview</h1>
 
-      <b-skeleton-wrapper :loading="loading > 0">
+      <b-skeleton-wrapper :loading="showLoadingSpinner">
         <template #loading>
           <h3><b-skeleton width="75%"></b-skeleton></h3>
           <p>
@@ -66,7 +66,7 @@
           </b-card>
         </b-collapse>
       </b-skeleton-wrapper>
-      <b-overlay :show="loading > 0" fixed :opacity="0.5">
+      <b-overlay :show="showLoadingSpinner" fixed :opacity="0.5">
         <b-card-group columns="true" class="my-3">
           <project-list-item
             v-for="project in filteredProjectList"
@@ -81,52 +81,56 @@
 </template>
 
 <script lang="ts">
-import { mapState } from 'pinia'
-import { useLoadingStore } from '../stores/loading.store'
-import { useProjectStore } from '../stores/project.store'
-import { useCategoryStore } from '../stores/category.store'
-import { useCountryStore } from '../stores/country.store'
+import { defineComponent } from "vue";
+import { mapState } from "pinia";
+import { useLoadingStore } from "../stores/loading.store";
+import { useProjectStore } from "../stores/project.store";
+import { useCategoryStore } from "../stores/category.store";
+import { useCountryStore } from "../stores/country.store";
 
-import BootstrapIcon from '@dvuckovic/vue3-bootstrap-icons'
-import ProjectListItem from '../components/project/ProjectListItem.vue'
-import SiteFooter from '../components/SiteFooter.vue'
-import type { Project } from '../interfaces/Project'
+import BootstrapIcon from "@dvuckovic/vue3-bootstrap-icons";
+import ProjectListItem from "../components/project/ProjectListItem.vue";
+import SiteFooter from "../components/SiteFooter.vue";
 
-export default {
-  name: 'ProjectDetailsView',
+import type { Category } from "@/interfaces/Category";
+import type { Country } from "@/interfaces/Country";
+import type { Project } from "@/interfaces/Project";
+
+export default defineComponent({
+  name: "ProjectListView",
   components: { BootstrapIcon, ProjectListItem, SiteFooter },
   data() {
     return {
       showFilters: false,
-      stateFilter: ['finished', 'planned', 'under construction'],
+      stateFilter: ["finished", "planned", "under construction"],
       stateOptions: [
-        { text: 'finished', value: 'finished' },
-        { text: 'under construction', value: 'under construction' },
-        { text: 'planned', value: 'planned' },
+        { text: "finished", value: "finished" },
+        { text: "under construction", value: "under construction" },
+        { text: "planned", value: "planned" },
       ],
-      categoryFilter: [],
-      countryFilter: [],
+      categoryFilter: [] as Array<Category>,
+      countryFilter: [] as Array<Country>,
+      loadingStore: useLoadingStore(),
     };
   },
   computed: {
     ...mapState(useLoadingStore, {
-      loading: 'loading',
+      showLoadingSpinner: (store) => store.showLoadingSpinner as boolean,
     }),
     ...mapState(useProjectStore, {
-      projectList: 'projects',
+      projectList: (store) => store.projects as Array<Project>,
     }),
     ...mapState(useCategoryStore, {
-      categoryList: 'categories',
+      categoryList: (store) => store.categories as Array<Category>,
     }),
     ...mapState(useCountryStore, {
-      countryList: 'countries',
+      countryList: (store) => store.countries as Array<Country>,
     }),
-    filteredProjectList() {
-      const loadingStore = useLoadingStore()
-      loadingStore.updateLoading(true)
-      const filteredList = [] as Array<Project>
+    filteredProjectList(): Array<Project> {
+      this.loadingStore.updateLoading(true);
+      const filteredList = [] as Array<Project>;
 
-      this.projectList.forEach( (project: Project) => {
+      this.projectList.forEach((project: Project) => {
         if (
           (this.stateFilter.length === 0 ||
             this.stateFilter.includes(project.state)) &&
@@ -137,17 +141,19 @@ export default {
         ) {
           filteredList.push(project);
         }
-      })
+      });
 
-      loadingStore.updateLoading(false);
+      this.loadingStore.updateLoading(false);
       return filteredList;
     },
-    projectCount() {
+    projectCount(): number {
       return this.projectList.length;
     },
     projectsFinished() {
       if (this.projectList.length > 0) {
-        return this.projectList.filter((loc) => loc.state === 'finished');
+        return this.projectList.filter(
+          (loc: Project) => loc.state === "finished"
+        );
       } else {
         return [];
       }
@@ -155,7 +161,7 @@ export default {
     projectsUnderConstruction() {
       if (this.projectList.length > 0) {
         return this.projectList.filter(
-          (loc) => loc.state === 'under construction'
+          (loc: Project) => loc.state === "under construction"
         );
       } else {
         return [];
@@ -163,13 +169,15 @@ export default {
     },
     projectsPlanned() {
       if (this.projectList.length > 0) {
-        return this.projectList.filter((loc) => loc.state === 'planned');
+        return this.projectList.filter(
+          (loc: Project) => loc.state === "planned"
+        );
       } else {
         return [];
       }
     },
   },
-};
+});
 </script>
 
 <style lang="scss" scoped>

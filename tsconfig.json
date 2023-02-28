@@ -1,7 +1,21 @@
 {
   "extends": "@vue/tsconfig/tsconfig.web.json",
-  "include": ["env.d.ts", "components.d.ts", "src/**/*", "src/**/*.vue"],
+  "include": [
+    "env.d.ts",
+    "components.d.ts",
+    "src/**/*",
+    "src/**/*.vue",
+    "vue3-markdown-it.d.ts",
+    "vue3-video-player.d.ts",
+    "vue3-picture-swipe.d.ts",
+    "vue3-bootstrap-icons.d.ts",
+    "vue-leaflet.d.ts"
+  ],
   "compilerOptions": {
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]

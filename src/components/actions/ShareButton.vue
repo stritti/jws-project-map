@@ -11,10 +11,12 @@
   </b-button>
 </template>
 <script lang="ts">
-import BootstrapIcon from '@dvuckovic/vue3-bootstrap-icons';
+import BootstrapIcon from "@dvuckovic/vue3-bootstrap-icons";
 
-export default {
-  name: 'ShareButton',
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "ShareButton",
   components: { BootstrapIcon },
   props: {
     title: {
@@ -36,7 +38,7 @@ export default {
   },
   computed: {
     isShareable() {
-      return 'share' in navigator;
+      return "share" in navigator;
     },
   },
   methods: {
@@ -52,7 +54,7 @@ export default {
       navigator.share(data);
     },
   },
-};
+});
 </script>
 <style lang="scss" scoped>
 .share-button {
