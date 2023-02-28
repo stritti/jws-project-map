@@ -1,8 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 
-import BootstrapVue3 from 'bootstrap-vue-3'
-
 import VueSidePanel from 'vue3-side-panel'
 import 'vue3-side-panel/dist/vue3-side-panel.css'
 
@@ -27,7 +25,6 @@ const app = createApp(App)
 
 app.use(pinia)
 app.use(router)
-app.use(BootstrapVue3)
 app.use(VueSidePanel)
 app.use(Vue3VideoPlayer, {
   lang: 'en',
