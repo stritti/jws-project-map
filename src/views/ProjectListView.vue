@@ -19,11 +19,17 @@
           {{ projectsPlanned.length }} planned)
         </h3>
 
-        <b-button v-b-toggle.collapse-filter variant="primary">
+        <b-button
+          :class="showFilters ? null : 'collapsed'"
+          :aria-expanded="showFilters ? 'true' : 'false'"
+          aria-controls="collapse-filter"
+          @click="showFilters = !showFilters"
+          variant="primary"
+        >
           <bootstrap-icon icon="filter" />
           Filter
         </b-button>
-        <b-collapse id="collapse-filter">
+        <b-collapse id="collapse-filter" v-model="showFilters">
           <b-card bg-variant="light" class="mb-5">
             <b-form-group label="Project State:">
               <b-form-checkbox-group
@@ -61,7 +67,7 @@
         </b-collapse>
       </b-skeleton-wrapper>
       <b-overlay :show="loading > 0" fixed :opacity="0.5">
-        <b-card-group columns class="my-3">
+        <b-card-group columns="true" class="my-3">
           <project-list-item
             v-for="project in filteredProjectList"
             :key="project.id"
@@ -91,6 +97,7 @@ export default {
   components: { BootstrapIcon, ProjectListItem, SiteFooter },
   data() {
     return {
+      showFilters: false,
       stateFilter: ['finished', 'planned', 'under construction'],
       stateOptions: [
         { text: 'finished', value: 'finished' },
