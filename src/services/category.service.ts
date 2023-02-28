@@ -1,3 +1,4 @@
+import type { Category } from '@/interfaces/Category';
 import base from './airtable.service';
 
 const BASE_NAME = 'Category';
@@ -5,7 +6,7 @@ const BASE_NAME = 'Category';
 const categoryService = {
   getAll() {
     return new Promise((resolve, reject) => {
-      const items = [];
+      const items:Array<Category> = [];
       base(BASE_NAME)
         .select({
           sort: [{ field: 'Name', direction: 'asc' }],
