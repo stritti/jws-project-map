@@ -11,7 +11,7 @@
     "@cloudgeek/vue3-video-player": "^0.3.10",
     "@dvuckovic/vue3-bootstrap-icons": "^1.0.6",
     "@popperjs/core": "^2.11.5",
-    "@vue-leaflet/vue-leaflet": "^0.8.4",
+    "@vue-leaflet/vue-leaflet": "^0.9.0",
     "airtable": "^0.11.5",
     "bootstrap": "^5.2.3",
     "bootstrap-vue-3": "^0.5.1",
