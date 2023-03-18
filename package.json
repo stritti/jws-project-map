@@ -15,7 +15,7 @@
     "airtable": "^0.11.5",
     "bootstrap": "^5.2.3",
     "bootstrap-vue-3": "^0.5.1",
-    "core-js": "^3.29.0",
+    "core-js": "^3.29.1",
     "flag-icons": "^6.6.6",
     "leaflet": "^1.9.3",
     "leaflet.path.drag": "^0.0.6",
