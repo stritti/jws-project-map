@@ -7816,10 +7816,10 @@ vary@~1.1.2:
   resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==
 
-vue-cli-plugin-pinia@~0.2.3:
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/vue-cli-plugin-pinia/-/vue-cli-plugin-pinia-0.2.3.tgz#36b22f3ca7b6b1182b86fb8b6dcdddcabf7a382b"
-  integrity sha512-9dk8TUzPHyqJ6kfuso7fd0uHJRtEVzsbsPPd2Cn8q/c6+/FcDmapimFyjZjDKltt9rPtfYuZCS2I0GHH0frhzA==
+vue-cli-plugin-pinia@~0.2.4:
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/vue-cli-plugin-pinia/-/vue-cli-plugin-pinia-0.2.4.tgz#3ddb8898fe73cee021bbd3cb9b27ac5aaf130429"
+  integrity sha512-ZvY/d66Qr8WACtsZr79Nm/Eed2DSC5bcnyzg0oxYvYXzK0s9732RhJ/11sMDDz+ZTnHxZHM3awlpdC7i4meUFg==
 
 vue-demi@*, vue-demi@>=0.14.5:
   version "0.14.5"
