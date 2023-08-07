@@ -11,7 +11,7 @@
   "dependencies": {
     "@cloudgeek/vue3-video-player": "^0.3.10",
     "@dvuckovic/vue3-bootstrap-icons": "^1.0.6",
-    "@popperjs/core": "^2.11.7",
+    "@popperjs/core": "^2.11.8",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "airtable": "^0.12.1",
     "bootstrap": "^5.3.0",
