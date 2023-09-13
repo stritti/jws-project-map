@@ -3,13 +3,13 @@
     <div class="project-list">
       <h1>JWF + Humanaktiv: Project Overview</h1>
 
-      <b-skeleton-wrapper :loading="showLoadingSpinner">
+      <b-placeholder-wrapper :loading="showLoadingSpinner">
         <template #loading>
-          <h3><b-skeleton width="75%"></b-skeleton></h3>
+          <h3><b-placeholder width="75%"></b-placeholder></h3>
           <p>
-            <b-skeleton width="85%"></b-skeleton>
-            <b-skeleton width="55%"></b-skeleton>
-            <b-skeleton width="70%"></b-skeleton>
+            <b-placeholder  width="85%"></b-placeholder>
+            <b-placeholder width="55%"></b-placeholder>
+            <b-placeholder width="70%"></b-placeholder>
           </p>
         </template>
 
@@ -65,7 +65,7 @@
             </h3>
           </b-card>
         </b-collapse>
-      </b-skeleton-wrapper>
+      </b-placeholder-wrapper >
       <b-overlay :show="showLoadingSpinner" fixed :opacity="0.5">
         <b-card-group columns="true" class="my-3">
           <project-list-item
