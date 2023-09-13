@@ -66,8 +66,7 @@ export default defineComponent({
   components: { CategoryBadge, CountryLabel, MarkdownText, NavigateButton },
   props: {
     project: {
-      type: Object,
-      required: true,
+      type: Object
     },
     isOpened: {
       type: Boolean,
@@ -110,7 +109,7 @@ export default defineComponent({
     getPin(categoryId: string) {
       const category = this.getCategoryById(categoryId);
       if (category) {
-        return `/pins/${category.name}.png`;
+        return `/pins/${category.name.toLowerCase()}.png`;
       } else {
         return "/pins/unknown.png";
       }

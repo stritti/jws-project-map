@@ -34,8 +34,10 @@
           name="OpenStreetMap"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         ></l-tile-layer>
+
         <l-layer-group layer-type="overlay" :name="layerLabelProjectsFinished">
           <l-marker
+            v-if="projectsFinished"
             v-for="loc in projectsFinished"
             :id="loc.id"
             :key="loc.id"
@@ -55,11 +57,13 @@
             </l-tooltip>
           </l-marker>
         </l-layer-group>
+
         <l-layer-group
           layer-type="overlay"
           :name="layerLabelProjectsUnderConstruction"
         >
           <l-marker
+            v-if="projectsUnderConstruction"
             v-for="loc in projectsUnderConstruction"
             :id="loc.id"
             :key="loc.id"
@@ -79,8 +83,10 @@
             </l-tooltip>
           </l-marker>
         </l-layer-group>
+
         <l-layer-group layer-type="overlay" :name="layerLabelProjectsPlanned">
           <l-marker
+            v-if="projectsPlanned"
             v-for="loc in projectsPlanned"
             :id="loc.id"
             :key="loc.id"
@@ -100,6 +106,7 @@
             </l-tooltip>
           </l-marker>
         </l-layer-group>
+
       </l-map>
     </b-overlay>
     <project-details
@@ -261,16 +268,16 @@ export default defineComponent({
       if (location.category && location.category.length === 0) {
         return "/pins/default.png";
       } else if (location.category && location.category.length === 1) {
-        const category = this.getCategoryById(location.category[0].id);
+        const category = this.getCategoryById(location.category[0]);
         return `/pins/${category?.name.toLowerCase()}.png`;
       } else if (location.category && location.category.length > 1) {
         let name = "";
         location.category.forEach((obj: any, i: number) => {
-          const category = this.getCategoryById(location.category[i].id);
-          name += `${category?.name}-`;
+          const category = this.getCategoryById(location.category[i]);
+          name += `${category?.name.toLowerCase()}-`;
         });
         name = name.slice(0, -1);
-        return `/pins/${name.toLowerCase()}.png`;
+        return `/pins/${name}.png`;
       } else {
         return "/pins/default.png";
       }

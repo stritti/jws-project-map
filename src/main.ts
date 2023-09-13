@@ -17,8 +17,6 @@ import { useCategoryStore } from "./stores/category.store";
 import { useProjectStore } from "./stores/project.store";
 import "./registerServiceWorker";
 
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
 
 const pinia = createPinia();
 
