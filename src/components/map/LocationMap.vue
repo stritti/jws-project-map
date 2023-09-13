@@ -131,7 +131,6 @@ import {
 import ProjectDetails from "../../components/project/ProjectDetails.vue";
 import projectService from "../../services/project.service";
 import type { Project } from "@/interfaces/Project";
-import type { Category } from "@/interfaces/Category";
 
 export default defineComponent({
   name: "LocationMap",
@@ -168,7 +167,7 @@ export default defineComponent({
   },
   computed: {
     ...mapState(useCategoryStore, {
-      getCategoryById: (store) => store.getById as unknown as Category,
+      getCategoryById: (store) => store.getById,
     }),
     ...mapState(useLoadingStore, {
       showLoadingSpinner: (store) => store.showLoadingSpinner as boolean,
@@ -262,12 +261,12 @@ export default defineComponent({
       if (location.category && location.category.length === 0) {
         return "/pins/default.png";
       } else if (location.category && location.category.length === 1) {
-        const category = this.getCategoryById(location.category[0]);
+        const category = this.getCategoryById(location.category[0].id);
         return `/pins/${category?.name.toLowerCase()}.png`;
       } else if (location.category && location.category.length > 1) {
         let name = "";
-        location.category.forEach((obj: any, i: string | number) => {
-          const category = this.getCategoryById(location.category[i]);
+        location.category.forEach((obj: any, i: number) => {
+          const category = this.getCategoryById(location.category[i].id);
           name += `${category?.name}-`;
         });
         name = name.slice(0, -1);

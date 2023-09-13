@@ -108,8 +108,8 @@ export default defineComponent({
         { text: "under construction", value: "under construction" },
         { text: "planned", value: "planned" },
       ],
-      categoryFilter: [] as Array<Category>,
-      countryFilter: [] as Array<Country>,
+      categoryFilter: [] as Array<string>,
+      countryFilter: [] as Array<string>,
       loadingStore: useLoadingStore(),
     };
   },
@@ -118,14 +118,29 @@ export default defineComponent({
       showLoadingSpinner: (store) => store.showLoadingSpinner as boolean,
     }),
     ...mapState(useProjectStore, {
-      projectList: (store) => store.projects as Array<Project>,
+      projects: (store) => store.projects as Array<Project>,
     }),
+    projectList() {
+      return this.projects.map(project => {
+        return {text: project.name, value: project.id, ...project}
+      })
+    },
     ...mapState(useCategoryStore, {
-      categoryList: (store) => store.categories as Array<Category>,
+      categories: (store) => store.categories as Array<Category>,
     }),
+    categoryList() {
+      return this.categories.map(category => {
+        return {text: category.name, value: category.id, ...category}
+      })
+    },
     ...mapState(useCountryStore, {
-      countryList: (store) => store.countries as Array<Country>,
+      countryies: (store) => store.countries as Array<Country>,
     }),
+    countryList() {
+      return this.countryies.map(country => {
+        return {text: country.name, value: country.id, ...country}
+      })
+    },
     filteredProjectList(): Array<Project> {
       this.loadingStore.updateLoading(true);
       const filteredList = [] as Array<Project>;

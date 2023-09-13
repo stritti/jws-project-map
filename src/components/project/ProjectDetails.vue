@@ -67,8 +67,7 @@ export default defineComponent({
   props: {
     project: {
       type: Object,
-      required: false,
-      default: null,
+      required: true,
     },
     isOpened: {
       type: Boolean,
