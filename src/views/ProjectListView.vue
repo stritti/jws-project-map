@@ -7,7 +7,7 @@
         <template #loading>
           <h3><b-placeholder width="75%"></b-placeholder></h3>
           <p>
-            <b-placeholder  width="85%"></b-placeholder>
+            <b-placeholder width="85%"></b-placeholder>
             <b-placeholder width="55%"></b-placeholder>
             <b-placeholder width="70%"></b-placeholder>
           </p>
@@ -65,7 +65,7 @@
             </h3>
           </b-card>
         </b-collapse>
-      </b-placeholder-wrapper >
+      </b-placeholder-wrapper>
       <b-overlay :show="showLoadingSpinner" fixed :opacity="0.5">
         <b-card-group columns="true" class="my-3">
           <project-list-item
@@ -121,25 +121,25 @@ export default defineComponent({
       projects: (store) => store.projects as Array<Project>,
     }),
     projectList() {
-      return this.projects.map(project => {
-        return {text: project.name, value: project.id, ...project}
-      })
+      return this.projects.map((project) => {
+        return { text: project.name, value: project.id, ...project };
+      });
     },
     ...mapState(useCategoryStore, {
       categories: (store) => store.categories as Array<Category>,
     }),
     categoryList() {
-      return this.categories.map(category => {
-        return {text: category.name, value: category.id, ...category}
-      })
+      return this.categories.map((category) => {
+        return { text: category.name, value: category.id, ...category };
+      });
     },
     ...mapState(useCountryStore, {
       countryies: (store) => store.countries as Array<Country>,
     }),
     countryList() {
-      return this.countryies.map(country => {
-        return {text: country.name, value: country.id, ...country}
-      })
+      return this.countryies.map((country) => {
+        return { text: country.name, value: country.id, ...country };
+      });
     },
     filteredProjectList(): Array<Project> {
       this.loadingStore.updateLoading(true);

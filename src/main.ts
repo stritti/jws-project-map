@@ -17,7 +17,6 @@ import { useCategoryStore } from "./stores/category.store";
 import { useProjectStore } from "./stores/project.store";
 import "./registerServiceWorker";
 
-
 const pinia = createPinia();
 
 const app = createApp(App);

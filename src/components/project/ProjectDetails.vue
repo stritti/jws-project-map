@@ -66,7 +66,7 @@ export default defineComponent({
   components: { CategoryBadge, CountryLabel, MarkdownText, NavigateButton },
   props: {
     project: {
-      type: Object
+      type: Object,
     },
     isOpened: {
       type: Boolean,

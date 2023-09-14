@@ -35,9 +35,10 @@
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         ></l-tile-layer>
 
-        <l-layer-group layer-type="overlay" :name="layerLabelProjectsFinished">
+        <l-layer-group
+          v-if="projectsFinished"
+          layer-type="overlay" :name="layerLabelProjectsFinished">
           <l-marker
-            v-if="projectsFinished"
             v-for="loc in projectsFinished"
             :id="loc.id"
             :key="loc.id"
@@ -59,11 +60,11 @@
         </l-layer-group>
 
         <l-layer-group
+          v-if="projectsUnderConstruction"
           layer-type="overlay"
           :name="layerLabelProjectsUnderConstruction"
         >
           <l-marker
-            v-if="projectsUnderConstruction"
             v-for="loc in projectsUnderConstruction"
             :id="loc.id"
             :key="loc.id"
@@ -84,9 +85,10 @@
           </l-marker>
         </l-layer-group>
 
-        <l-layer-group layer-type="overlay" :name="layerLabelProjectsPlanned">
+        <l-layer-group
+          v-if="projectsPlanned"
+          layer-type="overlay" :name="layerLabelProjectsPlanned">
           <l-marker
-            v-if="projectsPlanned"
             v-for="loc in projectsPlanned"
             :id="loc.id"
             :key="loc.id"
@@ -106,7 +108,6 @@
             </l-tooltip>
           </l-marker>
         </l-layer-group>
-
       </l-map>
     </b-overlay>
     <project-details
