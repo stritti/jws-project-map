@@ -1,36 +1,43 @@
 <template>
-  <span
-    v-if="countryId"
-    class="country-label"
-  >
-    <span :class="countryClass"></span>&nbsp;{{countryLabel}}
+  <span v-if="countryId" class="country-label">
+    <span :class="countryClass"></span>&nbsp;{{ countryLabel }}
   </span>
 </template>
 
-<script>
-import { mapState } from 'pinia'
-import { useCountryStore } from '@/store/country.store'
-import 'flag-icons/sass/flag-icons.scss'
+<script lang="ts">
+import { mapState } from "pinia";
+import { useCountryStore } from "../stores/country.store";
+import "flag-icons/sass/flag-icons.scss";
 
-export default {
-  name: 'CountryLabel',
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "CountryLabel",
   props: {
     countryId: {
-      type: Array,
+      type: Array<string>,
       required: false,
-      default: null
-    }
+      default: null,
+    },
   },
   computed: {
     ...mapState(useCountryStore, {
-      getById: store => store.getById
+      getById: (store) => store.getById,
     }),
-    countryLabel () {
-      return this.getById(this.countryId[0]).name
+    countryLabel(): string {
+      if (this.countryId[0] && this.getById(this.countryId[0])) {
+        return this.getById(this.countryId[0])?.name as string;
+      } else {
+        return "";
+      }
     },
-      countryClass () {
-      return `fi fis fi-${this.getById(this.countryId[0]).code}`
-    }
-  }
-}
+    countryClass() {
+      if (this.countryId[0] && this.getById(this.countryId[0])) {
+        return `fi fis fi-${this.getById(this.countryId[0])?.code}`;
+      } else {
+        return "";
+      }
+    },
+  },
+});
 </script>

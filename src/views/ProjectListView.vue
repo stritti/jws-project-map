@@ -3,32 +3,38 @@
     <div class="project-list">
       <h1>JWF + Humanaktiv: Project Overview</h1>
 
-      <b-skeleton-wrapper :loading="loading > 0">
+      <b-placeholder-wrapper :loading="showLoadingSpinner">
         <template #loading>
-          <h3><b-skeleton width="75%"></b-skeleton></h3>
+          <h3><b-placeholder width="75%"></b-placeholder></h3>
           <p>
-            <b-skeleton width="85%"></b-skeleton>
-            <b-skeleton width="55%"></b-skeleton>
-            <b-skeleton width="70%"></b-skeleton>
+            <b-placeholder width="85%"></b-placeholder>
+            <b-placeholder width="55%"></b-placeholder>
+            <b-placeholder width="70%"></b-placeholder>
           </p>
         </template>
 
         <h3 class="my-3">
-          Projects: {{ projectCount }}
-          (including: {{ projectsUnderConstruction.length }} under construction,
+          Projects: {{ projectCount }} (including:
+          {{ projectsUnderConstruction.length }} under construction,
           {{ projectsPlanned.length }} planned)
         </h3>
 
-        <b-button v-b-toggle.collapse-filter variant="primary">
-          <bootstrap-icon icon="filter"/>
+        <b-button
+          :class="showFilters ? null : 'collapsed'"
+          :aria-expanded="showFilters ? 'true' : 'false'"
+          aria-controls="collapse-filter"
+          @click="showFilters = !showFilters"
+          variant="primary"
+        >
+          <bootstrap-icon icon="filter" />
           Filter
         </b-button>
-        <b-collapse id="collapse-filter">
+        <b-collapse id="collapse-filter" v-model="showFilters">
           <b-card bg-variant="light" class="mb-5">
             <b-form-group label="Project State:">
               <b-form-checkbox-group
-                name="stateFilter"
                 v-model="stateFilter"
+                name="stateFilter"
                 :options="stateOptions"
                 size="sm"
               >
@@ -59,12 +65,12 @@
             </h3>
           </b-card>
         </b-collapse>
-      </b-skeleton-wrapper>
-      <b-overlay :show="loading > 0" fixed :opacity="0.5">
-        <b-card-group columns class="my-3">
+      </b-placeholder-wrapper>
+      <b-overlay :show="showLoadingSpinner" fixed :opacity="0.5">
+        <b-card-group columns="true" class="my-3">
           <project-list-item
             v-for="project in filteredProjectList"
-            v-bind:key="project.id"
+            :key="project.id"
             :project="project"
           />
         </b-card-group>
@@ -74,90 +80,119 @@
   <site-footer />
 </template>
 
-<script>
-import { mapState } from 'pinia'
-import { useLoadingStore } from '@/store/loading.store'
-import { useProjectStore } from '@/store/project.store'
-import { useCategoryStore } from '@/store/category.store'
-import { useCountryStore } from '@/store/country.store'
+<script lang="ts">
+import { defineComponent } from "vue";
+import { mapState } from "pinia";
+import { useLoadingStore } from "../stores/loading.store";
+import { useProjectStore } from "../stores/project.store";
+import { useCategoryStore } from "../stores/category.store";
+import { useCountryStore } from "../stores/country.store";
 
-import BootstrapIcon from '@dvuckovic/vue3-bootstrap-icons'
-import ProjectListItem from '@/components/project/ProjectListItem.vue'
-import SiteFooter from '@/components/SiteFooter.vue'
+import BootstrapIcon from "@dvuckovic/vue3-bootstrap-icons";
+import ProjectListItem from "../components/project/ProjectListItem.vue";
+import SiteFooter from "../components/SiteFooter.vue";
 
-export default {
+import type { Category } from "@/interfaces/Category";
+import type { Country } from "@/interfaces/Country";
+import type { Project } from "@/interfaces/Project";
+
+export default defineComponent({
+  name: "ProjectListView",
   components: { BootstrapIcon, ProjectListItem, SiteFooter },
-  name: "ProjectDetailsView",
   data() {
     return {
-      stateFilter: ['finished', 'planned', 'under construction'],
+      showFilters: false,
+      stateFilter: ["finished", "planned", "under construction"],
       stateOptions: [
-        { text: 'finished', value: 'finished' },
-        { text: 'under construction', value: 'under construction' },
-        { text: 'planned', value: 'planned' }
+        { text: "finished", value: "finished" },
+        { text: "under construction", value: "under construction" },
+        { text: "planned", value: "planned" },
       ],
-      categoryFilter: [],
-      countryFilter: [],
-    }
+      categoryFilter: [] as Array<string>,
+      countryFilter: [] as Array<string>,
+      loadingStore: useLoadingStore(),
+    };
   },
   computed: {
-    ...mapState( useLoadingStore, {
-      loading: 'loading'
+    ...mapState(useLoadingStore, {
+      showLoadingSpinner: (store) => store.showLoadingSpinner as boolean,
     }),
-    ...mapState( useProjectStore, {
-      projectList: 'projects'
+    ...mapState(useProjectStore, {
+      projects: (store) => store.projects as Array<Project>,
     }),
-    ...mapState( useCategoryStore, {
-      categoryList: 'categories'
+    projectList() {
+      return this.projects.map((project) => {
+        return { text: project.name, value: project.id, ...project };
+      });
+    },
+    ...mapState(useCategoryStore, {
+      categories: (store) => store.categories as Array<Category>,
     }),
-    ...mapState( useCountryStore, {
-      countryList: 'countries'
+    categoryList() {
+      return this.categories.map((category) => {
+        return { text: category.name, value: category.id, ...category };
+      });
+    },
+    ...mapState(useCountryStore, {
+      countryies: (store) => store.countries as Array<Country>,
     }),
-    filteredProjectList () {
-      const loadingStore = useLoadingStore()
-      loadingStore.updateLoading(true)
-      const filteredList = []
+    countryList() {
+      return this.countryies.map((country) => {
+        return { text: country.name, value: country.id, ...country };
+      });
+    },
+    filteredProjectList(): Array<Project> {
+      this.loadingStore.updateLoading(true);
+      const filteredList = [] as Array<Project>;
 
-      for ( let i = 0; i < this.projectList.length; i++ ) {
-        const project = this.projectList[i]
+      this.projectList.forEach((project: Project) => {
         if (
-          (this.stateFilter.length === 0 || this.stateFilter.includes(project.state)) &&
-          (this.categoryFilter.length === 0 || this.categoryFilter.some(r => project.category.includes(r))) &&
-          (this.countryFilter.length === 0 || this.countryFilter.includes(project.country[0]))
+          (this.stateFilter.length === 0 ||
+            this.stateFilter.includes(project.state)) &&
+          (this.categoryFilter.length === 0 ||
+            this.categoryFilter.some((r) => project.category.includes(r))) &&
+          (this.countryFilter.length === 0 ||
+            this.countryFilter.includes(project.country[0]))
         ) {
-          filteredList.push(project)
+          filteredList.push(project);
         }
-      }
+      });
 
-      loadingStore.updateLoading(false)
-      return filteredList
+      this.loadingStore.updateLoading(false);
+      return filteredList;
     },
-    projectCount () {
-      return this.projectList.length
+    projectCount(): number {
+      return this.projectList.length;
     },
-    projectsFinished () {
+    projectsFinished() {
       if (this.projectList.length > 0) {
-        return this.projectList.filter(loc => loc.state === 'finished')
+        return this.projectList.filter(
+          (loc: Project) => loc.state === "finished"
+        );
       } else {
-        return []
+        return [];
       }
     },
-    projectsUnderConstruction () {
+    projectsUnderConstruction() {
       if (this.projectList.length > 0) {
-        return this.projectList.filter(loc => loc.state === 'under construction')
+        return this.projectList.filter(
+          (loc: Project) => loc.state === "under construction"
+        );
       } else {
-        return []
+        return [];
       }
     },
-    projectsPlanned () {
+    projectsPlanned() {
       if (this.projectList.length > 0) {
-        return this.projectList.filter(loc => loc.state === 'planned')
+        return this.projectList.filter(
+          (loc: Project) => loc.state === "planned"
+        );
       } else {
-        return []
+        return [];
       }
-    }
-  }
-}
+    },
+  },
+});
 </script>
 
 <style lang="scss" scoped>

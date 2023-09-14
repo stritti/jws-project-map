@@ -1,22 +1,15 @@
+<script setup lang="ts">
+import MainMenu from "./components/MainMenu.vue";
+</script>
+
 <template>
   <main>
     <router-view />
   </main>
   <nav>
-    <main-menu  class="menu" />
+    <main-menu class="menu" />
   </nav>
 </template>
-
-<script>
-import MainMenu from '@/components/MainMenu.vue'
-
-export default {
-  name: 'App',
-  components: {
-    MainMenu
-  }
-}
-</script>
 
 <style lang="scss">
 body {
@@ -30,7 +23,6 @@ h1 {
   @media screen and (max-width: 768px) {
     font-size: 24px;
   }
-
 }
 p {
   font-size: 16px;
@@ -52,4 +44,3 @@ p {
   left: calc(1rem + env(safe-area-inset-left));
 }
 </style>
-

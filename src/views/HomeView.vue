@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import LocationMap from "../components/map/LocationMap.vue";
+</script>
+
 <template>
   <div class="home">
     <h1>JWF + Humanaktiv: Projects in Westafrica</h1>
@@ -7,16 +11,6 @@
   </div>
 </template>
 
-<script>
-import LocationMap from '@/components/map/LocationMap.vue'
-
-export default {
-  name: 'HomeView',
-  components: {
-    LocationMap
-  }
-}
-</script>
 <style lang="scss" scoped>
 .home {
   h1 {
@@ -26,7 +20,7 @@ export default {
     margin-left: 60px;
     position: absolute;
     z-index: 10;
-    background-color: rgba($color: #ffffff, $alpha: .5);
+    background-color: rgba($color: #ffffff, $alpha: 0.5);
   }
 
   .project-map {

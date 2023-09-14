@@ -1,29 +1,23 @@
 <template>
-  <markdown
-    :source="text"
-    breaks
-    html
-    typographer
-  />
+  <markdown :source="text" breaks html typographer />
 </template>
 
-<script>
-import Markdown from 'vue3-markdown-it';
+<script lang="ts">
+import Markdown from "vue3-markdown-it";
 
-export default {
-  name: 'MarkdownText',
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "MarkdownText",
+  components: {
+    Markdown,
+  },
   props: {
     text: {
       type: String,
-      required: false
-    }
+      required: false,
+      default: null,
+    },
   },
-  components: {
-    Markdown
-  }
-}
+});
 </script>
-
-<style>
-
-</style>

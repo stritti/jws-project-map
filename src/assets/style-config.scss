@@ -12,6 +12,6 @@ $h4-font-size:                $font-size-base * 1.25 !default;
 $h5-font-size:                $font-size-base * 1.25 !default;
 $h6-font-size:                $font-size-base !default;
 
-@import "/node_modules/bootstrap/scss/bootstrap";
-@import "bootstrap-vue-3/dist/bootstrap-vue-3.css"
+@import "bootstrap/scss/bootstrap";
+@import "bootstrap-vue-next/dist/bootstrap-vue-next.css"
 // Then add additional custom code here
