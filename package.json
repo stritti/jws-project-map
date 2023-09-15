@@ -31,7 +31,7 @@
     "vue3-side-panel": "^1.2.0"
   },
   "devDependencies": {
-    "@rushstack/eslint-patch": "^1.1.4",
+    "@rushstack/eslint-patch": "^1.4.0",
     "@types/leaflet": "^1.9.3",
     "@types/markdown-it": "^12.2.3",
     "@types/node": "^20.4.2",
