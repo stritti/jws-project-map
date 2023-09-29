@@ -227,14 +227,6 @@ export default defineComponent({
     // this subscription will be kept after the component is unmounted
     store.$subscribe(() => {
       this.updateMaxBounds();
-
-      /*
-      this.$refs.map.leafletObject.addEventListener('mousemove', (event) => {
-        let lat = Math.round(event.latlng.lat * 100000) / 100000
-        let lng = Math.round(event.latlng.lng * 100000) / 100000
-        console.log(lat, lng)
-      })
-      */
     });
   },
   methods: {
@@ -298,8 +290,10 @@ export default defineComponent({
         //    return new LatLngBounds( new LatLng(loc.latitude, loc.longitude), new LatLng(loc.latitude, loc.longitude) );
         //  }
         //);
-
-        (this.$refs.map as any).leafletObject.fitBounds(group.getBounds());
+        const object = (this.$refs.map as any).leafletObject
+        if (object) {
+          object.fitBounds(group.getBounds())
+        }
       }
     },
     ...mapActions(useLoadingStore, ["updateLoading"]),
