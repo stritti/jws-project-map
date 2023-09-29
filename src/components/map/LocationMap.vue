@@ -126,7 +126,7 @@ import { useLoadingStore } from "../../stores/loading.store";
 import { useCategoryStore } from "../../stores/category.store";
 import { useProjectStore } from "../../stores/project.store";
 
-import { LatLngBounds, latLngBounds } from "leaflet";
+import { LatLng, LatLngBounds, latLngBounds, featureGroup, Marker } from "leaflet";
 import {
   LMap,
   LControlLayers,
@@ -167,7 +167,7 @@ export default defineComponent({
       categories: [],
       isOpened: false as boolean,
       isLoadingMap: false as boolean,
-      selectedLocation: null as Project | null,
+      selectedLocation: undefined as Project | undefined,
       mapOptions: {
         zoomSnap: 0.5,
       },
@@ -262,7 +262,7 @@ export default defineComponent({
       this.isOpened = true;
     },
     onSidePanelClose(): void {
-      this.selectedLocation = null;
+      this.selectedLocation = undefined;
       this.isOpened = false;
     },
     getPin(location: Project): string {
@@ -292,12 +292,14 @@ export default defineComponent({
     },
     updateMaxBounds(): void {
       if (this.locations && this.locations.length > 0 && this.$refs.map) {
-        this.maxBounds = this.locations.map(
-          (loc: { latitude: number; longitude: number }) => {
-            return { latitude: loc.latitude, longitude: loc.longitude };
-          }
-        );
-        (this.$refs.map as any).leafletObject.fitBounds(this.maxBounds);
+        const group = featureGroup(this.locations.map((loc: Project) => new Marker(new LatLng(loc.latitude, loc.longitude))));
+        //this.maxBounds = this.locations.map(
+        //  (loc: { latitude: number; longitude: number }) => {
+        //    return new LatLngBounds( new LatLng(loc.latitude, loc.longitude), new LatLng(loc.latitude, loc.longitude) );
+        //  }
+        //);
+
+        (this.$refs.map as any).leafletObject.fitBounds(group.getBounds());
       }
     },
     ...mapActions(useLoadingStore, ["updateLoading"]),

@@ -183,10 +183,10 @@ export default defineComponent({
       loading: (state) => state.showLoadingSpinner as boolean,
     }),
     ...mapState(useProjectStore, {
-      projectById: (state) => state.getById as unknown as Project,
+      projectById: (state) => state.getById,
     }),
     project(): Project {
-      return this.projectById(this.$route.params.projectId) as Project;
+      return this.projectById(this.$route.params.projectId as string) as Project;
     },
     teaserImage(): string {
       if (this.project.teaserImg) {

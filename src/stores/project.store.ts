@@ -14,9 +14,9 @@ export const useProjectStore = defineStore("project", {
     };
   },
   getters: {
-    getAll: (state) => state.projects,
+    getAll: (state) => state.projects as Array<Project>,
     getById: (state) => (id: string) =>
-      state.projects.find((project: Project) => project.id === id),
+      state.projects.find((project: Project) => project.id === id) as Project,
   },
   actions: {
     async init() {

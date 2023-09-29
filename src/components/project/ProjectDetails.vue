@@ -54,19 +54,23 @@
 <script lang="ts">
 import { mapState } from "pinia";
 import { defineComponent } from "vue";
+import type { PropType } from 'vue'
 import { useCategoryStore } from "../../stores/category.store";
 
 import CategoryBadge from "../../components/CategoryBadge.vue";
 import CountryLabel from "../../components/CountryLabel.vue";
 import MarkdownText from "../../components/MarkdownText.vue";
 import NavigateButton from "../../components/actions/NavigateButton.vue";
+import type { Project } from '../../interfaces/Project';
+
 
 export default defineComponent({
   name: "ProjectDetails",
   components: { CategoryBadge, CountryLabel, MarkdownText, NavigateButton },
   props: {
     project: {
-      type: Object,
+      type: Object as PropType<Project>,
+      required: false,
     },
     isOpened: {
       type: Boolean,
