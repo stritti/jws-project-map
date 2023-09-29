@@ -25,8 +25,6 @@ declare module 'vue' {
     BPlaceholder: typeof import('bootstrap-vue-next')['BPlaceholder']
     BPlaceholderWrapper: typeof import('bootstrap-vue-next')['BPlaceholderWrapper']
     BRow: typeof import('bootstrap-vue-next')['BRow']
-    BSkeleton: typeof import('bootstrap-vue-next')['BSkeleton']
-    BSkeletonWrapper: typeof import('bootstrap-vue-next')['BSkeletonWrapper']
     CategoryBadge: typeof import('./src/components/CategoryBadge.vue')['default']
     CountryLabel: typeof import('./src/components/CountryLabel.vue')['default']
     LocationMap: typeof import('./src/components/map/LocationMap.vue')['default']

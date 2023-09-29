@@ -1,14 +1,14 @@
 <template>
   <div class="header">
     <b-container>
-      <b-skeleton-wrapper :loading="loading">
+      <b-placeholder-wrapper :loading="loading">
         <template #loading>
           <b-row>
             <b-col cols="2">
-              <b-skeleton width="25%" height="10px" />
+              <b-placeholder width="25%" height="10px" />
             </b-col>
             <b-col cols="20">
-              <h1><b-skeleton width="75%" height="2rem"></b-skeleton></h1>
+              <h1><b-placeholder width="75%" height="2rem"></b-placeholder></h1>
             </b-col>
           </b-row>
         </template>
@@ -31,11 +31,11 @@
             </b-col>
           </b-row>
         </div>
-      </b-skeleton-wrapper>
+      </b-placeholder-wrapper>
     </b-container>
   </div>
   <b-container fluid>
-    <b-skeleton-wrapper :loading="loading">
+    <b-placeholder-wrapper :loading="loading">
       <div v-if="project" class="teaser">
         <div
           class="teaser__img"
@@ -57,16 +57,16 @@
           </div>
         </div>
       </div>
-    </b-skeleton-wrapper>
+    </b-placeholder-wrapper>
   </b-container>
   <b-container>
     <div class="project-details">
-      <b-skeleton-wrapper :loading="loading">
+      <b-placeholder-wrapper :loading="loading">
         <template #loading>
           <p>
-            <b-skeleton width="85%"></b-skeleton>
-            <b-skeleton width="55%"></b-skeleton>
-            <b-skeleton width="70%"></b-skeleton>
+            <b-placeholder width="85%"></b-placeholder>
+            <b-placeholder width="55%"></b-placeholder>
+            <b-placeholder width="70%"></b-placeholder>
           </p>
         </template>
 
@@ -138,7 +138,7 @@
             </div>
           </div>
         </div>
-      </b-skeleton-wrapper>
+      </b-placeholder-wrapper>
     </div>
   </b-container>
   <site-footer />
