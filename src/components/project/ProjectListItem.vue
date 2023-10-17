@@ -6,7 +6,6 @@
         :src="teaserImage"
         :alt="project.name"
         top
-        lazy
       />
       <h3 class="project-list-item__title text-truncate">
         {{ project.name }}

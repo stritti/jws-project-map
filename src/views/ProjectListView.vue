@@ -20,10 +20,7 @@
         </h3>
 
         <b-button
-          :class="showFilters ? null : 'collapsed'"
-          :aria-expanded="showFilters ? 'true' : 'false'"
-          aria-controls="collapse-filter"
-          @click="showFilters = !showFilters"
+          v-b-toggle.collapse-filter
           variant="primary"
         >
           <bootstrap-icon icon="filter" />
