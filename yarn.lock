@@ -1374,10 +1374,10 @@ find-up@^5.0.0:
     locate-path "^6.0.0"
     path-exists "^4.0.0"
 
-flag-icons@^6.12.0:
-  version "6.12.0"
-  resolved "https://registry.yarnpkg.com/flag-icons/-/flag-icons-6.12.0.tgz#72faa3e1afdb1996f3906e43afd084f018be57de"
-  integrity sha512-fp/flZPzEwbNdGpjj4dh++Kaf5MFX+UUpZExLGXfee/3a0czGt0ur0zyHDglE2pO7nwTzO/jKC8pK6TIEk/TOw==
+flag-icons@^6.14.0:
+  version "6.14.0"
+  resolved "https://registry.yarnpkg.com/flag-icons/-/flag-icons-6.14.0.tgz#2e4af55c584d32b201b3f8b53f695e430c57999a"
+  integrity sha512-GutzswkEe2gmSma4U3AQ/7shiPYNII8Rp1UjNpZH36GeXsc5bz50rq/EMFhMPCZcZMiz6pNulxienJepvTYa1A==
 
 flat-cache@^3.0.4:
   version "3.1.0"
