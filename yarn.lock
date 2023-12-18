@@ -2914,10 +2914,10 @@ vue3-picture-swipe@^3.0.6:
   resolved "https://registry.yarnpkg.com/vue3-picture-swipe/-/vue3-picture-swipe-3.0.6.tgz#852669cb970543756b3408eef5dac5eaff86a43d"
   integrity sha512-tCoWJr5cXZMk8hlycPPdo9UCl5m3ZChDVdDhHdiJedtkTZL6H0wYV6mZvL8Lz6e80kpiIXxsoltJobcePnKB0A==
 
-vue3-side-panel@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/vue3-side-panel/-/vue3-side-panel-1.2.0.tgz#0f58439aa7c845b642f25d2f850b1c6bdbb489c2"
-  integrity sha512-Z6vDXh6AXYGJRpOockRIYKolA1Q64dJpWKaNYDVAA7nZjWIFloGKrm0DZyZkClFVOYR/6C8riIuFOB+RUU+qOg==
+vue3-side-panel@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/vue3-side-panel/-/vue3-side-panel-1.3.0.tgz#50bcf3acc44f79b79dd2c73a87f4e7736322a15a"
+  integrity sha512-H2nsptd+7O4dTZfvjuhMt9v6/UBCDyeArL424qYkwqfeL7LGi9L5gpgWDXkYtj41G+miFooclmJphmRdllDp/Q==
   dependencies:
     body-scroll-lock "^4.0.0-beta.0"
 
