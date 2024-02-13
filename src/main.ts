@@ -15,7 +15,6 @@ import "./assets/style-config.scss";
 import { useCountryStore } from "./stores/country.store";
 import { useCategoryStore } from "./stores/category.store";
 import { useProjectStore } from "./stores/project.store";
-import "./registerServiceWorker";
 
 const pinia = createPinia();
 
