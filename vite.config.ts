@@ -18,9 +18,6 @@ export default defineConfig({
       devOptions: {
         enabled: true
       },
-      workbox: {
-        globPatterns: ['**/*.{js,css,vue,ico,png,svg}']
-      },
       manifest: {
         name: 'JWF Projects',
         short_name: 'JWF Projects',
