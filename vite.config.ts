@@ -22,7 +22,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,vue,ico,png,svg}']
       },
       manifest: {
-        name: 'JWF + Humanaktiv: Projects in Westafrica',
+        name: 'JWF Projects',
         short_name: 'JWF Projects',
         description: 'Overview of projects in Westafrica by JWF and Humanaktiv',
         theme_color: '#3d5e9e',
