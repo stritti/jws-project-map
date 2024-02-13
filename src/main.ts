@@ -12,10 +12,6 @@ import router from "./router";
 
 import "./assets/style-config.scss";
 
-import { useCountryStore } from "./stores/country.store";
-import { useCategoryStore } from "./stores/category.store";
-import { useProjectStore } from "./stores/project.store";
-
 const pinia = createPinia();
 
 const app = createApp(App);
@@ -28,14 +24,5 @@ app.use(Vue3VideoPlayer, {
 });
 
 // app.component('vue-picture-swipe', VuePictureSwipe)
-
-const projectStore = useProjectStore();
-projectStore.init();
-
-const countryStore = useCountryStore();
-countryStore.init();
-
-const categoryStore = useCategoryStore();
-categoryStore.init();
 
 app.mount("#app");

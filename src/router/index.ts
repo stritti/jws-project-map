@@ -1,6 +1,9 @@
-import { createRouter, createWebHistory } from "vue-router";
-import HomeView from "../views/HomeView.vue";
+import { createRouter, createWebHistory } from "vue-router"
+import HomeView from "../views/HomeView.vue"
 
+import { useCountryStore } from "../stores/country.store"
+import { useCategoryStore } from "../stores/category.store"
+import { useProjectStore } from "../stores/project.store"
 const routes = [
   {
     path: "/",
@@ -38,5 +41,13 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 });
+
+router.beforeEach(() => {
+  // ✅ This will work make sure the correct store is used for the
+  // current running app
+  useProjectStore().init();
+  useCountryStore().init();
+  useCategoryStore().init();
+})
 
 export default router;
