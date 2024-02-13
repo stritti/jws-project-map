@@ -186,7 +186,9 @@ export default defineComponent({
       projectById: (state) => state.getById,
     }),
     project(): Project {
-      return this.projectById(this.$route.params.projectId as string) as Project;
+      return this.projectById(
+        this.$route.params.projectId as string,
+      ) as Project;
     },
     teaserImage(): string {
       if (this.project.teaserImg) {

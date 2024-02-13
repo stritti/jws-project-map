@@ -30,7 +30,7 @@ export default defineComponent({
   methods: {
     navigate() {
       window.open(
-        `https://www.google.com/maps/search/?api=1&query=${this.lat},${this.lng}`
+        `https://www.google.com/maps/search/?api=1&query=${this.lat},${this.lng}`,
       );
     },
   },

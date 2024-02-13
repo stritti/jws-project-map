@@ -1,6 +1,6 @@
 <template>
-  <span v-if="countryId" class="country-label">
-    <span :class="countryClass"></span>&nbsp;{{ countryLabel }}
+  <span v-if="countryId" class="country-label"
+    ><span :class="countryClass"></span>&nbsp;{{ countryLabel }}
   </span>
 </template>
 

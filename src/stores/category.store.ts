@@ -11,11 +11,11 @@ export const useCategoryStore = defineStore("category", {
     getAll: (state) => state.categories as Array<Category>,
     getById: (state) => (id: string) =>
       state.categories.find(
-        (category: Category) => category.id === id
+        (category: Category) => category.id === id,
       ) as Category,
   },
   actions: {
-    async init() {
+    async init(): Promise<void> {
       const loadingStore = useLoadingStore();
       loadingStore.updateLoading(true);
       categoryService.getAll().then((list) => {

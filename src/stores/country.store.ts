@@ -19,7 +19,7 @@ export const useCountryStore = defineStore("countries", {
       state.countries.find((country: Country) => country.id === id),
   },
   actions: {
-    async init() {
+    async init(): Promise<void> {
       const loadingStore = useLoadingStore();
       loadingStore.updateLoading(true);
       countryService.getAll().then((list) => {

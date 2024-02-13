@@ -37,7 +37,9 @@
 
         <l-layer-group
           v-if="projectsFinished"
-          layer-type="overlay" :name="layerLabelProjectsFinished">
+          layer-type="overlay"
+          :name="layerLabelProjectsFinished"
+        >
           <l-marker
             v-for="loc in projectsFinished"
             :id="loc.id"
@@ -87,7 +89,9 @@
 
         <l-layer-group
           v-if="projectsPlanned"
-          layer-type="overlay" :name="layerLabelProjectsPlanned">
+          layer-type="overlay"
+          :name="layerLabelProjectsPlanned"
+        >
           <l-marker
             v-for="loc in projectsPlanned"
             :id="loc.id"
@@ -126,7 +130,13 @@ import { useLoadingStore } from "../../stores/loading.store";
 import { useCategoryStore } from "../../stores/category.store";
 import { useProjectStore } from "../../stores/project.store";
 
-import { LatLng, LatLngBounds, latLngBounds, featureGroup, Marker } from "leaflet";
+import {
+  LatLng,
+  LatLngBounds,
+  latLngBounds,
+  featureGroup,
+  Marker,
+} from "leaflet";
 import {
   LMap,
   LControlLayers,
@@ -186,7 +196,7 @@ export default defineComponent({
     projectsFinished(): Array<Project> {
       if (this.locations.length > 0) {
         return this.locations.filter(
-          (loc: Project) => loc.state === "finished"
+          (loc: Project) => loc.state === "finished",
         );
       } else {
         return [];
@@ -195,7 +205,7 @@ export default defineComponent({
     projectsUnderConstruction(): Array<Project> {
       if (this.locations.length > 0) {
         return this.locations.filter(
-          (loc: Project) => loc.state === "under construction"
+          (loc: Project) => loc.state === "under construction",
         );
       } else {
         return [];
@@ -284,15 +294,20 @@ export default defineComponent({
     },
     updateMaxBounds(): void {
       if (this.locations && this.locations.length > 0 && this.$refs.map) {
-        const group = featureGroup(this.locations.map((loc: Project) => new Marker(new LatLng(loc.latitude, loc.longitude))));
+        const group = featureGroup(
+          this.locations.map(
+            (loc: Project) =>
+              new Marker(new LatLng(loc.latitude, loc.longitude)),
+          ),
+        );
         //this.maxBounds = this.locations.map(
         //  (loc: { latitude: number; longitude: number }) => {
         //    return new LatLngBounds( new LatLng(loc.latitude, loc.longitude), new LatLng(loc.latitude, loc.longitude) );
         //  }
         //);
-        const object = (this.$refs.map as any).leafletObject
+        const object = (this.$refs.map as any).leafletObject;
         if (object) {
-          object.fitBounds(group.getBounds())
+          object.fitBounds(group.getBounds());
         }
       }
     },
