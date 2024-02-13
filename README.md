@@ -1,4 +1,4 @@
-# jws-project-map
+# JWS Project-Map
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/5988496d-934c-45f8-9a59-df1fc3e75c16/deploy-status)](https://app.netlify.com/sites/jws-projects-map/deploys)
 
@@ -24,25 +24,25 @@ See [Vite Configuration Reference](https://vitejs.dev/config/).
 ## Project Setup
 
 ```sh
-npm install
+yarn install
 ```
 
 ### Compile and Hot-Reload for Development
 
 ```sh
-npm run dev
+yarn run dev
 ```
 
 ### Type-Check, Compile and Minify for Production
 
 ```sh
-npm run build
+yarn run build
 ```
 
 ### Lint with [ESLint](https://eslint.org/)
 
 ```sh
-npm run lint
+yarn run lint
 ```
 
 
