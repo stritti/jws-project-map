@@ -15,18 +15,15 @@
 
         <h3 class="my-3">
           Projects: {{ projectCount }} (including:
-          {{ projectsUnderConstruction.length }} under construction,
-          {{ projectsPlanned.length }} planned)
+          {{ projectsUnderConstructionCount }} under construction,
+          {{ projectsPlannedCount }} planned)
         </h3>
 
-        <b-button
-          v-b-toggle.collapse-filter
-          variant="primary"
-        >
+        <b-button v-b-toggle.collapse-filter variant="primary">
           <bootstrap-icon icon="filter" />
           Filter
         </b-button>
-        <b-collapse id="collapse-filter" v-model="showFilters">
+        <b-collapse id="collapse-filter">
           <b-card bg-variant="light" class="mb-5">
             <b-form-group label="Project State:">
               <b-form-checkbox-group
@@ -98,21 +95,25 @@ export default defineComponent({
   components: { BootstrapIcon, ProjectListItem, SiteFooter },
   data() {
     return {
-      showFilters: false,
-      stateFilter: ["finished", "planned", "under construction"],
       stateOptions: [
         { text: "finished", value: "finished" },
         { text: "under construction", value: "under construction" },
         { text: "planned", value: "planned" },
       ],
+      stateFilter: [] as Array<string>,
       categoryFilter: [] as Array<string>,
-      countryFilter: [] as Array<string>,
-      loadingStore: useLoadingStore(),
+      countryFilter: [] as Array<string>
     };
+  },
+  mounted () {
+    this.stateFilter.push("finished", "planned", "under construction")
   },
   computed: {
     ...mapState(useLoadingStore, {
       showLoadingSpinner: (store) => store.showLoadingSpinner as boolean,
+    }),
+    ...mapState(useProjectStore, {
+      filteredProjectList: (store) => store.filteredList as Array<Project>,
     }),
     ...mapState(useProjectStore, {
       projects: (store) => store.projects as Array<Project>,
@@ -138,58 +139,39 @@ export default defineComponent({
         return { text: country.name, value: country.id, ...country };
       });
     },
-    filteredProjectList(): Array<Project> {
-      this.loadingStore.updateLoading(true);
-      const filteredList = [] as Array<Project>;
-
-      this.projectList.forEach((project: Project) => {
-        if (
-          (this.stateFilter.length === 0 ||
-            this.stateFilter.includes(project.state)) &&
-          (this.categoryFilter.length === 0 ||
-            this.categoryFilter.some((r) => project.category.includes(r))) &&
-          (this.countryFilter.length === 0 ||
-            this.countryFilter.includes(project.country[0]))
-        ) {
-          filteredList.push(project);
-        }
-      });
-
-      this.loadingStore.updateLoading(false);
-      return filteredList;
-    },
     projectCount(): number {
       return this.projectList.length;
     },
-    projectsFinished() {
-      if (this.projectList.length > 0) {
-        return this.projectList.filter(
-          (loc: Project) => loc.state === "finished"
-        );
-      } else {
-        return [];
-      }
+    projectsPlannedCount(): number {
+      return useProjectStore().projectsPlanned.length;
     },
-    projectsUnderConstruction() {
-      if (this.projectList.length > 0) {
-        return this.projectList.filter(
-          (loc: Project) => loc.state === "under construction"
-        );
-      } else {
-        return [];
-      }
-    },
-    projectsPlanned() {
-      if (this.projectList.length > 0) {
-        return this.projectList.filter(
-          (loc: Project) => loc.state === "planned"
-        );
-      } else {
-        return [];
-      }
+    projectsUnderConstructionCount(): number {
+      return useProjectStore().projectsUnderConstruction.length;
     },
   },
-});
+  watch: {
+    projects: function (newVal, oldVal) {
+      useProjectStore().doFilter(
+        this.stateFilter,
+        this.categoryFilter,
+        this.countryFilter
+      );
+    },
+    stateFilter: function (newVal, oldVal) {
+      useProjectStore().doFilter(
+        newVal,
+        this.categoryFilter,
+        this.countryFilter,
+      );
+    },
+    categoryFilter: function (newVal, oldVal) {
+      useProjectStore().doFilter(this.stateFilter, newVal, this.countryFilter);
+    },
+    countryFilter: function (newVal, oldVal) {
+      useProjectStore().doFilter(this.stateFilter, this.categoryFilter, newVal);
+    },
+  },
+})
 </script>
 
 <style lang="scss" scoped>
