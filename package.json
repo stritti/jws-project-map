@@ -2,6 +2,7 @@
   "name": "jws-project-map",
   "version": "0.3.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "run-p type-check build-only",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
