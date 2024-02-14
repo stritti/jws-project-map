@@ -1,3 +1,7 @@
+<script setup lang="ts">
+const version = import.meta.env.PACKAGE_VERSION
+
+</script>
 <template>
   <b-container class="about">
     <h1>About this App</h1>
@@ -16,6 +20,7 @@
         GitHub
       </a>
     </p>
+    <p>Version: {{ version }}</p>
 
     <h3>Credits</h3>
 

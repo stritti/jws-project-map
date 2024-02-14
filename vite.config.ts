@@ -5,6 +5,7 @@ import vue from "@vitejs/plugin-vue";
 import Components from "unplugin-vue-components/vite";
 import { BootstrapVueNextResolver } from "unplugin-vue-components/resolvers";
 import { VitePWA } from "vite-plugin-pwa";
+import version from "vite-plugin-package-version";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -13,6 +14,7 @@ export default defineConfig({
     Components({
       resolvers: [BootstrapVueNextResolver()],
     }),
+    version(),
     VitePWA({
       registerType: "autoUpdate",
       devOptions: {
