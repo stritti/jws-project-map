@@ -13,6 +13,7 @@ export const useCountryStore = defineStore("countries", {
       countries: [],
     };
   },
+  persist: true,
   getters: {
     getAll: (state) => state.countries,
     getById: (state) => (id: string) =>
