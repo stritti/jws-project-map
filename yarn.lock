@@ -2154,10 +2154,10 @@ bootstrap-icons@^1.4.1:
   resolved "https://registry.yarnpkg.com/bootstrap-icons/-/bootstrap-icons-1.11.3.tgz#03f9cb754ec005c52f9ee616e2e84a82cab3084b"
   integrity sha512-+3lpHrCw/it2/7lBL15VR0HEumaBss0+f/Lb6ZvHISn1mlK83jjFpooTLsMWbIjJMDjDjOExMsTxnXSIT4k4ww==
 
-bootstrap-vue-next@^0.16.3:
-  version "0.16.3"
-  resolved "https://registry.yarnpkg.com/bootstrap-vue-next/-/bootstrap-vue-next-0.16.3.tgz#f9af27a73f83641e87c846fa799a1237fc67a0e7"
-  integrity sha512-ta1tJPNva97SgfHHXa3xvBDrPqkrX29SeekD3edhgNSSyGpYHhamUVw1TxfloG3OawjVa1PSqH1N3C9ZycTqqA==
+bootstrap-vue-next@^0.16.6:
+  version "0.16.6"
+  resolved "https://registry.yarnpkg.com/bootstrap-vue-next/-/bootstrap-vue-next-0.16.6.tgz#bd35ad1ed64692badd8c7093fd238b5d6fc65ab0"
+  integrity sha512-CDjq3KgIOALJO/Zvmcgxqavv1NznFROUl7yWHAmp4T4R8IRJLfyMj1zizjw2OzCvQ+uJ9PZ28T1Cx7xq8+m2xg==
   dependencies:
     "@floating-ui/vue" "^1.0.6"
     "@vueuse/core" "^10.7.2"
