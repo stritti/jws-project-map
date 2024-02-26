@@ -1,54 +1,60 @@
 <template>
-  <vue-side-panel
+  <BOffcanvas
     v-if="project"
+    class="sidepanel"
+    header-class="sidepanel__header"
+    placement="end"
     v-model="showPanel"
-    :overlay-opacity="0.5"
-    z-index="9999"
-    side="right"
-    :no-close="false"
   >
-    <template #default>
-      <div class="sidepanel__header">
-        <h2>
-          <b-img
-            v-for="category in project.category"
-            :key="category"
-            class="pin"
-            :src="getPin(category)"
-            :alt="project?.name"
-          />
-          <router-link :to="`/project/${project.id}`">{{
-            project.name
-          }}</router-link>
-        </h2>
-        <h3><country-label :country-id="project.country" /></h3>
-        <category-badge
+    <template #title>
+      <h2>
+        <b-img
           v-for="category in project.category"
           :key="category"
-          :category-id="category"
+          class="pin"
+          :src="getPin(category)"
+          :alt="project?.name"
         />
-      </div>
+        <router-link :to="`/project/${project.id}`">{{
+          project.name
+        }}</router-link>
+      </h2>
+    </template>
+
       <div class="sidepanel__content">
-        <div v-if="project.teaserImg">
-          <b-img
-            :src="project.teaserImg[0].thumbnails.large.url"
-            :alt="project.name"
-            fluid
+        <h3><country-label :country-id="project.country" /></h3>
+        <div>
+          <category-badge
+            v-for="category in project.category"
+            :key="category"
+            :category-id="category"
           />
         </div>
-        <p>Project State: {{ project.state }}</p>
-        <markdown-text :text="project.notes" />
-        <b-button :to="`/project/${project.id}`" variant="primary">
-          Project page &hellip;
-        </b-button>
-        <navigate-button
-          class="navigate-btn"
-          :lat="project.latitude"
-          :lng="project.longitude"
+
+        <b-img
+          v-if="project.teaserImg"
+          :src="project.teaserImg[0].thumbnails.large.url"
+          :alt="project.name"
+          fluid
         />
+
+        <p><em>Project State:</em> {{ project.state }}</p>
+
+        <markdown-text :text="project.notes" />
+
+        <div class="sidepanel__footer">
+          <b-button :to="`/project/${project.id}`" variant="primary">
+            More &hellip;
+          </b-button>
+          <navigate-button
+            class="navigate-btn"
+            :lat="project.latitude"
+            :lng="project.longitude"
+          />
+        </div>
+
       </div>
-    </template>
-  </vue-side-panel>
+  </BOffcanvas>
 </template>
 
 <script lang="ts">
@@ -123,13 +129,13 @@ export default defineComponent({
 
 <style lang="scss">
 .sidepanel {
-  max-width: 85%;
+  padding-top: env(safe-area-inset-top);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+
   &__header {
-    background-color: rgb(150, 150, 150);
-    color: white;
-    font-weight: 700;
     text-transform: uppercase;
-    padding: 20px;
+    border-bottom: #4d4d4d 1px solid;
 
     .pin {
       margin-right: 0.25rem;
@@ -141,7 +147,6 @@ export default defineComponent({
   }
 
   &__content {
-    padding: 20px;
 
     img {
       max-width: 100%;
@@ -153,6 +158,13 @@ export default defineComponent({
     .navigate-btn {
       margin-left: 0.5rem;
     }
+  }
+
+  &__footer {
+    width: 100%;
+    padding-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
   }
 }
 </style>

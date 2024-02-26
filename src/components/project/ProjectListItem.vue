@@ -4,6 +4,7 @@
       <b-card-img
         :class="imageStyleClasses"
         :src="teaserImage"
+        :lazy="true"
         :alt="project.name"
         top
       />
@@ -54,7 +55,7 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 a {
   color: inherit;
   text-decoration: none;

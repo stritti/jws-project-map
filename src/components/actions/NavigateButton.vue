@@ -6,7 +6,7 @@
     aria-label="Navigate"
     @click="navigate"
   >
-    <bootstrap-icon icon="compass" variant="light" />
+    <bootstrap-icon icon="compass" variant="light" /> Navigate &hellip;
   </b-button>
 </template>
 <script lang="ts">

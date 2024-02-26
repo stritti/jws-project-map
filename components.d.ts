@@ -21,6 +21,7 @@ declare module 'vue' {
     BFormCheckboxGroup: typeof import('bootstrap-vue-next')['BFormCheckboxGroup']
     BFormGroup: typeof import('bootstrap-vue-next')['BFormGroup']
     BImg: typeof import('bootstrap-vue-next')['BImg']
+    BOffcanvas: typeof import('bootstrap-vue-next')['BOffcanvas']
     BOverlay: typeof import('bootstrap-vue-next')['BOverlay']
     BPlaceholder: typeof import('bootstrap-vue-next')['BPlaceholder']
     BPlaceholderWrapper: typeof import('bootstrap-vue-next')['BPlaceholderWrapper']

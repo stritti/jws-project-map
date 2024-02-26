@@ -1,9 +1,6 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 
-import VueSidePanel from "vue3-side-panel";
-import "vue3-side-panel/dist/vue3-side-panel.css";
-
 import Vue3VideoPlayer from "@cloudgeek/vue3-video-player";
 import "@cloudgeek/vue3-video-player/dist/vue3-video-player.css";
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
@@ -20,7 +17,6 @@ const app = createApp(App);
 
 app.use(pinia);
 app.use(router);
-app.use(VueSidePanel);
 app.use(Vue3VideoPlayer, {
   lang: "en",
 });

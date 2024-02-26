@@ -39,9 +39,9 @@ export default defineComponent({
 });
 </script>
 
-<style>
+<style lang="scss">
 .category-badge {
-  padding: 0.5rem 1rem;
-  margin-right: 0.25rem;
+  padding: 0.5rem 1rem 0.25rem 1rem;
+  margin: 0.25rem 0.25rem 0.25rem 0;
 }
 </style>
