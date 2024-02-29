@@ -15,6 +15,7 @@ export const useProjectStore = defineStore("project", {
       filteredList: [],
     };
   },
+  persist: true,
   getters: {
     getAll: (state) => state.projects as Array<Project>,
     getById: (state) => (id: string) =>
@@ -69,7 +70,7 @@ export const useProjectStore = defineStore("project", {
         ) {
           this.filteredList.push(project);
         }
-      })
+      });
     },
   },
 });
