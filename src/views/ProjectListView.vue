@@ -11,6 +11,11 @@
             <b-placeholder width="55%"></b-placeholder>
             <b-placeholder width="70%"></b-placeholder>
           </p>
+          <b-card-group columns="true" class="my-3">
+            <BPlaceholderCard animation="wave" no-footer />
+            <BPlaceholderCard animation="wave" no-footer />
+            <BPlaceholderCard animation="wave" no-footer />
+          </b-card-group>
         </template>
 
         <h3 class="my-3">
@@ -20,7 +25,7 @@
         </h3>
 
         <b-button v-b-toggle.collapse-filter variant="primary">
-          <bootstrap-icon icon="filter" />
+          <IBiFilter />
           Filter
         </b-button>
         <b-collapse id="collapse-filter">
@@ -82,7 +87,6 @@ import { useProjectStore } from "../stores/project.store";
 import { useCategoryStore } from "../stores/category.store";
 import { useCountryStore } from "../stores/country.store";
 
-import BootstrapIcon from "@dvuckovic/vue3-bootstrap-icons";
 import ProjectListItem from "../components/project/ProjectListItem.vue";
 import SiteFooter from "../components/SiteFooter.vue";
 
@@ -92,7 +96,7 @@ import type { Project } from "@/interfaces/Project";
 
 export default defineComponent({
   name: "ProjectListView",
-  components: { BootstrapIcon, ProjectListItem, SiteFooter },
+  components: { ProjectListItem, SiteFooter },
   data() {
     return {
       stateOptions: [
@@ -102,11 +106,11 @@ export default defineComponent({
       ],
       stateFilter: [] as Array<string>,
       categoryFilter: [] as Array<string>,
-      countryFilter: [] as Array<string>
+      countryFilter: [] as Array<string>,
     };
   },
-  mounted () {
-    this.stateFilter.push("finished", "planned", "under construction")
+  mounted() {
+    this.stateFilter.push("finished", "planned", "under construction");
   },
   computed: {
     ...mapState(useLoadingStore, {
@@ -150,28 +154,28 @@ export default defineComponent({
     },
   },
   watch: {
-    projects: function (newVal, oldVal) {
+    projects: function () {
       useProjectStore().doFilter(
         this.stateFilter,
         this.categoryFilter,
-        this.countryFilter
+        this.countryFilter,
       );
     },
-    stateFilter: function (newVal, oldVal) {
+    stateFilter: function (newVal) {
       useProjectStore().doFilter(
         newVal,
         this.categoryFilter,
         this.countryFilter,
       );
     },
-    categoryFilter: function (newVal, oldVal) {
+    categoryFilter: function (newVal) {
       useProjectStore().doFilter(this.stateFilter, newVal, this.countryFilter);
     },
-    countryFilter: function (newVal, oldVal) {
+    countryFilter: function (newVal) {
       useProjectStore().doFilter(this.stateFilter, this.categoryFilter, newVal);
     },
   },
-})
+});
 </script>
 
 <style lang="scss" scoped>

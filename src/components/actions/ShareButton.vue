@@ -7,17 +7,14 @@
     aria-label="Share this Page"
     @click="shareDetails"
   >
-    <bootstrap-icon icon="share-fill" variant="light" />
+    <IBiShareFill /> Share &hellip;
   </b-button>
 </template>
 <script lang="ts">
-import BootstrapIcon from "@dvuckovic/vue3-bootstrap-icons";
-
 import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "ShareButton",
-  components: { BootstrapIcon },
   props: {
     title: {
       type: String,

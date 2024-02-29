@@ -6,17 +6,14 @@
     aria-label="Navigate"
     @click="navigate"
   >
-    <bootstrap-icon icon="compass" variant="light" /> Navigate &hellip;
+    <IBiPinMapFill /> Navigate &hellip;
   </b-button>
 </template>
 <script lang="ts">
-import BootstrapIcon from "@dvuckovic/vue3-bootstrap-icons";
-
 import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "NavigateButton",
-  components: { BootstrapIcon },
   props: {
     lat: {
       type: Number,

@@ -1,7 +1,7 @@
 <template>
   <div class="main-menu">
     <b-dropdown id="dropdown-dropup" dropup variant="primary" class="m-2">
-      <template #button-content> <bootstrap-icon icon="list" /> Menu </template>
+      <template #button-content> <IBiList /> Menu </template>
       <b-dropdown-item to="/">Map</b-dropdown-item>
       <b-dropdown-item to="/project/">List</b-dropdown-item>
       <b-dropdown-item to="/about">About</b-dropdown-item>
@@ -10,12 +10,10 @@
 </template>
 
 <script lang="ts">
-import BootstrapIcon from "@dvuckovic/vue3-bootstrap-icons";
 import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "MainMenu",
-  components: { BootstrapIcon },
 });
 </script>
 
