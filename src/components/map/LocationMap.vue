@@ -6,7 +6,6 @@
         ref="map"
         v-model:zoom="zoom"
         class="map"
-        :center="currentCenter"
         crs="EPSG:4326"
         :min-zoom="4"
         :max-zoom="17"
@@ -164,7 +163,7 @@ export default defineComponent({
   data() {
     return {
       zoom: 5 as number,
-      currentCenter: point(7.0, -3.5) as PointExpression,
+      //currentCenter: point(7.0, -3.5) as PointExpression,
       bounds: latLngBounds([
         [-14.5981259, 5.8997233],
         [8.9490075, 11.322326],
