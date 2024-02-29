@@ -21,39 +21,38 @@
       </h2>
     </template>
 
-      <div class="sidepanel__content">
-        <h3><country-label :country-id="project.country" /></h3>
-        <div>
-          <category-badge
-            v-for="category in project.category"
-            :key="category"
-            :category-id="category"
-          />
-        </div>
-
-        <b-img
-          v-if="project.teaserImg"
-          :src="project.teaserImg[0].thumbnails.large.url"
-          :alt="project.name"
-          fluid
+    <div class="sidepanel__content">
+      <h3><country-label :country-id="project.country" /></h3>
+      <div>
+        <category-badge
+          v-for="category in project.category"
+          :key="category"
+          :category-id="category"
         />
-
-        <p><em>Project State:</em> {{ project.state }}</p>
-
-        <markdown-text :text="project.notes" />
-
-        <div class="sidepanel__footer">
-          <b-button :to="`/project/${project.id}`" variant="primary">
-            More &hellip;
-          </b-button>
-          <navigate-button
-            class="navigate-btn"
-            :lat="project.latitude"
-            :lng="project.longitude"
-          />
-        </div>
-
       </div>
+
+      <b-img
+        v-if="project.teaserImg"
+        :src="project.teaserImg[0].thumbnails.large.url"
+        :alt="project.name"
+        fluid
+      />
+
+      <p><em>Project State:</em> {{ project.state }}</p>
+
+      <markdown-text :text="project.notes" />
+
+      <div class="sidepanel__footer">
+        <b-button :to="`/project/${project.id}`" variant="primary">
+          More &hellip;
+        </b-button>
+        <navigate-button
+          class="navigate-btn"
+          :lat="project.latitude"
+          :lng="project.longitude"
+        />
+      </div>
+    </div>
   </BOffcanvas>
 </template>
 
@@ -135,19 +134,21 @@ export default defineComponent({
 
   &__header {
     text-transform: uppercase;
-    border-bottom: #4d4d4d 1px solid;
+
+    background-color: var(--bs-secondary);
+    border-bottom: 1px solid var(--bs-secondary-text-emphasis);
 
     .pin {
       margin-right: 0.25rem;
     }
 
     a {
+      color: var(--bs-secondary-bg-subtle);
       text-decoration: none;
     }
   }
 
   &__content {
-
     img {
       max-width: 100%;
       max-height: 50vh;

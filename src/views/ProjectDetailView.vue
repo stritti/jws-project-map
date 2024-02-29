@@ -14,15 +14,15 @@
         </template>
         <div v-if="project">
           <b-row>
-            <b-col cols="3" md="1">
+            <b-col cols="3" md="1" >
               <back-button class="back-btn" />
             </b-col>
             <b-col>
-              <h1>
+              <h1 class="title">
                 {{ project.name }}
               </h1>
             </b-col>
-            <b-col cols="3" class="text-end">
+            <b-col cols="3" class="text-end" >
               <category-badge
                 v-for="category in project.category"
                 :key="category"
@@ -73,25 +73,21 @@
         <div v-if="project">
           <h2>Details</h2>
           <table class="project-details__meta">
-            <tr v-if="project.name">
-              <th>Name:</th>
-              <td>{{ project.name }}</td>
+            <tr >
+              <th >Name:</th>
+              <td v-if="project.name">{{ project.name }}</td>
+              <th >Country:</th>
+              <td v-if="project.country"><country-label :country-id="project.country" /></td>
             </tr>
-            <tr v-if="project.country">
-              <th>Country:</th>
-              <td><country-label :country-id="project.country" /></td>
-            </tr>
-            <tr v-if="project.state">
+            <tr >
               <th>State:</th>
-              <td>{{ project.state }}</td>
-            </tr>
-            <tr v-if="project.since">
+              <td v-if="project.state">{{ project.state }}</td>
               <th>Since:</th>
-              <td>{{ project.since }}</td>
+              <td v-if="project.since">{{ project.since }}</td>
             </tr>
             <tr v-if="project.category">
               <th>Category:</th>
-              <td>
+              <td colspan="3">
                 <category-badge
                   v-for="category in project.category"
                   :key="category"
@@ -115,27 +111,24 @@
             </b-button>
           </div>
 
-          <div v-if="project.gallery" class="project-details__gallery">
+          <div v-if="project.gallery">
             <hr />
             <h2>Gallery</h2>
-            <vue-picture-swipe
-              :items="images"
-              :options="{ shareEl: false }"
-            ></vue-picture-swipe>
+            <BCarousel controls indicators class="project-details__gallery">
+              <BCarouselSlide v-for="img in images" :key="img.src" :img-src="img.src" />
 
-            <div
-              v-for="video in videos"
-              :key="video.src"
-              class="gallery__video"
-            >
-              <vue3-video-player
-                :src="video.src"
-                :type="video.type"
-                :muted="false"
-                preload="auto"
-              >
-              </vue3-video-player>
-            </div>
+
+              <BCarouselSlide v-for="video in videos" :key="video.src" class="gallery__video">
+                <template #img>
+                  <vue3-video-player
+                    :src="video.src"
+                    :type="video.type"
+                    :muted="false"
+                    preload="auto"
+                  />
+                </template>
+              </BCarouselSlide>
+            </BCarousel>
           </div>
         </div>
       </b-placeholder-wrapper>
@@ -147,7 +140,6 @@
 <script lang="ts">
 import { mapState } from "pinia";
 import { useProjectStore } from "../stores/project.store";
-import VuePictureSwipe from "vue3-picture-swipe";
 import CountryLabel from "../components/CountryLabel.vue";
 import CategoryBadge from "../components/CategoryBadge.vue";
 import MarkdownText from "../components/MarkdownText.vue";
@@ -166,7 +158,6 @@ export default defineComponent({
     CountryLabel,
     CategoryBadge,
     MarkdownText,
-    VuePictureSwipe,
     SiteFooter,
     BackButton,
     ShareButton,
@@ -229,14 +220,20 @@ export default defineComponent({
   padding: 0;
 }
 .header {
-  position: sticky;
+  position: fixed;
+  top: 0;
+  width: 100%;
   padding-top: 1rem;
-  background-color: #969696;
-  border-bottom: 1px solid #4d4d4d;
+  background-color: var(--bs-secondary);
+  border-bottom: 1px solid var(--bs-secondary-text-emphasis);
   z-index: 99;
+
+  .title {
+    color: var(--bs-secondary-bg-subtle);
+  }
 }
 .teaser {
-  height: 66vh;
+  height: 50vh;
   overflow-x: hidden;
   overflow-y: auto;
   perspective: 2px;
@@ -264,11 +261,26 @@ export default defineComponent({
 
 .project-details {
   min-height: calc(100vh - 7rem);
-  padding: 1rem;
+
+  &__meta {
+    th {
+      text-align: right;
+      padding-right: 0.25rem;
+    }
+    td {
+      padding-left: 0.25rem;
+      padding-right: 1rem;
+    }
+  }
   &__meta,
   &__notes {
     padding-top: 1rem;
     padding-bottom: 1rem;
+  }
+  &__gallery {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    max-width: 480px;
   }
 }
 .back-btn {
@@ -279,7 +291,7 @@ export default defineComponent({
   img {
     min-width: 220px;
     width: auto;
-    max-width: 80vw;
+    max-width: 780px;
     margin: 0.25rem;
   }
 }
