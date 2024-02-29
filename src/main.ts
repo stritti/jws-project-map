@@ -1,6 +1,8 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import Vue3VideoPlayer from "@cloudgeek/vue3-video-player";
 import "@cloudgeek/vue3-video-player/dist/vue3-video-player.css";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
