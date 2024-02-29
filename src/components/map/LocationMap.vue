@@ -45,7 +45,6 @@
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
-            layer-type="project"
             @click="onMarkerClick(loc)"
           >
             <l-icon
@@ -71,7 +70,6 @@
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
-            layer-type="project"
             @click="onMarkerClick(loc)"
           >
             <l-icon
@@ -97,7 +95,6 @@
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
-            layer-type="project"
             @click="onMarkerClick(loc)"
           >
             <l-icon
@@ -131,6 +128,7 @@ import { useCategoryStore } from "../../stores/category.store";
 import { useProjectStore } from "../../stores/project.store";
 
 import {
+  Point,
   LatLng,
   LatLngBounds,
   latLngBounds,
@@ -165,7 +163,7 @@ export default defineComponent({
   data() {
     return {
       zoom: 5 as number,
-      currentCenter: [7.0, -3.5],
+      currentCenter: new LatLng(7.0, -3.5),
       bounds: latLngBounds([
         [-14.5981259, 5.8997233],
         [8.9490075, 11.322326],

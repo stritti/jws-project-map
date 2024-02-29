@@ -1,6 +1,5 @@
 <script setup lang="ts">
-const version = import.meta.env.PACKAGE_VERSION
-
+const version = import.meta.env.PACKAGE_VERSION;
 </script>
 <template>
   <b-container class="about">
