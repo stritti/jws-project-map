@@ -29,7 +29,7 @@ const categoryService = {
               reject(err);
             }
             resolve(items);
-          }
+          },
         );
     });
   },

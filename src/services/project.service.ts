@@ -45,7 +45,7 @@ const projectService = {
               reject(err);
             }
             resolve(locations);
-          }
+          },
         );
     });
   },

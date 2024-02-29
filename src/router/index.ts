@@ -1,9 +1,9 @@
-import { createRouter, createWebHistory } from "vue-router"
-import HomeView from "../views/HomeView.vue"
+import { createRouter, createWebHistory } from "vue-router";
+import HomeView from "../views/HomeView.vue";
 
-import { useCountryStore } from "../stores/country.store"
-import { useCategoryStore } from "../stores/category.store"
-import { useProjectStore } from "../stores/project.store"
+import { useCountryStore } from "../stores/country.store";
+import { useCategoryStore } from "../stores/category.store";
+import { useProjectStore } from "../stores/project.store";
 const routes = [
   {
     path: "/",
@@ -48,6 +48,6 @@ router.beforeEach(() => {
   useProjectStore().init();
   useCountryStore().init();
   useCategoryStore().init();
-})
+});
 
 export default router;
