@@ -128,12 +128,13 @@ import { useCategoryStore } from "../../stores/category.store";
 import { useProjectStore } from "../../stores/project.store";
 
 import {
-  Point,
-  LatLng,
+  PointExpression,
+  point,
   LatLngBounds,
   latLngBounds,
   featureGroup,
   Marker,
+LatLng,
 } from "leaflet";
 import {
   LMap,
@@ -163,7 +164,7 @@ export default defineComponent({
   data() {
     return {
       zoom: 5 as number,
-      currentCenter: new LatLng(7.0, -3.5),
+      currentCenter: point(7.0, -3.5) as PointExpression,
       bounds: latLngBounds([
         [-14.5981259, 5.8997233],
         [8.9490075, 11.322326],
