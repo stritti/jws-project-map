@@ -31,7 +31,7 @@ const projectService = {
                 longitude: partialRecords.fields?.Longitude as number,
                 link: partialRecords.fields?.Link as string,
                 state: partialRecords.fields?.State as string,
-                since: new Date(partialRecords.fields?.Since as string),
+                since: partialRecords.fields.Since ? new Date(partialRecords.fields.Since as string) : null,
                 gallery: partialRecords.fields?.Gallery as Array<object>,
               };
 

@@ -80,9 +80,9 @@
               <td v-if="project.country"><country-label :country-id="project.country" /></td>
             </tr>
             <tr >
-              <th>State:</th>
+              <th v-if="project.state">State:</th>
               <td v-if="project.state">{{ project.state }}</td>
-              <th>Since:</th>
+              <th v-if="project.since">Since:</th>
               <td v-if="project.since">{{ project.since }}</td>
             </tr>
             <tr v-if="project.category">

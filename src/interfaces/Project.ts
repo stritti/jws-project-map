@@ -1,14 +1,14 @@
 export interface Project {
   id: string;
   name: string;
-  category: Array<string>;
+  category: Array<string> | null;
   country: Array<string>;
-  teaserImg: Array<any>;
+  teaserImg: Array<any> | null;
   state: string;
-  notes: string;
+  notes: string | null;
   latitude: number;
   longitude: number;
-  link: string;
-  since: Date;
+  link: string | null;
+  since: Date | null;
   gallery: Array<object>;
 }
