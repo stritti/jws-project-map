@@ -8,11 +8,13 @@ import Icons from "unplugin-icons/vite";
 import IconsResolve from "unplugin-icons/resolver";
 import { VitePWA } from "vite-plugin-pwa";
 import version from "vite-plugin-package-version";
+import VueDevTools from 'vite-plugin-vue-devtools';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
+    VueDevTools(),
     Components({
       resolvers: [BootstrapVueNextResolver(), IconsResolve()],
       dts: true,
