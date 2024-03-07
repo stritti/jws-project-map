@@ -226,13 +226,6 @@ export default defineComponent({
       return `Projects: planned (${this.projectsPlanned.length})`;
     },
   },
-  async mounted () {
-    this.isLoadingMap = true;
-    const store = useProjectStore();
-    store.$subscribe(() => {
-      this.updateMaxBounds();
-    });
-  },
   methods: {
     mapLoaded(): void {
       this.updateMaxBounds();
