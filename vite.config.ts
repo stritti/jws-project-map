@@ -33,27 +33,7 @@ export default defineConfig({
         name: "JWF Projects",
         short_name: "JWF Projects",
         description: "Overview of projects in Westafrica by JWF and Humanaktiv",
-        theme_color: "#3d5e9e",
-        icons: [
-          {
-            src: "img/icons/android-chrome-192x192.png",
-            sizes: "192x192",
-            type: "image/png",
-            purpose: "any",
-          },
-          {
-            src: "img/icons/android-chrome-maskable-192x192.png",
-            sizes: "192x192",
-            type: "image/png",
-            purpose: "maskable",
-          },
-          {
-            src: "img/icons/android-chrome-maskable-512x512.png",
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "maskable",
-          },
-        ],
+        theme_color: "#3d5e9e"
       },
     }),
   ],
