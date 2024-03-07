@@ -174,7 +174,7 @@ export default defineComponent({
       ]) as LatLngBounds,
       categories: [],
       isOpened: false as boolean,
-      isLoadingMap: false as boolean,
+      isLoadingMap: true as boolean,
       selectedLocation: undefined as Project | undefined,
       mapOptions: {
         zoomSnap: 0.5,
@@ -226,19 +226,16 @@ export default defineComponent({
       return `Projects: planned (${this.projectsPlanned.length})`;
     },
   },
-  async mounted() {
+  async mounted () {
     this.isLoadingMap = true;
-    if (this.locations.length > 0) {
-      this.updateMaxBounds();
-    }
     const store = useProjectStore();
-    // this subscription will be kept after the component is unmounted
     store.$subscribe(() => {
       this.updateMaxBounds();
     });
   },
   methods: {
     mapLoaded(): void {
+      this.updateMaxBounds();
       this.isLoadingMap = false;
     },
     addMarker(event: {
@@ -273,8 +270,8 @@ export default defineComponent({
         return `/pins/${category?.name.toLowerCase()}.png`;
       } else if (location.category && location.category.length > 1) {
         let name = "";
-        location.category.forEach((obj: any, i: number) => {
-          const category = this.getCategoryById(location.category[i]);
+        location.category.forEach((cat: string, i: number) => {
+          const category = this.getCategoryById(cat);
           name += `${category?.name.toLowerCase()}-`;
         });
         name = name.slice(0, -1);
