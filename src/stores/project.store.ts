@@ -72,5 +72,14 @@ export const useProjectStore = defineStore("project", {
         }
       });
     },
+    doStateFilter( stateFilter: Array<string>,) {
+      this.filteredList = [];
+
+      this.projects.forEach((project: Project) => {
+        if (stateFilter.length === 0 || stateFilter.includes(project.state)) {
+          this.filteredList.push(project);
+        }
+      });
+    },
   },
 });
