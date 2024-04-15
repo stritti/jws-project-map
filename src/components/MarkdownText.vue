@@ -1,5 +1,5 @@
 <template>
-  <markdown :source="text" breaks html typographer />
+  <markdown v-if="text" :source="text" breaks html typographer />
 </template>
 
 <script lang="ts">
