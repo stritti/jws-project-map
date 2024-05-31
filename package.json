@@ -28,7 +28,7 @@
     "pinia-plugin-persistedstate": "^3.2.1",
     "vite-plugin-package-version": "^1.1.0",
     "vue": "^3.4.21",
-    "vue-router": "^4.3.0",
+    "vue-router": "^4.3.2",
     "vue3-markdown-it": "^1.0.10"
   },
   "devDependencies": {
