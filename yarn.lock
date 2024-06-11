@@ -2110,7 +2110,7 @@
   resolved "https://registry.npmjs.org/@vue/tsconfig/-/tsconfig-0.5.1.tgz"
   integrity sha512-VcZK7MvpjuTPx2w6blwnwZAu5/LgBUtejFOi3pPGQFXQN5Ela03FUtd2Qtg4yWGGissVL0dr6Ro1LfOFh+PCuQ==
 
-"@vueuse/core@^10.9.0":
+"@vueuse/core@^10.10.0":
   version "10.10.0"
   resolved "https://registry.yarnpkg.com/@vueuse/core/-/core-10.10.0.tgz#05a98d3c5674762455a2c552c915d461d83e6490"
   integrity sha512-vexJ/YXYs2S42B783rI95lMt3GzEwkxzC8Hb0Ndpd8rD+p+Lk/Za4bd797Ym7yq4jXqdSyj3JLChunF/vyYjUw==
@@ -2344,13 +2344,13 @@ boolbase@^1.0.0:
   resolved "https://registry.npmjs.org/boolbase/-/boolbase-1.0.0.tgz"
   integrity sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==
 
-bootstrap-vue-next@^0.17.6:
-  version "0.17.6"
-  resolved "https://registry.yarnpkg.com/bootstrap-vue-next/-/bootstrap-vue-next-0.17.6.tgz#a3a228c00077bf0e38e030d6533ede350f590c0d"
-  integrity sha512-dfZdJEVlpmzVLGJUY15+yWBqC3iMd9iItBwVQ1FRcPcGUoziU45KcdF+YdEMHmRaVuT0VKfC96wpTFTeHrA0Mw==
+bootstrap-vue-next@^0.21.2:
+  version "0.21.2"
+  resolved "https://registry.yarnpkg.com/bootstrap-vue-next/-/bootstrap-vue-next-0.21.2.tgz#dac86c1c6c99968ecb54817cbcc68d889c5a17eb"
+  integrity sha512-2VMlrTETlT2d57T+rG7SKCGPD2CdcPjNHil6I3H/rW5+zXcSvx7luEKIBgnNRN+vDJaDomo7iOHqIGphJTlrdw==
   dependencies:
     "@floating-ui/vue" "^1.0.6"
-    "@vueuse/core" "^10.9.0"
+    "@vueuse/core" "^10.10.0"
 
 bootstrap@^5.3.3:
   version "5.3.3"
