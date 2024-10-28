@@ -32,7 +32,7 @@
     "vue3-markdown-it": "^1.0.10"
   },
   "devDependencies": {
-    "@iconify-json/bi": "^1.1.24",
+    "@iconify-json/bi": "^1.2.1",
     "@rushstack/eslint-patch": "^1.10.3",
     "@types/leaflet": "^1.9.12",
     "@types/markdown-it": "^14.1.2",
