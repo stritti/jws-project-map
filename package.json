@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@iconify-json/bi": "^1.2.1",
-    "@rushstack/eslint-patch": "^1.10.3",
+    "@rushstack/eslint-patch": "^1.10.4",
     "@types/leaflet": "^1.9.12",
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^22.8.6",
