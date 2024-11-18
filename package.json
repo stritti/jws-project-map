@@ -37,7 +37,7 @@
     "@types/leaflet": "^1.9.14",
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^22.9.0",
-    "@vite-pwa/assets-generator": "^0.2.4",
+    "@vite-pwa/assets-generator": "^0.2.6",
     "@vitejs/plugin-vue": "^5.2.0",
     "@vue/compiler-sfc": "^3.5.1",
     "@vue/eslint-config-prettier": "^10.1.0",
