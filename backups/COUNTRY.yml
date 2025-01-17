@@ -10,12 +10,14 @@
   - reczaJBaWLizOuEhx
   - recQTnr8olHw6OXXw
   - recTyQ8SqObXq0sDq
+  - recF8akQQpAhQffVI
+  - recpr3FuMAgQazvIy
   airtable_createdTime: '2022-06-13T18:54:46.000Z'
   airtable_id: rec476tq2x0r1kmG6
-- Code: ci
-  Name: "Cote d\xB4Ivoire"
+- Code: EG
+  Name: Equatorial Guinee
   Project:
-  - recEEgZdNmhdolgMT
+  - recPIfgScOCtoJy6e
   airtable_createdTime: '2023-07-13T15:13:38.000Z'
   airtable_id: recDvp6wqfeQ7i5e4
 - Code: bj
@@ -38,12 +40,15 @@
   - recNGVxuvLPGmHIBu
   - recYc0Y7V7LOG0mvm
   - recPRJKFgUUO5N9qN
+  - recn3hNQPPfejyLye
+  - recBUbbp9ukvnXwBp
+  - reckOrkoDvOX3CsVr
+  - recblx1AQQHIQNvZj
   airtable_createdTime: '2022-06-13T18:51:41.000Z'
   airtable_id: recVMwn0zRMhJbjK3
-- Code: gn
+- Code: ci
   Name: |+
-    Guinea
-
+    Cote d Ivoir
 
   Project:
   - recsUWGsOhuTJtFer
@@ -71,6 +76,12 @@
   - recS8d1cAYeoZqCNB
   - rec5qbkyPLWJQhQgW
   - recF1rvL0VJrq0bhO
+  - recJkxq97cryJ1Use
+  - recquhnskQzBQlMJM
+  - recFndSVCKkaEg6tq
+  - recUznoEktNUhlTsS
+  - recEEgZdNmhdolgMT
+  - recAjrYr37KFRHWzL
   airtable_createdTime: '2022-06-13T18:55:32.000Z'
   airtable_id: recXsrIFc8lT3aIAP
 - Code: gw
@@ -94,6 +105,8 @@
   - recx75eTpuGagf07z
   - rec2hu2x6fI6bE09h
   - recUx0qJlWvnr582u
+  - rec9DOe9s9TJXh472
+  - recs9LeHP4MJxJo3O
   airtable_createdTime: '2022-06-13T19:07:35.000Z'
   airtable_id: recwpTYs1ZKFMRk9u
 - Code: sl
@@ -137,5 +150,7 @@
   - recRzMqk5O0nxgxG5
   - recWXgU2pdQVc22aD
   - recOddrJMjsorLzvz
+  - recEhrfVlbqEyQ6bg
+  - rec3337D9VYJlox4s
   airtable_createdTime: '2022-06-13T19:09:52.000Z'
   airtable_id: recytpEQBu5UO55pd
