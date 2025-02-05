@@ -1,5 +1,6 @@
 // Option A: Include all of Bootstrap
-
+@use "bootstrap/scss/bootstrap" as bootstrap;
+@use "bootstrap-vue-next/dist/bootstrap-vue-next.css";
 // Include any default variable overrides here (though functions won't be available)
 
 $primary: #3d5e9e;
@@ -12,6 +13,4 @@ $h4-font-size:                $font-size-base * 1.25 !default;
 $h5-font-size:                $font-size-base * 1.25 !default;
 $h6-font-size:                $font-size-base !default;
 
-@use "bootstrap/scss/bootstrap" as bootstrap;
-@use "bootstrap-vue-next/dist/bootstrap-vue-next.css";
 // Then add additional custom code here
