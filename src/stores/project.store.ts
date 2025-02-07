@@ -18,7 +18,7 @@ export const useProjectStore = defineStore("project", {
   persist: true,
   getters: {
     getAll: (state) => state.projects as Array<Project>,
-    getById: (state) => (id: string) =>
+    getById: (state) => (id: number) =>
       state.projects.find((project: Project) => project.id === id) as Project,
     projectsFinished: (state) => {
       if (state.projects.length > 0) {
@@ -51,6 +51,9 @@ export const useProjectStore = defineStore("project", {
       projectService.getAll().then((result) => {
         this.projects = result as Array<Project>;
         loadingStore.updateLoading(false);
+      }).catch((error) => {
+        console.error('Error fetching Items:', error);
+        throw error;
       });
     },
     doFilter(

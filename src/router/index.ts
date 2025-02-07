@@ -45,9 +45,13 @@ const router = createRouter({
 router.beforeEach(() => {
   // ✅ This will work make sure the correct store is used for the
   // current running app
-  useProjectStore().init();
-  useCountryStore().init();
-  useCategoryStore().init();
+  try {
+    useProjectStore().init();
+    useCountryStore().init();
+    useCategoryStore().init();
+  } catch (error) {
+    console.error("Error initializing stores:", error);
+  }
 });
 
 export default router;

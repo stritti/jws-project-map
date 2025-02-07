@@ -1,21 +1,20 @@
 <template>
-  <span v-if="countryId" class="country-label"
-    ><span :class="countryClass"></span>&nbsp;{{ countryLabel }}
+  <span v-if="countryId" class="country-label">
+    <span :class="countryClass"></span>&nbsp;{{ countryLabel }}
   </span>
 </template>
 
 <script lang="ts">
+import "flag-icons/sass/flag-icons.scss";
 import { mapState } from "pinia";
 import { useCountryStore } from "../stores/country.store";
-import "flag-icons/sass/flag-icons.scss";
-
 import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "CountryLabel",
   props: {
     countryId: {
-      type: Array<string>,
+      type: Number,
       required: false,
       default: null,
     },
@@ -25,15 +24,15 @@ export default defineComponent({
       getById: (store) => store.getById,
     }),
     countryLabel(): string {
-      if (this.countryId[0] && this.getById(this.countryId[0])) {
-        return this.getById(this.countryId[0])?.name as string;
+      if (this.countryId && this.getById(this.countryId)) {
+        return this.getById(this.countryId)?.name as string;
       } else {
         return "";
       }
     },
     countryClass() {
-      if (this.countryId[0] && this.getById(this.countryId[0])) {
-        return `fi fis fi-${this.getById(this.countryId[0])?.code}`;
+      if (this.countryId && this.getById(this.countryId)) {
+        return `fi fis fi-${this.getById(this.countryId)?.code}`;
       } else {
         return "";
       }
@@ -41,3 +40,7 @@ export default defineComponent({
   },
 });
 </script>
+
+<style lang="scss">
+@use "flag-icons/sass/flag-icons.scss" as flag-icons;
+</style>

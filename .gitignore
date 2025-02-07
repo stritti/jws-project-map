@@ -27,3 +27,4 @@ coverage
 *.sln
 *.sw?
 dev-dist/
+.aider*

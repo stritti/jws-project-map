@@ -33,7 +33,7 @@
 
       <b-img
         v-if="project.teaserImg"
-        :src="project.teaserImg[0].thumbnails.large.url"
+        :src="project.teaserImg[0].signedUrl"
         :alt="project.name"
         fluid
       />

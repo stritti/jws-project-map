@@ -17,7 +17,7 @@ export default defineComponent({
   name: "CategoryBadge",
   props: {
     categoryId: {
-      type: String,
+      type: Number,
       required: true,
     },
   },

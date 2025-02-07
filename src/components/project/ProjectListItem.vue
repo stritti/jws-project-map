@@ -43,7 +43,7 @@ export default defineComponent({
   computed: {
     teaserImage() {
       if (this.project.teaserImg) {
-        return this.project.teaserImg[0].thumbnails.large.url;
+        return this.project.teaserImg[0].thumbnails.card_cover.signedUrl;
       } else {
         return "/img/placeholder.png";
       }

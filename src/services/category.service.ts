@@ -1,38 +1,29 @@
-import type { Category } from "@/interfaces/Category";
-import base from "./airtable.service";
+import { NocoDBService } from './nocodb.service'
+import type { Category } from "@/interfaces/Category"
 
-const BASE_NAME = "Category";
+const base = new NocoDBService('m4wto2nnf9c230g')
 
 const categoryService = {
-  getAll() {
-    return new Promise((resolve, reject) => {
-      const items: Array<Category> = [];
-      base(BASE_NAME)
-        .select({
-          sort: [{ field: "Name", direction: "asc" }],
-          filterByFormula: "COUNTA(Project) > 0",
+  async getAll(): Promise<Array<Category>> {
+    try {
+      const response = await base
+        .list({
+          sort: "Name",
+          viewId: "vwoztb7dgc077xfd", // published
         })
-        .eachPage(
-          function page(partialRecords, fetchNextPage) {
-            partialRecords.forEach((partialRecords) => {
-              items.push({
-                id: partialRecords.id,
-                name: partialRecords.fields?.Name as string,
-                color: partialRecords.fields?.Color as string,
-              });
-            });
-            fetchNextPage();
-          },
-          function done(err) {
-            if (err) {
-              console.log(err);
-              reject(err);
-            }
-            resolve(items);
-          },
-        );
-    });
-  },
+
+      const categoryList: Array<Category> = ((response as unknown) as { list: Record<string, any>[] })
+        .list.map((record: Record<string, any>) => ({
+        id: record.Id as number,
+        name: record.Name as string,
+        color: record.Color as string,
+      } as Category));
+      return categoryList
+    } catch (error) {
+      console.error('Error fetching Items:', error);
+      throw error;
+    }
+  }
 };
 
 export default categoryService;

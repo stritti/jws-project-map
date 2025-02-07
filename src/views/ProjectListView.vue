@@ -11,7 +11,7 @@
             <b-placeholder width="55%"></b-placeholder>
             <b-placeholder width="70%"></b-placeholder>
           </p>
-          <b-card-group columns="true" class="my-3">
+          <b-card-group columns class="my-3">
             <BPlaceholderCard animation="wave" no-footer />
             <BPlaceholderCard animation="wave" no-footer />
             <BPlaceholderCard animation="wave" no-footer />
@@ -66,7 +66,7 @@
         </b-collapse>
       </b-placeholder-wrapper>
       <b-overlay :show="showLoadingSpinner" fixed :opacity="0.5">
-        <b-card-group columns="true" class="my-3">
+        <b-card-group columns class="my-3">
           <project-list-item
             v-for="project in filteredProjectList"
             :key="project.id"

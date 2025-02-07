@@ -73,6 +73,7 @@
         <div v-if="project">
           <h2>Details</h2>
           <table class="project-details__meta">
+            <thead>
             <tr >
               <th >Name:</th>
               <td v-if="project.name">{{ project.name }}</td>
@@ -95,6 +96,7 @@
                 />
               </td>
             </tr>
+            </thead>
           </table>
           <div v-if="project.notes" class="project-details__description">
             <hr />
@@ -177,35 +179,34 @@ export default defineComponent({
       projectById: (state) => state.getById,
     }),
     project(): Project {
-      return this.projectById(
-        this.$route.params.projectId as string,
-      ) as Project;
+      const id = parseInt(this.$route.params.projectId as string);
+      return this.projectById(id);
     },
     teaserImage(): string {
       if (this.project.teaserImg) {
-        return this.project.teaserImg[0].thumbnails.large.url;
+        return this.project.teaserImg[0].signedUrl;
       } else {
         return "/img/placeholder.png";
       }
     },
     images() {
       return this.project.gallery
-        .filter((img: any) => img.type.startsWith("image"))
+        .filter((img: any) => img.mimetype.startsWith("image"))
         .map((img: any) => {
           return {
-            src: img.url,
+            src: img.signedUrl,
             w: img.width,
             h: img.height,
-            thumbnail: img.thumbnails.large.url,
+            thumbnail: img.thumbnails.card_cover.signedUrl,
           };
         });
     },
     videos() {
       return this.project.gallery
-        .filter((item: any) => item.type.startsWith("video"))
+        .filter((item: any) => item.mimetype.startsWith("video"))
         .map((item: any) => {
           return {
-            src: item.url,
+            src: item.signedUrl,
             type: item.type,
             size: item.size,
           };

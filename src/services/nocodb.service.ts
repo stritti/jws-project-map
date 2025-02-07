@@ -21,6 +21,8 @@ export class NocoDBService {
     offset?: number;
     limit?: number;
     viewId?: string;
+    sort?: string;
+    populate?: string;
   }): Promise<Record<string, unknown>[]> {
     return axios.get(`${this.baseURL}/api/v2/tables/${this.tableId}/records`, {
       headers: this.getHeaders(),
@@ -70,6 +72,16 @@ export class NocoDBService {
     return response.data;
   }
 
+  async nested(recordId: number, params?: { nestedField?: string }) {
+    const response = await axios.get(`${this.baseURL}/api/v2/tables/${this.tableId}/records/${recordId}/nested`, {
+      headers: this.getHeaders(),
+      params: {
+        nestedField: params?.nestedField
+      }
+    });
+    return response.data;
+  }
+
   async count(params?: { where?: string }) {
     const response = await axios.get(`${this.baseURL}/api/v2/tables/${this.tableId}/records/count`, {
       headers: this.getHeaders(),
@@ -80,37 +92,3 @@ export class NocoDBService {
 }
 
 export default NocoDBService;
-import axios from 'axios';
-
-const BASE_URL = `${import.meta.env.VITE_APP_NOCODB_URL}`;
-const API_TOKEN = `${import.meta.env.VITE_APP_NOCODB_TOKEN}`;
-
-const nocoClient = axios.create({
-  baseURL: BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-    'xc-token': API_TOKEN
-  }
-});
-
-export const fetchTable = async (tableName: string, params = {}) => {
-  try {
-    const response = await nocoClient.get(`/api/v1/db/data/noco/${tableName}`, { params });
-    return response.data.list;
-  } catch (error) {
-    console.error(`Error fetching ${tableName}:`, error);
-    throw error;
-  }
-};
-
-export const createRecord = async (tableName: string, data: any) => {
-  try {
-    const response = await nocoClient.post(`/api/v1/db/data/noco/${tableName}`, data);
-    return response.data;
-  } catch (error) {
-    console.error(`Error creating record in ${tableName}:`, error);
-    throw error;
-  }
-};
-
-export default nocoClient;
