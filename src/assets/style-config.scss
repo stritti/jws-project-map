@@ -3,7 +3,9 @@
 @use "sass:math";
 @use "sass:meta";
 
-@use "bootstrap/scss/bootstrap";
+@use "bootstrap/scss/bootstrap" with (
+  $primary: #3d5e9e
+);
 @use "bootstrap-vue-next/dist/bootstrap-vue-next.css";
 @use "flag-icons/sass/flag-icons.scss";
 
