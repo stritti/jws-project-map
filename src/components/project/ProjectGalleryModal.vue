@@ -66,13 +66,21 @@ export default defineComponent({
   setup(props, { emit }) {
     const currentIndex = ref(0);
 
-    watch(() => props.currentItem, (newItem) => {
-      if (newItem) {
-        currentIndex.value = props.galleryItems.findIndex(
-          item => item.signedUrl === newItem.signedUrl
+    const findCurrentIndex = () => {
+      if (props.currentItem) {
+        const index = props.galleryItems.findIndex(
+          item => item.signedUrl === props.currentItem.signedUrl
         );
+        return index !== -1 ? index : 0;
       }
-    }, { immediate: true });
+      return 0;
+    };
+
+    const updateCurrentIndex = () => {
+      currentIndex.value = findCurrentIndex();
+    };
+
+    watch(() => props.currentItem, updateCurrentIndex, { immediate: true });
 
     const prevItem = () => {
       currentIndex.value = (currentIndex.value - 1 + props.galleryItems.length) % props.galleryItems.length;
@@ -82,20 +90,15 @@ export default defineComponent({
       currentIndex.value = (currentIndex.value + 1) % props.galleryItems.length;
     };
 
-    const currentGalleryItem = computed(() =>
-      props.galleryItems[currentIndex.value]
-    );
-
     return {
       currentIndex,
       prevItem,
-      nextItem,
-      currentGalleryItem
+      nextItem
     };
   },
   computed: {
     currentItem(): any {
-      return this.currentGalleryItem || this.galleryItems[0];
+      return this.galleryItems[this.currentIndex] || this.galleryItems[0];
     }
   }
 });
