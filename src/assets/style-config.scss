@@ -12,13 +12,13 @@
 // Include any default variable overrides here
 $primary: #3d5e9e;
 
-$font-size-base:              1rem !default; // Assumes the browser default, typically `16px`
-$h1-font-size:                math.div($font-size-base, 1) * 2 !default;
-$h2-font-size:                math.div($font-size-base, 1) * 1.75 !default;
-$h3-font-size:                math.div($font-size-base, 1) * 1.5 !default;
-$h4-font-size:                math.div($font-size-base, 1) * 1.25 !default;
-$h5-font-size:                math.div($font-size-base, 1) * 1.25 !default;
-$h6-font-size:                $font-size-base !default;
+$font-size-base:              1rem; // Assumes the browser default, typically `16px`
+$h1-font-size:                math.div($font-size-base, 1) * 2;
+$h2-font-size:                math.div($font-size-base, 1) * 1.75;
+$h3-font-size:                math.div($font-size-base, 1) * 1.5;
+$h4-font-size:                math.div($font-size-base, 1) * 1.25;
+$h5-font-size:                math.div($font-size-base, 1) * 1.25;
+$h6-font-size:                $font-size-base;
 
 // Modern color mixing functions
 @function tint-color($color, $weight) {
@@ -27,6 +27,20 @@ $h6-font-size:                $font-size-base !default;
 
 @function shade-color($color, $weight) {
   @return color.mix(black, $color, $weight);
+}
+
+// Resolve mixed declaration warnings
+@layer base {
+  legend {
+    font-weight: $legend-font-weight;
+    line-height: inherit;
+  }
+
+  .display {
+    font-family: $display-font-family;
+    font-style: $display-font-style;
+    font-weight: $display-font-weight;
+  }
 }
 
 // Then add additional custom code here
