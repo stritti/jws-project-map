@@ -114,7 +114,7 @@ export default defineComponent({
       this.showPanel = false;
       this.$emit("close");
     },
-    getPin(categoryId: string | number) {
+    getPin(categoryId: number) {
       const category = this.getCategoryById(categoryId);
       if (category) {
         return `/pins/${category.name.toLowerCase()}.png`;
