@@ -136,6 +136,7 @@ import NavigateButton from "../components/actions/NavigateButton.vue";
 import { defineComponent } from "vue";
 import type { Project } from "@/interfaces/Project";
 import ProjectGallery from "@/components/project/ProjectGallery.vue";
+import ProjectGalleryModal from "@/components/project/ProjectGalleryModal.vue";
 
 export default defineComponent({
   name: "ProjectDetailView",
@@ -148,6 +149,7 @@ export default defineComponent({
     ShareButton,
     NavigateButton,
     ProjectGallery,
+    ProjectGalleryModal,
   },
   props: {
     projectId: {
