@@ -4,16 +4,16 @@
       <span>&times;</span>
     </div>
     <div class="gallery-navigation">
-      <div 
-        v-if="galleryItems.length > 1" 
-        class="nav-prev" 
+      <div
+        v-if="galleryItems.length > 1"
+        class="nav-prev"
         @click="prevItem"
       >
         &lt;
       </div>
-      <div 
-        v-if="galleryItems.length > 1" 
-        class="nav-next" 
+      <div
+        v-if="galleryItems.length > 1"
+        class="nav-next"
         @click="nextItem"
       >
         &gt;
@@ -21,9 +21,9 @@
     </div>
     <div class="gallery-content">
       <template v-if="currentItem.mimetype.startsWith('image')">
-        <img 
-          :src="currentItem.signedUrl" 
-          :alt="currentItem.name" 
+        <img
+          :src="currentItem.signedUrl"
+          :alt="currentItem.name"
           class="gallery-image"
         />
       </template>
@@ -82,7 +82,7 @@ export default defineComponent({
       currentIndex.value = (currentIndex.value + 1) % props.galleryItems.length;
     };
 
-    const currentGalleryItem = computed(() => 
+    const currentGalleryItem = computed(() =>
       props.galleryItems[currentIndex.value]
     );
 
@@ -94,7 +94,7 @@ export default defineComponent({
     };
   },
   computed: {
-    currentItem() {
+    currentItem(): any {
       return this.currentGalleryItem || this.galleryItems[0];
     }
   }
