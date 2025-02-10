@@ -118,22 +118,23 @@ export default defineComponent({
 }
 
 .gallery-content {
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
+  padding: 0;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .gallery-image, .gallery-video {
-  max-width: 100%;
-  max-height: 100%;
-  width: auto;
-  height: auto;
+  max-width: 100vw;
+  max-height: 100vh;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  margin: 0 auto; /* Center small images/videos */
+  margin: 0;
 }
 
 .gallery-content img,
