@@ -20,17 +20,17 @@
       </div>
     </div>
     <div class="gallery-content">
-      <template v-if="currentItem.mimetype.startsWith('image')">
+      <template v-if="galleryItems[currentIndex].mimetype.startsWith('image')">
         <img
-          :src="currentItem.signedUrl"
-          :alt="currentItem.name"
+          :src="galleryItems[currentIndex].signedUrl"
+          :alt="galleryItems[currentIndex].name"
           class="gallery-image"
         />
       </template>
-      <template v-else-if="currentItem.mimetype.startsWith('video')">
+      <template v-else-if="galleryItems[currentIndex].mimetype.startsWith('video')">
         <vue3-video-player
-          :src="currentItem.signedUrl"
-          :type="currentItem.type"
+          :src="galleryItems[currentIndex].signedUrl"
+          :type="galleryItems[currentIndex].type"
           :muted="false"
           preload="auto"
           class="gallery-video"
@@ -38,7 +38,7 @@
       </template>
     </div>
     <div class="gallery-caption">
-      {{ currentItem.name }}
+      {{ galleryItems[currentIndex].name }}
     </div>
   </div>
 </template>
@@ -96,11 +96,7 @@ export default defineComponent({
       nextItem
     };
   },
-  computed: {
-    currentItem(): any {
-      return this.galleryItems[this.currentIndex] || this.galleryItems[0];
-    }
-  }
+  // Removed redundant computed property
 });
 </script>
 
