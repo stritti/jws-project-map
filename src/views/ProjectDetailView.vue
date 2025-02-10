@@ -116,9 +116,8 @@
           <div v-if="project.gallery">
             <hr />
             <h2>Gallery</h2>
-            <BCarousel controls indicators class="project-details__gallery">
-              <BCarouselSlide v-for="img in images" :key="img.src" :img-src="img.src" />
-
+            <BCarousel controls indicators fade class="project-details__gallery">
+              <BCarouselSlide v-for="img in images" :key="img.src" :img-src="img.src" fluid class="gallery__image"/>
 
               <BCarouselSlide v-for="video in videos" :key="video.src" class="gallery__video">
                 <template #img>
@@ -281,7 +280,7 @@ export default defineComponent({
   &__gallery {
     margin-top: 1rem;
     margin-bottom: 1rem;
-    max-width: 480px;
+    max-width: 780px;
   }
 }
 .back-btn {
