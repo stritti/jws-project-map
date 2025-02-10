@@ -10,7 +10,7 @@ export const useCategoryStore = defineStore("category", {
   persist: true,
   getters: {
     getAll: (state) => state.categories as Array<Category>,
-    getById: (state) => (id: string) =>
+    getById: (state) => (id: number) =>
       state.categories.find(
         (category: Category) => category.id === id,
       ) as Category,

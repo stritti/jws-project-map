@@ -1,5 +1,6 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
+import {createBootstrap} from 'bootstrap-vue-next'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -19,6 +20,7 @@ const app = createApp(App);
 
 app.use(pinia);
 app.use(router);
+app.use(createBootstrap())
 app.use(Vue3VideoPlayer, {
   lang: "en",
 });

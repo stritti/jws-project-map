@@ -119,12 +119,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import { mapState } from "pinia";
-import { mapActions } from "pinia";
-import { useLoadingStore } from "../../stores/loading.store";
-import { useCategoryStore } from "../../stores/category.store";
-import { useProjectStore } from "../../stores/project.store";
+import { defineComponent } from "vue"
+import { mapState, mapActions } from "pinia"
+import { useLoadingStore } from "../../stores/loading.store"
+import { useCategoryStore } from "../../stores/category.store"
+import { useProjectStore } from "../../stores/project.store"
 
 import {
   PointExpression,
@@ -184,6 +183,7 @@ export default defineComponent({
   computed: {
     ...mapState(useCategoryStore, {
       getCategoryById: (store) => store.getById,
+      //categoryOfProjects: (store) => store.categoryOfProjects as Array<Project>,
     }),
     ...mapState(useLoadingStore, {
       showLoadingSpinner: (store) => store.showLoadingSpinner as boolean,
@@ -256,22 +256,22 @@ export default defineComponent({
       this.isOpened = false;
     },
     getPin(location: Project): string {
-      if (location.category && location.category.length === 0) {
-        return "/pins/default.png";
-      } else if (location.category && location.category.length === 1) {
-        const category = this.getCategoryById(location.category[0]);
-        return `/pins/${category?.name.toLowerCase()}.png`;
-      } else if (location.category && location.category.length > 1) {
-        let name = "";
-        location.category.forEach((cat: string, i: number) => {
-          const category = this.getCategoryById(cat);
-          name += `${category?.name.toLowerCase()}-`;
-        });
-        name = name.slice(0, -1);
-        return `/pins/${name}.png`;
-      } else {
+      if (location === null) {
         return "/pins/default.png";
       }
+
+      const categories = Array.isArray(location.category) 
+        ? location.category 
+        : [location.category];
+
+      const categoryNames = categories
+        .map(cat => {
+          const category = this.getCategoryById(cat);
+          return category?.name.toLowerCase() || 'default';
+        })
+        .join('-');
+
+      return `/pins/${categoryNames}.png`;
     },
     pinClass(current: Project): string {
       let cssClass =

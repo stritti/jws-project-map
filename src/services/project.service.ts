@@ -1,66 +1,58 @@
-import base from "./airtable.service";
-import type { Project } from "@/interfaces/Project";
-import type { LatLng } from "leaflet";
+import { NocoDBService } from './nocodb.service'
+import type { Project } from "@/interfaces/Project"
+import type { LatLng } from "leaflet"
 
-const BASE_NAME = "Project";
+const base = new NocoDBService('mdctuswlmsfvi8i')
 
 const projectService = {
-  getAll() {
-    return new Promise((resolve, reject) => {
-      const locations: Array<Project> = [];
-      base(BASE_NAME)
-        .select({
-          sort: [{ field: "Name", direction: "asc" }],
-          view: "published",
+  async getAll(): Promise<Array<Project>> {
+    try {
+      const response = await base
+        .list({
+          limit: 1000,
+          offset: 0,
+          sort: "Name",
+          viewId: "vwlnl4t095iifqc9", // published
         })
-        .eachPage(
-          function page(partialRecords, fetchNextPage) {
-            partialRecords.forEach((partialRecords) => {
-              const item: Project = {
-                id: partialRecords.id,
-                name: partialRecords.fields.Name as string,
-                teaserImg: partialRecords.fields?.TeaserImage as object[],
-                category: partialRecords.fields?.Category as Array<string>,
-                notes: partialRecords.fields.Notes
-                  ? (partialRecords.fields.Notes as string)
-                      .replaceAll('"<http', '"http')
-                      .replaceAll('>"', '"')
-                  : "",
-                country: partialRecords.fields?.Country as Array<string>,
-                latitude: partialRecords.fields?.Latitude as number,
-                longitude: partialRecords.fields?.Longitude as number,
-                link: partialRecords.fields?.Link as string,
-                state: partialRecords.fields?.State as string,
-                since: partialRecords.fields.Since ? new Date(partialRecords.fields.Since as string) : null,
-                gallery: partialRecords.fields?.Gallery as Array<object>,
-              };
 
-              locations.push(item);
-            });
-            fetchNextPage();
-          },
-          function done(err) {
-            if (err) {
-              console.log(err);
-              reject(err);
-            }
-            resolve(locations);
-          },
-        );
-    });
+      const locations: Array<Project> = ((response as unknown) as { list: Record<string, any>[] })
+        .list.map((record: Record<string, any>) => ({
+        id: record.Id as number,
+        name: record.Name as string,
+        teaserImg: record?.TeaserImage as object[],
+        category: record?.Category_ID as Array<number>,
+        notes: record.Notes
+          ? (record.Notes as string)
+              .replaceAll('"<http', '"http')
+              .replaceAll('>"', '"')
+          : "",
+        country: record?.Country_ID ? record.Country_ID[0] : undefined as number | undefined,
+        latitude: record?.Latitude as number,
+        longitude: record?.Longitude as number,
+        link: record?.Link as string,
+        state: record?.State as string,
+        since: record.Since ? new Date(record.Since as string) : null,
+        gallery: record?.Gallery as Array<object>,
+      } as Project));
+
+      return locations
+    } catch (error) {
+      console.error('Error fetching Items:', error);
+      throw error;
+    }
+
   },
-  add(latLng: LatLng, name: string) {
-    base(BASE_NAME).create([
+  add(latLng: LatLng, name: string): any {
+    const result = base.create([
       {
-        fields: {
-          Name: name,
-          Published: "draft",
-          Longitude: latLng.lng,
-          Latitude: latLng.lat,
-        },
+        Name: name,
+        Published: "draft",
+        Longitude: latLng.lng,
+        Latitude: latLng.lat,
       },
     ]);
-  },
+    return result;
+  }
 };
 
 export default projectService;

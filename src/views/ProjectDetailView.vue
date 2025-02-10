@@ -73,6 +73,7 @@
         <div v-if="project">
           <h2>Details</h2>
           <table class="project-details__meta">
+            <thead>
             <tr >
               <th >Name:</th>
               <td v-if="project.name">{{ project.name }}</td>
@@ -95,6 +96,7 @@
                 />
               </td>
             </tr>
+            </thead>
           </table>
           <div v-if="project.notes" class="project-details__description">
             <hr />
@@ -111,25 +113,7 @@
             </b-button>
           </div>
 
-          <div v-if="project.gallery">
-            <hr />
-            <h2>Gallery</h2>
-            <BCarousel controls indicators class="project-details__gallery">
-              <BCarouselSlide v-for="img in images" :key="img.src" :img-src="img.src" />
-
-
-              <BCarouselSlide v-for="video in videos" :key="video.src" class="gallery__video">
-                <template #img>
-                  <vue3-video-player
-                    :src="video.src"
-                    :type="video.type"
-                    :muted="false"
-                    preload="auto"
-                  />
-                </template>
-              </BCarouselSlide>
-            </BCarousel>
-          </div>
+          <project-gallery v-if="project.gallery" :project="project" />
         </div>
       </b-placeholder-wrapper>
     </div>
@@ -151,6 +135,8 @@ import NavigateButton from "../components/actions/NavigateButton.vue";
 
 import { defineComponent } from "vue";
 import type { Project } from "@/interfaces/Project";
+import ProjectGallery from "@/components/project/ProjectGallery.vue";
+import ProjectGalleryModal from "@/components/project/ProjectGalleryModal.vue";
 
 export default defineComponent({
   name: "ProjectDetailView",
@@ -162,6 +148,8 @@ export default defineComponent({
     BackButton,
     ShareButton,
     NavigateButton,
+    ProjectGallery,
+    ProjectGalleryModal,
   },
   props: {
     projectId: {
@@ -177,39 +165,15 @@ export default defineComponent({
       projectById: (state) => state.getById,
     }),
     project(): Project {
-      return this.projectById(
-        this.$route.params.projectId as string,
-      ) as Project;
+      const id = parseInt(this.$route.params.projectId as string);
+      return this.projectById(id);
     },
     teaserImage(): string {
       if (this.project.teaserImg) {
-        return this.project.teaserImg[0].thumbnails.large.url;
+        return this.project.teaserImg[0].signedUrl;
       } else {
         return "/img/placeholder.png";
       }
-    },
-    images() {
-      return this.project.gallery
-        .filter((img: any) => img.type.startsWith("image"))
-        .map((img: any) => {
-          return {
-            src: img.url,
-            w: img.width,
-            h: img.height,
-            thumbnail: img.thumbnails.large.url,
-          };
-        });
-    },
-    videos() {
-      return this.project.gallery
-        .filter((item: any) => item.type.startsWith("video"))
-        .map((item: any) => {
-          return {
-            src: item.url,
-            type: item.type,
-            size: item.size,
-          };
-        });
     },
   },
 });
@@ -277,28 +241,9 @@ export default defineComponent({
     padding-top: 1rem;
     padding-bottom: 1rem;
   }
-  &__gallery {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    max-width: 480px;
-  }
 }
 .back-btn {
   margin-right: 1rem;
   float: left;
-}
-.gallery-thumbnail {
-  img {
-    min-width: 220px;
-    width: auto;
-    max-width: 780px;
-    margin: 0.25rem;
-  }
-}
-.gallery__video {
-  min-width: 220px;
-  width: auto;
-  max-width: 80vw;
-  margin: 0.25rem;
 }
 </style>

@@ -7,7 +7,7 @@ interface State {
   countries: Country[];
 }
 
-export const useCountryStore = defineStore("countries", {
+export const useCountryStore = defineStore("country", {
   state: (): State => {
     return {
       countries: [],
@@ -16,7 +16,7 @@ export const useCountryStore = defineStore("countries", {
   persist: true,
   getters: {
     getAll: (state) => state.countries,
-    getById: (state) => (id: string) =>
+    getById: (state) => (id: number) =>
       state.countries.find((country: Country) => country.id === id),
   },
   actions: {

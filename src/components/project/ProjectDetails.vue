@@ -9,7 +9,7 @@
     <template #title>
       <h2>
         <b-img
-          v-for="category in project.category"
+          v-for="category in (Array.isArray(project.category) ? project.category : [project.category])"
           :key="category"
           class="pin"
           :src="getPin(category)"
@@ -33,7 +33,7 @@
 
       <b-img
         v-if="project.teaserImg"
-        :src="project.teaserImg[0].thumbnails.large.url"
+        :src="project.teaserImg[0].signedUrl"
         :alt="project.name"
         fluid
       />
@@ -114,7 +114,7 @@ export default defineComponent({
       this.showPanel = false;
       this.$emit("close");
     },
-    getPin(categoryId: string) {
+    getPin(categoryId: number) {
       const category = this.getCategoryById(categoryId);
       if (category) {
         return `/pins/${category.name.toLowerCase()}.png`;

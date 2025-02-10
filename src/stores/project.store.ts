@@ -18,7 +18,7 @@ export const useProjectStore = defineStore("project", {
   persist: true,
   getters: {
     getAll: (state) => state.projects as Array<Project>,
-    getById: (state) => (id: string) =>
+    getById: (state) => (id: number) =>
       state.projects.find((project: Project) => project.id === id) as Project,
     projectsFinished: (state) => {
       if (state.projects.length > 0) {
@@ -51,12 +51,15 @@ export const useProjectStore = defineStore("project", {
       projectService.getAll().then((result) => {
         this.projects = result as Array<Project>;
         loadingStore.updateLoading(false);
+      }).catch((error) => {
+        console.error('Error fetching Items:', error);
+        throw error;
       });
     },
     doFilter(
       stateFilter: Array<string>,
-      categoryFilter: Array<string>,
-      countryFilter: Array<string>,
+      categoryFilter: Array<number>,
+      countryFilter: Array<number>,
     ) {
       this.filteredList = [];
 
@@ -64,10 +67,9 @@ export const useProjectStore = defineStore("project", {
         if (
           (stateFilter.length === 0 || stateFilter.includes(project.state)) &&
           (categoryFilter.length === 0 ||
-            categoryFilter.some((r) => project.category.includes(r))) &&
+            categoryFilter.some((category) => project.category.includes(category))) &&
           (countryFilter.length === 0 ||
-            countryFilter.includes(project.country[0]))
-        ) {
+            countryFilter.some((country) => project.country === country))) {
           this.filteredList.push(project);
         }
       });

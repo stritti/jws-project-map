@@ -1,38 +1,29 @@
-import base from "./airtable.service";
-import type { Country } from "../interfaces/Country";
+import { NocoDBService } from './nocodb.service'
+import type { Country } from "../interfaces/Country"
 
-const BASE_NAME = "Country";
+const base = new NocoDBService('mbh0s7sspgjlqvt')
 
-const categoryService = {
-  getAll() {
-    return new Promise((resolve, reject) => {
-      const locations: Array<Country> = new Array(0);
-      base(BASE_NAME)
-        .select({
-          sort: [{ field: "Name", direction: "asc" }],
-          filterByFormula: "COUNTA(Project) > 0",
+const countryService = {
+  async getAll(): Promise<Array<Country>> {
+    try {
+      const response = await base
+        .list({
+          sort: "Name",
+          viewId: "vw0goq0zeuzgkmxw",
         })
-        .eachPage(
-          function page(partialRecords, fetchNextPage) {
-            partialRecords.forEach((partialRecords) => {
-              locations.push({
-                id: partialRecords.id,
-                name: "" + partialRecords.fields.Name,
-                code: "" + partialRecords.fields.Code,
-              });
-            });
-            fetchNextPage();
-          },
-          function done(err) {
-            if (err) {
-              console.log(err);
-              reject(err);
-            }
-            resolve(locations);
-          },
-        );
-    });
-  },
-};
+      const countryList: Array<Country> = ((response as unknown) as { list: Record<string, any>[] })
+        .list.map((record: Record<string, any>) => ({
+        id: record.Id as number,
+        name: record.Name as string,
+        code: record.Code as string,
+      }) as Country)
 
-export default categoryService;
+      return countryList
+    } catch (error) {
+      console.error('Error fetching Items:', error)
+      throw error
+    }
+  }
+}
+
+export default countryService

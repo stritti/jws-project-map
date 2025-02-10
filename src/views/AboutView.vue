@@ -7,9 +7,9 @@ const version = import.meta.env.PACKAGE_VERSION;
     <p>
       All projects of the
       <a href="https://www.joerg-wolff-stiftung.de/">Jörg Wolff Foundation</a>
-      can be found in the this overview map. All projects already completed are
-      marked on the map with colored pins. The planned projects and the projects
-      under construction are marked in gray.
+      are shown on this overview map.
+      Completed projects are marked with colored pins, while planned or
+      under-construction projects are marked in gray.
     </p>
     <h3>Development</h3>
     <p>Stephan Strittmatter</p>
