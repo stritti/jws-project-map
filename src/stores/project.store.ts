@@ -64,12 +64,20 @@ export const useProjectStore = defineStore("project", {
       this.filteredList = [];
 
       this.projects.forEach((project: Project) => {
+        const projectCategories = Array.isArray(project.category) 
+          ? project.category 
+          : [project.category];
+        
+        const projectCountries = Array.isArray(project.country) 
+          ? project.country 
+          : [project.country];
+
         if (
           (stateFilter.length === 0 || stateFilter.includes(project.state)) &&
           (categoryFilter.length === 0 ||
-            categoryFilter.some((r) => project.category.includes(r))) &&
+            categoryFilter.some((r) => projectCategories.includes(r))) &&
           (countryFilter.length === 0 ||
-            countryFilter.includes(project.country[0]))
+            countryFilter.some((c) => projectCountries.includes(c)))
         ) {
           this.filteredList.push(project);
         }

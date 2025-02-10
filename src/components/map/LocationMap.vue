@@ -256,21 +256,22 @@ export default defineComponent({
       this.isOpened = false;
     },
     getPin(location: Project): string {
-
-      if (location !== null && !Array.isArray(location.category)) {
-        const category = this.getCategoryById(location.category);
-        return `/pins/${category?.name.toLowerCase()}.png`;
-      } else if (Array.isArray(location.category)) {
-        let name = "";
-        location.category.forEach((cat: string, i: number) => {
-          const category = this.getCategoryById(cat);
-          name += `${category?.name.toLowerCase()}-`;
-        });
-        name = name.slice(0, -1);
-        return `/pins/${name}.png`;
-      } else {
+      if (location === null) {
         return "/pins/default.png";
       }
+
+      const categories = Array.isArray(location.category) 
+        ? location.category 
+        : [location.category];
+
+      const categoryNames = categories
+        .map(cat => {
+          const category = this.getCategoryById(cat);
+          return category?.name.toLowerCase() || 'default';
+        })
+        .join('-');
+
+      return `/pins/${categoryNames}.png`;
     },
     pinClass(current: Project): string {
       let cssClass =
