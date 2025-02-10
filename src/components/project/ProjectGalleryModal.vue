@@ -3,48 +3,50 @@
     <div class="gallery-close" @click="$emit('update:isVisible', false)">
       <span>&times;</span>
     </div>
-    <div class="gallery-navigation">
-      <div
-        v-if="galleryItems.length > 1"
-        class="nav-prev"
-        @click="prevItem"
+    <BCarousel 
+      ref="carousel"
+      v-model="currentIndex" 
+      controls 
+      indicators 
+      :interval="0" 
+      no-hover-pause
+      no-animation
+      class="gallery-carousel"
+    >
+      <BCarouselSlide 
+        v-for="(item, index) in galleryItems" 
+        :key="index"
       >
-        &lt;
-      </div>
-      <div
-        v-if="galleryItems.length > 1"
-        class="nav-next"
-        @click="nextItem"
-      >
-        &gt;
-      </div>
-    </div>
-    <div class="gallery-content">
-      <template v-if="galleryItems[currentIndex].mimetype.startsWith('image')">
-        <img
-          :src="galleryItems[currentIndex].signedUrl"
-          :alt="galleryItems[currentIndex].name"
-          class="gallery-image"
-        />
-      </template>
-      <template v-else-if="galleryItems[currentIndex].mimetype.startsWith('video')">
-        <vue3-video-player
-          :src="galleryItems[currentIndex].signedUrl"
-          :type="galleryItems[currentIndex].type"
-          :muted="false"
-          preload="auto"
-          class="gallery-video"
-        />
-      </template>
-    </div>
-    <div class="gallery-caption">
-      {{ galleryItems[currentIndex].name }}
-    </div>
+        <template #img>
+          <div class="gallery-content">
+            <template v-if="item.mimetype.startsWith('image')">
+              <img
+                :src="item.signedUrl"
+                :alt="item.name"
+                class="gallery-image"
+              />
+            </template>
+            <template v-else-if="item.mimetype.startsWith('video')">
+              <vue3-video-player
+                :src="item.signedUrl"
+                :type="item.type"
+                :muted="false"
+                preload="auto"
+                class="gallery-video"
+              />
+            </template>
+          </div>
+        </template>
+        <template #caption>
+          {{ item.name }}
+        </template>
+      </BCarouselSlide>
+    </BCarousel>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, computed, watch } from 'vue';
+import { defineComponent, PropType, ref, watch } from 'vue';
 
 export default defineComponent({
   name: 'ProjectGalleryModal',
@@ -63,8 +65,9 @@ export default defineComponent({
     }
   },
   emits: ['update:isVisible'],
-  setup(props, { emit }) {
+  setup(props) {
     const currentIndex = ref(0);
+    const carousel = ref(null);
 
     const findCurrentIndex = () => {
       if (props.currentItem) {
@@ -76,27 +79,15 @@ export default defineComponent({
       return 0;
     };
 
-    const updateCurrentIndex = () => {
+    watch(() => props.currentItem, () => {
       currentIndex.value = findCurrentIndex();
-    };
-
-    watch(() => props.currentItem, updateCurrentIndex, { immediate: true });
-
-    const prevItem = () => {
-      currentIndex.value = (currentIndex.value - 1 + props.galleryItems.length) % props.galleryItems.length;
-    };
-
-    const nextItem = () => {
-      currentIndex.value = (currentIndex.value + 1) % props.galleryItems.length;
-    };
+    }, { immediate: true });
 
     return {
       currentIndex,
-      prevItem,
-      nextItem
+      carousel
     };
-  },
-  // Removed redundant computed property
+  }
 });
 </script>
 
@@ -109,10 +100,6 @@ export default defineComponent({
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.9);
   z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 }
 
 .gallery-close {
@@ -125,31 +112,14 @@ export default defineComponent({
   z-index: 10000;
 }
 
-.gallery-navigation {
-  position: absolute;
-  top: 50%;
+.gallery-carousel {
   width: 100%;
-  display: flex;
-  justify-content: space-between;
-}
-
-.nav-prev, .nav-next {
-  color: white;
-  font-size: 3rem;
-  cursor: pointer;
-  user-select: none;
-  padding: 0 20px;
-  opacity: 0.7;
-  transition: opacity 0.3s;
-}
-
-.nav-prev:hover, .nav-next:hover {
-  opacity: 1;
+  height: 100%;
 }
 
 .gallery-content {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -165,9 +135,7 @@ export default defineComponent({
   object-fit: contain;
 }
 
-.gallery-caption {
-  position: absolute;
-  bottom: 20px;
+:deep(.carousel-caption) {
   color: white;
   text-align: center;
   font-size: 1.2rem;
@@ -175,5 +143,13 @@ export default defineComponent({
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+:deep(.carousel-control-prev-icon),
+:deep(.carousel-control-next-icon) {
+  width: 3rem;
+  height: 3rem;
 }
 </style>
