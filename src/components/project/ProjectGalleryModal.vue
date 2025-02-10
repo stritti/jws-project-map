@@ -29,14 +29,16 @@
               />
             </template>
             <template v-else-if="item.mimetype.startsWith('video')">
-              <vue3-video-player
-                ref="videoPlayers"
-                :src="item.signedUrl"
-                :type="item.type"
-                :muted="false"
-                preload="auto"
-                class="gallery-video"
-              />
+              <div class="gallery-video">
+                <vue3-video-player
+                  ref="videoPlayers"
+                  :src="item.signedUrl"
+                  :type="item.type"
+                  :muted="false"
+                  preload="auto"
+
+                />
+              </div>
             </template>
           </div>
         </template>
@@ -149,14 +151,22 @@ export default defineComponent({
   box-sizing: border-box;
   overflow: hidden;
 }
-
-.gallery-image, .gallery-video {
+.gallery-image {
   max-width: 100vw;
   max-height: 100vh;
   width: 100%;
   height: 100%;
   object-fit: contain;
   margin: 0;
+}
+
+.gallery-video {
+  max-width: 80vw;
+  max-height: 80vh;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  margin: 20px;
 }
 
 .gallery-content img,
