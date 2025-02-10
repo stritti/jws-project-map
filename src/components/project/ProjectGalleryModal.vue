@@ -12,6 +12,7 @@
       no-hover-pause
       no-animation
       class="gallery-carousel"
+      @slide="onSlide"
     >
       <BCarouselSlide 
         v-for="(item, index) in galleryItems" 
@@ -28,6 +29,7 @@
             </template>
             <template v-else-if="item.mimetype.startsWith('video')">
               <vue3-video-player
+                ref="videoPlayers"
                 :src="item.signedUrl"
                 :type="item.type"
                 :muted="false"
@@ -46,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, watch } from 'vue';
+import { defineComponent, PropType, ref, watch, nextTick } from 'vue';
 
 export default defineComponent({
   name: 'ProjectGalleryModal',
@@ -68,6 +70,7 @@ export default defineComponent({
   setup(props) {
     const currentIndex = ref(0);
     const carousel = ref(null);
+    const videoPlayers = ref([]);
 
     const findCurrentIndex = () => {
       if (props.currentItem) {
@@ -85,8 +88,26 @@ export default defineComponent({
 
     return {
       currentIndex,
-      carousel
+      carousel,
+      videoPlayers
     };
+  },
+  methods: {
+    async onSlide() {
+      // Pause all video players before changing slides
+      await nextTick();
+      if (this.videoPlayers) {
+        this.videoPlayers.forEach((player: any) => {
+          if (player) {
+            try {
+              player.pause();
+            } catch (error) {
+              console.warn('Could not pause video player', error);
+            }
+          }
+        });
+      }
+    }
   }
 });
 </script>
