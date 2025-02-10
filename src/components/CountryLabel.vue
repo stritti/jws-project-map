@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import "flag-icons/sass/flag-icons.scss";
+import "flag-icons/css/flag-icons.min.css";
 import { mapState } from "pinia";
 import { useCountryStore } from "../stores/country.store";
 import { defineComponent } from "vue";
@@ -42,5 +42,5 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-@use "flag-icons/sass/flag-icons.scss" as flag-icons;
+// Remove explicit import as we're now using the minified CSS
 </style>
