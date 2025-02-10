@@ -148,16 +148,20 @@ export default defineComponent({
 }
 
 .gallery-content {
-  max-width: 90vw;
-  max-height: 80vh;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 2rem;
+  box-sizing: border-box;
 }
 
 .gallery-image, .gallery-video {
   max-width: 100%;
   max-height: 100%;
+  width: auto;
+  height: auto;
   object-fit: contain;
 }
 
