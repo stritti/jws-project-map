@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref } from 'vue';
+import { defineComponent, PropType, ref, computed } from 'vue';
 import type { Project } from '@/interfaces/Project';
 import ProjectGalleryModal from './ProjectGalleryModal.vue';
 
