@@ -113,24 +113,7 @@
             </b-button>
           </div>
 
-          <div v-if="project.gallery">
-            <hr />
-            <h2>Gallery</h2>
-            <BCarousel controls indicators fade class="project-details__gallery">
-              <BCarouselSlide v-for="img in images" :key="img.src" :img-src="img.src" fluid class="gallery__image"/>
-
-              <BCarouselSlide v-for="video in videos" :key="video.src" class="gallery__video">
-                <template #img>
-                  <vue3-video-player
-                    :src="video.src"
-                    :type="video.type"
-                    :muted="false"
-                    preload="auto"
-                  />
-                </template>
-              </BCarouselSlide>
-            </BCarousel>
-          </div>
+          <project-gallery v-if="project.gallery" :project="project" />
         </div>
       </b-placeholder-wrapper>
     </div>
@@ -152,6 +135,7 @@ import NavigateButton from "../components/actions/NavigateButton.vue";
 
 import { defineComponent } from "vue";
 import type { Project } from "@/interfaces/Project";
+import ProjectGallery from "@/components/project/ProjectGallery.vue";
 
 export default defineComponent({
   name: "ProjectDetailView",
@@ -163,6 +147,7 @@ export default defineComponent({
     BackButton,
     ShareButton,
     NavigateButton,
+    ProjectGallery,
   },
   props: {
     projectId: {
@@ -187,29 +172,6 @@ export default defineComponent({
       } else {
         return "/img/placeholder.png";
       }
-    },
-    images() {
-      return this.project.gallery
-        .filter((img: any) => img.mimetype.startsWith("image"))
-        .map((img: any) => {
-          return {
-            src: img.signedUrl,
-            w: img.width,
-            h: img.height,
-            thumbnail: img.thumbnails.card_cover.signedUrl,
-          };
-        });
-    },
-    videos() {
-      return this.project.gallery
-        .filter((item: any) => item.mimetype.startsWith("video"))
-        .map((item: any) => {
-          return {
-            src: item.signedUrl,
-            type: item.type,
-            size: item.size,
-          };
-        });
     },
   },
 });
@@ -277,28 +239,9 @@ export default defineComponent({
     padding-top: 1rem;
     padding-bottom: 1rem;
   }
-  &__gallery {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    max-width: 780px;
-  }
 }
 .back-btn {
   margin-right: 1rem;
   float: left;
-}
-.gallery-thumbnail {
-  img {
-    min-width: 220px;
-    width: auto;
-    max-width: 780px;
-    margin: 0.25rem;
-  }
-}
-.gallery__video {
-  min-width: 220px;
-  width: auto;
-  max-width: 80vw;
-  margin: 0.25rem;
 }
 </style>
