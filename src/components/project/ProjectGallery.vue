@@ -28,6 +28,13 @@
           v-else-if="item.mimetype.startsWith('video')" 
           class="video-thumbnail"
         >
+          <video 
+            :src="item.signedUrl" 
+            preload="metadata"
+            class="video-preview"
+          >
+            Your browser does not support the video tag.
+          </video>
           <span class="play-icon">▶</span>
         </div>
       </div>
@@ -124,11 +131,23 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   position: relative;
+  overflow: hidden;
+}
+
+.video-preview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .play-icon {
   color: white;
   font-size: 3rem;
   opacity: 0.8;
+  z-index: 10;
+  position: relative;
 }
 </style>
