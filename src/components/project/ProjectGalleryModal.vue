@@ -3,19 +3,20 @@
     <div class="gallery-close" @click="$emit('update:isVisible', false)">
       <span>&times;</span>
     </div>
-    <BCarousel 
+    <BCarousel
       ref="carousel"
-      v-model="currentIndex" 
-      controls 
-      indicators 
-      :interval="0" 
+      v-model="currentIndex"
+      controls
+      indicators
+      :interval="0"
       no-hover-pause
       no-animation
+      background="rgba(0, 0, 0, 0.3)"
       class="gallery-carousel"
       @slide="onSlide"
     >
-      <BCarouselSlide 
-        v-for="(item, index) in galleryItems" 
+      <BCarouselSlide
+        v-for="(item, index) in galleryItems"
         :key="index"
       >
         <template #img>
@@ -125,8 +126,8 @@ export default defineComponent({
 
 .gallery-close {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 10px;
+  right: 40px;
   color: white;
   font-size: 3rem;
   cursor: pointer;
