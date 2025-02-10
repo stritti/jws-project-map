@@ -132,7 +132,7 @@ export default defineComponent({
     }),
     categoryList() {
       return this.categories.map((category) => {
-        return { text: category.name, value: category.id, ...category };
+        return { text: category.name, value: Number(category.id), ...category };
       });
     },
     ...mapState(useCountryStore, {
@@ -140,7 +140,7 @@ export default defineComponent({
     }),
     countryList() {
       return this.countryies.map((country) => {
-        return { text: country.name, value: country.id, ...country };
+        return { text: country.name, value: Number(country.id), ...country };
       });
     },
     projectCount(): number {
@@ -157,22 +157,22 @@ export default defineComponent({
     projects: function () {
       useProjectStore().doFilter(
         this.stateFilter,
-        this.categoryFilter,
-        this.countryFilter,
+        this.categoryFilter.map(Number),
+        this.countryFilter.map(Number),
       );
     },
     stateFilter: function (newVal) {
       useProjectStore().doFilter(
         newVal,
-        this.categoryFilter,
-        this.countryFilter,
+        this.categoryFilter.map(Number),
+        this.countryFilter.map(Number),
       );
     },
     categoryFilter: function (newVal) {
-      useProjectStore().doFilter(this.stateFilter, newVal, this.countryFilter);
+      useProjectStore().doFilter(this.stateFilter, newVal.map(Number), this.countryFilter.map(Number));
     },
     countryFilter: function (newVal) {
-      useProjectStore().doFilter(this.stateFilter, this.categoryFilter, newVal);
+      useProjectStore().doFilter(this.stateFilter, this.categoryFilter.map(Number), newVal.map(Number));
     },
   },
 });
