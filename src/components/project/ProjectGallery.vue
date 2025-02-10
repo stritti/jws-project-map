@@ -1,8 +1,18 @@
 <template>
-  <div v-if="project.gallery">
+  <div v-if="project.gallery || project.teaserImg">
     <hr />
     <h2>Gallery</h2>
     <div class="gallery-thumbnails">
+      <div 
+        v-if="project.teaserImg"
+        class="gallery-thumbnail"
+        @click="openModal(project.teaserImg[0])"
+      >
+        <img 
+          :src="project.teaserImg[0].signedUrl" 
+          :alt="project.name + ' Teaser Image'"
+        />
+      </div>
       <div 
         v-for="(item, index) in project.gallery" 
         :key="index" 
@@ -25,7 +35,7 @@
     <project-gallery-modal 
       :is-visible="modalVisible" 
       :current-item="currentItem"
-      :gallery-items="project.gallery"
+      :gallery-items="galleryWithTeaserImg"
       @update:is-visible="closeModal"
     />
   </div>
@@ -47,13 +57,20 @@ export default defineComponent({
       required: true
     }
   },
-  setup() {
+  setup(props) {
     const modalVisible = ref(false);
     const currentItem = ref(null);
 
+    const galleryWithTeaserImg = computed(() => {
+      const gallery = props.project.gallery || [];
+      const teaserImg = props.project.teaserImg ? [props.project.teaserImg[0]] : [];
+      return [...teaserImg, ...gallery];
+    });
+
     return {
       modalVisible,
-      currentItem
+      currentItem,
+      galleryWithTeaserImg
     };
   },
   methods: {
