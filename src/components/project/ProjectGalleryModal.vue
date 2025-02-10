@@ -133,6 +133,14 @@ export default defineComponent({
   width: auto;
   height: auto;
   object-fit: contain;
+  margin: 0 auto; /* Center small images/videos */
+}
+
+.gallery-content img,
+.gallery-content .vue3-video-player {
+  display: block; /* Ensure proper centering */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 :deep(.carousel-caption) {
