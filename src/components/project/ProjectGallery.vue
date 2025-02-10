@@ -25,6 +25,7 @@
     <project-gallery-modal 
       :is-visible="modalVisible" 
       :current-item="currentItem"
+      :gallery-items="project.gallery"
       @update:is-visible="closeModal"
     />
   </div>
