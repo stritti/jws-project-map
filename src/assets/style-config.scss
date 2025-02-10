@@ -29,18 +29,5 @@ $h6-font-size:                $font-size-base;
   @return color.mix(black, $color, $weight);
 }
 
-// Resolve mixed declaration warnings
-@layer base {
-  legend {
-    font-weight: $legend-font-weight;
-    line-height: inherit;
-  }
-
-  .display {
-    font-family: $display-font-family;
-    font-style: $display-font-style;
-    font-weight: $display-font-weight;
-  }
-}
 
 // Then add additional custom code here

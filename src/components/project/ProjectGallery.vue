@@ -3,33 +3,33 @@
     <hr />
     <h2>Gallery</h2>
     <div class="gallery-thumbnails">
-      <div 
+      <div
         v-if="project.teaserImg"
         class="gallery-thumbnail"
         @click="openModal(project.teaserImg[0])"
       >
-        <img 
-          :src="project.teaserImg[0].signedUrl" 
+        <img
+          :src="project.teaserImg[0].signedUrl"
           :alt="project.name + ' Teaser Image'"
         />
       </div>
-      <div 
-        v-for="(item, index) in project.gallery" 
-        :key="index" 
+      <div
+        v-for="(item, index) in project.gallery"
+        :key="index"
         class="gallery-thumbnail"
         @click="openModal(item)"
       >
-        <img 
-          v-if="item.mimetype.startsWith('image')" 
-          :src="item.thumbnails?.card_cover?.signedUrl || item.signedUrl" 
+        <img
+          v-if="item.mimetype.startsWith('image')"
+          :src="item.thumbnails?.card_cover?.signedUrl || item.signedUrl"
           :alt="item.name"
         />
-        <div 
-          v-else-if="item.mimetype.startsWith('video')" 
+        <div
+          v-else-if="item.mimetype.startsWith('video')"
           class="video-thumbnail"
         >
-          <video 
-            :src="item.signedUrl" 
+          <video
+            :src="item.signedUrl"
             preload="metadata"
             class="video-preview"
           >
@@ -39,8 +39,8 @@
         </div>
       </div>
     </div>
-    <project-gallery-modal 
-      :is-visible="modalVisible" 
+    <project-gallery-modal
+      :is-visible="modalVisible"
       :current-item="currentItem"
       :gallery-items="galleryWithTeaserImg"
       @update:is-visible="closeModal"
