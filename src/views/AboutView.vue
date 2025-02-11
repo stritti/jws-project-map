@@ -25,7 +25,7 @@ const version = import.meta.env.PACKAGE_VERSION;
 
     <ul>
       <li>
-        <a href="https://airtable.com" target="_blank">Airtable</a>
+        <a href="https://nocodb.com/" target="_blank">NocoDB</a>
       </li>
       <li>
         <a href="https://vuejs.org" target="_blank">vue.js</a>, MIT License
