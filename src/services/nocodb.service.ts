@@ -24,16 +24,13 @@ export class NocoDBService {
     sort?: string;
     populate?: string;
   }): Promise<Record<string, unknown>[]> {
-
     return axios.get(`${this.baseURL}/api/v2/tables/${this.tableId}/records`, {
       headers: this.getHeaders(),
       params: {
         ...params,
       }
     })
-    .then(response => {
-      return response.data;
-    })
+    .then(response => response.data)
     .catch(error => {
       console.error(error);
       return [];
