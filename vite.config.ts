@@ -10,7 +10,7 @@ import { VitePWA } from "vite-plugin-pwa";
 import { fileURLToPath } from 'node:url';
 import version from "vite-plugin-package-version";
 import VueDevTools from 'vite-plugin-vue-devtools';
-import visualizer from 'rollup-plugin-visualizer';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 // https://vitejs.dev/config/
 export default defineConfig({
