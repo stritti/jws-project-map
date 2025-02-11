@@ -1,9 +1,13 @@
 import { createRouter, createWebHistory } from "vue-router";
-import HomeView from "../views/HomeView.vue";
+import { defineAsyncComponent } from 'vue';
+
 
 import { useCountryStore } from "../stores/country.store";
 import { useCategoryStore } from "../stores/category.store";
 import { useProjectStore } from "../stores/project.store";
+
+//const HomeView = defineAsyncComponent(() => import("../views/HomeView.vue"));
+import HomeView from "../views/HomeView.vue";
 const routes = [
   {
     path: "/",

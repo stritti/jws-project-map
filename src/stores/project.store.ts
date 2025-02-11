@@ -46,15 +46,20 @@ export const useProjectStore = defineStore("project", {
   },
   actions: {
     async init(): Promise<void> {
+      if (this.projects.length > 0) return;
+
       const loadingStore = useLoadingStore();
       loadingStore.updateLoading(true);
-      projectService.getAll().then((result) => {
+      
+      try {
+        const result = await projectService.getAll();
         this.projects = result as Array<Project>;
-        loadingStore.updateLoading(false);
-      }).catch((error) => {
+      } catch (error) {
         console.error('Error fetching Items:', error);
         throw error;
-      });
+      } finally {
+        loadingStore.updateLoading(false);
+      }
     },
     doFilter(
       stateFilter: Array<string>,
