@@ -1,5 +1,29 @@
 <script setup lang="ts">
+import { useLoadingStore } from '@/stores/loading.store';
+
 const version = import.meta.env.PACKAGE_VERSION;
+const loadingStore = useLoadingStore();
+
+const reloadApp = async () => {
+  // Cache löschen
+  if ('caches' in window) {
+    const cacheKeys = await caches.keys();
+    for (const key of cacheKeys) {
+      await caches.delete(key);
+    }
+  }
+
+  // PWA neu laden
+  if ('serviceWorker' in navigator) {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    for (const registration of registrations) {
+      await registration.unregister();
+    }
+  }
+
+  // Seite neu laden und Cache leeren
+  window.location.reload();
+};
 </script>
 <template>
   <b-container class="about">
@@ -20,6 +44,11 @@ const version = import.meta.env.PACKAGE_VERSION;
       </a>
     </p>
     <p>Version: {{ version }}</p>
+    
+    <!-- Neuer Reload-Button -->
+    <b-button @click="reloadApp" variant="primary" class="mt-3">
+      App neu laden und Cache leeren
+    </b-button>
 
     <h3>Credits</h3>
 
