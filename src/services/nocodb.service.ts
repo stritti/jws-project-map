@@ -34,7 +34,7 @@ export class NocoDBService {
     .catch(error => {
       console.error(error);
       return [];
-    });
+    })
   }
 
   async create(data: Record<string, unknown>[]) {
