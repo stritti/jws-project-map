@@ -8,7 +8,6 @@ import IconsResolve from "unplugin-icons/resolver";
 import { VitePWA } from "vite-plugin-pwa";
 import version from "vite-plugin-package-version";
 import VueDevTools from 'vite-plugin-vue-devtools';
-import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
   plugins: [
@@ -17,14 +16,11 @@ export default defineConfig({
     Components({
       resolvers: [BootstrapVueNextResolver(), IconsResolve()],
       dts: true,
-      importPathTransform: (path) => path.replace(/\.vue$/, ''),
     }),
     version(),
     Icons({
       compiler: "vue3",
       autoInstall: true,
-      scale: 1,
-      defaultStyle: '',
     }),
     VitePWA({
       registerType: "autoUpdate",
@@ -43,7 +39,7 @@ export default defineConfig({
                 maxAgeSeconds: 24 * 60 * 60 // 24 hours
               }
             }
-          }
+          },
         ]
       },
       manifest: {
@@ -65,12 +61,6 @@ export default defineConfig({
         ]
       },
     }),
-    visualizer({
-      filename: './bundle-analysis.html',
-      open: false,
-      gzipSize: true,
-      brotliSize: true,
-    }),
   ],
   resolve: {
     alias: {
@@ -91,7 +81,10 @@ export default defineConfig({
           if (id.includes('node_modules')) {
             if (id.includes('leaflet')) return 'leaflet';
             if (id.includes('bootstrap')) return 'bootstrap';
+            if (id.includes('flag')) return 'flag';
             if (id.includes('vue-router')) return 'vue-router';
+            if (id.includes('vue3-markdown-it')) return 'vue3-markdown-it';
+            if (id.includes('vue')) return 'vue';
             return 'vendor';
           }
         }

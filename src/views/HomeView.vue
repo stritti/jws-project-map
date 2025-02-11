@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import LocationMap from "../components/map/LocationMap.vue";
+import { defineAsyncComponent } from 'vue';
+
+const LocationMap = defineAsyncComponent(() => import("../components/map/LocationMap.vue"));
 </script>
 
 <template>
