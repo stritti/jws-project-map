@@ -177,6 +177,9 @@ export default defineComponent({
       selectedLocation: undefined as Project | undefined,
       mapOptions: {
         zoomSnap: 0.5,
+        scrollWheelZoom: true,
+        touchZoom: true,
+        wheelPxPerZoomLevel: 60,
       },
     };
   },
