@@ -1,34 +1,28 @@
 import { fileURLToPath, URL } from "node:url";
-
-import { defineConfig, splitVendorChunkPlugin } from "vite";
+import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import Components from "unplugin-vue-components/vite";
 import { BootstrapVueNextResolver } from 'bootstrap-vue-next';
 import Icons from "unplugin-icons/vite";
 import IconsResolve from "unplugin-icons/resolver";
 import { VitePWA } from "vite-plugin-pwa";
-import { fileURLToPath } from 'node:url';
 import version from "vite-plugin-package-version";
 import VueDevTools from 'vite-plugin-vue-devtools';
 import { visualizer } from 'rollup-plugin-visualizer';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
     VueDevTools(),
-    splitVendorChunkPlugin(),
     Components({
       resolvers: [BootstrapVueNextResolver(), IconsResolve()],
       dts: true,
-      // Reduce bundle size by only importing used components
       importPathTransform: (path) => path.replace(/\.vue$/, ''),
     }),
     version(),
     Icons({
       compiler: "vue3",
       autoInstall: true,
-      // Only include used icons
       scale: 1,
       defaultStyle: '',
     }),
@@ -71,7 +65,6 @@ export default defineConfig({
         ]
       },
     }),
-    // Optional: Bundle size visualization
     visualizer({
       filename: './bundle-analysis.html',
       open: false,
@@ -85,7 +78,6 @@ export default defineConfig({
     },
   },
   build: {
-    // Reduce bundle size
     minify: 'terser',
     terserOptions: {
       compress: {
@@ -95,10 +87,8 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        // More granular code splitting
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            // Split large libraries into separate chunks
             if (id.includes('leaflet')) return 'leaflet';
             if (id.includes('bootstrap')) return 'bootstrap';
             if (id.includes('vue-router')) return 'vue-router';
@@ -107,7 +97,6 @@ export default defineConfig({
         }
       }
     },
-    // Reduce chunk size
     chunkSizeWarningLimit: 1000,
   },
 });
