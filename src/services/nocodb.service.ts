@@ -3,15 +3,10 @@ import axios from 'axios';
 export class NocoDBService {
   private baseURL: string;
   private tableId: string;
-  private cache: Map<string, any> = new Map();
 
   constructor(tableId: string) {
     this.baseURL = import.meta.env.VITE_APP_NOCODB_URL;
     this.tableId = tableId;
-  }
-
-  private getCacheKey(method: string, params?: any): string {
-    return JSON.stringify({ method, params });
   }
 
   private getHeaders() {
@@ -29,12 +24,6 @@ export class NocoDBService {
     sort?: string;
     populate?: string;
   }): Promise<Record<string, unknown>[]> {
-    const cacheKey = this.getCacheKey('list', params);
-    
-    const cachedData = this.cache.get(cacheKey);
-    if (cachedData) {
-      return Promise.resolve(cachedData);
-    }
 
     return axios.get(`${this.baseURL}/api/v2/tables/${this.tableId}/records`, {
       headers: this.getHeaders(),
@@ -43,7 +32,6 @@ export class NocoDBService {
       }
     })
     .then(response => {
-      this.cache.set(cacheKey, response.data);
       return response.data;
     })
     .catch(error => {
