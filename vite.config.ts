@@ -7,6 +7,7 @@ import { BootstrapVueNextResolver } from 'bootstrap-vue-next';
 import Icons from "unplugin-icons/vite";
 import IconsResolve from "unplugin-icons/resolver";
 import { VitePWA } from "vite-plugin-pwa";
+import { fileURLToPath } from 'node:url';
 import version from "vite-plugin-package-version";
 import VueDevTools from 'vite-plugin-vue-devtools';
 
@@ -29,11 +30,38 @@ export default defineConfig({
       devOptions: {
         enabled: true,
       },
+      workbox: {
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/server\.arcgisonline\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'map-tile-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 24 * 60 * 60 // 24 hours
+              }
+            }
+          }
+        ]
+      },
       manifest: {
         name: "JWF Projects",
         short_name: "JWF Projects",
         description: "Overview of projects in Westafrica by JWF and Humanaktiv",
-        theme_color: "#3d5e9e"
+        theme_color: "#3d5e9e",
+        icons: [
+          {
+            src: '/img/pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: '/img/pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png'
+          }
+        ]
       },
     }),
   ],
