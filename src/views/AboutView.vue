@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import { useLoadingStore } from '@/stores/loading.store';
-
 const version = import.meta.env.PACKAGE_VERSION;
-const loadingStore = useLoadingStore();
 
 const reloadApp = async () => {
   // Cache löschen
@@ -44,7 +41,7 @@ const reloadApp = async () => {
       </a>
     </p>
     <p>Version: {{ version }}</p>
-    
+
     <!-- Neuer Reload-Button -->
     <b-button @click="reloadApp" variant="primary" class="mt-3">
       App neu laden und Cache leeren
