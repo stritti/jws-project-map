@@ -143,7 +143,7 @@ import {
   LIcon,
   LTooltip,
 } from "@vue-leaflet/vue-leaflet";
-import ProjectDetails from "../../components/project/ProjectDetails.vue";
+import ProjectDetails from "../project/ProjectDetails.vue";
 import projectService from "../../services/project.service";
 import type { Project } from "@/interfaces/Project";
 
