@@ -1,6 +1,6 @@
 import { fileURLToPath, URL } from "node:url";
 
-import { defineConfig } from "vite";
+import { defineConfig, splitVendorChunkPlugin } from "vite";
 import vue from "@vitejs/plugin-vue";
 import Components from "unplugin-vue-components/vite";
 import { BootstrapVueNextResolver } from 'bootstrap-vue-next';
@@ -10,20 +10,27 @@ import { VitePWA } from "vite-plugin-pwa";
 import { fileURLToPath } from 'node:url';
 import version from "vite-plugin-package-version";
 import VueDevTools from 'vite-plugin-vue-devtools';
+import visualizer from 'rollup-plugin-visualizer';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
     VueDevTools(),
+    splitVendorChunkPlugin(),
     Components({
       resolvers: [BootstrapVueNextResolver(), IconsResolve()],
       dts: true,
+      // Reduce bundle size by only importing used components
+      importPathTransform: (path) => path.replace(/\.vue$/, ''),
     }),
     version(),
     Icons({
       compiler: "vue3",
       autoInstall: true,
+      // Only include used icons
+      scale: 1,
+      defaultStyle: '',
     }),
     VitePWA({
       registerType: "autoUpdate",
@@ -64,10 +71,43 @@ export default defineConfig({
         ]
       },
     }),
+    // Optional: Bundle size visualization
+    visualizer({
+      filename: './bundle-analysis.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+    }),
   ],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
+  },
+  build: {
+    // Reduce bundle size
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
+    rollupOptions: {
+      output: {
+        // More granular code splitting
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            // Split large libraries into separate chunks
+            if (id.includes('leaflet')) return 'leaflet';
+            if (id.includes('bootstrap')) return 'bootstrap';
+            if (id.includes('vue-router')) return 'vue-router';
+            return 'vendor';
+          }
+        }
+      }
+    },
+    // Reduce chunk size
+    chunkSizeWarningLimit: 1000,
   },
 });
