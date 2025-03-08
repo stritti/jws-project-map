@@ -15,7 +15,7 @@ export const useProjectStore = defineStore("project", {
       filteredList: [],
     };
   },
-  persist: true,
+  persist: false,
   getters: {
     getAll: (state) => state.projects as Array<Project>,
     getById: (state) => (id: number) =>
