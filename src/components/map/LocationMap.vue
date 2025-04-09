@@ -229,6 +229,18 @@ export default defineComponent({
       return `Projects: planned (${this.projectsPlanned.length})`;
     },
   },
+  watch: {
+    locations: {
+      handler(newLocations) {
+        if (newLocations.length > 0 && this.$refs.map) {
+          this.$nextTick(() => {
+            this.updateMaxBounds();
+          });
+        }
+      },
+      deep: true
+    }
+  },
   methods: {
     mapLoaded(): void {
       this.updateMaxBounds();
@@ -259,22 +271,40 @@ export default defineComponent({
       this.isOpened = false;
     },
     getPin(location: Project): string {
-      if (location === null) {
+      if (!location) {
         return "/pins/default.png";
       }
 
-      const categories = Array.isArray(location.category) 
-        ? location.category 
-        : [location.category];
+      try {
+        const categories = Array.isArray(location.category) 
+          ? location.category 
+          : location.category ? [location.category] : [];
 
-      const categoryNames = categories
-        .map(cat => {
-          const category = this.getCategoryById(cat);
-          return category?.name.toLowerCase() || 'default';
-        })
-        .join('-');
+        if (!categories || categories.length === 0) {
+          return "/pins/default.png";
+        }
 
-      return `/pins/${categoryNames}.png`;
+        const categoryNames = categories
+          .map(cat => {
+            if (!cat) return 'default';
+            const category = this.getCategoryById(cat);
+            return category?.name?.toLowerCase() || 'default';
+          })
+          .filter(name => name) // Filter out empty names
+          .join('-');
+
+        // If we end up with an empty string, use default
+        if (!categoryNames) {
+          return "/pins/default.png";
+        }
+
+        // Check if the pin file exists, otherwise fall back to default
+        const pinPath = `/pins/${categoryNames}.png`;
+        return pinPath;
+      } catch (error) {
+        console.error('Error getting pin for location:', location, error);
+        return "/pins/default.png";
+      }
     },
     pinClass(current: Project): string {
       let cssClass =
@@ -285,20 +315,33 @@ export default defineComponent({
     },
     updateMaxBounds(): void {
       if (this.locations && this.locations.length > 0 && this.$refs.map) {
-        const group = featureGroup(
-          this.locations.map(
-            (loc: Project) =>
-              new Marker(new LatLng(loc.latitude, loc.longitude)),
-          ),
-        );
-        //this.maxBounds = this.locations.map(
-        //  (loc: { latitude: number; longitude: number }) => {
-        //    return new LatLngBounds( new LatLng(loc.latitude, loc.longitude), new LatLng(loc.latitude, loc.longitude) );
-        //  }
-        //);
-        const object = (this.$refs.map as any).leafletObject;
-        if (object) {
-          object.fitBounds(group.getBounds());
+        try {
+          const validLocations = this.locations.filter(
+            (loc: Project) => 
+              loc && 
+              typeof loc.latitude === 'number' && 
+              typeof loc.longitude === 'number' &&
+              !isNaN(loc.latitude) && 
+              !isNaN(loc.longitude)
+          );
+          
+          if (validLocations.length === 0) {
+            console.warn('No valid locations found for map bounds');
+            return;
+          }
+          
+          const markers = validLocations.map(
+            (loc: Project) => new Marker(new LatLng(loc.latitude, loc.longitude))
+          );
+          
+          const group = featureGroup(markers);
+          const object = (this.$refs.map as any).leafletObject;
+          
+          if (object) {
+            object.fitBounds(group.getBounds(), { padding: [50, 50] });
+          }
+        } catch (error) {
+          console.error('Error updating map bounds:', error);
         }
       }
     },

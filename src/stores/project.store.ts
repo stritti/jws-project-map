@@ -15,7 +15,7 @@ export const useProjectStore = defineStore("project", {
       filteredList: [],
     };
   },
-  persist: false,
+  persist: true,
   getters: {
     getAll: (state) => state.projects as Array<Project>,
     getById: (state) => (id: number) =>
@@ -46,15 +46,29 @@ export const useProjectStore = defineStore("project", {
   },
   actions: {
     async init(): Promise<void> {
+      // Check if we already have data and it's not stale
+      const lastFetch = localStorage.getItem('project_last_fetch');
+      const now = new Date().getTime();
+      const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+      
+      // If we have data and it's less than an hour old, don't fetch again
+      if (this.projects.length > 0 && lastFetch && (now - parseInt(lastFetch)) < oneHour) {
+        return;
+      }
+      
       const loadingStore = useLoadingStore();
       loadingStore.updateLoading(true);
-      projectService.getAll().then((result) => {
+      try {
+        const result = await projectService.getAll();
         this.projects = result as Array<Project>;
-        loadingStore.updateLoading(false);
-      }).catch((error) => {
+        // Store the fetch time
+        localStorage.setItem('project_last_fetch', now.toString());
+      } catch (error) {
         console.error('Error fetching Items:', error);
-        throw error;
-      });
+        // Don't throw, just log the error
+      } finally {
+        loadingStore.updateLoading(false);
+      }
     },
     doFilter(
       stateFilter: Array<string>,

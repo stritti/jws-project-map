@@ -38,7 +38,8 @@ const projectService = {
       return locations
     } catch (error) {
       console.error('Error fetching Items:', error);
-      throw error;
+      // Return empty array instead of throwing to prevent app from crashing
+      return [];
     }
 
   },
