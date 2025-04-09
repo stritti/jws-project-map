@@ -1,6 +1,8 @@
-import { defineConfig } from 'eslint';
+import eslint from 'eslint';
 import pluginVue from 'eslint-plugin-vue';
 import tseslint from 'typescript-eslint';
+
+const { defineConfig } = eslint;
 
 export default defineConfig({
   plugins: {
