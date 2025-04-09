@@ -7,7 +7,7 @@
             <b-col cols="2">
               <b-placeholder width="25%" height="10px" />
             </b-col>
-            <b-col cols="20">
+            <b-col cols="auto">
               <h1><b-placeholder width="75%" height="2rem"></b-placeholder></h1>
             </b-col>
           </b-row>
