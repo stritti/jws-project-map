@@ -38,9 +38,9 @@ export const useCountryStore = defineStore("country", {
       } catch (error) {
         console.error("Error initializing country store:", error);
       } finally {
-        this.countries = list as Array<Country>;
+        // Only update loading state here, list assignment happens in try block
         loadingStore.updateLoading(false);
-      });
+      }
     },
   },
 });

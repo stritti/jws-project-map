@@ -38,9 +38,9 @@ export const useCategoryStore = defineStore("category", {
       } catch (error) {
         console.error("Error initializing category store:", error);
       } finally {
-        this.categories = list as Array<Category>;
+        // Only update loading state here, list assignment happens in try block
         loadingStore.updateLoading(false);
-      });
+      }
     },
   },
 });
