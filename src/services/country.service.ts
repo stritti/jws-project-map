@@ -11,8 +11,8 @@ const countryService = {
           sort: "Name",
           viewId: "vw0goq0zeuzgkmxw",
         })
-      const countryList: Array<Country> = ((response as unknown) as { list: Record<string, any>[] })
-        .list.map((record: Record<string, any>) => ({
+      const countryList: Array<Country> = ((response as unknown) as { list: Record<string, unknown>[] })
+        .list.map((record: Record<string, unknown>) => ({
         id: record.Id as number,
         name: record.Name as string,
         code: record.Code as string,

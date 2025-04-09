@@ -86,7 +86,7 @@ const projectService = {
       
       // Verwende Web Workers für die Datenverarbeitung, wenn verfügbar
       if (window.Worker) {
-        return new Promise((resolve) => {
+        return new Promise<Array<Project>>((resolve) => {
           const worker = new Worker(new URL('./projectDataWorker.js', import.meta.url), { type: 'module' });
           
           worker.onmessage = (e) => {
@@ -104,8 +104,8 @@ const projectService = {
         });
       } else {
         // Fallback für Browser ohne Web Worker Support
-        const locations: Array<Project> = ((response as unknown) as { list: Record<string, any>[] })
-          .list.map((record: Record<string, any>) => ({
+        const locations: Array<Project> = ((response as unknown) as { list: Record<string, unknown>[] })
+          .list.map((record: Record<string, unknown>) => ({
           id: record.Id as number,
           name: record.Name as string,
           teaserImg: record?.TeaserImage as object[],
@@ -144,7 +144,7 @@ const projectService = {
       return [];
     }
   },
-  add(latLng: LatLng, name: string): any {
+  add(latLng: LatLng, name: string): Promise<unknown> {
     const result = base.create([
       {
         Name: name,

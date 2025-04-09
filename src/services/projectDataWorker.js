@@ -28,7 +28,7 @@ self.onmessage = function(e) {
     
     // Sende die verarbeiteten Daten zurück an den Hauptthread
     self.postMessage(locations);
-  } catch (error) {
+  } catch (_error) {
     self.postMessage([]);
   }
 };

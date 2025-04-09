@@ -12,8 +12,8 @@ const categoryService = {
           viewId: "vwoztb7dgc077xfd", // published
         })
 
-      const categoryList: Array<Category> = ((response as unknown) as { list: Record<string, any>[] })
-        .list.map((record: Record<string, any>) => ({
+      const categoryList: Array<Category> = ((response as unknown) as { list: Record<string, unknown>[] })
+        .list.map((record: Record<string, unknown>) => ({
         id: record.Id as number,
         name: record.Name as string,
         color: record.Color as string,
