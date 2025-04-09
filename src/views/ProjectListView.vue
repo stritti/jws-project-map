@@ -94,9 +94,19 @@ import type { Category } from "@/interfaces/Category";
 import type { Country } from "@/interfaces/Country";
 import type { Project } from "@/interfaces/Project";
 
+const projectStore = useProjectStore();
+const categoryStore = useCategoryStore();
+const countryStore = useCountryStore();
+
 export default defineComponent({
   name: "ProjectListView",
   components: { ProjectListItem, SiteFooter },
+  created() {
+    // Initiate data fetching when the component is created
+    projectStore.init();
+    categoryStore.init();
+    countryStore.init();
+  },
   data() {
     return {
       stateOptions: [
@@ -110,7 +120,13 @@ export default defineComponent({
     };
   },
   mounted() {
-    this.stateFilter.push("finished", "planned", "under construction");
+    // Initialize the state filter once the component is mounted
+    // Ensure all states are selected initially
+    if (this.stateFilter.length === 0) {
+       this.stateFilter = ["finished", "planned", "under construction"];
+    }
+    // Initial filtering might be needed if data is already present from persistence
+    // The watch on 'projects' should handle filtering when data arrives
   },
   computed: {
     ...mapState(useLoadingStore, {
@@ -154,25 +170,33 @@ export default defineComponent({
     },
   },
   watch: {
-    projects: function () {
-      useProjectStore().doFilter(
-        this.stateFilter,
-        this.categoryFilter.map(Number),
-        this.countryFilter.map(Number),
-      );
+    // Watch for changes in the projects list (e.g., after init completes)
+    projects: {
+      handler() {
+        // Apply filters whenever the project list changes
+        projectStore.doFilter(
+          this.stateFilter,
+          this.categoryFilter.map(Number),
+          this.countryFilter.map(Number),
+        );
+      },
+      // immediate: true // Optional: uncomment if initial filtering is needed immediately,
+                       // but ensure data loading logic handles potential race conditions.
+                       // The current setup relies on init() populating projects, triggering the watch.
     },
+    // Watch for changes in filters
     stateFilter: function (newVal) {
-      useProjectStore().doFilter(
+      projectStore.doFilter(
         newVal,
         this.categoryFilter.map(Number),
         this.countryFilter.map(Number),
       );
     },
     categoryFilter: function (newVal) {
-      useProjectStore().doFilter(this.stateFilter, newVal.map(Number), this.countryFilter.map(Number));
+      projectStore.doFilter(this.stateFilter, newVal.map(Number), this.countryFilter.map(Number));
     },
     countryFilter: function (newVal) {
-      useProjectStore().doFilter(this.stateFilter, this.categoryFilter.map(Number), newVal.map(Number));
+      projectStore.doFilter(this.stateFilter, this.categoryFilter.map(Number), newVal.map(Number));
     },
   },
 });
