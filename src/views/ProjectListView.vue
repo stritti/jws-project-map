@@ -126,7 +126,12 @@ export default defineComponent({
        this.stateFilter = ["finished", "planned", "under construction"];
     }
     // Initial filtering might be needed if data is already present from persistence
-    // The watch on 'projects' should handle filtering when data arrives
+    // Apply initial filters based on default values and potentially persisted data
+    projectStore.doFilter(
+      this.stateFilter,
+      this.categoryFilter.map(Number),
+      this.countryFilter.map(Number),
+    );
   },
   computed: {
     ...mapState(useLoadingStore, {
@@ -173,16 +178,14 @@ export default defineComponent({
     // Watch for changes in the projects list (e.g., after init completes)
     projects: {
       handler() {
-        // Apply filters whenever the project list changes
+        // Apply filters whenever the project list changes or the watcher is initialized
         projectStore.doFilter(
           this.stateFilter,
           this.categoryFilter.map(Number),
           this.countryFilter.map(Number),
         );
       },
-      // immediate: true // Optional: uncomment if initial filtering is needed immediately,
-                       // but ensure data loading logic handles potential race conditions.
-                       // The current setup relies on init() populating projects, triggering the watch.
+      immediate: true // Run the handler immediately when the watcher is created
     },
     // Watch for changes in filters
     stateFilter: function (newVal) {
