@@ -46,82 +46,41 @@ export const useProjectStore = defineStore("project", {
   },
   actions: {
     async init(): Promise<void> {
-      // Sofort die gecachten Daten laden, falls vorhanden
-      this.loadCachedProjects();
+      const loadingStore = useLoadingStore();
       
-      // Dann asynchron die aktuellen Daten laden
-      this.fetchFreshData();
-    },
-    
-    loadCachedProjects(): void {
-      // Versuche, gecachte Projekte aus dem localStorage zu laden
+      // Zeige den Ladeindikator nur, wenn wir keine Daten haben
+      if (this.projects.length === 0) {
+        loadingStore.updateLoading(true);
+      }
+      
       try {
-        const cachedProjects = localStorage.getItem('cached_projects');
-        if (cachedProjects) {
-          const projects = JSON.parse(cachedProjects);
-          if (Array.isArray(projects) && projects.length > 0) {
-            console.log(`Loaded ${projects.length} projects from cache`);
-            this.projects = projects;
-            return;
+        // Der verbesserte projectService kümmert sich jetzt selbst um das Caching
+        const result = await projectService.getAll();
+        
+        if (result && Array.isArray(result)) {
+          // Validate projects before storing them
+          const validProjects = result.filter(project => 
+            project && 
+            typeof project.id === 'number' &&
+            typeof project.latitude === 'number' && 
+            typeof project.longitude === 'number' &&
+            !isNaN(project.latitude) && 
+            !isNaN(project.longitude)
+          );
+          
+          if (validProjects.length > 0) {
+            this.projects = validProjects as Array<Project>;
+            console.log(`Loaded ${validProjects.length} valid projects`);
+          } else {
+            console.error('No valid projects found in API response');
           }
+        } else {
+          console.error('Invalid response format from API');
         }
       } catch (error) {
-        console.warn('Failed to load projects from cache:', error);
-      }
-    },
-    
-    async fetchFreshData(): Promise<void> {
-      // Prüfe, ob wir neue Daten laden müssen
-      const lastFetch = localStorage.getItem('project_last_fetch');
-      const now = new Date().getTime();
-      const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
-      
-      // Force refresh if:
-      // 1. No last fetch time
-      // 2. Last fetch is older than one hour
-      const needsRefresh = !lastFetch || (now - parseInt(lastFetch)) > oneHour;
-      
-      if (needsRefresh) {
-        const loadingStore = useLoadingStore();
-        loadingStore.updateLoading(true);
-        
-        try {
-          console.log('Fetching fresh project data...');
-          const result = await projectService.getAll();
-          
-          if (result && Array.isArray(result)) {
-            // Validate projects before storing them
-            const validProjects = result.filter(project => 
-              project && 
-              typeof project.id === 'number' &&
-              typeof project.latitude === 'number' && 
-              typeof project.longitude === 'number' &&
-              !isNaN(project.latitude) && 
-              !isNaN(project.longitude)
-            );
-            
-            if (validProjects.length > 0) {
-              this.projects = validProjects as Array<Project>;
-              
-              // Cache the projects in localStorage
-              localStorage.setItem('cached_projects', JSON.stringify(validProjects));
-              
-              // Store the fetch time
-              localStorage.setItem('project_last_fetch', now.toString());
-              console.log(`Loaded ${validProjects.length} valid projects`);
-            } else {
-              console.error('No valid projects found in API response');
-            }
-          } else {
-            console.error('Invalid response format from API');
-          }
-        } catch (error) {
-          console.error('Error fetching projects:', error);
-        } finally {
-          loadingStore.updateLoading(false);
-        }
-      } else {
-        console.log('Using cached project data');
+        console.error('Error fetching projects:', error);
+      } finally {
+        loadingStore.updateLoading(false);
       }
     },
     doFilter(

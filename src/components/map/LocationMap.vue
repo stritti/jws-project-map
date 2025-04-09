@@ -272,7 +272,12 @@ export default defineComponent({
       if (!this.initialDataLoaded) {
         this.mapReady = true;
       }
-    }, 500);
+    }, 300); // Reduziere die Wartezeit auf 300ms
+    
+    // Prüfe, ob wir bereits Projekte im Store haben
+    if (this.locations.length > 0) {
+      this.initialDataLoaded = true;
+    }
   },
   methods: {
     mapLoaded(): void {
