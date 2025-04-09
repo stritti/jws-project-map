@@ -123,6 +123,11 @@ export default defineComponent({
        this.stateFilter = ["finished", "planned", "under construction"];
     }
     // Initial filtering is handled by the immediate watcher for 'projects'
+
+    // Initiate data fetching after the component is mounted and basic template is rendered
+    projectStore.init();
+    categoryStore.init();
+    countryStore.init();
   },
   computed: {
     ...mapState(useLoadingStore, {
