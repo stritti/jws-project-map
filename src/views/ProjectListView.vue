@@ -125,13 +125,7 @@ export default defineComponent({
     if (this.stateFilter.length === 0) {
        this.stateFilter = ["finished", "planned", "under construction"];
     }
-    // Initial filtering might be needed if data is already present from persistence
-    // Apply initial filters based on default values and potentially persisted data
-    projectStore.doFilter(
-      this.stateFilter,
-      this.categoryFilter.map(Number),
-      this.countryFilter.map(Number),
-    );
+    // Initial filtering is handled by the immediate watcher for 'projects'
   },
   computed: {
     ...mapState(useLoadingStore, {

@@ -48,10 +48,8 @@ export const useProjectStore = defineStore("project", {
     async init(): Promise<void> {
       const loadingStore = useLoadingStore();
       
-      // Zeige den Ladeindikator nur, wenn wir keine Daten haben
-      if (this.projects.length === 0) {
-        loadingStore.updateLoading(true);
-      }
+      // Zeige den Ladeindikator immer an, wenn init aufgerufen wird
+      loadingStore.updateLoading(true);
       
       try {
         // Der verbesserte projectService kümmert sich jetzt selbst um das Caching
