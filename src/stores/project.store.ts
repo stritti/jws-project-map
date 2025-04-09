@@ -6,6 +6,7 @@ import type { Project } from "@/interfaces/Project";
 interface State {
   projects: Project[];
   filteredList: Project[];
+  initialized: boolean; // Flag to track initialization
 }
 
 export const useProjectStore = defineStore("project", {
@@ -13,6 +14,7 @@ export const useProjectStore = defineStore("project", {
     return {
       projects: [],
       filteredList: [],
+      initialized: false, // Initialize as false
     };
   },
   persist: true,
@@ -46,9 +48,15 @@ export const useProjectStore = defineStore("project", {
   },
   actions: {
     async init(): Promise<void> {
+      // Prevent re-initialization
+      if (this.initialized) {
+        return;
+      }
+      this.initialized = true; // Set flag immediately
+
       const loadingStore = useLoadingStore();
       
-      // Zeige den Ladeindikator immer an, wenn init aufgerufen wird
+      // Show loading indicator
       loadingStore.updateLoading(true);
       
       try {

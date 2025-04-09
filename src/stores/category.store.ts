@@ -3,9 +3,15 @@ import { defineStore } from "pinia";
 import categoryService from "../services/category.service";
 import { useLoadingStore } from "./loading.store";
 
+interface State {
+  categories: Category[];
+  initialized: boolean; // Flag to track initialization
+}
+
 export const useCategoryStore = defineStore("category", {
-  state: () => ({
-    categories: [] as Array<Category>,
+  state: (): State => ({
+    categories: [],
+    initialized: false, // Initialize as false
   }),
   persist: true,
   getters: {
@@ -17,9 +23,21 @@ export const useCategoryStore = defineStore("category", {
   },
   actions: {
     async init(): Promise<void> {
+      // Prevent re-initialization
+      if (this.initialized) {
+        return;
+      }
+      this.initialized = true; // Set flag immediately
+
       const loadingStore = useLoadingStore();
       loadingStore.updateLoading(true);
-      categoryService.getAll().then((list) => {
+      // Use async/await for cleaner error handling and flow
+      try {
+        const list = await categoryService.getAll();
+        this.categories = list as Array<Category>;
+      } catch (error) {
+        console.error("Error initializing category store:", error);
+      } finally {
         this.categories = list as Array<Category>;
         loadingStore.updateLoading(false);
       });

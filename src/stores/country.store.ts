@@ -5,12 +5,14 @@ import { useLoadingStore } from "./loading.store";
 
 interface State {
   countries: Country[];
+  initialized: boolean; // Flag to track initialization
 }
 
 export const useCountryStore = defineStore("country", {
   state: (): State => {
     return {
       countries: [],
+      initialized: false, // Initialize as false
     };
   },
   persist: true,
@@ -21,9 +23,21 @@ export const useCountryStore = defineStore("country", {
   },
   actions: {
     async init(): Promise<void> {
+      // Prevent re-initialization
+      if (this.initialized) {
+        return;
+      }
+      this.initialized = true; // Set flag immediately
+
       const loadingStore = useLoadingStore();
       loadingStore.updateLoading(true);
-      countryService.getAll().then((list) => {
+      // Use async/await for cleaner error handling and flow
+      try {
+        const list = await countryService.getAll();
+        this.countries = list as Array<Country>;
+      } catch (error) {
+        console.error("Error initializing country store:", error);
+      } finally {
         this.countries = list as Array<Country>;
         loadingStore.updateLoading(false);
       });
