@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npm run dev",
     "build": "run-p type-check build-only",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "lint": "eslint .",
     "build-only": "vite build",
     "dev": "vite",
     "preview": "vite preview",
