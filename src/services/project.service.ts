@@ -7,6 +7,7 @@ const base = new NocoDBService('mdctuswlmsfvi8i')
 const projectService = {
   async getAll(): Promise<Array<Project>> {
     try {
+      console.time('API request');
       const response = await base
         .list({
           limit: 1000,
@@ -14,7 +15,9 @@ const projectService = {
           sort: "Name",
           viewId: "vwlnl4t095iifqc9", // published
         })
+      console.timeEnd('API request');
 
+      console.time('Data processing');
       const locations: Array<Project> = ((response as unknown) as { list: Record<string, any>[] })
         .list.map((record: Record<string, any>) => ({
         id: record.Id as number,
@@ -34,6 +37,7 @@ const projectService = {
         since: record.Since ? new Date(record.Since as string) : null,
         gallery: record?.Gallery as Array<object>,
       } as Project));
+      console.timeEnd('Data processing');
 
       return locations
     } catch (error) {
@@ -41,7 +45,6 @@ const projectService = {
       // Return empty array instead of throwing to prevent app from crashing
       return [];
     }
-
   },
   add(latLng: LatLng, name: string): any {
     const result = base.create([

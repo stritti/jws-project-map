@@ -1,8 +1,18 @@
 <template>
   <div class="map">
     <b-overlay :show="isLoadingMap" fixed style="height: 100vh" :opacity="0.5">
+      <!-- Skeleton loader for map -->
+      <div v-if="!mapReady && locations.length === 0" class="map-skeleton">
+        <div class="map-skeleton-content">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading map...</span>
+          </div>
+          <p class="mt-2">Loading map data...</p>
+        </div>
+      </div>
+      
       <l-map
-        v-if="locations.length > 0"
+        v-if="showMap"
         ref="map"
         v-model:zoom="zoom"
         class="map"
@@ -174,12 +184,15 @@ export default defineComponent({
       categories: [],
       isOpened: false as boolean,
       isLoadingMap: true as boolean,
+      mapReady: false as boolean,
+      initialDataLoaded: false as boolean,
       selectedLocation: undefined as Project | undefined,
       mapOptions: {
         zoomSnap: 0.5,
         scrollWheelZoom: true,
         touchZoom: true,
         wheelPxPerZoomLevel: 60,
+        preferCanvas: true, // Verwende Canvas statt SVG für bessere Performance
       },
     };
   },
@@ -194,6 +207,10 @@ export default defineComponent({
     ...mapState(useProjectStore, {
       locations: (store) => store.projects as Array<Project>,
     }),
+    showMap(): boolean {
+      // Zeige die Karte, wenn entweder Daten geladen sind oder die Karte bereits initialisiert wurde
+      return this.locations.length > 0 || this.mapReady;
+    },
     projectsFinished(): Array<Project> {
       if (this.locations.length > 0) {
         return this.locations.filter(
@@ -234,6 +251,7 @@ export default defineComponent({
       handler(newLocations) {
         console.log(`Locations updated: ${newLocations?.length || 0} items`);
         if (newLocations?.length > 0) {
+          this.initialDataLoaded = true;
           this.$nextTick(() => {
             if (this.$refs.map) {
               console.log('Updating map bounds after locations change');
@@ -248,9 +266,20 @@ export default defineComponent({
       immediate: true
     }
   },
+  created() {
+    // Initialisiere die Karte sofort, auch wenn noch keine Daten da sind
+    setTimeout(() => {
+      if (!this.initialDataLoaded) {
+        this.mapReady = true;
+      }
+    }, 500);
+  },
   methods: {
     mapLoaded(): void {
       console.log('Map loaded event triggered');
+      // Karte ist jetzt bereit
+      this.mapReady = true;
+      
       // Add a small delay to ensure the map is fully rendered
       setTimeout(() => {
         this.updateMaxBounds();
@@ -435,5 +464,18 @@ export default defineComponent({
 .map {
   width: 100%;
   height: 100%;
+}
+
+.map-skeleton {
+  width: 100%;
+  height: 100vh;
+  background-color: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-skeleton-content {
+  text-align: center;
 }
 </style>
