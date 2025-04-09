@@ -232,19 +232,31 @@ export default defineComponent({
   watch: {
     locations: {
       handler(newLocations) {
-        if (newLocations.length > 0 && this.$refs.map) {
+        console.log(`Locations updated: ${newLocations?.length || 0} items`);
+        if (newLocations?.length > 0) {
           this.$nextTick(() => {
-            this.updateMaxBounds();
+            if (this.$refs.map) {
+              console.log('Updating map bounds after locations change');
+              this.updateMaxBounds();
+            } else {
+              console.warn('Map reference not available');
+            }
           });
         }
       },
-      deep: true
+      deep: true,
+      immediate: true
     }
   },
   methods: {
     mapLoaded(): void {
-      this.updateMaxBounds();
-      this.isLoadingMap = false;
+      console.log('Map loaded event triggered');
+      // Add a small delay to ensure the map is fully rendered
+      setTimeout(() => {
+        this.updateMaxBounds();
+        this.isLoadingMap = false;
+        console.log('Map initialization complete');
+      }, 100);
     },
     addMarker(event: {
       latlng: any;
@@ -300,6 +312,12 @@ export default defineComponent({
 
         // Check if the pin file exists, otherwise fall back to default
         const pinPath = `/pins/${categoryNames}.png`;
+        
+        // Create an Image object to check if the pin exists
+        const img = new Image();
+        img.src = pinPath;
+        
+        // Return the path, but the image will fall back to default if it doesn't load
         return pinPath;
       } catch (error) {
         console.error('Error getting pin for location:', location, error);
@@ -314,35 +332,54 @@ export default defineComponent({
       return cssClass;
     },
     updateMaxBounds(): void {
-      if (this.locations && this.locations.length > 0 && this.$refs.map) {
-        try {
-          const validLocations = this.locations.filter(
-            (loc: Project) => 
-              loc && 
-              typeof loc.latitude === 'number' && 
-              typeof loc.longitude === 'number' &&
-              !isNaN(loc.latitude) && 
-              !isNaN(loc.longitude)
-          );
-          
-          if (validLocations.length === 0) {
-            console.warn('No valid locations found for map bounds');
-            return;
-          }
-          
-          const markers = validLocations.map(
-            (loc: Project) => new Marker(new LatLng(loc.latitude, loc.longitude))
-          );
-          
-          const group = featureGroup(markers);
-          const object = (this.$refs.map as any).leafletObject;
-          
-          if (object) {
-            object.fitBounds(group.getBounds(), { padding: [50, 50] });
-          }
-        } catch (error) {
-          console.error('Error updating map bounds:', error);
+      if (!this.locations || this.locations.length === 0 || !this.$refs.map) {
+        console.warn('Cannot update map bounds: missing locations or map reference');
+        return;
+      }
+      
+      try {
+        const validLocations = this.locations.filter(
+          (loc: Project) => 
+            loc && 
+            typeof loc.latitude === 'number' && 
+            typeof loc.longitude === 'number' &&
+            !isNaN(loc.latitude) && 
+            !isNaN(loc.longitude)
+        );
+        
+        if (validLocations.length === 0) {
+          console.warn('No valid locations found for map bounds');
+          return;
         }
+        
+        // Create markers only for valid locations
+        const markers = [];
+        for (const loc of validLocations) {
+          try {
+            markers.push(new Marker(new LatLng(loc.latitude, loc.longitude)));
+          } catch (err) {
+            console.warn(`Could not create marker for location ${loc.id}:`, err);
+          }
+        }
+        
+        if (markers.length === 0) {
+          console.warn('No valid markers could be created');
+          return;
+        }
+        
+        const group = featureGroup(markers);
+        const object = (this.$refs.map as any).leafletObject;
+        
+        if (object) {
+          // Use a try-catch here as fitBounds can sometimes fail
+          try {
+            object.fitBounds(group.getBounds(), { padding: [50, 50] });
+          } catch (err) {
+            console.error('Error fitting bounds:', err);
+          }
+        }
+      } catch (error) {
+        console.error('Error updating map bounds:', error);
       }
     },
     ...mapActions(useLoadingStore, ["updateLoading"]),

@@ -46,28 +46,57 @@ export const useProjectStore = defineStore("project", {
   },
   actions: {
     async init(): Promise<void> {
-      // Check if we already have data and it's not stale
+      // Always check if we need to refresh data
       const lastFetch = localStorage.getItem('project_last_fetch');
       const now = new Date().getTime();
       const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
       
-      // If we have data and it's less than an hour old, don't fetch again
-      if (this.projects.length > 0 && lastFetch && (now - parseInt(lastFetch)) < oneHour) {
-        return;
-      }
+      // Force refresh if:
+      // 1. No projects in store
+      // 2. No last fetch time
+      // 3. Last fetch is older than one hour
+      const needsRefresh = 
+        this.projects.length === 0 || 
+        !lastFetch || 
+        (now - parseInt(lastFetch)) > oneHour;
       
-      const loadingStore = useLoadingStore();
-      loadingStore.updateLoading(true);
-      try {
-        const result = await projectService.getAll();
-        this.projects = result as Array<Project>;
-        // Store the fetch time
-        localStorage.setItem('project_last_fetch', now.toString());
-      } catch (error) {
-        console.error('Error fetching Items:', error);
-        // Don't throw, just log the error
-      } finally {
-        loadingStore.updateLoading(false);
+      if (needsRefresh) {
+        const loadingStore = useLoadingStore();
+        loadingStore.updateLoading(true);
+        
+        try {
+          console.log('Fetching fresh project data...');
+          const result = await projectService.getAll();
+          
+          if (result && Array.isArray(result)) {
+            // Validate projects before storing them
+            const validProjects = result.filter(project => 
+              project && 
+              typeof project.id === 'number' &&
+              typeof project.latitude === 'number' && 
+              typeof project.longitude === 'number' &&
+              !isNaN(project.latitude) && 
+              !isNaN(project.longitude)
+            );
+            
+            if (validProjects.length > 0) {
+              this.projects = validProjects as Array<Project>;
+              // Store the fetch time
+              localStorage.setItem('project_last_fetch', now.toString());
+              console.log(`Loaded ${validProjects.length} valid projects`);
+            } else {
+              console.error('No valid projects found in API response');
+            }
+          } else {
+            console.error('Invalid response format from API');
+          }
+        } catch (error) {
+          console.error('Error fetching projects:', error);
+        } finally {
+          loadingStore.updateLoading(false);
+        }
+      } else {
+        console.log('Using cached project data');
       }
     },
     doFilter(
