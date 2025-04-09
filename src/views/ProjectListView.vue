@@ -102,10 +102,7 @@ export default defineComponent({
   name: "ProjectListView",
   components: { ProjectListItem, SiteFooter },
   created() {
-    // Initiate data fetching when the component is created
-    projectStore.init();
-    categoryStore.init();
-    countryStore.init();
+    // Component instance is created, basic structure can be rendered quickly.
   },
   data() {
     return {
