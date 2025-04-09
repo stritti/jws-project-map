@@ -72,12 +72,14 @@ const projectService = {
     
     try {
       console.time('API request');
+      // Da 'fields' nicht im Typ definiert ist, verwenden wir einen Typ-Cast
       const response = await base
         .list({
           limit: 1000,
           offset: 0,
           sort: "Name",
           viewId: "vwlnl4t095iifqc9", // published
+          // @ts-expect-error - fields wird von der API unterstützt, ist aber nicht im Typ definiert
           fields: REQUIRED_FIELDS // Nur die benötigten Felder anfordern
         })
       console.timeEnd('API request');
@@ -115,7 +117,9 @@ const projectService = {
                 .replaceAll('"<http', '"http')
                 .replaceAll('>"', '"')
             : "",
-          country: record?.Country_ID ? record.Country_ID[0] : undefined as number | undefined,
+          country: record?.Country_ID && Array.isArray(record.Country_ID) && record.Country_ID.length > 0 
+            ? (record.Country_ID as unknown[])[0] as number 
+            : undefined as number | undefined,
           latitude: record?.Latitude as number,
           longitude: record?.Longitude as number,
           link: record?.Link as string,
