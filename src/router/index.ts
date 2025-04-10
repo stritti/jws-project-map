@@ -1,9 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 
-import { useCountryStore } from "../stores/country.store";
-import { useCategoryStore } from "../stores/category.store";
-import { useProjectStore } from "../stores/project.store";
 const routes = [
   {
     path: "/",
