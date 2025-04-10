@@ -23,7 +23,9 @@ export class NocoDBService {
     viewId?: string;
     sort?: string;
     populate?: string;
+    fields?: string[];
   }): Promise<Record<string, unknown>[]> {
+    //TODO: reduce result to only the fields that are needed
     return axios.get(`${this.baseURL}/api/v2/tables/${this.tableId}/records`, {
       headers: this.getHeaders(),
       params: {
