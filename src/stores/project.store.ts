@@ -6,6 +6,7 @@ import type { Project } from "@/interfaces/Project";
 interface State {
   projects: Project[];
   filteredList: Project[];
+  initialized: boolean; // Flag to track initialization
 }
 
 export const useProjectStore = defineStore("project", {
@@ -13,9 +14,10 @@ export const useProjectStore = defineStore("project", {
     return {
       projects: [],
       filteredList: [],
+      initialized: false, // Initialize as false
     };
   },
-  persist: true,
+  persist: false,
   getters: {
     getAll: (state) => state.projects as Array<Project>,
     getById: (state) => (id: number) =>
@@ -46,28 +48,32 @@ export const useProjectStore = defineStore("project", {
   },
   actions: {
     async init(): Promise<void> {
-      const loadingStore = useLoadingStore();
-      
-      // Zeige den Ladeindikator nur, wenn wir keine Daten haben
-      if (this.projects.length === 0) {
-        loadingStore.updateLoading(true);
+      // Prevent re-initialization
+      if (this.initialized) {
+        return;
       }
-      
+      this.initialized = true; // Set flag immediately
+
+      const loadingStore = useLoadingStore();
+
+      // Show loading indicator
+      loadingStore.updateLoading(true);
+
       try {
         // Der verbesserte projectService kümmert sich jetzt selbst um das Caching
         const result = await projectService.getAll();
-        
+
         if (result && Array.isArray(result)) {
           // Validate projects before storing them
-          const validProjects = result.filter(project => 
-            project && 
+          const validProjects = result.filter(project =>
+            project &&
             typeof project.id === 'number' &&
-            typeof project.latitude === 'number' && 
+            typeof project.latitude === 'number' &&
             typeof project.longitude === 'number' &&
-            !isNaN(project.latitude) && 
+            !isNaN(project.latitude) &&
             !isNaN(project.longitude)
           );
-          
+
           if (validProjects.length > 0) {
             this.projects = validProjects as Array<Project>;
             console.log(`Loaded ${validProjects.length} valid projects`);

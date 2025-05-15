@@ -11,10 +11,19 @@ import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 import App from "./App.vue";
 import router from "./router";
 
+// Import stores
+import { useProjectStore } from "./stores/project.store";
+import { useCategoryStore } from "./stores/category.store";
+import { useCountryStore } from "./stores/country.store";
+
 import "./assets/style-config.scss";
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
+
+// Initialize stores after Pinia is created but before the app mounts
+// Note: Stores need the Pinia instance implicitly provided by app.use(pinia)
+// We call init *after* app.use(pinia)
 
 const app = createApp(App);
 
@@ -24,6 +33,17 @@ app.use(createBootstrap())
 app.use(Vue3VideoPlayer, {
   lang: "en",
 });
+
+// Initialize stores after Pinia is attached to the app
+// This ensures they can access the Pinia instance
+const projectStore = useProjectStore(pinia);
+const categoryStore = useCategoryStore(pinia);
+const countryStore = useCountryStore(pinia);
+
+projectStore.init();
+categoryStore.init();
+countryStore.init();
+
 
 // app.component('vue-picture-swipe', VuePictureSwipe)
 
