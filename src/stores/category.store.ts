@@ -13,7 +13,7 @@ export const useCategoryStore = defineStore("category", {
     categories: [],
     initialized: false, // Initialize as false
   }),
-  persist: true,
+  persist: false,
   getters: {
     getAll: (state) => state.categories as Array<Category>,
     getById: (state) => (id: number) =>

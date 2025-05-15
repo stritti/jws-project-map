@@ -15,7 +15,7 @@ export const useCountryStore = defineStore("country", {
       initialized: false, // Initialize as false
     };
   },
-  persist: true,
+  persist: false,
   getters: {
     getAll: (state) => state.countries,
     getById: (state) => (id: number) =>
