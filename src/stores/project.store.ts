@@ -100,9 +100,11 @@ export const useProjectStore = defineStore("project", {
         if (
           (stateFilter.length === 0 || stateFilter.includes(project.state)) &&
           (categoryFilter.length === 0 ||
-            categoryFilter.some((category) => project.category.includes(category))) &&
+            (project.category && categoryFilter.some((categoryId) => 
+              project.category.some(cat => cat.id === categoryId)
+            ))) &&
           (countryFilter.length === 0 ||
-            countryFilter.some((country) => project.country === country))) {
+            (project.country && countryFilter.includes(project.country.id)))) {
           this.filteredList.push(project);
         }
       });
