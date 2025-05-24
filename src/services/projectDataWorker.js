@@ -3,20 +3,20 @@
 
 self.onmessage = function(e) {
   const response = e.data;
-  
+
   try {
     const locations = ((response) => {
       return response.list.map(record => ({
         id: record.Id,
         name: record.Name,
         teaserImg: record.TeaserImage,
-        category: record.Category_ID,
+        category: record.Category,
         notes: record.Notes
           ? record.Notes
               .replaceAll('"<http', '"http')
               .replaceAll('>"', '"')
           : "",
-        country: record.Country_ID ? record.Country_ID[0] : undefined,
+        country: (record?.Country)[0] || null,
         latitude: record.Latitude,
         longitude: record.Longitude,
         link: record.Link,
@@ -25,7 +25,7 @@ self.onmessage = function(e) {
         gallery: record.Gallery,
       }));
     })(response);
-    
+
     // Sende die verarbeiteten Daten zurück an den Hauptthread
     self.postMessage(locations);
   } catch {

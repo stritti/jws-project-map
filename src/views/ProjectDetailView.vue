@@ -25,8 +25,8 @@
             <b-col cols="3" class="text-end" >
               <category-badge
                 v-for="category in project.category"
-                :key="category"
-                :category-id="category"
+                :key="category.Id"
+                :category-id="category.Id"
               />
             </b-col>
           </b-row>
@@ -78,7 +78,7 @@
               <th >Name:</th>
               <td v-if="project.name">{{ project.name }}</td>
               <th >Country:</th>
-              <td v-if="project.country"><country-label :country-id="project.country" /></td>
+              <td><country-label v-if="project.country" :country-id="project.country.Id" /></td>
             </tr>
             <tr >
               <th v-if="project.state">State:</th>
@@ -91,8 +91,8 @@
               <td colspan="3">
                 <category-badge
                   v-for="category in project.category"
-                  :key="category"
-                  :category-id="category"
+                  :key="category.Id"
+                  :category-id="category.Id"
                 />
               </td>
             </tr>

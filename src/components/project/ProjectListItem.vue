@@ -14,11 +14,11 @@
       <b-card-body :sub-title="null">
         <category-badge
           v-for="category in project.category"
-          :key="category"
-          :category-id="category"
+          :key="category.Id"
+          :category-id="category.Id"
         />
         <div v-if="project.country">
-          <country-label :country-id="project.country" />
+          <country-label :country-id="project.country.id" />
         </div>
         <div>Project State: {{ project.state }}</div>
       </b-card-body>

@@ -10,7 +10,7 @@
           <p class="mt-2">Loading map data...</p>
         </div>
       </div>
-      
+
       <l-map
         v-if="showMap"
         ref="map"
@@ -273,7 +273,7 @@ export default defineComponent({
         this.mapReady = true;
       }
     }, 300); // Reduziere die Wartezeit auf 300ms
-    
+
     // Prüfe, ob wir bereits Projekte im Store haben
     if (this.locations.length > 0) {
       this.initialDataLoaded = true;
@@ -284,7 +284,7 @@ export default defineComponent({
       console.log('Map loaded event triggered');
       // Karte ist jetzt bereit
       this.mapReady = true;
-      
+
       // Add a small delay to ensure the map is fully rendered
       setTimeout(() => {
         this.updateMaxBounds();
@@ -322,10 +322,7 @@ export default defineComponent({
       }
 
       try {
-        const categories = Array.isArray(location.category) 
-          ? location.category 
-          : location.category ? [location.category] : [];
-
+        const categories =  location.category;
         if (!categories || categories.length === 0) {
           return "/pins/default.png";
         }
@@ -333,8 +330,7 @@ export default defineComponent({
         const categoryNames = categories
           .map(cat => {
             if (!cat) return 'default';
-            const category = this.getCategoryById(cat);
-            return category?.name?.toLowerCase() || 'default';
+            return cat?.Name?.toLowerCase() || 'default';
           })
           .filter(name => name) // Filter out empty names
           .join('-');
@@ -346,11 +342,11 @@ export default defineComponent({
 
         // Check if the pin file exists, otherwise fall back to default
         const pinPath = `/pins/${categoryNames}.png`;
-        
+
         // Create an Image object to check if the pin exists
         const img = new Image();
         img.src = pinPath;
-        
+
         // Return the path, but the image will fall back to default if it doesn't load
         return pinPath;
       } catch (error) {
@@ -370,22 +366,22 @@ export default defineComponent({
         console.warn('Cannot update map bounds: missing locations or map reference');
         return;
       }
-      
+
       try {
         const validLocations = this.locations.filter(
-          (loc: Project) => 
-            loc && 
-            typeof loc.latitude === 'number' && 
+          (loc: Project) =>
+            loc &&
+            typeof loc.latitude === 'number' &&
             typeof loc.longitude === 'number' &&
-            !isNaN(loc.latitude) && 
+            !isNaN(loc.latitude) &&
             !isNaN(loc.longitude)
         );
-        
+
         if (validLocations.length === 0) {
           console.warn('No valid locations found for map bounds');
           return;
         }
-        
+
         // Create markers only for valid locations
         const markers = [];
         for (const loc of validLocations) {
@@ -395,15 +391,15 @@ export default defineComponent({
             console.warn(`Could not create marker for location ${loc.id}:`, err);
           }
         }
-        
+
         if (markers.length === 0) {
           console.warn('No valid markers could be created');
           return;
         }
-        
+
         const group = featureGroup(markers);
         const object = (this.$refs.map as any).leafletObject;
-        
+
         if (object) {
           // Use a try-catch here as fitBounds can sometimes fail
           try {

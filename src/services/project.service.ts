@@ -1,3 +1,4 @@
+import { LinkedRecord } from '@/interfaces/LinkedRecord';
 import { NocoDBService } from './nocodb.service'
 import type { Project } from "@/interfaces/Project"
 import type { LatLng } from "leaflet"
@@ -6,8 +7,8 @@ const base = new NocoDBService('mdctuswlmsfvi8i')
 
 // Optimierte Feldliste - nur die Felder, die wir wirklich brauchen
 const REQUIRED_FIELDS = [
-  'Id', 'Name', 'TeaserImage', 'Category_ID', 'Notes',
-  'Country_ID', 'Latitude', 'Longitude', 'Link', 'State', 'Since', 'Gallery'
+  'Id', 'Name', 'TeaserImage', 'Category', 'Notes',
+  'Country', 'Latitude', 'Longitude', 'Link', 'State', 'Since', 'Gallery'
 ];
 
 const projectService = {
@@ -47,13 +48,13 @@ const projectService = {
           id: record.Id as number,
           name: record.Name as string,
           teaserImg: record?.TeaserImage as object[],
-          category: record?.Category_ID as Array<number>,
+          category: record?.Category as Array<LinkedRecord>,
           notes: record.Notes
             ? (record.Notes as string)
                 .replaceAll('"<http', '"http')
                 .replaceAll('>"', '"')
             : "",
-          country: record?.Country_ID as number | undefined,
+          country: (record?.Country as Array<LinkedRecord>)[0] || null,
           latitude: record?.Latitude as number,
           longitude: record?.Longitude as number,
           link: record?.Link as string,

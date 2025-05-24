@@ -1,10 +1,11 @@
 import { Attachment } from "./Attachment";
+import { LinkedRecord } from "./LinkedRecord";
 
 export interface Project {
   id: number;
   name: string;
-  category: Array<number>;
-  country: number;
+  category: Array<LinkedRecord> | undefined;
+  country: LinkedRecord | undefined;
   teaserImg?: Array<Attachment> | undefined;
   state: string;
   notes: string | undefined;
