@@ -32,7 +32,6 @@ const projectService = {
           const worker = new Worker(new URL('./projectDataWorker.js', import.meta.url), { type: 'module' });
 
           worker.onmessage = (e) => {
-            console.timeEnd('Data processing');
             const locations = e.data;
 
             resolve(locations);
@@ -62,7 +61,6 @@ const projectService = {
           since: record.Since ? new Date(record.Since as string) : null,
           gallery: record?.Gallery as Array<object>,
         } as Project));
-        console.timeEnd('Data processing');
 
         return locations;
       }
