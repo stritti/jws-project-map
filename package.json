@@ -24,7 +24,7 @@
     "flag-icons": "^7.3.2",
     "leaflet": "^1.9.4",
     "leaflet.path.drag": "^0.0.6",
-    "pinia": "^3.0.2",
+    "pinia": "^3.0.3",
     "pinia-plugin-persistedstate": "^4.3.0",
     "vite-plugin-package-version": "^1.1.0",
     "vue": "^3.5.14",
