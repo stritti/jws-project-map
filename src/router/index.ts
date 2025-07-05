@@ -1,11 +1,25 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
+import { useProjectStore } from "@/stores/project.store";
+import { useCategoryStore } from "@/stores/category.store";
+import { useCountryStore } from "@/stores/country.store";
 
 const routes = [
   {
     path: "/",
     name: "home",
     component: HomeView,
+    beforeEnter: async (to, from, next) => {
+      const projectStore = useProjectStore();
+      const categoryStore = useCategoryStore();
+      const countryStore = useCountryStore();
+      await Promise.all([
+        projectStore.load(),
+        categoryStore.load(),
+        countryStore.load(),
+      ]);
+      next();
+    },
   },
   {
     path: "/project/",
@@ -13,6 +27,17 @@ const routes = [
     name: "ProjectList",
     component: () =>
       import(/* webpackChunkName: "project" */ "../views/ProjectListView.vue"),
+    beforeEnter: async (to, from, next) => {
+      const projectStore = useProjectStore();
+      const categoryStore = useCategoryStore();
+      const countryStore = useCountryStore();
+      await Promise.all([
+        projectStore.load(),
+        categoryStore.load(),
+        countryStore.load(),
+      ]);
+      next();
+    },
   },
   {
     path: "/project/:projectId",
@@ -22,6 +47,17 @@ const routes = [
       import(
         /* webpackChunkName: "project" */ "../views/ProjectDetailView.vue"
       ),
+    beforeEnter: async (to, from, next) => {
+      const projectStore = useProjectStore();
+      const categoryStore = useCategoryStore();
+      const countryStore = useCountryStore();
+      await Promise.all([
+        projectStore.load(),
+        categoryStore.load(),
+        countryStore.load(),
+      ]);
+      next();
+    },
   },
   {
     path: "/about",
@@ -43,3 +79,4 @@ const router = createRouter({
 // Data initialization is handled within the components that need it (e.g., ProjectListView mounted hook)
 
 export default router;
+

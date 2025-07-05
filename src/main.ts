@@ -40,9 +40,7 @@ const projectStore = useProjectStore(pinia);
 const categoryStore = useCategoryStore(pinia);
 const countryStore = useCountryStore(pinia);
 
-projectStore.init();
-categoryStore.init();
-countryStore.init();
+
 
 
 // app.component('vue-picture-swipe', VuePictureSwipe)
