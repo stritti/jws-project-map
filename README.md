@@ -24,25 +24,25 @@ See [Vite Configuration Reference](https://vitejs.dev/config/).
 ## Project Setup
 
 ```sh
-yarn install
+bun install
 ```
 
 ### Compile and Hot-Reload for Development
 
 ```sh
-yarn run dev
+bun run dev
 ```
 
 ### Type-Check, Compile and Minify for Production
 
 ```sh
-yarn run build
+bun run build
 ```
 
 ### Lint with [ESLint](https://eslint.org/)
 
 ```sh
-yarn run lint
+bun run lint
 ```
 
 
