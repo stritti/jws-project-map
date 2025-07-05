@@ -47,7 +47,7 @@ export const useProjectStore = defineStore("project", {
     },
   },
   actions: {
-    async init(): Promise<void> {
+    async load(): Promise<void> {
       // Prevent re-initialization
       if (this.initialized) {
         return;

@@ -49,7 +49,7 @@ declare module 'vue' {
     ShareButton: typeof import('./src/components/actions/ShareButton.vue')['default']
     SiteFooter: typeof import('./src/components/SiteFooter.vue')['default']
   }
-  export interface ComponentCustomProperties {
+  export interface GlobalDirectives {
     vBToggle: typeof import('bootstrap-vue-next/directives/BToggle')['vBToggle']
   }
 }

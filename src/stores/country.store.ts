@@ -22,7 +22,7 @@ export const useCountryStore = defineStore("country", {
       state.countries.find((country: Country) => country.id === id),
   },
   actions: {
-    async init(): Promise<void> {
+    async load(): Promise<void> {
       // Prevent re-initialization
       if (this.initialized) {
         return;

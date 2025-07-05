@@ -121,8 +121,9 @@
   <site-footer />
 </template>
 
-<script lang="ts">
-import { mapState } from "pinia";
+<script setup lang="ts">
+import { computed } from "vue";
+import { useRoute } from "vue-router";
 import { useProjectStore } from "../stores/project.store";
 import CountryLabel from "../components/CountryLabel.vue";
 import CategoryBadge from "../components/CategoryBadge.vue";
@@ -132,50 +133,33 @@ import { useLoadingStore } from "../stores/loading.store";
 import BackButton from "../components/actions/BackButton.vue";
 import ShareButton from "../components/actions/ShareButton.vue";
 import NavigateButton from "../components/actions/NavigateButton.vue";
-
-import { defineComponent } from "vue";
-import type { Project } from "@/interfaces/Project";
 import ProjectGallery from "@/components/project/ProjectGallery.vue";
 import ProjectGalleryModal from "@/components/project/ProjectGalleryModal.vue";
+import type { Project } from "@/interfaces/Project";
 
-export default defineComponent({
-  name: "ProjectDetailView",
-  components: {
-    CountryLabel,
-    CategoryBadge,
-    MarkdownText,
-    SiteFooter,
-    BackButton,
-    ShareButton,
-    NavigateButton,
-    ProjectGallery,
-    ProjectGalleryModal,
+const props = defineProps({
+  projectId: {
+    type: String,
+    required: true,
   },
-  props: {
-    projectId: {
-      type: String,
-      required: true,
-    },
-  },
-  computed: {
-    ...mapState(useLoadingStore, {
-      loading: (state) => state.showLoadingSpinner as boolean,
-    }),
-    ...mapState(useProjectStore, {
-      projectById: (state) => state.getById,
-    }),
-    project(): Project {
-      const id = parseInt(this.$route.params.projectId as string);
-      return this.projectById(id);
-    },
-    teaserImage(): string {
-      if (this.project.teaserImg) {
-        return this.project.teaserImg[0].signedUrl;
-      } else {
-        return "/img/placeholder.png";
-      }
-    },
-  },
+});
+
+const route = useRoute();
+const loadingStore = useLoadingStore();
+const projectStore = useProjectStore();
+
+const loading = computed(() => loadingStore.showLoadingSpinner);
+const project = computed((): Project | undefined => {
+  const id = parseInt(route.params.projectId as string);
+  return projectStore.getById(id);
+});
+
+const teaserImage = computed(() => {
+  if (project.value?.teaserImg) {
+    return project.value.teaserImg[0].signedUrl;
+  } else {
+    return "/img/placeholder.png";
+  }
 });
 </script>
 
