@@ -1,4 +1,9 @@
-import { createRouter, createWebHistory } from "vue-router";
+import {
+  createRouter,
+  createWebHistory,
+  type NavigationGuardNext,
+  type RouteLocationNormalized,
+} from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import { useProjectStore } from "@/stores/project.store";
 import { useCategoryStore } from "@/stores/category.store";
@@ -9,7 +14,11 @@ const routes = [
     path: "/",
     name: "home",
     component: HomeView,
-    beforeEnter: async (to, from, next) => {
+    beforeEnter: async (
+      _to: RouteLocationNormalized,
+      _from: RouteLocationNormalized,
+      next: NavigationGuardNext
+    ) => {
       const projectStore = useProjectStore();
       const categoryStore = useCategoryStore();
       const countryStore = useCountryStore();
@@ -27,7 +36,11 @@ const routes = [
     name: "ProjectList",
     component: () =>
       import(/* webpackChunkName: "project" */ "../views/ProjectListView.vue"),
-    beforeEnter: async (to, from, next) => {
+    beforeEnter: async (
+      _to: RouteLocationNormalized,
+      _from: RouteLocationNormalized,
+      next: NavigationGuardNext
+    ) => {
       const projectStore = useProjectStore();
       const categoryStore = useCategoryStore();
       const countryStore = useCountryStore();
@@ -47,7 +60,11 @@ const routes = [
       import(
         /* webpackChunkName: "project" */ "../views/ProjectDetailView.vue"
       ),
-    beforeEnter: async (to, from, next) => {
+    beforeEnter: async (
+      _to: RouteLocationNormalized,
+      _from: RouteLocationNormalized,
+      next: NavigationGuardNext
+    ) => {
       const projectStore = useProjectStore();
       const categoryStore = useCategoryStore();
       const countryStore = useCountryStore();

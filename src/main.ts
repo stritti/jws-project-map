@@ -36,12 +36,9 @@ app.use(Vue3VideoPlayer, {
 
 // Initialize stores after Pinia is attached to the app
 // This ensures they can access the Pinia instance
-const projectStore = useProjectStore(pinia);
-const categoryStore = useCategoryStore(pinia);
-const countryStore = useCountryStore(pinia);
-
-
-
+useProjectStore(pinia);
+useCategoryStore(pinia);
+useCountryStore(pinia);
 
 // app.component('vue-picture-swipe', VuePictureSwipe)
 
