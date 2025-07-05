@@ -128,21 +128,17 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
-import { mapState, mapActions } from "pinia"
-import { useLoadingStore } from "../../stores/loading.store"
-import { useCategoryStore } from "../../stores/category.store"
-import { useProjectStore } from "../../stores/project.store"
-
+<script setup lang="ts">
+import { ref, computed, onMounted, watch, nextTick } from "vue";
+import { storeToRefs } from "pinia";
+import { useLoadingStore } from "../../stores/loading.store";
+import { useCategoryStore } from "../../stores/category.store";
+import { useProjectStore } from "../../stores/project.store";
 import {
-  PointExpression,
-  point,
-  LatLngBounds,
   latLngBounds,
   featureGroup,
   Marker,
-LatLng,
+  LatLng,
 } from "leaflet";
 import {
   LMap,
@@ -157,264 +153,185 @@ import ProjectDetails from "../../components/project/ProjectDetails.vue";
 import projectService from "../../services/project.service";
 import type { Project } from "@/interfaces/Project";
 
-export default defineComponent({
-  name: "LocationMap",
-  components: {
-    LMap,
-    LControlLayers,
-    LLayerGroup,
-    LMarker,
-    LIcon,
-    LTileLayer,
-    LTooltip,
-    ProjectDetails,
-  },
-  data() {
-    return {
-      zoom: 5 as number,
-      //currentCenter: point(7.0, -3.5) as PointExpression,
-      bounds: latLngBounds([
-        [-14.5981259, 5.8997233],
-        [8.9490075, 11.322326],
-      ]) as LatLngBounds,
-      maxBounds: latLngBounds([
-        [-14.6, 5.9],
-        [8.9490075, 11.322326],
-      ]) as LatLngBounds,
-      categories: [],
-      isOpened: false as boolean,
-      isLoadingMap: true as boolean,
-      mapReady: false as boolean,
-      initialDataLoaded: false as boolean,
-      selectedLocation: undefined as Project | undefined,
-      mapOptions: {
-        zoomSnap: 0.5,
-        scrollWheelZoom: true,
-        touchZoom: true,
-        wheelPxPerZoomLevel: 60,
-        preferCanvas: true, // Verwende Canvas statt SVG für bessere Performance
-      },
-    };
-  },
-  computed: {
-    ...mapState(useCategoryStore, {
-      getCategoryById: (store) => store.getById,
-      //categoryOfProjects: (store) => store.categoryOfProjects as Array<Project>,
-    }),
-    ...mapState(useLoadingStore, {
-      showLoadingSpinner: (store) => store.showLoadingSpinner as boolean,
-    }),
-    ...mapState(useProjectStore, {
-      locations: (store) => store.projects as Array<Project>,
-    }),
-    showMap(): boolean {
-      // Zeige die Karte, wenn entweder Daten geladen sind oder die Karte bereits initialisiert wurde
-      return this.locations.length > 0 || this.mapReady;
-    },
-    projectsFinished(): Array<Project> {
-      if (this.locations.length > 0) {
-        return this.locations.filter(
-          (loc: Project) => loc.state === "finished",
-        );
-      } else {
-        return [];
-      }
-    },
-    projectsUnderConstruction(): Array<Project> {
-      if (this.locations.length > 0) {
-        return this.locations.filter(
-          (loc: Project) => loc.state === "under construction",
-        );
-      } else {
-        return [];
-      }
-    },
-    projectsPlanned(): Array<Project> {
-      if (this.locations.length > 0) {
-        return this.locations.filter((loc: Project) => loc.state === "planned");
-      } else {
-        return [];
-      }
-    },
-    layerLabelProjectsFinished(): string {
-      return `Projects: finished (${this.projectsFinished.length})`;
-    },
-    layerLabelProjectsUnderConstruction(): string {
-      return `Projects: under construction (${this.projectsUnderConstruction.length})`;
-    },
-    layerLabelProjectsPlanned(): string {
-      return `Projects: planned (${this.projectsPlanned.length})`;
-    },
-  },
-  watch: {
-    locations: {
-      handler(newLocations) {
-        console.log(`Locations updated: ${newLocations?.length || 0} items`);
-        if (newLocations?.length > 0) {
-          this.initialDataLoaded = true;
-          this.$nextTick(() => {
-            if (this.$refs.map) {
-              console.log('Updating map bounds after locations change');
-              this.updateMaxBounds();
-            } else {
-              console.warn('Map reference not available');
-            }
-          });
-        }
-      },
-      deep: true,
-      immediate: true
-    }
-  },
-  created() {
-    // Initialisiere die Karte sofort, auch wenn noch keine Daten da sind
-    setTimeout(() => {
-      if (!this.initialDataLoaded) {
-        this.mapReady = true;
-      }
-    }, 300); // Reduziere die Wartezeit auf 300ms
+const loadingStore = useLoadingStore();
+const categoryStore = useCategoryStore();
+const projectStore = useProjectStore();
 
-    // Prüfe, ob wir bereits Projekte im Store haben
-    if (this.locations.length > 0) {
-      this.initialDataLoaded = true;
-    }
-  },
-  methods: {
-    mapLoaded(): void {
-      console.log('Map loaded event triggered');
-      // Karte ist jetzt bereit
-      this.mapReady = true;
+const { getById: getCategoryById } = storeToRefs(categoryStore);
+const { showLoadingSpinner } = storeToRefs(loadingStore);
+const { projects: locations } = storeToRefs(projectStore);
 
-      // Add a small delay to ensure the map is fully rendered
-      setTimeout(() => {
-        this.updateMaxBounds();
-        this.isLoadingMap = false;
-        console.log('Map initialization complete');
-      }, 100);
-    },
-    addMarker(event: {
-      latlng: any;
-      originalEvent: { ctrlKey: any; altKey: any };
-    }): void {
-      if (
-        this.zoom >= 9 &&
-        event.latlng &&
-        event.originalEvent.ctrlKey &&
-        event.originalEvent.altKey
-      ) {
-        const name = prompt("Enter name:", "__TBD__");
-        if (name) {
-          projectService.add(event.latlng, name);
-        }
-      }
-    },
-    onMarkerClick(location: Project): void {
-      this.selectedLocation = location;
-      this.isOpened = true;
-    },
-    onSidePanelClose(): void {
-      this.selectedLocation = undefined;
-      this.isOpened = false;
-    },
-    getPin(location: Project): string {
-      if (!location) {
-        return "/pins/default.png";
-      }
-
-      try {
-        const categories =  location.category;
-        if (!categories || categories.length === 0) {
-          return "/pins/default.png";
-        }
-
-        const categoryNames = categories
-          .map(cat => {
-            if (!cat) return 'default';
-            return cat?.Name?.toLowerCase() || 'default';
-          })
-          .filter(name => name) // Filter out empty names
-          .join('-');
-
-        // If we end up with an empty string, use default
-        if (!categoryNames) {
-          return "/pins/default.png";
-        }
-
-        // Check if the pin file exists, otherwise fall back to default
-        const pinPath = `/pins/${categoryNames}.png`;
-
-        // Create an Image object to check if the pin exists
-        const img = new Image();
-        img.src = pinPath;
-
-        // Return the path, but the image will fall back to default if it doesn't load
-        return pinPath;
-      } catch (error) {
-        console.error('Error getting pin for location:', location, error);
-        return "/pins/default.png";
-      }
-    },
-    pinClass(current: Project): string {
-      let cssClass =
-        this.selectedLocation?.id === current.id ? "marker-selected" : "";
-      cssClass +=
-        " marker-state-" + current.state?.toLowerCase().replace(" ", "-");
-      return cssClass;
-    },
-    updateMaxBounds(): void {
-      if (!this.locations || this.locations.length === 0 || !this.$refs.map) {
-        console.warn('Cannot update map bounds: missing locations or map reference');
-        return;
-      }
-
-      try {
-        const validLocations = this.locations.filter(
-          (loc: Project) =>
-            loc &&
-            typeof loc.latitude === 'number' &&
-            typeof loc.longitude === 'number' &&
-            !isNaN(loc.latitude) &&
-            !isNaN(loc.longitude)
-        );
-
-        if (validLocations.length === 0) {
-          console.warn('No valid locations found for map bounds');
-          return;
-        }
-
-        // Create markers only for valid locations
-        const markers = [];
-        for (const loc of validLocations) {
-          try {
-            markers.push(new Marker(new LatLng(loc.latitude, loc.longitude)));
-          } catch (err) {
-            console.warn(`Could not create marker for location ${loc.id}:`, err);
-          }
-        }
-
-        if (markers.length === 0) {
-          console.warn('No valid markers could be created');
-          return;
-        }
-
-        const group = featureGroup(markers);
-        const object = (this.$refs.map as any).leafletObject;
-
-        if (object) {
-          // Use a try-catch here as fitBounds can sometimes fail
-          try {
-            object.fitBounds(group.getBounds(), { padding: [50, 50] });
-          } catch (err) {
-            console.error('Error fitting bounds:', err);
-          }
-        }
-      } catch (error) {
-        console.error('Error updating map bounds:', error);
-      }
-    },
-    ...mapActions(useLoadingStore, ["updateLoading"]),
-  },
+const zoom = ref(5);
+const bounds = ref(
+  latLngBounds([
+    [-14.5981259, 5.8997233],
+    [8.9490075, 11.322326],
+  ])
+);
+const maxBounds = ref(
+  latLngBounds([
+    [-14.6, 5.9],
+    [8.9490075, 11.322326],
+  ])
+);
+const isOpened = ref(false);
+const isLoadingMap = ref(true);
+const mapReady = ref(false);
+const initialDataLoaded = ref(false);
+const selectedLocation = ref<Project | undefined>(undefined);
+const mapOptions = ref({
+  zoomSnap: 0.5,
+  scrollWheelZoom: true,
+  touchZoom: true,
+  wheelPxPerZoomLevel: 60,
+  preferCanvas: true,
 });
+const map = ref<any>(null);
+
+const showMap = computed(() => locations.value.length > 0 || mapReady.value);
+
+const projectsFinished = computed(() =>
+  locations.value.filter((loc) => loc.state === "finished")
+);
+const projectsUnderConstruction = computed(() =>
+  locations.value.filter((loc) => loc.state === "under construction")
+);
+const projectsPlanned = computed(() =>
+  locations.value.filter((loc) => loc.state === "planned")
+);
+
+const layerLabelProjectsFinished = computed(
+  () => `Projects: finished (${projectsFinished.value.length})`
+);
+const layerLabelProjectsUnderConstruction = computed(
+  () => `Projects: under construction (${projectsUnderConstruction.value.length})`
+);
+const layerLabelProjectsPlanned = computed(
+  () => `Projects: planned (${projectsPlanned.value.length})`
+);
+
+watch(
+  locations,
+  (newLocations) => {
+    if (newLocations?.length > 0) {
+      initialDataLoaded.value = true;
+      nextTick(() => {
+        if (map.value) {
+          updateMaxBounds();
+        }
+      });
+    }
+  },
+  { deep: true, immediate: true }
+);
+
+onMounted(() => {
+  setTimeout(() => {
+    if (!initialDataLoaded.value) {
+      mapReady.value = true;
+    }
+  }, 300);
+
+  if (locations.value.length > 0) {
+    initialDataLoaded.value = true;
+  }
+});
+
+const mapLoaded = () => {
+  mapReady.value = true;
+  setTimeout(() => {
+    updateMaxBounds();
+    isLoadingMap.value = false;
+  }, 100);
+};
+
+const addMarker = (event: {
+  latlng: any;
+  originalEvent: { ctrlKey: any; altKey: any };
+}) => {
+  if (
+    zoom.value >= 9 &&
+    event.latlng &&
+    event.originalEvent.ctrlKey &&
+    event.originalEvent.altKey
+  ) {
+    const name = prompt("Enter name:", "__TBD__");
+    if (name) {
+      projectService.add(event.latlng, name);
+    }
+  }
+};
+
+const onMarkerClick = (location: Project) => {
+  selectedLocation.value = location;
+  isOpened.value = true;
+};
+
+const onSidePanelClose = () => {
+  selectedLocation.value = undefined;
+  isOpened.value = false;
+};
+
+const getPin = (location: Project) => {
+  if (!location) {
+    return "/pins/default.png";
+  }
+  try {
+    const categories = location.category;
+    if (!categories || categories.length === 0) {
+      return "/pins/default.png";
+    }
+    const categoryNames = categories
+      .map((cat) => cat?.Name?.toLowerCase() || "default")
+      .filter((name) => name)
+      .join("-");
+    if (!categoryNames) {
+      return "/pins/default.png";
+    }
+    return `/pins/${categoryNames}.png`;
+  } catch (error) {
+    console.error("Error getting pin for location:", location, error);
+    return "/pins/default.png";
+  }
+};
+
+const pinClass = (current: Project) => {
+  let cssClass =
+    selectedLocation.value?.id === current.id ? "marker-selected" : "";
+  cssClass +=
+    " marker-state-" + current.state?.toLowerCase().replace(" ", "-");
+  return cssClass;
+};
+
+const updateMaxBounds = () => {
+  if (!locations.value || locations.value.length === 0 || !map.value) {
+    return;
+  }
+  try {
+    const validLocations = locations.value.filter(
+      (loc) =>
+        loc &&
+        typeof loc.latitude === "number" &&
+        typeof loc.longitude === "number" &&
+        !isNaN(loc.latitude) &&
+        !isNaN(loc.longitude)
+    );
+    if (validLocations.length === 0) {
+      return;
+    }
+    const markers = validLocations.map((loc) => new Marker(new LatLng(loc.latitude, loc.longitude)));
+    if (markers.length === 0) {
+      return;
+    }
+    const group = featureGroup(markers);
+    const leafletObject = map.value.leafletObject;
+    if (leafletObject) {
+      leafletObject.fitBounds(group.getBounds(), { padding: [50, 50] });
+    }
+  } catch (error) {
+    console.error("Error updating map bounds:", error);
+  }
+};
 </script>
 
 <style lang="scss">
