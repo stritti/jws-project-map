@@ -20,7 +20,7 @@
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "axios": "^1.10.0",
     "bootstrap": "^5.3.7",
-    "bootstrap-vue-next": "^0.30.3",
+    "bootstrap-vue-next": "^0.40.2",
     "flag-icons": "^7.5.0",
     "leaflet": "^1.9.4",
     "leaflet.path.drag": "^0.0.6",
