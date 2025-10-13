@@ -7,12 +7,11 @@
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading map...</span>
           </div>
-          <p class="mt-2">Loading map data...</p>
+          <p class="mt-2">Loading map...</p>
         </div>
       </div>
 
       <l-map
-        v-if="mapReady"
         ref="map"
         v-model:zoom="zoom"
         class="map"
@@ -45,7 +44,7 @@
         ></l-tile-layer>
 
         <l-layer-group
-          v-if="projectsFinished"
+          v-if="pinsReady && projectsFinished && projectsFinished.length > 0"
           layer-type="overlay"
           :name="layerLabelProjectsFinished"
         >
@@ -70,7 +69,7 @@
         </l-layer-group>
 
         <l-layer-group
-          v-if="projectsUnderConstruction"
+          v-if="pinsReady && projectsUnderConstruction && projectsUnderConstruction.length > 0"
           layer-type="overlay"
           :name="layerLabelProjectsUnderConstruction"
         >
@@ -95,7 +94,7 @@
         </l-layer-group>
 
         <l-layer-group
-          v-if="projectsPlanned"
+          v-if="pinsReady && projectsPlanned && projectsPlanned.length > 0"
           layer-type="overlay"
           :name="layerLabelProjectsPlanned"
         >
@@ -118,6 +117,14 @@
             </l-tooltip>
           </l-marker>
         </l-layer-group>
+        
+        <!-- Lade-Indikator für Pins -->
+        <div v-if="mapInitialized && !pinsReady" class="pins-loading-indicator">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading pins...</span>
+          </div>
+          <p>Loading project data...</p>
+        </div>
       </l-map>
     </b-overlay>
     <project-details
@@ -176,9 +183,10 @@ const maxBounds = ref(
 );
 const isOpened = ref(false);
 const isLoadingMap = ref(true);
-const mapReady = ref(false);
+const mapReady = ref(true); // Karte sofort als bereit markieren
 const mapInitialized = ref(false);
 const initialDataLoaded = ref(false);
+const pinsReady = ref(false); // Neuer Status für Pins
 const selectedLocation = ref<Project | undefined>(undefined);
 const mapOptions = ref({
   zoomSnap: 0.5,
@@ -207,27 +215,21 @@ const layerLabelProjectsPlanned = computed(
 
 // Sofort mit dem Laden der Karte beginnen
 onBeforeMount(() => {
-  // Karte sofort als bereit markieren
-  mapReady.value = true;
+  // Karte ist sofort bereit (mapReady ist bereits true)
   isLoadingMap.value = false;
   
-  // Wenn bereits Daten vorhanden sind, diese verwenden
-  if (locations.value.length > 0) {
-    initialDataLoaded.value = true;
-    // Sofort die Grenzen aktualisieren
-    nextTick(() => {
-      if (map.value?.leafletObject) {
-        updateMaxBounds();
-      }
-    });
-  }
+  // Starte das Laden der Projektdaten im Hintergrund
+  projectStore.preloadMapData();
 });
 
+// Überwache die Projektdaten
 watch(
   locations,
   (newLocations) => {
     if (newLocations?.length > 0) {
       initialDataLoaded.value = true;
+      pinsReady.value = true; // Pins sind bereit, wenn Daten geladen sind
+      
       if (mapInitialized.value && map.value) {
         nextTick(() => {
           updateMaxBounds();
@@ -241,13 +243,19 @@ watch(
 const mapLoaded = () => {
   mapInitialized.value = true;
   
-  // Karte sofort als geladen markieren, wenn wir Daten haben
-  if (locations.value.length > 0) {
-    updateMaxBounds();
-  }
-  
-  // Sofort den Ladeindikator ausblenden
+  // Karte sofort als geladen markieren
   isLoadingMap.value = false;
+  
+  // Wenn wir bereits Daten haben, Pins anzeigen und Grenzen aktualisieren
+  if (locations.value.length > 0) {
+    pinsReady.value = true;
+    updateMaxBounds();
+  } else {
+    // Wenn keine Daten vorhanden sind, starte das Laden
+    projectStore.preloadMapData().then(() => {
+      pinsReady.value = true;
+    });
+  }
 };
 
 const addMarker = (event: {
@@ -451,5 +459,18 @@ const updateMaxBounds = () => {
 
 .map-skeleton-content {
   text-align: center;
+}
+
+.pins-loading-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 15px;
+  border-radius: 8px;
+  z-index: 1000;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 </style>
