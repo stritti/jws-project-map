@@ -5,8 +5,10 @@ import type { Project } from "@/interfaces/Project";
 
 interface State {
   projects: Project[];
+  mapProjects: Project[]; // Separate Sammlung für Kartendaten
   filteredList: Project[];
-  initialized: boolean; // Flag to track initialization
+  initialized: boolean;
+  mapInitialized: boolean; // Separater Flag für Kartendaten
   loading: boolean;
   lastFetched: number | null;
 }
@@ -18,13 +20,17 @@ export const useProjectStore = defineStore("project", {
   state: (): State => {
     return {
       projects: [],
+      mapProjects: [], // Separate Sammlung für Kartendaten
       filteredList: [],
       initialized: false,
+      mapInitialized: false,
       loading: false,
       lastFetched: null,
     };
   },
-  persist: true, // Vereinfachte Persistenz für schnelleres Laden
+  persist: {
+    paths: ['mapProjects', 'lastFetched', 'mapInitialized'], // Nur die wichtigsten Daten persistieren
+  },
   getters: {
     getAll: (state) => state.projects as Array<Project>,
     getById: (state) => (id: number) =>
@@ -59,33 +65,31 @@ export const useProjectStore = defineStore("project", {
     },
   },
   actions: {
-    // Optimierte Methode zum schnellen Vorladen der Kartendaten
+    // Schnelles Laden nur der Kartendaten
     async preloadMapData(): Promise<void> {
-      // Wenn bereits Daten vorhanden sind, nicht erneut laden
-      if (this.projects.length > 0) {
+      // Wenn bereits Kartendaten vorhanden sind und nicht zu alt, nicht erneut laden
+      if (this.mapInitialized && this.mapProjects.length > 0 && !this.shouldRefreshCache()) {
         return;
       }
       
-      // Sofort mit dem Laden beginnen, ohne auf Antwort zu warten
+      // Sofort mit dem Laden beginnen
       this.loading = true;
       
-      // Direkt die vollständigen Daten laden - der Versuch, zuerst minimale Daten zu laden,
-      // führt zu zusätzlichen Netzwerkanfragen und verlangsamt den Prozess
-      projectService.getAll(false)
-        .then(result => {
-          if (result && Array.isArray(result) && result.length > 0) {
-            this.projects = result;
-            this.lastFetched = Date.now();
-            this.initialized = true;
-            console.log(`Loaded ${result.length} projects`);
-          }
-        })
-        .catch(error => {
-          console.error('Error loading project data:', error);
-        })
-        .finally(() => {
-          this.loading = false;
-        });
+      try {
+        // Nur die für die Karte notwendigen Daten laden
+        const mapData = await projectService.getMapData();
+        
+        if (mapData && Array.isArray(mapData) && mapData.length > 0) {
+          this.mapProjects = mapData;
+          this.mapInitialized = true;
+          this.lastFetched = Date.now();
+          console.log(`Loaded ${mapData.length} map projects`);
+        }
+      } catch (error) {
+        console.error('Error loading map data:', error);
+      } finally {
+        this.loading = false;
+      }
     },
     
     async load(showLoading = true): Promise<void> {
@@ -108,38 +112,27 @@ export const useProjectStore = defineStore("project", {
       }
 
       try {
-        // Zuerst prüfen, ob wir gecachte Daten haben, die wir sofort anzeigen können
-        if (this.projects.length > 0) {
-          console.log("Using cached projects while refreshing data");
+        // Zuerst prüfen, ob wir Kartendaten haben, die wir sofort anzeigen können
+        if (!this.projects.length && this.mapProjects.length > 0) {
+          // Temporär die Kartendaten verwenden, während die vollständigen Daten geladen werden
+          this.projects = [...this.mapProjects];
+          console.log("Using map data while loading full details");
         }
         
-        // Daten im Hintergrund laden
+        // Vollständige Daten im Hintergrund laden
         const result = await projectService.getAll();
 
-        if (result && Array.isArray(result)) {
-          // Validate projects before storing them
-          const validProjects = result.filter(project =>
-            project &&
-            typeof project.id === 'number' &&
-            typeof project.latitude === 'number' &&
-            typeof project.longitude === 'number' &&
-            !isNaN(project.latitude) &&
-            !isNaN(project.longitude)
-          );
-
-          if (validProjects.length > 0) {
-            this.projects = validProjects as Array<Project>;
-            this.lastFetched = Date.now();
-            console.log(`Loaded ${validProjects.length} valid projects`);
-          } else {
-            console.error('No valid projects found in API response');
-          }
-        } else {
-          console.error('Invalid response format from API');
+        if (result && Array.isArray(result) && result.length > 0) {
+          this.projects = result;
+          this.lastFetched = Date.now();
+          console.log(`Loaded ${result.length} complete projects`);
         }
       } catch (error) {
         console.error('Error fetching projects:', error);
-        // Wenn ein Fehler auftritt und wir haben gecachte Daten, behalten wir diese
+        // Wenn ein Fehler auftritt und wir haben Kartendaten, behalten wir diese
+        if (!this.projects.length && this.mapProjects.length > 0) {
+          this.projects = [...this.mapProjects];
+        }
       } finally {
         this.loading = false;
         if (showLoading) {
@@ -153,6 +146,7 @@ export const useProjectStore = defineStore("project", {
       if (!this.lastFetched) return true;
       return (Date.now() - this.lastFetched) > CACHE_VALIDITY_MS;
     },
+    
     doFilter(
       stateFilter: Array<string>,
       categoryFilter: Array<number>,
@@ -169,6 +163,7 @@ export const useProjectStore = defineStore("project", {
           (project.country && countryFilter.includes(project.country.Id)))
       );
     },
+    
     doStateFilter(stateFilter: Array<string>) {
       // Optimierte Filterung mit Array.filter statt forEach
       this.filteredList = this.projects.filter((project: Project) => 

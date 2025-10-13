@@ -16,13 +16,33 @@ const MAP_VIEW_FIELDS = [
   'Id', 'Name', 'Category', 'Country', 'Latitude', 'Longitude', 'State'
 ];
 
-// In-Memory Cache - Vereinfacht
-let projectsCache: Array<Project> | null = null;
+// In-Memory Cache mit Zeitstempel
+interface CacheData {
+  timestamp: number;
+  data: Array<Project>;
+  mapData?: Array<Project>;
+}
 
-// Hilfsfunktion zur Datenverarbeitung (als Fallback, wenn der Worker fehlschlägt)
+// Cache-Gültigkeit (5 Minuten)
+const CACHE_VALIDITY_MS = 5 * 60 * 1000;
+
+// In-Memory Cache
+let projectsCache: CacheData | null = null;
+
+// Hilfsfunktion zur Datenverarbeitung
 function processProjectData(response: any, forMapOnly: boolean): Array<Project> {
+  if (!response || !response.list || !Array.isArray(response.list)) {
+    console.error('Invalid response format:', response);
+    return [];
+  }
+
   return ((response as unknown) as { list: Record<string, unknown>[] })
     .list.map((record: Record<string, unknown>) => {
+      // Grundlegende Validierung
+      if (!record || typeof record.Id !== 'number') {
+        return null;
+      }
+
       const project: Partial<Project> = {
         id: record.Id as number,
         name: record.Name as string,
@@ -47,19 +67,62 @@ function processProjectData(response: any, forMapOnly: boolean): Array<Project> 
       }
       
       return project as Project;
-    });
+    })
+    .filter(Boolean) as Array<Project>; // Entferne null-Werte
 }
 
 const projectService = {
-  async getAll(forMapOnly = false): Promise<Array<Project>> {
-    // Wenn wir einen Cache haben, diesen sofort zurückgeben
-    if (projectsCache) {
-      console.log("Using cached project data");
-      return projectsCache;
+  // Schnelles Laden nur der Kartendaten
+  async getMapData(): Promise<Array<Project>> {
+    // Cache prüfen
+    if (projectsCache?.mapData && 
+        (Date.now() - projectsCache.timestamp) < CACHE_VALIDITY_MS) {
+      console.log("Using cached map data");
+      return projectsCache.mapData;
     }
 
     try {
-      // Immer alle Felder laden, um mehrfache Anfragen zu vermeiden
+      // Nur die für die Karte notwendigen Felder laden
+      const response = await base
+        .list({
+          limit: 1000,
+          offset: 0,
+          viewId: "vwlnl4t095iifqc9", // published
+          fields: MAP_VIEW_FIELDS
+        });
+
+      const mapData = processProjectData(response, true);
+      
+      // Cache aktualisieren
+      if (!projectsCache) {
+        projectsCache = { timestamp: Date.now(), data: [], mapData };
+      } else {
+        projectsCache.mapData = mapData;
+        projectsCache.timestamp = Date.now();
+      }
+      
+      return mapData;
+    } catch (error) {
+      console.error('Error fetching map data:', error);
+      return projectsCache?.mapData || [];
+    }
+  },
+
+  async getAll(forMapOnly = false): Promise<Array<Project>> {
+    // Wenn nur Kartendaten benötigt werden, die optimierte Methode verwenden
+    if (forMapOnly) {
+      return this.getMapData();
+    }
+
+    // Cache prüfen
+    if (projectsCache?.data && 
+        (Date.now() - projectsCache.timestamp) < CACHE_VALIDITY_MS) {
+      console.log("Using cached project data");
+      return projectsCache.data;
+    }
+
+    try {
+      // Alle benötigten Felder laden
       const response = await base
         .list({
           limit: 1000,
@@ -68,19 +131,22 @@ const projectService = {
           fields: REQUIRED_FIELDS
         });
 
-      // Direkte Verarbeitung ohne Web Worker für schnelleres initiales Laden
-      const projects = processProjectData(response, forMapOnly);
+      const projects = processProjectData(response, false);
       
-      // Immer cachen
-      projectsCache = projects;
+      // Cache aktualisieren
+      projectsCache = { 
+        timestamp: Date.now(), 
+        data: projects,
+        mapData: projectsCache?.mapData || projects
+      };
       
       return projects;
     } catch (error) {
       console.error('Error fetching Items:', error);
-      // Return empty array instead of throwing to prevent app from crashing
-      return [];
+      return projectsCache?.data || [];
     }
   },
+
   add(latLng: LatLng, name: string): Promise<unknown> {
     const result = base.create([
       {
@@ -90,6 +156,8 @@ const projectService = {
         Latitude: latLng.lat,
       },
     ]);
+    // Cache invalidieren
+    projectsCache = null;
     return result;
   }
 };
