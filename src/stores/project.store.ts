@@ -7,17 +7,33 @@ interface State {
   projects: Project[];
   filteredList: Project[];
   initialized: boolean; // Flag to track initialization
+  loading: boolean;
+  lastFetched: number | null;
 }
+
+// Konstante für Cache-Gültigkeit (30 Minuten)
+const CACHE_VALIDITY_MS = 30 * 60 * 1000;
 
 export const useProjectStore = defineStore("project", {
   state: (): State => {
     return {
       projects: [],
       filteredList: [],
-      initialized: false, // Initialize as false
+      initialized: false,
+      loading: false,
+      lastFetched: null,
     };
   },
-  persist: false,
+  persist: {
+    enabled: true,
+    strategies: [
+      {
+        key: 'project-store',
+        storage: localStorage,
+        paths: ['projects', 'lastFetched']
+      }
+    ]
+  },
   getters: {
     getAll: (state) => state.projects as Array<Project>,
     getById: (state) => (id: number) =>
@@ -48,19 +64,29 @@ export const useProjectStore = defineStore("project", {
   },
   actions: {
     async load(): Promise<void> {
-      // Prevent re-initialization
-      if (this.initialized) {
+      // Wenn bereits geladen und nicht zu alt, nicht erneut laden
+      if (this.initialized && !this.shouldRefreshCache()) {
         return;
       }
-      this.initialized = true; // Set flag immediately
+      
+      // Wenn bereits ein Ladevorgang läuft, nicht erneut starten
+      if (this.loading) {
+        return;
+      }
+      
+      this.loading = true;
+      this.initialized = true;
 
       const loadingStore = useLoadingStore();
-
-      // Show loading indicator
       loadingStore.updateLoading(true);
 
       try {
-        // Der verbesserte projectService kümmert sich jetzt selbst um das Caching
+        // Zuerst prüfen, ob wir gecachte Daten haben, die wir sofort anzeigen können
+        if (this.projects.length > 0) {
+          console.log("Using cached projects while refreshing data");
+        }
+        
+        // Daten im Hintergrund laden
         const result = await projectService.getAll();
 
         if (result && Array.isArray(result)) {
@@ -76,6 +102,7 @@ export const useProjectStore = defineStore("project", {
 
           if (validProjects.length > 0) {
             this.projects = validProjects as Array<Project>;
+            this.lastFetched = Date.now();
             console.log(`Loaded ${validProjects.length} valid projects`);
           } else {
             console.error('No valid projects found in API response');
@@ -85,9 +112,17 @@ export const useProjectStore = defineStore("project", {
         }
       } catch (error) {
         console.error('Error fetching projects:', error);
+        // Wenn ein Fehler auftritt und wir haben gecachte Daten, behalten wir diese
       } finally {
+        this.loading = false;
         loadingStore.updateLoading(false);
       }
+    },
+    
+    // Hilfsmethode, um zu prüfen, ob der Cache aktualisiert werden sollte
+    shouldRefreshCache(): boolean {
+      if (!this.lastFetched) return true;
+      return (Date.now() - this.lastFetched) > CACHE_VALIDITY_MS;
     },
     doFilter(
       stateFilter: Array<string>,

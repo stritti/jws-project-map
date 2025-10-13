@@ -2,7 +2,7 @@
   <div class="map">
     <b-overlay :show="isLoadingMap" fixed style="height: 100vh" :opacity="0.5">
       <!-- Skeleton loader for map -->
-      <div v-if="!mapReady && locations.length === 0" class="map-skeleton">
+      <div v-if="!mapReady" class="map-skeleton">
         <div class="map-skeleton-content">
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading map...</span>
@@ -12,7 +12,7 @@
       </div>
 
       <l-map
-        v-if="showMap"
+        v-if="mapReady"
         ref="map"
         v-model:zoom="zoom"
         class="map"
@@ -129,7 +129,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick } from "vue";
+import { ref, computed, onMounted, watch, nextTick, onBeforeMount } from "vue";
 import { storeToRefs } from "pinia";
 import { useLoadingStore } from "../../stores/loading.store";
 import { useCategoryStore } from "../../stores/category.store";
@@ -177,6 +177,7 @@ const maxBounds = ref(
 const isOpened = ref(false);
 const isLoadingMap = ref(true);
 const mapReady = ref(false);
+const mapInitialized = ref(false);
 const initialDataLoaded = ref(false);
 const selectedLocation = ref<Project | undefined>(undefined);
 const mapOptions = ref({
@@ -185,20 +186,30 @@ const mapOptions = ref({
   touchZoom: true,
   wheelPxPerZoomLevel: 60,
   preferCanvas: true,
+  renderer: L.canvas({ padding: 0.5 }), // Verwende Canvas-Renderer für bessere Performance
 });
 const map = ref<any>(null);
 
-const showMap = computed(() => locations.value.length > 0 || mapReady.value);
+// Schnellere Berechnung der gefilterten Projekte
+const projectsByState = computed(() => {
+  const result = {
+    finished: [] as Project[],
+    'under construction': [] as Project[],
+    planned: [] as Project[]
+  };
+  
+  locations.value.forEach(loc => {
+    if (loc.state && result[loc.state as keyof typeof result]) {
+      result[loc.state as keyof typeof result].push(loc);
+    }
+  });
+  
+  return result;
+});
 
-const projectsFinished = computed(() =>
-  locations.value.filter((loc) => loc.state === "finished")
-);
-const projectsUnderConstruction = computed(() =>
-  locations.value.filter((loc) => loc.state === "under construction")
-);
-const projectsPlanned = computed(() =>
-  locations.value.filter((loc) => loc.state === "planned")
-);
+const projectsFinished = computed(() => projectsByState.value.finished);
+const projectsUnderConstruction = computed(() => projectsByState.value['under construction']);
+const projectsPlanned = computed(() => projectsByState.value.planned);
 
 const layerLabelProjectsFinished = computed(
   () => `Projects: finished (${projectsFinished.value.length})`
@@ -210,37 +221,58 @@ const layerLabelProjectsPlanned = computed(
   () => `Projects: planned (${projectsPlanned.value.length})`
 );
 
+// Laden der Karte und Daten parallel starten
+onBeforeMount(async () => {
+  // Sofort mit dem Laden der Karte beginnen
+  setTimeout(() => {
+    mapReady.value = true;
+  }, 100);
+  
+  // Gleichzeitig mit dem Laden der Daten beginnen
+  // Zuerst schnell die Basisdaten für die Karte laden
+  if (locations.value.length === 0) {
+    try {
+      const mapData = await projectService.getAll(true);
+      if (mapData.length > 0) {
+        projectStore.projects = mapData;
+        initialDataLoaded.value = true;
+      }
+    } catch (error) {
+      console.error("Error loading map data:", error);
+    }
+  } else {
+    initialDataLoaded.value = true;
+  }
+  
+  // Dann im Hintergrund den vollständigen Datensatz laden
+  projectStore.load();
+});
+
 watch(
   locations,
   (newLocations) => {
     if (newLocations?.length > 0) {
       initialDataLoaded.value = true;
-      nextTick(() => {
-        if (map.value) {
+      if (mapInitialized.value && map.value) {
+        nextTick(() => {
           updateMaxBounds();
-        }
-      });
+        });
+      }
     }
   },
-  { deep: true, immediate: true }
+  { deep: true }
 );
 
-onMounted(() => {
-  setTimeout(() => {
-    if (!initialDataLoaded.value) {
-      mapReady.value = true;
-    }
-  }, 300);
-
-  if (locations.value.length > 0) {
-    initialDataLoaded.value = true;
-  }
-});
-
 const mapLoaded = () => {
-  mapReady.value = true;
-  setTimeout(() => {
+  mapInitialized.value = true;
+  
+  // Karte sofort als geladen markieren, wenn wir Daten haben
+  if (locations.value.length > 0) {
     updateMaxBounds();
+  }
+  
+  // In jedem Fall nach kurzer Zeit den Ladeindikator ausblenden
+  setTimeout(() => {
     isLoadingMap.value = false;
   }, 100);
 };
@@ -303,30 +335,43 @@ const pinClass = (current: Project) => {
   return cssClass;
 };
 
+// Optimierte Funktion zum Aktualisieren der Kartengrenzen
 const updateMaxBounds = () => {
-  if (!locations.value || locations.value.length === 0 || !map.value) {
+  if (!locations.value || locations.value.length === 0 || !map.value?.leafletObject) {
     return;
   }
+  
   try {
-    const validLocations = locations.value.filter(
-      (loc) =>
-        loc &&
-        typeof loc.latitude === "number" &&
-        typeof loc.longitude === "number" &&
-        !isNaN(loc.latitude) &&
-        !isNaN(loc.longitude)
-    );
-    if (validLocations.length === 0) {
-      return;
+    // Verwende eine schnellere Methode zur Berechnung der Grenzen
+    let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
+    
+    // Nur einmal über die Daten iterieren
+    for (const loc of locations.value) {
+      if (loc && 
+          typeof loc.latitude === "number" && 
+          typeof loc.longitude === "number" && 
+          !isNaN(loc.latitude) && 
+          !isNaN(loc.longitude)) {
+        
+        minLat = Math.min(minLat, loc.latitude);
+        maxLat = Math.max(maxLat, loc.latitude);
+        minLng = Math.min(minLng, loc.longitude);
+        maxLng = Math.max(maxLng, loc.longitude);
+      }
     }
-    const markers = validLocations.map((loc) => new Marker(new LatLng(loc.latitude, loc.longitude)));
-    if (markers.length === 0) {
-      return;
-    }
-    const group = featureGroup(markers);
-    const leafletObject = map.value.leafletObject;
-    if (leafletObject) {
-      leafletObject.fitBounds(group.getBounds(), { padding: [50, 50] });
+    
+    // Nur wenn wir gültige Grenzen haben
+    if (minLat < 90 && maxLat > -90 && minLng < 180 && maxLng > -180) {
+      const bounds = latLngBounds(
+        [minLat, minLng],
+        [maxLat, maxLng]
+      );
+      
+      map.value.leafletObject.fitBounds(bounds, { 
+        padding: [50, 50],
+        animate: true,
+        duration: 0.5
+      });
     }
   } catch (error) {
     console.error("Error updating map bounds:", error);
