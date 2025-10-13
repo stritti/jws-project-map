@@ -190,26 +190,10 @@ const mapOptions = ref({
 });
 const map = ref<any>(null);
 
-// Schnellere Berechnung der gefilterten Projekte
-const projectsByState = computed(() => {
-  const result = {
-    finished: [] as Project[],
-    'under construction': [] as Project[],
-    planned: [] as Project[]
-  };
-  
-  locations.value.forEach(loc => {
-    if (loc.state && result[loc.state as keyof typeof result]) {
-      result[loc.state as keyof typeof result].push(loc);
-    }
-  });
-  
-  return result;
-});
-
-const projectsFinished = computed(() => projectsByState.value.finished);
-const projectsUnderConstruction = computed(() => projectsByState.value['under construction']);
-const projectsPlanned = computed(() => projectsByState.value.planned);
+// Verwende die optimierten Getter aus dem Store
+const projectsFinished = computed(() => projectStore.projectsFinished);
+const projectsUnderConstruction = computed(() => projectStore.projectsUnderConstruction);
+const projectsPlanned = computed(() => projectStore.projectsPlanned);
 
 const layerLabelProjectsFinished = computed(
   () => `Projects: finished (${projectsFinished.value.length})`
@@ -291,34 +275,72 @@ const onSidePanelClose = () => {
   isOpened.value = false;
 };
 
+// Cache für Pin-URLs zur Vermeidung wiederholter Berechnungen
+const pinCache = new Map<string, string>();
+
 const getPin = (location: Project) => {
   if (!location) {
     return "/pins/default.png";
   }
+  
+  // Eindeutigen Schlüssel für den Cache erstellen
+  const cacheKey = location.id + '-' + (location.category?.map(c => c.Id).join('-') || 'none');
+  
+  // Prüfen, ob wir bereits einen Cache-Eintrag haben
+  if (pinCache.has(cacheKey)) {
+    return pinCache.get(cacheKey);
+  }
+  
   try {
     const categories = location.category;
     if (!categories || categories.length === 0) {
+      pinCache.set(cacheKey, "/pins/default.png");
       return "/pins/default.png";
     }
+    
     const categoryNames = categories
       .map((cat) => cat?.Name?.toLowerCase() || "default")
       .filter((name) => name)
       .join("-");
+      
     if (!categoryNames) {
+      pinCache.set(cacheKey, "/pins/default.png");
       return "/pins/default.png";
     }
-    return `/pins/${categoryNames}.png`;
+    
+    const pinUrl = `/pins/${categoryNames}.png`;
+    pinCache.set(cacheKey, pinUrl);
+    return pinUrl;
   } catch (error) {
     console.error("Error getting pin for location:", location, error);
+    pinCache.set(cacheKey, "/pins/default.png");
     return "/pins/default.png";
   }
 };
 
+// Cache für Marker-Klassen
+const markerClassCache = new Map<string, string>();
+
 const pinClass = (current: Project) => {
-  let cssClass =
-    selectedLocation.value?.id === current.id ? "marker-selected" : "";
-  cssClass +=
-    " marker-state-" + current.state?.toLowerCase().replace(" ", "-");
+  // Eindeutigen Schlüssel für den Cache erstellen
+  const cacheKey = `${current.id}-${current.state}-${selectedLocation.value?.id === current.id}`;
+  
+  // Prüfen, ob wir bereits einen Cache-Eintrag haben
+  if (markerClassCache.has(cacheKey)) {
+    return markerClassCache.get(cacheKey);
+  }
+  
+  const isSelected = selectedLocation.value?.id === current.id;
+  const stateClass = current.state ? 
+    `marker-state-${current.state.toLowerCase().replace(" ", "-")}` : 
+    '';
+  
+  const cssClass = isSelected ? 
+    `marker-selected ${stateClass}` : 
+    stateClass;
+  
+  // Ergebnis cachen
+  markerClassCache.set(cacheKey, cssClass);
   return cssClass;
 };
 

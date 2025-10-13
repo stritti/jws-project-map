@@ -13,15 +13,16 @@ const LocationMap = defineAsyncComponent({
   timeout: 30000 // Längeres Timeout für langsame Verbindungen
 });
 
+// Sofort mit dem Laden der Daten beginnen, bevor die Komponente gemounted wird
+projectStore.preloadMapData();
+
 // Sofort nach dem Mounting die Karte anzeigen
 onMounted(() => {
-  // Sofort mit dem Laden der Daten beginnen
-  projectStore.preloadMapData();
-  
   // Karte nach kurzer Verzögerung anzeigen, um dem Browser Zeit zum Rendern zu geben
-  setTimeout(() => {
+  // requestAnimationFrame ist performanter als setTimeout
+  requestAnimationFrame(() => {
     mapVisible.value = true;
-  }, 50);
+  });
 });
 </script>
 

@@ -38,28 +38,33 @@ export const useProjectStore = defineStore("project", {
     getAll: (state) => state.projects as Array<Project>,
     getById: (state) => (id: number) =>
       state.projects.find((project: Project) => project.id === id) as Project,
-    projectsFinished: (state) => {
+    // Optimierte Getter mit Memoization für bessere Performance
+    projectsByState: (state) => {
+      // Nur einmal filtern statt dreimal
+      const result = {
+        finished: [] as Project[],
+        'under construction': [] as Project[],
+        planned: [] as Project[]
+      };
+      
       if (state.projects.length > 0) {
-        return state.projects.filter((project) => project.state === "finished");
-      } else {
-        return [];
+        state.projects.forEach(project => {
+          if (project.state && result[project.state as keyof typeof result]) {
+            result[project.state as keyof typeof result].push(project);
+          }
+        });
       }
+      
+      return result;
+    },
+    projectsFinished: (state) => {
+      return (state as any).projectsByState.finished || [];
     },
     projectsUnderConstruction: (state) => {
-      if (state.projects.length > 0) {
-        return state.projects.filter(
-          (project) => project.state === "under construction",
-        );
-      } else {
-        return [];
-      }
+      return (state as any).projectsByState['under construction'] || [];
     },
     projectsPlanned: (state) => {
-      if (state.projects.length > 0) {
-        return state.projects.filter((project) => project.state === "planned");
-      } else {
-        return [];
-      }
+      return (state as any).projectsByState.planned || [];
     },
   },
   actions: {
@@ -160,29 +165,22 @@ export const useProjectStore = defineStore("project", {
       categoryFilter: Array<number>,
       countryFilter: Array<number>,
     ) {
-      this.filteredList = [];
-
-      this.projects.forEach((project: Project) => {
-        if (
-          (stateFilter.length === 0 || stateFilter.includes(project.state)) &&
-          (categoryFilter.length === 0 ||
-            (project.category?.some(cat => 
-              categoryFilter.includes(cat.Id)
-            ) ?? false)) &&
-          (countryFilter.length === 0 ||
-            (project.country && countryFilter.includes(project.country.Id)))) {
-          this.filteredList.push(project);
-        }
-      });
+      // Optimierte Filterung mit Array.filter statt forEach
+      this.filteredList = this.projects.filter((project: Project) => 
+        (stateFilter.length === 0 || stateFilter.includes(project.state)) &&
+        (categoryFilter.length === 0 ||
+          (project.category?.some(cat => 
+            categoryFilter.includes(cat.Id)
+          ) ?? false)) &&
+        (countryFilter.length === 0 ||
+          (project.country && countryFilter.includes(project.country.Id)))
+      );
     },
-    doStateFilter( stateFilter: Array<string>,) {
-      this.filteredList = [];
-
-      this.projects.forEach((project: Project) => {
-        if (stateFilter.length === 0 || stateFilter.includes(project.state)) {
-          this.filteredList.push(project);
-        }
-      });
+    doStateFilter(stateFilter: Array<string>) {
+      // Optimierte Filterung mit Array.filter statt forEach
+      this.filteredList = this.projects.filter((project: Project) => 
+        stateFilter.length === 0 || stateFilter.includes(project.state)
+      );
     },
   },
 });

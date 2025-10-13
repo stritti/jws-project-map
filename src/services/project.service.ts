@@ -21,6 +21,37 @@ let projectsCache: Array<Project> | null = null;
 let lastFetchTime = 0;
 const CACHE_VALIDITY_MS = 5 * 60 * 1000; // 5 Minuten Cache-Gültigkeit
 
+// Hilfsfunktion zur Datenverarbeitung (als Fallback, wenn der Worker fehlschlägt)
+function processProjectData(response: any, forMapOnly: boolean): Array<Project> {
+  return ((response as unknown) as { list: Record<string, unknown>[] })
+    .list.map((record: Record<string, unknown>) => {
+      const project: Partial<Project> = {
+        id: record.Id as number,
+        name: record.Name as string,
+        category: record?.Category as Array<LinkedRecord>,
+        country: (record?.Country as Array<LinkedRecord>)?.[0] || null,
+        latitude: record?.Latitude as number,
+        longitude: record?.Longitude as number,
+        state: record?.State as string,
+      };
+      
+      // Nur die zusätzlichen Felder hinzufügen, wenn nicht nur für die Karte
+      if (!forMapOnly) {
+        project.teaserImg = record?.TeaserImage as object[];
+        project.notes = record.Notes
+          ? (record.Notes as string)
+              .replaceAll('"<http', '"http')
+              .replaceAll('>"', '"')
+          : "";
+        project.link = record?.Link as string;
+        project.since = record.Since ? new Date(record.Since as string) : null;
+        project.gallery = record?.Gallery as Array<object>;
+      }
+      
+      return project as Project;
+    });
+}
+
 const projectService = {
   async getAll(forMapOnly = false): Promise<Array<Project>> {
     // Prüfen, ob wir einen gültigen Cache haben
@@ -46,54 +77,48 @@ const projectService = {
 
       // Verwende Web Workers für die Datenverarbeitung, wenn verfügbar
       if (window.Worker) {
-        const projects = await new Promise<Array<Project>>((resolve) => {
-          const worker = new Worker(new URL('./projectDataWorker.js', import.meta.url), { type: 'module' });
+        try {
+          const projects = await new Promise<Array<Project>>((resolve, reject) => {
+            const worker = new Worker(new URL('./projectDataWorker.js', import.meta.url), { type: 'module' });
 
-          worker.onmessage = (e) => {
-            const locations = e.data;
-            resolve(locations);
-            worker.terminate();
-          };
+            // Timeout für den Worker setzen
+            const timeoutId = setTimeout(() => {
+              worker.terminate();
+              reject(new Error('Worker timeout after 10 seconds'));
+            }, 10000);
 
-          worker.postMessage({response, forMapOnly});
-        });
-        
-        // Cache nur aktualisieren, wenn wir alle Felder geladen haben
-        if (!forMapOnly) {
-          projectsCache = projects;
-          lastFetchTime = now;
+            worker.onmessage = (e) => {
+              clearTimeout(timeoutId);
+              const locations = e.data;
+              resolve(locations);
+              worker.terminate();
+            };
+
+            worker.onerror = (error) => {
+              clearTimeout(timeoutId);
+              console.error('Worker error:', error);
+              reject(error);
+              worker.terminate();
+            };
+
+            worker.postMessage({response, forMapOnly});
+          });
+          
+          // Cache nur aktualisieren, wenn wir alle Felder geladen haben
+          if (!forMapOnly) {
+            projectsCache = projects;
+            lastFetchTime = now;
+          }
+          
+          return projects;
+        } catch (error) {
+          console.error('Worker processing failed:', error);
+          // Fallback zur direkten Verarbeitung
+          return processProjectData(response, forMapOnly);
         }
-        
-        return projects;
       } else {
         // Fallback für Browser ohne Web Worker Support
-        const locations: Array<Project> = ((response as unknown) as { list: Record<string, unknown>[] })
-          .list.map((record: Record<string, unknown>) => {
-            const project: Partial<Project> = {
-              id: record.Id as number,
-              name: record.Name as string,
-              category: record?.Category as Array<LinkedRecord>,
-              country: (record?.Country as Array<LinkedRecord>)?.[0] || null,
-              latitude: record?.Latitude as number,
-              longitude: record?.Longitude as number,
-              state: record?.State as string,
-            };
-            
-            // Nur die zusätzlichen Felder hinzufügen, wenn nicht nur für die Karte
-            if (!forMapOnly) {
-              project.teaserImg = record?.TeaserImage as object[];
-              project.notes = record.Notes
-                ? (record.Notes as string)
-                    .replaceAll('"<http', '"http')
-                    .replaceAll('>"', '"')
-                : "";
-              project.link = record?.Link as string;
-              project.since = record.Since ? new Date(record.Since as string) : null;
-              project.gallery = record?.Gallery as Array<object>;
-            }
-            
-            return project as Project;
-          });
+        const locations = processProjectData(response, forMapOnly);
 
         // Cache nur aktualisieren, wenn wir alle Felder geladen haben
         if (!forMapOnly) {
