@@ -209,10 +209,17 @@ const layerLabelProjectsPlanned = computed(
 onBeforeMount(() => {
   // Karte sofort als bereit markieren
   mapReady.value = true;
+  isLoadingMap.value = false;
   
   // Wenn bereits Daten vorhanden sind, diese verwenden
   if (locations.value.length > 0) {
     initialDataLoaded.value = true;
+    // Sofort die Grenzen aktualisieren
+    nextTick(() => {
+      if (map.value?.leafletObject) {
+        updateMaxBounds();
+      }
+    });
   }
 });
 
@@ -241,11 +248,6 @@ const mapLoaded = () => {
   
   // Sofort den Ladeindikator ausblenden
   isLoadingMap.value = false;
-  
-  // Wenn noch keine Daten geladen wurden, im Hintergrund laden
-  if (locations.value.length === 0) {
-    projectStore.preloadMapData();
-  }
 };
 
 const addMarker = (event: {

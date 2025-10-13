@@ -16,10 +16,8 @@ const MAP_VIEW_FIELDS = [
   'Id', 'Name', 'Category', 'Country', 'Latitude', 'Longitude', 'State'
 ];
 
-// In-Memory Cache
+// In-Memory Cache - Vereinfacht
 let projectsCache: Array<Project> | null = null;
-let lastFetchTime = 0;
-const CACHE_VALIDITY_MS = 5 * 60 * 1000; // 5 Minuten Cache-Gültigkeit
 
 // Hilfsfunktion zur Datenverarbeitung (als Fallback, wenn der Worker fehlschlägt)
 function processProjectData(response: any, forMapOnly: boolean): Array<Project> {
@@ -54,80 +52,29 @@ function processProjectData(response: any, forMapOnly: boolean): Array<Project> 
 
 const projectService = {
   async getAll(forMapOnly = false): Promise<Array<Project>> {
-    // Prüfen, ob wir einen gültigen Cache haben
-    const now = Date.now();
-    if (projectsCache && (now - lastFetchTime < CACHE_VALIDITY_MS)) {
+    // Wenn wir einen Cache haben, diesen sofort zurückgeben
+    if (projectsCache) {
       console.log("Using cached project data");
       return projectsCache;
     }
 
     try {
-      // Wähle die Feldliste basierend auf dem Verwendungszweck
-      const fields = forMapOnly ? MAP_VIEW_FIELDS : REQUIRED_FIELDS;
-      
-      // Für Kartendaten: Keine Sortierung und weniger Felder für schnelleres Laden
+      // Immer alle Felder laden, um mehrfache Anfragen zu vermeiden
       const response = await base
         .list({
           limit: 1000,
           offset: 0,
-          sort: forMapOnly ? undefined : "Name", // Keine Sortierung für Kartendaten
           viewId: "vwlnl4t095iifqc9", // published
-          fields: fields
+          fields: REQUIRED_FIELDS
         });
 
-      // Verwende Web Workers für die Datenverarbeitung, wenn verfügbar
-      if (window.Worker) {
-        try {
-          const projects = await new Promise<Array<Project>>((resolve, reject) => {
-            const worker = new Worker(new URL('./projectDataWorker.js', import.meta.url), { type: 'module' });
-
-            // Timeout für den Worker setzen
-            const timeoutId = setTimeout(() => {
-              worker.terminate();
-              reject(new Error('Worker timeout after 10 seconds'));
-            }, 10000);
-
-            worker.onmessage = (e) => {
-              clearTimeout(timeoutId);
-              const locations = e.data;
-              resolve(locations);
-              worker.terminate();
-            };
-
-            worker.onerror = (error) => {
-              clearTimeout(timeoutId);
-              console.error('Worker error:', error);
-              reject(error);
-              worker.terminate();
-            };
-
-            worker.postMessage({response, forMapOnly});
-          });
-          
-          // Cache nur aktualisieren, wenn wir alle Felder geladen haben
-          if (!forMapOnly) {
-            projectsCache = projects;
-            lastFetchTime = now;
-          }
-          
-          return projects;
-        } catch (error) {
-          console.error('Worker processing failed:', error);
-          // Fallback zur direkten Verarbeitung
-          return processProjectData(response, forMapOnly);
-        }
-      } else {
-        // Fallback für Browser ohne Web Worker Support
-        const locations = processProjectData(response, forMapOnly);
-
-        // Cache nur aktualisieren, wenn wir alle Felder geladen haben
-        if (!forMapOnly) {
-          projectsCache = locations;
-          lastFetchTime = now;
-        }
-        
-        return locations;
-      }
+      // Direkte Verarbeitung ohne Web Worker für schnelleres initiales Laden
+      const projects = processProjectData(response, forMapOnly);
+      
+      // Immer cachen
+      projectsCache = projects;
+      
+      return projects;
     } catch (error) {
       console.error('Error fetching Items:', error);
       // Return empty array instead of throwing to prevent app from crashing

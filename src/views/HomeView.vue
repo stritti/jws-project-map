@@ -4,26 +4,16 @@ import { useProjectStore } from '../stores/project.store';
 
 // Sofort mit dem Laden der Projektdaten beginnen
 const projectStore = useProjectStore();
-const mapVisible = ref(false);
+const mapVisible = ref(true); // Sofort sichtbar machen
 
-// Lazy-load der Kartenkomponente für schnelleres initiales Rendering
-const LocationMap = defineAsyncComponent({
-  loader: () => import("../components/map/LocationMap.vue"),
-  delay: 0, // Keine Verzögerung beim Anzeigen des Fallbacks
-  timeout: 30000 // Längeres Timeout für langsame Verbindungen
-});
+// Direkt importieren statt async für schnelleres Rendering
+import LocationMap from "../components/map/LocationMap.vue";
 
-// Sofort mit dem Laden der Daten beginnen, bevor die Komponente gemounted wird
-projectStore.preloadMapData();
-
-// Sofort nach dem Mounting die Karte anzeigen
-onMounted(() => {
-  // Karte nach kurzer Verzögerung anzeigen, um dem Browser Zeit zum Rendern zu geben
-  // requestAnimationFrame ist performanter als setTimeout
-  requestAnimationFrame(() => {
-    mapVisible.value = true;
-  });
-});
+// Daten im Hintergrund laden
+if (projectStore.projects.length === 0) {
+  // Nur laden, wenn keine Daten vorhanden sind
+  projectStore.preloadMapData();
+}
 </script>
 
 <template>

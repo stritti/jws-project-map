@@ -24,16 +24,7 @@ export const useProjectStore = defineStore("project", {
       lastFetched: null,
     };
   },
-  persist: {
-    enabled: true,
-    strategies: [
-      {
-        key: 'project-store',
-        storage: localStorage,
-        paths: ['projects', 'lastFetched']
-      }
-    ]
-  },
+  persist: true, // Vereinfachte Persistenz für schnelleres Laden
   getters: {
     getAll: (state) => state.projects as Array<Project>,
     getById: (state) => (id: number) =>
@@ -68,31 +59,33 @@ export const useProjectStore = defineStore("project", {
     },
   },
   actions: {
-    // Neue Methode zum schnellen Vorladen der Kartendaten
+    // Optimierte Methode zum schnellen Vorladen der Kartendaten
     async preloadMapData(): Promise<void> {
       // Wenn bereits Daten vorhanden sind, nicht erneut laden
       if (this.projects.length > 0) {
         return;
       }
       
-      try {
-        // Schnell nur die für die Karte notwendigen Daten laden
-        const mapData = await projectService.getAll(true);
-        if (mapData && Array.isArray(mapData) && mapData.length > 0) {
-          this.projects = mapData;
-          console.log(`Preloaded ${mapData.length} projects for map`);
-          
-          // Vollständige Daten im Hintergrund laden
-          this.load(false);
-        } else {
-          // Wenn keine Daten für die Karte geladen werden konnten, vollständige Daten laden
-          this.load(true);
-        }
-      } catch (error) {
-        console.error('Error preloading map data:', error);
-        // Bei Fehler vollständige Daten laden
-        this.load(true);
-      }
+      // Sofort mit dem Laden beginnen, ohne auf Antwort zu warten
+      this.loading = true;
+      
+      // Direkt die vollständigen Daten laden - der Versuch, zuerst minimale Daten zu laden,
+      // führt zu zusätzlichen Netzwerkanfragen und verlangsamt den Prozess
+      projectService.getAll(false)
+        .then(result => {
+          if (result && Array.isArray(result) && result.length > 0) {
+            this.projects = result;
+            this.lastFetched = Date.now();
+            this.initialized = true;
+            console.log(`Loaded ${result.length} projects`);
+          }
+        })
+        .catch(error => {
+          console.error('Error loading project data:', error);
+        })
+        .finally(() => {
+          this.loading = false;
+        });
     },
     
     async load(showLoading = true): Promise<void> {
