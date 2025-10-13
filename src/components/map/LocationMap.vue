@@ -221,31 +221,15 @@ const layerLabelProjectsPlanned = computed(
   () => `Projects: planned (${projectsPlanned.value.length})`
 );
 
-// Laden der Karte und Daten parallel starten
-onBeforeMount(async () => {
-  // Sofort mit dem Laden der Karte beginnen
-  setTimeout(() => {
-    mapReady.value = true;
-  }, 100);
+// Sofort mit dem Laden der Karte beginnen
+onBeforeMount(() => {
+  // Karte sofort als bereit markieren
+  mapReady.value = true;
   
-  // Gleichzeitig mit dem Laden der Daten beginnen
-  // Zuerst schnell die Basisdaten für die Karte laden
-  if (locations.value.length === 0) {
-    try {
-      const mapData = await projectService.getAll(true);
-      if (mapData.length > 0) {
-        projectStore.projects = mapData;
-        initialDataLoaded.value = true;
-      }
-    } catch (error) {
-      console.error("Error loading map data:", error);
-    }
-  } else {
+  // Wenn bereits Daten vorhanden sind, diese verwenden
+  if (locations.value.length > 0) {
     initialDataLoaded.value = true;
   }
-  
-  // Dann im Hintergrund den vollständigen Datensatz laden
-  projectStore.load();
 });
 
 watch(
@@ -271,10 +255,13 @@ const mapLoaded = () => {
     updateMaxBounds();
   }
   
-  // In jedem Fall nach kurzer Zeit den Ladeindikator ausblenden
-  setTimeout(() => {
-    isLoadingMap.value = false;
-  }, 100);
+  // Sofort den Ladeindikator ausblenden
+  isLoadingMap.value = false;
+  
+  // Wenn noch keine Daten geladen wurden, im Hintergrund laden
+  if (locations.value.length === 0) {
+    projectStore.preloadMapData();
+  }
 };
 
 const addMarker = (event: {

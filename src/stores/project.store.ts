@@ -63,7 +63,34 @@ export const useProjectStore = defineStore("project", {
     },
   },
   actions: {
-    async load(): Promise<void> {
+    // Neue Methode zum schnellen Vorladen der Kartendaten
+    async preloadMapData(): Promise<void> {
+      // Wenn bereits Daten vorhanden sind, nicht erneut laden
+      if (this.projects.length > 0) {
+        return;
+      }
+      
+      try {
+        // Schnell nur die für die Karte notwendigen Daten laden
+        const mapData = await projectService.getAll(true);
+        if (mapData && Array.isArray(mapData) && mapData.length > 0) {
+          this.projects = mapData;
+          console.log(`Preloaded ${mapData.length} projects for map`);
+          
+          // Vollständige Daten im Hintergrund laden
+          this.load(false);
+        } else {
+          // Wenn keine Daten für die Karte geladen werden konnten, vollständige Daten laden
+          this.load(true);
+        }
+      } catch (error) {
+        console.error('Error preloading map data:', error);
+        // Bei Fehler vollständige Daten laden
+        this.load(true);
+      }
+    },
+    
+    async load(showLoading = true): Promise<void> {
       // Wenn bereits geladen und nicht zu alt, nicht erneut laden
       if (this.initialized && !this.shouldRefreshCache()) {
         return;
@@ -78,7 +105,9 @@ export const useProjectStore = defineStore("project", {
       this.initialized = true;
 
       const loadingStore = useLoadingStore();
-      loadingStore.updateLoading(true);
+      if (showLoading) {
+        loadingStore.updateLoading(true);
+      }
 
       try {
         // Zuerst prüfen, ob wir gecachte Daten haben, die wir sofort anzeigen können
@@ -115,7 +144,9 @@ export const useProjectStore = defineStore("project", {
         // Wenn ein Fehler auftritt und wir haben gecachte Daten, behalten wir diese
       } finally {
         this.loading = false;
-        loadingStore.updateLoading(false);
+        if (showLoading) {
+          loadingStore.updateLoading(false);
+        }
       }
     },
     

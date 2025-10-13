@@ -1,17 +1,44 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue';
+import { defineAsyncComponent, onMounted, ref } from 'vue';
+import { useProjectStore } from '../stores/project.store';
+
+// Sofort mit dem Laden der Projektdaten beginnen
+const projectStore = useProjectStore();
+const mapVisible = ref(false);
 
 // Lazy-load der Kartenkomponente für schnelleres initiales Rendering
-const LocationMap = defineAsyncComponent(() => 
-  import("../components/map/LocationMap.vue")
-);
+const LocationMap = defineAsyncComponent({
+  loader: () => import("../components/map/LocationMap.vue"),
+  delay: 0, // Keine Verzögerung beim Anzeigen des Fallbacks
+  timeout: 30000 // Längeres Timeout für langsame Verbindungen
+});
+
+// Sofort nach dem Mounting die Karte anzeigen
+onMounted(() => {
+  // Sofort mit dem Laden der Daten beginnen
+  projectStore.preloadMapData();
+  
+  // Karte nach kurzer Verzögerung anzeigen, um dem Browser Zeit zum Rendern zu geben
+  setTimeout(() => {
+    mapVisible.value = true;
+  }, 50);
+});
 </script>
 
 <template>
   <div class="home">
     <h1>JWF + Humanaktiv: Projects in Westafrica</h1>
     <div class="project-map">
-      <Suspense>
+      <!-- Sofort sichtbarer Platzhalter -->
+      <div v-if="!mapVisible" class="map-loading">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading map...</span>
+        </div>
+        <p class="mt-2">Loading map...</p>
+      </div>
+      
+      <!-- Karte wird erst nach kurzer Verzögerung geladen -->
+      <Suspense v-if="mapVisible">
         <template #default>
           <location-map />
         </template>
@@ -20,7 +47,7 @@ const LocationMap = defineAsyncComponent(() =>
             <div class="spinner-border text-primary" role="status">
               <span class="visually-hidden">Loading map...</span>
             </div>
-            <p class="mt-2">Loading map...</p>
+            <p class="mt-2">Loading map components...</p>
           </div>
         </template>
       </Suspense>

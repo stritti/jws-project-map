@@ -34,11 +34,12 @@ const projectService = {
       // Wähle die Feldliste basierend auf dem Verwendungszweck
       const fields = forMapOnly ? MAP_VIEW_FIELDS : REQUIRED_FIELDS;
       
+      // Für Kartendaten: Keine Sortierung und weniger Felder für schnelleres Laden
       const response = await base
         .list({
           limit: 1000,
           offset: 0,
-          sort: "Name",
+          sort: forMapOnly ? undefined : "Name", // Keine Sortierung für Kartendaten
           viewId: "vwlnl4t095iifqc9", // published
           fields: fields
         });
