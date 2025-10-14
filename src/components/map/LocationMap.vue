@@ -141,7 +141,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick, onBeforeMount, shallowRef } from "vue";
+import { ref, computed, onMounted, watch, nextTick, onBeforeMount, shallowRef, onBeforeUnmount } from "vue";
 import { storeToRefs } from "pinia";
 import { useLoadingStore } from "../../stores/loading.store";
 import { useCategoryStore } from "../../stores/category.store";
