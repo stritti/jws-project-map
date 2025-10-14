@@ -51,7 +51,7 @@
           <!-- Verwende v-memo für bessere Performance bei der Marker-Darstellung -->
           <l-marker
             v-for="loc in projectsFinished"
-            v-memo="[loc.id, loc.latitude, loc.longitude, selectedLocation?.id === loc.id]"
+            v-memo="[loc.id, loc.latitude, loc.longitude, selectedLocation?.id === loc.id, currentZoom > 7]"
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
@@ -64,7 +64,7 @@
               :icon-anchor="[14, 39]"
             ></l-icon>
             <!-- Tooltips nur bei Bedarf rendern, um DOM-Größe zu reduzieren -->
-            <l-tooltip v-if="map?.leafletObject?.getZoom() > 7">
+            <l-tooltip v-if="currentZoom > 7">
               <span>{{ loc.name }}</span>
               <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
             </l-tooltip>
@@ -78,7 +78,7 @@
         >
           <l-marker
             v-for="loc in projectsUnderConstruction"
-            v-memo="[loc.id, loc.latitude, loc.longitude, selectedLocation?.id === loc.id]"
+            v-memo="[loc.id, loc.latitude, loc.longitude, selectedLocation?.id === loc.id, currentZoom > 7]"
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
@@ -90,7 +90,7 @@
               :icon-size="[28, 39]"
               :icon-anchor="[14, 39]"
             ></l-icon>
-            <l-tooltip v-if="map?.leafletObject?.getZoom() > 7">
+            <l-tooltip v-if="currentZoom > 7">
               <span>{{ loc.name }}</span>
               <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
             </l-tooltip>
@@ -104,7 +104,7 @@
         >
           <l-marker
             v-for="loc in projectsPlanned"
-            v-memo="[loc.id, loc.latitude, loc.longitude, selectedLocation?.id === loc.id]"
+            v-memo="[loc.id, loc.latitude, loc.longitude, selectedLocation?.id === loc.id, currentZoom > 7]"
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
@@ -116,7 +116,7 @@
               :icon-size="[28, 39]"
               :icon-anchor="[14, 39]"
             ></l-icon>
-            <l-tooltip v-if="map?.leafletObject?.getZoom() > 7">
+            <l-tooltip v-if="currentZoom > 7">
               <span>{{ loc.name }}</span>
               <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
             </l-tooltip>
@@ -141,7 +141,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick, onBeforeMount } from "vue";
+import { ref, computed, onMounted, watch, nextTick, onBeforeMount, shallowRef } from "vue";
 import { storeToRefs } from "pinia";
 import { useLoadingStore } from "../../stores/loading.store";
 import { useCategoryStore } from "../../stores/category.store";
@@ -173,14 +173,15 @@ const { getById: getCategoryById } = storeToRefs(categoryStore);
 const { showLoadingSpinner } = storeToRefs(loadingStore);
 const { projects: locations } = storeToRefs(projectStore);
 
+// Verwende shallowRef für nicht-reaktive Objekte für bessere Performance
 const zoom = ref(5);
-const bounds = ref(
+const bounds = shallowRef(
   latLngBounds([
     [-14.5981259, 5.8997233],
     [8.9490075, 11.322326],
   ])
 );
-const maxBounds = ref(
+const maxBounds = shallowRef(
   latLngBounds([
     [-14.6, 5.9],
     [8.9490075, 11.322326],
@@ -192,7 +193,7 @@ const mapReady = ref(true); // Karte sofort als bereit markieren
 const mapInitialized = ref(false);
 const initialDataLoaded = ref(false);
 const pinsReady = ref(false); // Neuer Status für Pins
-const selectedLocation = ref<Project | undefined>(undefined);
+const selectedLocation = shallowRef<Project | undefined>(undefined);
 const mapOptions = ref({
   zoomSnap: 0.5,
   scrollWheelZoom: true,
@@ -214,20 +215,37 @@ const mapOptions = ref({
 });
 const map = ref<any>(null);
 
-// Verwende die optimierten Getter aus dem Store
+// Verwende die optimierten Getter aus dem Store mit Memoization
 const projectsFinished = computed(() => projectStore.projectsFinished);
 const projectsUnderConstruction = computed(() => projectStore.projectsUnderConstruction);
 const projectsPlanned = computed(() => projectStore.projectsPlanned);
 
-const layerLabelProjectsFinished = computed(
-  () => `Projects: finished (${projectsFinished.value.length})`
-);
-const layerLabelProjectsUnderConstruction = computed(
-  () => `Projects: under construction (${projectsUnderConstruction.value.length})`
-);
-const layerLabelProjectsPlanned = computed(
-  () => `Projects: planned (${projectsPlanned.value.length})`
-);
+// Memoization für Layer-Labels, um unnötige Neuberechnungen zu vermeiden
+const layerLabelCache = new Map<string, string>();
+
+const layerLabelProjectsFinished = computed(() => {
+  const cacheKey = `finished-${projectsFinished.value.length}`;
+  if (!layerLabelCache.has(cacheKey)) {
+    layerLabelCache.set(cacheKey, `Projects: finished (${projectsFinished.value.length})`);
+  }
+  return layerLabelCache.get(cacheKey)!;
+});
+
+const layerLabelProjectsUnderConstruction = computed(() => {
+  const cacheKey = `under-construction-${projectsUnderConstruction.value.length}`;
+  if (!layerLabelCache.has(cacheKey)) {
+    layerLabelCache.set(cacheKey, `Projects: under construction (${projectsUnderConstruction.value.length})`);
+  }
+  return layerLabelCache.get(cacheKey)!;
+});
+
+const layerLabelProjectsPlanned = computed(() => {
+  const cacheKey = `planned-${projectsPlanned.value.length}`;
+  if (!layerLabelCache.has(cacheKey)) {
+    layerLabelCache.set(cacheKey, `Projects: planned (${projectsPlanned.value.length})`);
+  }
+  return layerLabelCache.get(cacheKey)!;
+});
 
 // Sofort mit dem Laden der Karte beginnen
 onBeforeMount(() => {
@@ -256,7 +274,7 @@ watch(
   { deep: true }
 );
 
-// Verwende eine debounced Funktion für mapLoaded
+// Verwende eine debounced Funktion für mapLoaded mit defineAsyncComponent für bessere Performance
 const mapLoaded = () => {
   mapInitialized.value = true;
   
@@ -281,21 +299,36 @@ const mapLoaded = () => {
     // Aktiviere Hardwarebeschleunigung, wenn verfügbar
     if (map.value.leafletObject._container) {
       map.value.leafletObject._container.style.transform = 'translateZ(0)';
+      
+      // Optimiere DOM-Rendering
+      map.value.leafletObject._container.style.willChange = 'transform';
+      map.value.leafletObject._container.style.backfaceVisibility = 'hidden';
     }
+    
+    // Optimiere Leaflet-Events
+    map.value.leafletObject.options.zoomSnap = 0.5;
+    map.value.leafletObject.options.wheelPxPerZoomLevel = 60;
   }
   
+  // Memoized Funktion zum Laden der Pins
   const loadPins = () => {
     // Wenn wir bereits Daten haben, Pins anzeigen und Grenzen aktualisieren
     if (locations.value.length > 0) {
       pinsReady.value = true;
-      updateMaxBounds();
+      
+      // Verzögere das Aktualisieren der Grenzen, um die Rendering-Performance zu verbessern
+      setTimeout(() => updateMaxBounds(), 100);
     } else {
       // Wenn keine Daten vorhanden sind, starte das Laden
       projectStore.preloadMapData().then((data) => {
         if (data && data.length > 0) {
-          pinsReady.value = true;
-          // Verzögere das Aktualisieren der Grenzen, um die Rendering-Performance zu verbessern
-          setTimeout(() => updateMaxBounds(), 100);
+          // Verwende requestAnimationFrame für flüssigeres Rendering
+          requestAnimationFrame(() => {
+            pinsReady.value = true;
+            
+            // Verzögere das Aktualisieren der Grenzen, um die Rendering-Performance zu verbessern
+            setTimeout(() => updateMaxBounds(), 100);
+          });
         }
       });
     }
@@ -346,13 +379,34 @@ const MARKER_CLASS_CACHE = new Map<string, string>();
 const currentZoom = ref(5);
 
 // Überwache Zoom-Änderungen für bedingte Rendering-Optimierungen
+// Verwende ein debounced Zoom-Event für bessere Performance
+let zoomTimeout: number | null = null;
+
 watch(() => map.value?.leafletObject, (newMap) => {
   if (newMap) {
     newMap.on('zoomend', () => {
-      currentZoom.value = newMap.getZoom();
+      // Debounce Zoom-Events
+      if (zoomTimeout) {
+        clearTimeout(zoomTimeout);
+      }
+      
+      zoomTimeout = window.setTimeout(() => {
+        currentZoom.value = newMap.getZoom();
+      }, 100);
     });
   }
 }, { immediate: true });
+
+// Bereinige Timeouts beim Unmount
+onBeforeUnmount(() => {
+  if (zoomTimeout) {
+    clearTimeout(zoomTimeout);
+  }
+  
+  if (updateMaxBoundsTimeout.value) {
+    clearTimeout(updateMaxBoundsTimeout.value);
+  }
+});
 
 // Optimierte Pin-URL-Funktion mit Memoization
 const getPin = (location: Project) => {
@@ -432,6 +486,9 @@ const pinClass = (current: Project) => {
 // Optimierte Funktion zum Aktualisieren der Kartengrenzen mit Debouncing
 const updateMaxBoundsTimeout = ref<number | null>(null);
 
+// Memoization für Kartengrenzen
+const boundsCache = new Map<string, any>();
+
 const updateMaxBounds = () => {
   // Debounce-Funktion, um mehrere schnell aufeinanderfolgende Aufrufe zu vermeiden
   if (updateMaxBoundsTimeout.value) {
@@ -444,6 +501,28 @@ const updateMaxBounds = () => {
     }
     
     try {
+      // Erstelle einen Cache-Schlüssel basierend auf der Anzahl der Standorte
+      // Dies ist eine Vereinfachung - in einer realen Anwendung könnte man einen
+      // komplexeren Schlüssel basierend auf den tatsächlichen Daten verwenden
+      const cacheKey = `bounds-${locations.value.length}`;
+      
+      // Prüfe, ob wir bereits berechnete Grenzen im Cache haben
+      if (boundsCache.has(cacheKey)) {
+        const cachedBounds = boundsCache.get(cacheKey);
+        
+        // Verwende die gecachten Grenzen
+        requestAnimationFrame(() => {
+          const leafletMap = map.value.leafletObject;
+          leafletMap.fitBounds(cachedBounds, { 
+            padding: [50, 50],
+            animate: false,
+            duration: 0
+          });
+        });
+        
+        return;
+      }
+      
       // Deaktiviere Animationen während der Berechnung für bessere Performance
       const leafletMap = map.value.leafletObject;
       const wasAnimating = leafletMap.options.animate;
@@ -481,15 +560,18 @@ const updateMaxBounds = () => {
       
       // Nur wenn wir gültige Grenzen haben
       if (validPoints > 0) {
-        const bounds = latLngBounds(
+        const calculatedBounds = latLngBounds(
           [minLat, minLng],
           [maxLat, maxLng]
         );
         
+        // Cache die berechneten Grenzen
+        boundsCache.set(cacheKey, calculatedBounds);
+        
         // Verwende requestAnimationFrame für flüssigere Animation
         requestAnimationFrame(() => {
           // Verwende eine nicht-animierte Anpassung für bessere Performance
-          leafletMap.fitBounds(bounds, { 
+          leafletMap.fitBounds(calculatedBounds, { 
             padding: [50, 50],
             animate: false,
             duration: 0

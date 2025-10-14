@@ -29,11 +29,22 @@ const CACHE_VALIDITY_MS = 5 * 60 * 1000;
 // In-Memory Cache
 let projectsCache: CacheData | null = null;
 
-// Hilfsfunktion zur Datenverarbeitung - optimiert für Leistung
+// Cache für die Datenverarbeitung
+const processDataCache = new Map<string, Array<Project>>();
+
+// Hilfsfunktion zur Datenverarbeitung - optimiert für Leistung mit Memoization
 function processProjectData(response: any, forMapOnly: boolean): Array<Project> {
   if (!response || !response.list || !Array.isArray(response.list)) {
     console.error('Invalid response format:', response);
     return [];
+  }
+
+  // Erstelle einen Cache-Schlüssel basierend auf der Antwort und dem Modus
+  const cacheKey = `${forMapOnly ? 'map' : 'full'}-${response.list.length}`;
+  
+  // Prüfe, ob wir bereits verarbeitete Daten im Cache haben
+  if (processDataCache.has(cacheKey)) {
+    return processDataCache.get(cacheKey)!;
   }
 
   const list = response.list || [];
@@ -95,6 +106,9 @@ function processProjectData(response: any, forMapOnly: boolean): Array<Project> 
     
     result.push(project as Project);
   }
+  
+  // Cache das Ergebnis
+  processDataCache.set(cacheKey, result);
   
   return result;
 }

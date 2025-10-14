@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import projectService from "../services/project.service";
 import { useLoadingStore } from "./loading.store";
 import type { Project } from "@/interfaces/Project";
+import { shallowRef } from "vue";
 
 interface State {
   projects: Project[];
