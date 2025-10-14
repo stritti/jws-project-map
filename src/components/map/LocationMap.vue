@@ -240,21 +240,39 @@ watch(
   { deep: true }
 );
 
+// Verwende eine debounced Funktion für mapLoaded
 const mapLoaded = () => {
   mapInitialized.value = true;
   
   // Karte sofort als geladen markieren
   isLoadingMap.value = false;
   
-  // Wenn wir bereits Daten haben, Pins anzeigen und Grenzen aktualisieren
-  if (locations.value.length > 0) {
-    pinsReady.value = true;
-    updateMaxBounds();
-  } else {
-    // Wenn keine Daten vorhanden sind, starte das Laden
-    projectStore.preloadMapData().then(() => {
+  // Verwende requestIdleCallback für nicht-kritische Operationen
+  // Mit Fallback für Browser ohne Unterstützung
+  const useIdleCallback = typeof window.requestIdleCallback === 'function';
+  
+  const loadPins = () => {
+    // Wenn wir bereits Daten haben, Pins anzeigen und Grenzen aktualisieren
+    if (locations.value.length > 0) {
       pinsReady.value = true;
-    });
+      updateMaxBounds();
+    } else {
+      // Wenn keine Daten vorhanden sind, starte das Laden
+      projectStore.preloadMapData().then((data) => {
+        if (data && data.length > 0) {
+          pinsReady.value = true;
+          // Verzögere das Aktualisieren der Grenzen, um die Rendering-Performance zu verbessern
+          setTimeout(() => updateMaxBounds(), 100);
+        }
+      });
+    }
+  };
+  
+  if (useIdleCallback) {
+    window.requestIdleCallback(loadPins, { timeout: 2000 });
+  } else {
+    // Fallback für Browser ohne requestIdleCallback
+    setTimeout(loadPins, 50);
   }
 };
 
@@ -285,116 +303,148 @@ const onSidePanelClose = () => {
   isOpened.value = false;
 };
 
-// Cache für Pin-URLs zur Vermeidung wiederholter Berechnungen
-const pinCache = new Map<string, string>();
+// Globale Cache für Pin-URLs und Marker-Klassen - außerhalb der Komponente definiert
+// für bessere Performance und Speichernutzung
+const PIN_CACHE = new Map<string, string>();
+const DEFAULT_PIN = "/pins/default.png";
+const MARKER_CLASS_CACHE = new Map<string, string>();
 
+// Optimierte Pin-URL-Funktion mit Memoization
 const getPin = (location: Project) => {
   if (!location) {
-    return "/pins/default.png";
+    return DEFAULT_PIN;
   }
   
   // Eindeutigen Schlüssel für den Cache erstellen
   const cacheKey = location.id + '-' + (location.category?.map(c => c.Id).join('-') || 'none');
   
   // Prüfen, ob wir bereits einen Cache-Eintrag haben
-  if (pinCache.has(cacheKey)) {
-    return pinCache.get(cacheKey);
+  if (PIN_CACHE.has(cacheKey)) {
+    return PIN_CACHE.get(cacheKey)!;
   }
   
   try {
     const categories = location.category;
     if (!categories || categories.length === 0) {
-      pinCache.set(cacheKey, "/pins/default.png");
-      return "/pins/default.png";
+      PIN_CACHE.set(cacheKey, DEFAULT_PIN);
+      return DEFAULT_PIN;
     }
     
-    const categoryNames = categories
-      .map((cat) => cat?.Name?.toLowerCase() || "default")
-      .filter((name) => name)
-      .join("-");
-      
+    // Optimierte Kategorienamen-Verarbeitung
+    let categoryNames = "";
+    const len = categories.length;
+    
+    for (let i = 0; i < len; i++) {
+      const cat = categories[i];
+      if (cat && cat.Name) {
+        if (categoryNames) categoryNames += "-";
+        categoryNames += cat.Name.toLowerCase();
+      }
+    }
+    
     if (!categoryNames) {
-      pinCache.set(cacheKey, "/pins/default.png");
-      return "/pins/default.png";
+      PIN_CACHE.set(cacheKey, DEFAULT_PIN);
+      return DEFAULT_PIN;
     }
     
     const pinUrl = `/pins/${categoryNames}.png`;
-    pinCache.set(cacheKey, pinUrl);
+    PIN_CACHE.set(cacheKey, pinUrl);
     return pinUrl;
   } catch (error) {
-    console.error("Error getting pin for location:", location, error);
-    pinCache.set(cacheKey, "/pins/default.png");
-    return "/pins/default.png";
+    console.error("Error getting pin for location:", error);
+    PIN_CACHE.set(cacheKey, DEFAULT_PIN);
+    return DEFAULT_PIN;
   }
 };
 
-// Cache für Marker-Klassen
-const markerClassCache = new Map<string, string>();
-
+// Optimierte Marker-Klassen-Funktion
 const pinClass = (current: Project) => {
   // Eindeutigen Schlüssel für den Cache erstellen
   const cacheKey = `${current.id}-${current.state}-${selectedLocation.value?.id === current.id}`;
   
   // Prüfen, ob wir bereits einen Cache-Eintrag haben
-  if (markerClassCache.has(cacheKey)) {
-    return markerClassCache.get(cacheKey);
+  if (MARKER_CLASS_CACHE.has(cacheKey)) {
+    return MARKER_CLASS_CACHE.get(cacheKey)!;
   }
   
   const isSelected = selectedLocation.value?.id === current.id;
-  const stateClass = current.state ? 
-    `marker-state-${current.state.toLowerCase().replace(" ", "-")}` : 
-    '';
+  let cssClass = '';
   
-  const cssClass = isSelected ? 
-    `marker-selected ${stateClass}` : 
-    stateClass;
+  // Optimierte Klassen-Berechnung
+  if (current.state) {
+    cssClass = `marker-state-${current.state.toLowerCase().replace(" ", "-")}`;
+  }
+  
+  if (isSelected) {
+    cssClass = cssClass ? `marker-selected ${cssClass}` : 'marker-selected';
+  }
   
   // Ergebnis cachen
-  markerClassCache.set(cacheKey, cssClass);
+  MARKER_CLASS_CACHE.set(cacheKey, cssClass);
   return cssClass;
 };
 
-// Optimierte Funktion zum Aktualisieren der Kartengrenzen
+// Optimierte Funktion zum Aktualisieren der Kartengrenzen mit Debouncing
+const updateMaxBoundsTimeout = ref<number | null>(null);
+
 const updateMaxBounds = () => {
-  if (!locations.value || locations.value.length === 0 || !map.value?.leafletObject) {
-    return;
+  // Debounce-Funktion, um mehrere schnell aufeinanderfolgende Aufrufe zu vermeiden
+  if (updateMaxBoundsTimeout.value) {
+    clearTimeout(updateMaxBoundsTimeout.value);
   }
   
-  try {
-    // Verwende eine schnellere Methode zur Berechnung der Grenzen
-    let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
-    
-    // Nur einmal über die Daten iterieren
-    for (const loc of locations.value) {
-      if (loc && 
-          typeof loc.latitude === "number" && 
-          typeof loc.longitude === "number" && 
-          !isNaN(loc.latitude) && 
-          !isNaN(loc.longitude)) {
-        
-        minLat = Math.min(minLat, loc.latitude);
-        maxLat = Math.max(maxLat, loc.latitude);
-        minLng = Math.min(minLng, loc.longitude);
-        maxLng = Math.max(maxLng, loc.longitude);
-      }
+  updateMaxBoundsTimeout.value = window.setTimeout(() => {
+    if (!locations.value || locations.value.length === 0 || !map.value?.leafletObject) {
+      return;
     }
     
-    // Nur wenn wir gültige Grenzen haben
-    if (minLat < 90 && maxLat > -90 && minLng < 180 && maxLng > -180) {
-      const bounds = latLngBounds(
-        [minLat, minLng],
-        [maxLat, maxLng]
-      );
+    try {
+      // Verwende eine schnellere Methode zur Berechnung der Grenzen
+      let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
+      let validPoints = 0;
       
-      map.value.leafletObject.fitBounds(bounds, { 
-        padding: [50, 50],
-        animate: true,
-        duration: 0.5
-      });
+      // Optimierte Schleife für bessere Performance
+      const locationsArray = locations.value;
+      const len = locationsArray.length;
+      
+      for (let i = 0; i < len; i++) {
+        const loc = locationsArray[i];
+        const lat = loc.latitude;
+        const lng = loc.longitude;
+        
+        if (typeof lat === "number" && 
+            typeof lng === "number" && 
+            !isNaN(lat) && 
+            !isNaN(lng)) {
+          
+          minLat = lat < minLat ? lat : minLat;
+          maxLat = lat > maxLat ? lat : maxLat;
+          minLng = lng < minLng ? lng : minLng;
+          maxLng = lng > maxLng ? lng : maxLng;
+          validPoints++;
+        }
+      }
+      
+      // Nur wenn wir gültige Grenzen haben
+      if (validPoints > 0) {
+        const bounds = latLngBounds(
+          [minLat, minLng],
+          [maxLat, maxLng]
+        );
+        
+        // Verwende requestAnimationFrame für flüssigere Animation
+        requestAnimationFrame(() => {
+          map.value.leafletObject.fitBounds(bounds, { 
+            padding: [50, 50],
+            animate: true,
+            duration: 0.5
+          });
+        });
+      }
+    } catch (error) {
+      console.error("Error updating map bounds:", error);
     }
-  } catch (error) {
-    console.error("Error updating map bounds:", error);
-  }
+  }, 100); // 100ms Debounce-Zeit
 };
 </script>
 

@@ -65,11 +65,18 @@ export const useProjectStore = defineStore("project", {
     },
   },
   actions: {
-    // Schnelles Laden nur der Kartendaten
-    async preloadMapData(): Promise<void> {
+    // Schnelles Laden nur der Kartendaten mit Promise-Rückgabe
+    async preloadMapData(): Promise<Array<Project>> {
       // Wenn bereits Kartendaten vorhanden sind und nicht zu alt, nicht erneut laden
       if (this.mapInitialized && this.mapProjects.length > 0 && !this.shouldRefreshCache()) {
-        return;
+        return this.mapProjects;
+      }
+      
+      // Wenn bereits ein Ladevorgang läuft, warten wir auf dessen Abschluss
+      if (this.loading) {
+        // Warte auf den nächsten Tick, um sicherzustellen, dass die Daten geladen sind
+        await new Promise(resolve => setTimeout(resolve, 100));
+        return this.mapProjects;
       }
       
       // Sofort mit dem Laden beginnen
@@ -83,10 +90,18 @@ export const useProjectStore = defineStore("project", {
           this.mapProjects = mapData;
           this.mapInitialized = true;
           this.lastFetched = Date.now();
-          console.log(`Loaded ${mapData.length} map projects`);
+          
+          // Auch die Hauptprojektliste aktualisieren, wenn sie leer ist
+          if (this.projects.length === 0) {
+            this.projects = [...mapData];
+          }
+          
+          return mapData;
         }
+        return [];
       } catch (error) {
         console.error('Error loading map data:', error);
+        return this.mapProjects;
       } finally {
         this.loading = false;
       }

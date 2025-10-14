@@ -29,46 +29,74 @@ const CACHE_VALIDITY_MS = 5 * 60 * 1000;
 // In-Memory Cache
 let projectsCache: CacheData | null = null;
 
-// Hilfsfunktion zur Datenverarbeitung
+// Hilfsfunktion zur Datenverarbeitung - optimiert für Leistung
 function processProjectData(response: any, forMapOnly: boolean): Array<Project> {
   if (!response || !response.list || !Array.isArray(response.list)) {
     console.error('Invalid response format:', response);
     return [];
   }
 
-  return ((response as unknown) as { list: Record<string, unknown>[] })
-    .list.map((record: Record<string, unknown>) => {
-      // Grundlegende Validierung
-      if (!record || typeof record.Id !== 'number') {
-        return null;
-      }
+  const list = response.list || [];
+  const result: Project[] = [];
+  const len = list.length;
+  
+  // Verwende eine for-Schleife statt map/filter für bessere Performance
+  for (let i = 0; i < len; i++) {
+    const record = list[i];
+    
+    // Grundlegende Validierung
+    if (!record || typeof record.Id !== 'number') {
+      continue;
+    }
 
-      const project: Partial<Project> = {
-        id: record.Id as number,
-        name: record.Name as string,
-        category: record?.Category as Array<LinkedRecord>,
-        country: (record?.Country as Array<LinkedRecord>)?.[0] || null,
-        latitude: record?.Latitude as number,
-        longitude: record?.Longitude as number,
-        state: record?.State as string,
-      };
-      
-      // Nur die zusätzlichen Felder hinzufügen, wenn nicht nur für die Karte
-      if (!forMapOnly) {
-        project.teaserImg = record?.TeaserImage as object[];
-        project.notes = record.Notes
-          ? (record.Notes as string)
-              .replaceAll('"<http', '"http')
-              .replaceAll('>"', '"')
-          : "";
-        project.link = record?.Link as string;
-        project.since = record.Since ? new Date(record.Since as string) : null;
-        project.gallery = record?.Gallery as Array<object>;
+    const project: Partial<Project> = {
+      id: record.Id,
+      name: record.Name as string,
+      latitude: record.Latitude as number,
+      longitude: record.Longitude as number,
+      state: record.State as string,
+    };
+    
+    // Nur die notwendigen Felder für die Kartenansicht
+    if (record.Category) {
+      project.category = record.Category as Array<LinkedRecord>;
+    }
+    
+    if (record.Country && Array.isArray(record.Country) && record.Country.length > 0) {
+      project.country = record.Country[0];
+    }
+    
+    // Nur die zusätzlichen Felder hinzufügen, wenn nicht nur für die Karte
+    if (!forMapOnly) {
+      if (record.TeaserImage) {
+        project.teaserImg = record.TeaserImage as object[];
       }
       
-      return project as Project;
-    })
-    .filter(Boolean) as Array<Project>; // Entferne null-Werte
+      if (record.Notes) {
+        project.notes = (record.Notes as string)
+          .replaceAll('"<http', '"http')
+          .replaceAll('>"', '"');
+      } else {
+        project.notes = "";
+      }
+      
+      if (record.Link) {
+        project.link = record.Link as string;
+      }
+      
+      if (record.Since) {
+        project.since = new Date(record.Since as string);
+      }
+      
+      if (record.Gallery) {
+        project.gallery = record.Gallery as Array<object>;
+      }
+    }
+    
+    result.push(project as Project);
+  }
+  
+  return result;
 }
 
 const projectService = {
