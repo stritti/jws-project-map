@@ -48,8 +48,10 @@
           layer-type="overlay"
           :name="layerLabelProjectsFinished"
         >
+          <!-- Verwende v-memo für bessere Performance bei der Marker-Darstellung -->
           <l-marker
             v-for="loc in projectsFinished"
+            v-memo="[loc.id, loc.latitude, loc.longitude, selectedLocation?.id === loc.id]"
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
@@ -61,7 +63,8 @@
               :icon-size="[28, 39]"
               :icon-anchor="[14, 39]"
             ></l-icon>
-            <l-tooltip>
+            <!-- Tooltips nur bei Bedarf rendern, um DOM-Größe zu reduzieren -->
+            <l-tooltip v-if="map?.leafletObject?.getZoom() > 7">
               <span>{{ loc.name }}</span>
               <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
             </l-tooltip>
@@ -75,6 +78,7 @@
         >
           <l-marker
             v-for="loc in projectsUnderConstruction"
+            v-memo="[loc.id, loc.latitude, loc.longitude, selectedLocation?.id === loc.id]"
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
@@ -86,7 +90,7 @@
               :icon-size="[28, 39]"
               :icon-anchor="[14, 39]"
             ></l-icon>
-            <l-tooltip>
+            <l-tooltip v-if="map?.leafletObject?.getZoom() > 7">
               <span>{{ loc.name }}</span>
               <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
             </l-tooltip>
@@ -100,6 +104,7 @@
         >
           <l-marker
             v-for="loc in projectsPlanned"
+            v-memo="[loc.id, loc.latitude, loc.longitude, selectedLocation?.id === loc.id]"
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
@@ -111,7 +116,7 @@
               :icon-size="[28, 39]"
               :icon-anchor="[14, 39]"
             ></l-icon>
-            <l-tooltip>
+            <l-tooltip v-if="map?.leafletObject?.getZoom() > 7">
               <span>{{ loc.name }}</span>
               <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
             </l-tooltip>
@@ -193,8 +198,19 @@ const mapOptions = ref({
   scrollWheelZoom: true,
   touchZoom: true,
   wheelPxPerZoomLevel: 60,
-  preferCanvas: true,
-  renderer: L.canvas({ padding: 0.5 }), // Verwende Canvas-Renderer für bessere Performance
+  preferCanvas: true, // Verwende Canvas-Renderer für bessere Performance
+  renderer: L.canvas({ 
+    padding: 0.5,
+    tolerance: 5 // Erhöhte Toleranz für bessere Performance
+  }),
+  // Reduziere die Anzahl der Neuberechnungen während des Zoomens/Verschiebens
+  zoomAnimation: false,
+  markerZoomAnimation: false,
+  // Deaktiviere Animationen auf mobilen Geräten für bessere Performance
+  fadeAnimation: !('ontouchstart' in window),
+  // Reduziere die Anzahl der Neuberechnungen während des Zoomens
+  updateWhenZooming: false,
+  updateWhenIdle: true
 });
 const map = ref<any>(null);
 
@@ -250,6 +266,23 @@ const mapLoaded = () => {
   // Verwende requestIdleCallback für nicht-kritische Operationen
   // Mit Fallback für Browser ohne Unterstützung
   const useIdleCallback = typeof window.requestIdleCallback === 'function';
+  
+  // Optimiere die Leaflet-Karte für bessere Performance
+  if (map.value?.leafletObject) {
+    // Deaktiviere automatisches Zoomen während des Ladens
+    map.value.leafletObject.options.trackResize = false;
+    
+    // Reduziere die Anzahl der Neuberechnungen
+    map.value.leafletObject.options.renderer = L.canvas({ 
+      padding: 0.5,
+      tolerance: 5 // Erhöhte Toleranz für bessere Performance
+    });
+    
+    // Aktiviere Hardwarebeschleunigung, wenn verfügbar
+    if (map.value.leafletObject._container) {
+      map.value.leafletObject._container.style.transform = 'translateZ(0)';
+    }
+  }
   
   const loadPins = () => {
     // Wenn wir bereits Daten haben, Pins anzeigen und Grenzen aktualisieren
@@ -308,6 +341,18 @@ const onSidePanelClose = () => {
 const PIN_CACHE = new Map<string, string>();
 const DEFAULT_PIN = "/pins/default.png";
 const MARKER_CLASS_CACHE = new Map<string, string>();
+
+// Computed-Wert für den aktuellen Zoom-Level
+const currentZoom = ref(5);
+
+// Überwache Zoom-Änderungen für bedingte Rendering-Optimierungen
+watch(() => map.value?.leafletObject, (newMap) => {
+  if (newMap) {
+    newMap.on('zoomend', () => {
+      currentZoom.value = newMap.getZoom();
+    });
+  }
+}, { immediate: true });
 
 // Optimierte Pin-URL-Funktion mit Memoization
 const getPin = (location: Project) => {
@@ -399,6 +444,11 @@ const updateMaxBounds = () => {
     }
     
     try {
+      // Deaktiviere Animationen während der Berechnung für bessere Performance
+      const leafletMap = map.value.leafletObject;
+      const wasAnimating = leafletMap.options.animate;
+      leafletMap.options.animate = false;
+      
       // Verwende eine schnellere Methode zur Berechnung der Grenzen
       let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
       let validPoints = 0;
@@ -407,7 +457,11 @@ const updateMaxBounds = () => {
       const locationsArray = locations.value;
       const len = locationsArray.length;
       
-      for (let i = 0; i < len; i++) {
+      // Begrenze die Anzahl der zu verarbeitenden Punkte für bessere Performance
+      // Bei sehr großen Datensätzen können wir eine Stichprobe nehmen
+      const stride = len > 1000 ? Math.floor(len / 1000) : 1;
+      
+      for (let i = 0; i < len; i += stride) {
         const loc = locationsArray[i];
         const lat = loc.latitude;
         const lng = loc.longitude;
@@ -434,17 +488,21 @@ const updateMaxBounds = () => {
         
         // Verwende requestAnimationFrame für flüssigere Animation
         requestAnimationFrame(() => {
-          map.value.leafletObject.fitBounds(bounds, { 
+          // Verwende eine nicht-animierte Anpassung für bessere Performance
+          leafletMap.fitBounds(bounds, { 
             padding: [50, 50],
-            animate: true,
-            duration: 0.5
+            animate: false,
+            duration: 0
           });
+          
+          // Stelle die ursprüngliche Animationseinstellung wieder her
+          leafletMap.options.animate = wasAnimating;
         });
       }
     } catch (error) {
       console.error("Error updating map bounds:", error);
     }
-  }, 100); // 100ms Debounce-Zeit
+  }, 200); // Erhöhte Debounce-Zeit für bessere Performance
 };
 </script>
 
@@ -467,19 +525,27 @@ const updateMaxBounds = () => {
   max-width: calc(100vw - 8.5rem);
   font-size: 0.75rem;
 }
+
+/* Optimierte CSS-Transformationen für bessere Performance */
 .leaflet-marker-icon {
+  will-change: transform; /* Hinweis für den Browser, dass sich diese Eigenschaft ändern wird */
+  transform: translate3d(0, 0, 0); /* Aktiviere Hardware-Beschleunigung */
+  backface-visibility: hidden; /* Verhindere Rendering-Probleme */
+  perspective: 1000; /* Verbessere 3D-Rendering */
+  
   &:hover {
-    transform: scale(1.5);
+    transform: scale(1.5) translate3d(0, 0, 0);
     filter: drop-shadow(0px 0px 10px rgba(210, 28, 28, 0.75));
   }
 }
+
 .marker-selected {
-  transform: scale(1.25);
+  transform: scale(1.25) translate3d(0, 0, 0);
   filter: drop-shadow(0px 0px 4px rgb(178, 14, 14));
 }
 
 .marker-selected:hover {
-  transform: scale(1.5);
+  transform: scale(1.5) translate3d(0, 0, 0);
   filter: drop-shadow(0px 0px 10px rgba(210, 28, 28, 0.75));
 }
 
@@ -496,6 +562,9 @@ const updateMaxBounds = () => {
 .map {
   width: 100%;
   height: 100%;
+  /* Aktiviere Hardware-Beschleunigung für die Karte */
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 
 .map-skeleton {
@@ -522,5 +591,20 @@ const updateMaxBounds = () => {
   z-index: 1000;
   text-align: center;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Optimiere Leaflet-Container für bessere Performance */
+.leaflet-container {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
+/* Reduziere Animationskosten */
+.leaflet-fade-anim .leaflet-tile,
+.leaflet-fade-anim .leaflet-popup {
+  will-change: opacity;
+}
+.leaflet-zoom-anim .leaflet-zoom-animated {
+  will-change: transform;
 }
 </style>
