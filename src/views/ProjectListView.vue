@@ -86,6 +86,7 @@ import { useLoadingStore } from "../stores/loading.store";
 import { useProjectStore } from "../stores/project.store";
 import { useCategoryStore } from "../stores/category.store";
 import { useCountryStore } from "../stores/country.store";
+import type { Project } from "@/interfaces/Project";
 import ProjectListItem from "../components/project/ProjectListItem.vue";
 import SiteFooter from "../components/SiteFooter.vue";
 
@@ -142,7 +143,7 @@ watch(
     projectStore.filteredList = projectStore.projects.filter((project: Project) =>
       (stateFilter.value.length === 0 || stateFilter.value.includes(project.state)) &&
       (categoryFilter.value.length === 0 ||
-        (project.category?.some(cat =>
+        (project.category?.some((cat: { Id: number }) =>
           categoryFilter.value.map(Number).includes(cat.Id)
         ) ?? false)) &&
       (countryFilter.value.length === 0 ||

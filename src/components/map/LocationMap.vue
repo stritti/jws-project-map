@@ -327,15 +327,13 @@ const mapLoaded = () => {
     } else {
       // Wenn keine Daten vorhanden sind, starte das Laden
       projectStore.load(false).then(() => {
-        if (data && data.length > 0) {
-          // Verwende requestAnimationFrame für flüssigeres Rendering
-          requestAnimationFrame(() => {
-            pinsReady.value = true;
-            
-            // Verzögere das Aktualisieren der Grenzen, um die Rendering-Performance zu verbessern
-            setTimeout(() => updateMaxBounds(), 100);
-          });
-        }
+        // Verwende requestAnimationFrame für flüssigeres Rendering
+        requestAnimationFrame(() => {
+          pinsReady.value = true;
+          
+          // Verzögere das Aktualisieren der Grenzen, um die Rendering-Performance zu verbessern
+          setTimeout(() => updateMaxBounds(), 100);
+        });
       });
     }
   };
