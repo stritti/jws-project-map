@@ -42,4 +42,52 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  build: {
+    // Increase the warning limit to avoid unnecessary warnings
+    chunkSizeWarningLimit: 800,
+    // Enable source map for production build for better debugging
+    sourcemap: false,
+    // Minify options
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
+    // Configure Rollup options
+    rollupOptions: {
+      output: {
+        // Manual code splitting
+        manualChunks: {
+          // Split vendor code into separate chunks
+          'vendor-vue': ['vue', 'vue-router', 'pinia'],
+          'vendor-bootstrap': ['bootstrap-vue-next', 'bootstrap'],
+          'vendor-leaflet': ['leaflet', '@vue-leaflet/vue-leaflet'],
+          'vendor-utils': ['axios', 'markdown-it'],
+          // Split components by feature
+          'feature-map': [
+            './src/components/map/LocationMap.vue',
+          ],
+          'feature-project': [
+            './src/components/project/ProjectDetails.vue',
+            './src/components/project/ProjectGallery.vue',
+            './src/components/project/ProjectListItem.vue',
+          ],
+        },
+        // Optimize chunk size
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
+        assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
+      },
+    },
+  },
+  // Optimize CSS
+  css: {
+    preprocessorOptions: {
+      scss: {
+        charset: false,
+      },
+    },
+  },
 });
