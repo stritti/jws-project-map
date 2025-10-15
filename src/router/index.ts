@@ -23,7 +23,7 @@ const routes = [
       const categoryStore = useCategoryStore();
       const countryStore = useCountryStore();
       await Promise.all([
-        projectStore.load(),
+        projectStore.load(true),
         categoryStore.load(),
         countryStore.load(),
       ]);

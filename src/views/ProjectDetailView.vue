@@ -151,7 +151,7 @@ const projectStore = useProjectStore();
 const loading = computed(() => loadingStore.showLoadingSpinner);
 const project = computed((): Project | undefined => {
   const id = parseInt(route.params.projectId as string);
-  return projectStore.getById(id);
+  return projectStore.projects.find(p => p.id === id);
 });
 
 const teaserImage = computed(() => {

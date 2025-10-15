@@ -146,7 +146,7 @@ import { storeToRefs } from "pinia";
 import { useLoadingStore } from "../../stores/loading.store";
 import { useCategoryStore } from "../../stores/category.store";
 import { useProjectStore } from "../../stores/project.store";
-import {
+import L, {
   latLngBounds,
   featureGroup,
   Marker,
@@ -203,7 +203,7 @@ const mapOptions = ref({
   renderer: L.canvas({ 
     padding: 0.5,
     tolerance: 5 // Erhöhte Toleranz für bessere Performance
-  }),
+  }) as any,
   // Reduziere die Anzahl der Neuberechnungen während des Zoomens/Verschiebens
   zoomAnimation: false,
   markerZoomAnimation: false,
@@ -215,10 +215,16 @@ const mapOptions = ref({
 });
 const map = ref<any>(null);
 
-// Verwende die optimierten Getter aus dem Store mit Memoization
-const projectsFinished = computed(() => projectStore.projectsFinished);
-const projectsUnderConstruction = computed(() => projectStore.projectsUnderConstruction);
-const projectsPlanned = computed(() => projectStore.projectsPlanned);
+// Compute project lists directly
+const projectsFinished = computed(() => 
+  projectStore.projects.filter(p => p.state === 'finished')
+);
+const projectsUnderConstruction = computed(() => 
+  projectStore.projects.filter(p => p.state === 'under construction')
+);
+const projectsPlanned = computed(() => 
+  projectStore.projects.filter(p => p.state === 'planned')
+);
 
 // Memoization für Layer-Labels, um unnötige Neuberechnungen zu vermeiden
 const layerLabelCache = new Map<string, string>();
@@ -253,7 +259,7 @@ onBeforeMount(() => {
   isLoadingMap.value = false;
   
   // Starte das Laden der Projektdaten im Hintergrund
-  projectStore.preloadMapData();
+  projectStore.load(false);
 });
 
 // Überwache die Projektdaten
@@ -294,7 +300,7 @@ const mapLoaded = () => {
     map.value.leafletObject.options.renderer = L.canvas({ 
       padding: 0.5,
       tolerance: 5 // Erhöhte Toleranz für bessere Performance
-    });
+    }) as any;
     
     // Aktiviere Hardwarebeschleunigung, wenn verfügbar
     if (map.value.leafletObject._container) {
@@ -320,7 +326,7 @@ const mapLoaded = () => {
       setTimeout(() => updateMaxBounds(), 100);
     } else {
       // Wenn keine Daten vorhanden sind, starte das Laden
-      projectStore.preloadMapData().then((data) => {
+      projectStore.load(false).then(() => {
         if (data && data.length > 0) {
           // Verwende requestAnimationFrame für flüssigeres Rendering
           requestAnimationFrame(() => {

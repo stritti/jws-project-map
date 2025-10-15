@@ -28,9 +28,7 @@ export const useProjectStore = defineStore("project", {
       lastFetched: null,
     };
   },
-  persist: {
-    paths: ['mapProjects', 'lastFetched', 'mapInitialized'], // Nur die wichtigsten Daten persistieren
-  },
+  persist: true, // Enable persistence for the entire store
   getters: {
     getAll: (state) => state.projects as Array<Project>,
     getById: (state) => (id: number) =>

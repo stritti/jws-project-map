@@ -33,7 +33,7 @@ let projectsCache: CacheData | null = null;
 const processDataCache = new Map<string, Array<Project>>();
 
 // Hilfsfunktion zur Datenverarbeitung - optimiert für Leistung mit Memoization
-function processProjectData(response: unknown, forMapOnly: boolean): Array<Project> {
+function processProjectData(response: any, forMapOnly: boolean): Array<Project> {
   if (!response || !response.list || !Array.isArray(response.list)) {
     console.error('Invalid response format:', response);
     return [];
@@ -80,7 +80,7 @@ function processProjectData(response: unknown, forMapOnly: boolean): Array<Proje
     // Nur die zusätzlichen Felder hinzufügen, wenn nicht nur für die Karte
     if (!forMapOnly) {
       if (record.TeaserImage) {
-        project.teaserImg = record.TeaserImage as object[];
+        project.teaserImg = record.TeaserImage as any;
       }
 
       if (record.Notes) {
@@ -100,7 +100,7 @@ function processProjectData(response: unknown, forMapOnly: boolean): Array<Proje
       }
 
       if (record.Gallery) {
-        project.gallery = record.Gallery as Array<object>;
+        project.gallery = record.Gallery as any;
       }
     }
 

@@ -12,7 +12,7 @@ import LocationMap from "../components/map/LocationMap.vue";
 // Daten im Hintergrund laden
 if (projectStore.projects.length === 0) {
   // Nur laden, wenn keine Daten vorhanden sind
-  projectStore.preloadMapData();
+  projectStore.load(false);
 }
 </script>
 

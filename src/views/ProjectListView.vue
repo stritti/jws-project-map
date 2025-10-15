@@ -122,8 +122,12 @@ const countryList = computed(() =>
 );
 
 const projectCount = computed(() => projectList.value.length);
-const projectsPlannedCount = computed(() => projectStore.projectsPlanned.length);
-const projectsUnderConstructionCount = computed(() => projectStore.projectsUnderConstruction.length);
+const projectsPlannedCount = computed(() => 
+  projectStore.projects.filter(p => p.state === 'planned').length
+);
+const projectsUnderConstructionCount = computed(() => 
+  projectStore.projects.filter(p => p.state === 'under construction').length
+);
 
 onMounted(() => {
   if (stateFilter.value.length === 0) {
@@ -134,10 +138,15 @@ onMounted(() => {
 watch(
   [projects, stateFilter, categoryFilter, countryFilter],
   () => {
-    projectStore.doFilter(
-      stateFilter.value,
-      categoryFilter.value.map(Number),
-      countryFilter.value.map(Number)
+    // Filter projects manually
+    projectStore.filteredList = projectStore.projects.filter((project: Project) =>
+      (stateFilter.value.length === 0 || stateFilter.value.includes(project.state)) &&
+      (categoryFilter.value.length === 0 ||
+        (project.category?.some(cat =>
+          categoryFilter.value.map(Number).includes(cat.Id)
+        ) ?? false)) &&
+      (countryFilter.value.length === 0 ||
+        (project.country && countryFilter.value.map(Number).includes(project.country.Id)))
     );
   },
   { immediate: true }
