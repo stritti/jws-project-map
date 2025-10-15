@@ -11,65 +11,184 @@ const REQUIRED_FIELDS = [
   'Country', 'Latitude', 'Longitude', 'Link', 'State', 'Since', 'Gallery'
 ];
 
-const projectService = {
+// Minimale Feldliste für die Kartenansicht - für schnelleres initiales Laden
+const MAP_VIEW_FIELDS = [
+  'Id', 'Name', 'Category', 'Country', 'Latitude', 'Longitude', 'State'
+];
 
-  async getAll(): Promise<Array<Project>> {
+// In-Memory Cache mit Zeitstempel
+interface CacheData {
+  timestamp: number;
+  data: Array<Project>;
+  mapData?: Array<Project>;
+}
+
+// Cache-Gültigkeit (5 Minuten)
+const CACHE_VALIDITY_MS = 5 * 60 * 1000;
+
+// In-Memory Cache
+let projectsCache: CacheData | null = null;
+
+// Cache für die Datenverarbeitung
+const processDataCache = new Map<string, Array<Project>>();
+
+// Hilfsfunktion zur Datenverarbeitung - optimiert für Leistung mit Memoization
+function processProjectData(response: any, forMapOnly: boolean): Array<Project> {
+  if (!response || !response.list || !Array.isArray(response.list)) {
+    console.error('Invalid response format:', response);
+    return [];
+  }
+
+  // Erstelle einen Cache-Schlüssel basierend auf der Antwort und dem Modus
+  const cacheKey = `${forMapOnly ? 'map' : 'full'}-${response.list.length}`;
+  
+  // Prüfe, ob wir bereits verarbeitete Daten im Cache haben
+  if (processDataCache.has(cacheKey)) {
+    return processDataCache.get(cacheKey)!;
+  }
+
+  const list = response.list || [];
+  const result: Project[] = [];
+  const len = list.length;
+  
+  // Verwende eine for-Schleife statt map/filter für bessere Performance
+  for (let i = 0; i < len; i++) {
+    const record = list[i];
+    
+    // Grundlegende Validierung
+    if (!record || typeof record.Id !== 'number') {
+      continue;
+    }
+
+    const project: Partial<Project> = {
+      id: record.Id,
+      name: record.Name as string,
+      latitude: record.Latitude as number,
+      longitude: record.Longitude as number,
+      state: record.State as string,
+    };
+    
+    // Nur die notwendigen Felder für die Kartenansicht
+    if (record.Category) {
+      project.category = record.Category as Array<LinkedRecord>;
+    }
+    
+    if (record.Country && Array.isArray(record.Country) && record.Country.length > 0) {
+      project.country = record.Country[0];
+    }
+    
+    // Nur die zusätzlichen Felder hinzufügen, wenn nicht nur für die Karte
+    if (!forMapOnly) {
+      if (record.TeaserImage) {
+        project.teaserImg = record.TeaserImage as object[];
+      }
+      
+      if (record.Notes) {
+        project.notes = (record.Notes as string)
+          .replaceAll('"<http', '"http')
+          .replaceAll('>"', '"');
+      } else {
+        project.notes = "";
+      }
+      
+      if (record.Link) {
+        project.link = record.Link as string;
+      }
+      
+      if (record.Since) {
+        project.since = new Date(record.Since as string);
+      }
+      
+      if (record.Gallery) {
+        project.gallery = record.Gallery as Array<object>;
+      }
+    }
+    
+    result.push(project as Project);
+  }
+  
+  // Cache das Ergebnis
+  processDataCache.set(cacheKey, result);
+  
+  return result;
+}
+
+const projectService = {
+  // Schnelles Laden nur der Kartendaten
+  async getMapData(): Promise<Array<Project>> {
+    // Cache prüfen
+    if (projectsCache?.mapData && 
+        (Date.now() - projectsCache.timestamp) < CACHE_VALIDITY_MS) {
+      console.log("Using cached map data");
+      return projectsCache.mapData;
+    }
 
     try {
-
+      // Nur die für die Karte notwendigen Felder laden
       const response = await base
         .list({
           limit: 1000,
           offset: 0,
-          sort: "Name",
           viewId: "vwlnl4t095iifqc9", // published
-          fields: REQUIRED_FIELDS // Nur die benötigten Felder anfordern
-        })
-
-      // Verwende Web Workers für die Datenverarbeitung, wenn verfügbar
-      if (window.Worker) {
-        return new Promise<Array<Project>>((resolve) => {
-          const worker = new Worker(new URL('./projectDataWorker.js', import.meta.url), { type: 'module' });
-
-          worker.onmessage = (e) => {
-            const locations = e.data;
-
-            resolve(locations);
-            worker.terminate();
-          };
-
-          worker.postMessage(response);
+          fields: MAP_VIEW_FIELDS
         });
-      } else {
-        // Fallback für Browser ohne Web Worker Support
-        const locations: Array<Project> = ((response as unknown) as { list: Record<string, unknown>[] })
-          .list.map((record: Record<string, unknown>) => ({
-          id: record.Id as number,
-          name: record.Name as string,
-          teaserImg: record?.TeaserImage as object[],
-          category: record?.Category as Array<LinkedRecord>,
-          notes: record.Notes
-            ? (record.Notes as string)
-                .replaceAll('"<http', '"http')
-                .replaceAll('>"', '"')
-            : "",
-          country: (record?.Country as Array<LinkedRecord>)[0] || null,
-          latitude: record?.Latitude as number,
-          longitude: record?.Longitude as number,
-          link: record?.Link as string,
-          state: record?.State as string,
-          since: record.Since ? new Date(record.Since as string) : null,
-          gallery: record?.Gallery as Array<object>,
-        } as Project));
 
-        return locations;
+      const mapData = processProjectData(response, true);
+      
+      // Cache aktualisieren
+      if (!projectsCache) {
+        projectsCache = { timestamp: Date.now(), data: [], mapData };
+      } else {
+        projectsCache.mapData = mapData;
+        projectsCache.timestamp = Date.now();
       }
+      
+      return mapData;
     } catch (error) {
-      console.error('Error fetching Items:', error);
-      // Return empty array instead of throwing to prevent app from crashing
-      return [];
+      console.error('Error fetching map data:', error);
+      return projectsCache?.mapData || [];
     }
   },
+
+  async getAll(forMapOnly = false): Promise<Array<Project>> {
+    // Wenn nur Kartendaten benötigt werden, die optimierte Methode verwenden
+    if (forMapOnly) {
+      return this.getMapData();
+    }
+
+    // Cache prüfen
+    if (projectsCache?.data && 
+        (Date.now() - projectsCache.timestamp) < CACHE_VALIDITY_MS) {
+      console.log("Using cached project data");
+      return projectsCache.data;
+    }
+
+    try {
+      // Alle benötigten Felder laden
+      const response = await base
+        .list({
+          limit: 1000,
+          offset: 0,
+          viewId: "vwlnl4t095iifqc9", // published
+          fields: REQUIRED_FIELDS
+        });
+
+      const projects = processProjectData(response, false);
+      
+      // Cache aktualisieren
+      projectsCache = { 
+        timestamp: Date.now(), 
+        data: projects,
+        mapData: projectsCache?.mapData || projects
+      };
+      
+      return projects;
+    } catch (error) {
+      console.error('Error fetching Items:', error);
+      return projectsCache?.data || [];
+    }
+  },
+
   add(latLng: LatLng, name: string): Promise<unknown> {
     const result = base.create([
       {
@@ -79,6 +198,8 @@ const projectService = {
         Latitude: latLng.lat,
       },
     ]);
+    // Cache invalidieren
+    projectsCache = null;
     return result;
   }
 };
