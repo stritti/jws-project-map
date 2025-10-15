@@ -2,7 +2,6 @@ import { defineStore } from "pinia";
 import projectService from "../services/project.service";
 import { useLoadingStore } from "./loading.store";
 import type { Project } from "@/interfaces/Project";
-import { shallowRef } from "vue";
 
 interface State {
   projects: Project[];
@@ -44,7 +43,7 @@ export const useProjectStore = defineStore("project", {
         'under construction': [] as Project[],
         planned: [] as Project[]
       };
-      
+
       if (state.projects.length > 0) {
         state.projects.forEach(project => {
           if (project.state && result[project.state as keyof typeof result]) {
@@ -52,16 +51,19 @@ export const useProjectStore = defineStore("project", {
           }
         });
       }
-      
+
       return result;
     },
     projectsFinished: (state) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (state as any).projectsByState.finished || [];
     },
     projectsUnderConstruction: (state) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (state as any).projectsByState['under construction'] || [];
     },
     projectsPlanned: (state) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (state as any).projectsByState.planned || [];
     },
   },
@@ -72,31 +74,31 @@ export const useProjectStore = defineStore("project", {
       if (this.mapInitialized && this.mapProjects.length > 0 && !this.shouldRefreshCache()) {
         return this.mapProjects;
       }
-      
+
       // Wenn bereits ein Ladevorgang läuft, warten wir auf dessen Abschluss
       if (this.loading) {
         // Warte auf den nächsten Tick, um sicherzustellen, dass die Daten geladen sind
         await new Promise(resolve => setTimeout(resolve, 100));
         return this.mapProjects;
       }
-      
+
       // Sofort mit dem Laden beginnen
       this.loading = true;
-      
+
       try {
         // Nur die für die Karte notwendigen Daten laden
         const mapData = await projectService.getMapData();
-        
+
         if (mapData && Array.isArray(mapData) && mapData.length > 0) {
           this.mapProjects = mapData;
           this.mapInitialized = true;
           this.lastFetched = Date.now();
-          
+
           // Auch die Hauptprojektliste aktualisieren, wenn sie leer ist
           if (this.projects.length === 0) {
             this.projects = [...mapData];
           }
-          
+
           return mapData;
         }
         return [];
@@ -107,18 +109,18 @@ export const useProjectStore = defineStore("project", {
         this.loading = false;
       }
     },
-    
+
     async load(showLoading = true): Promise<void> {
       // Wenn bereits geladen und nicht zu alt, nicht erneut laden
       if (this.initialized && !this.shouldRefreshCache()) {
         return;
       }
-      
+
       // Wenn bereits ein Ladevorgang läuft, nicht erneut starten
       if (this.loading) {
         return;
       }
-      
+
       this.loading = true;
       this.initialized = true;
 
@@ -134,7 +136,7 @@ export const useProjectStore = defineStore("project", {
           this.projects = [...this.mapProjects];
           console.log("Using map data while loading full details");
         }
-        
+
         // Vollständige Daten im Hintergrund laden
         const result = await projectService.getAll();
 
@@ -156,33 +158,33 @@ export const useProjectStore = defineStore("project", {
         }
       }
     },
-    
+
     // Hilfsmethode, um zu prüfen, ob der Cache aktualisiert werden sollte
     shouldRefreshCache(): boolean {
       if (!this.lastFetched) return true;
       return (Date.now() - this.lastFetched) > CACHE_VALIDITY_MS;
     },
-    
+
     doFilter(
       stateFilter: Array<string>,
       categoryFilter: Array<number>,
       countryFilter: Array<number>,
     ) {
       // Optimierte Filterung mit Array.filter statt forEach
-      this.filteredList = this.projects.filter((project: Project) => 
+      this.filteredList = this.projects.filter((project: Project) =>
         (stateFilter.length === 0 || stateFilter.includes(project.state)) &&
         (categoryFilter.length === 0 ||
-          (project.category?.some(cat => 
+          (project.category?.some(cat =>
             categoryFilter.includes(cat.Id)
           ) ?? false)) &&
         (countryFilter.length === 0 ||
           (project.country && countryFilter.includes(project.country.Id)))
       );
     },
-    
+
     doStateFilter(stateFilter: Array<string>) {
       // Optimierte Filterung mit Array.filter statt forEach
-      this.filteredList = this.projects.filter((project: Project) => 
+      this.filteredList = this.projects.filter((project: Project) =>
         stateFilter.length === 0 || stateFilter.includes(project.state)
       );
     },
