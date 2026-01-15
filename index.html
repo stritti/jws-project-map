@@ -41,7 +41,59 @@
     <noscript>
       <strong>We're sorry but this app doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
-    <div id="app"></div>
+    <div id="app">
+      <!-- App Shell: Instant loading indicator -->
+      <style>
+        #app-loader {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background-color: #f8f9fa;
+          font-family: Roboto, sans-serif;
+          z-index: 9999;
+        }
+        #app-loader h1 {
+          color: rgb(61, 94, 158);
+          font-size: 48px;
+          font-weight: 300;
+          margin-bottom: 2rem;
+          text-align: center;
+          padding: 0 1rem;
+        }
+        @media screen and (max-width: 768px) {
+          #app-loader h1 {
+            font-size: 24px;
+          }
+        }
+        .loader-spinner {
+          border: 4px solid rgba(61, 94, 158, 0.1);
+          border-left-color: rgb(61, 94, 158);
+          border-radius: 50%;
+          width: 50px;
+          height: 50px;
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+        .loader-text {
+          margin-top: 1rem;
+          color: rgb(61, 94, 158);
+          font-size: 16px;
+        }
+      </style>
+      <div id="app-loader">
+        <h1>JWF + Humanaktiv: Projects in Westafrica</h1>
+        <div class="loader-spinner"></div>
+        <div class="loader-text">Loading application...</div>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

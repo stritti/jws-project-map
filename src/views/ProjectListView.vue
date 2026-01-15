@@ -125,7 +125,15 @@ const projectCount = computed(() => projectList.value.length);
 const projectsPlannedCount = computed(() => projectStore.projectsPlanned.length);
 const projectsUnderConstructionCount = computed(() => projectStore.projectsUnderConstruction.length);
 
-onMounted(() => {
+onMounted(async () => {
+  // Load data asynchronously after mount
+  const promises = [
+    projectStore.load(),
+    categoryStore.load(),
+    countryStore.load(),
+  ];
+  Promise.all(promises);
+
   if (stateFilter.value.length === 0) {
     stateFilter.value = ["finished", "planned", "under construction"];
   }

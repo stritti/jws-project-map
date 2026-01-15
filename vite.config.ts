@@ -42,4 +42,30 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  build: {
+    // Optimize chunk splitting for better caching and faster initial load
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Separate vendor chunks for better caching
+          'vue-core': ['vue', 'vue-router', 'pinia'],
+          'bootstrap': ['bootstrap', 'bootstrap-vue-next', '@popperjs/core'],
+          'leaflet': ['leaflet', '@vue-leaflet/vue-leaflet'],
+        },
+      },
+    },
+    // Reduce chunk size warnings threshold
+    chunkSizeWarningLimit: 600,
+  },
+  // Optimize dependencies pre-bundling
+  optimizeDeps: {
+    include: [
+      'vue',
+      'vue-router',
+      'pinia',
+      'axios',
+      'leaflet',
+      '@vue-leaflet/vue-leaflet',
+    ],
+  },
 });

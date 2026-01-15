@@ -122,9 +122,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useProjectStore } from "../stores/project.store";
+import { useCategoryStore } from "../stores/category.store";
+import { useCountryStore } from "../stores/country.store";
 import CountryLabel from "../components/CountryLabel.vue";
 import CategoryBadge from "../components/CategoryBadge.vue";
 import MarkdownText from "../components/MarkdownText.vue";
@@ -147,6 +149,17 @@ const props = defineProps({
 const route = useRoute();
 const loadingStore = useLoadingStore();
 const projectStore = useProjectStore();
+const categoryStore = useCategoryStore();
+const countryStore = useCountryStore();
+
+// Load data asynchronously after mount
+onMounted(async () => {
+  Promise.all([
+    projectStore.load(),
+    categoryStore.load(),
+    countryStore.load(),
+  ]);
+});
 
 const loading = computed(() => loadingStore.showLoadingSpinner);
 const project = computed((): Project | undefined => {
