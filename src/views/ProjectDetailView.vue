@@ -122,7 +122,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
 import { useProjectStore } from "../stores/project.store";
 import { useCategoryStore } from "../stores/category.store";
@@ -152,8 +152,8 @@ const projectStore = useProjectStore();
 const categoryStore = useCategoryStore();
 const countryStore = useCountryStore();
 
-// Load data asynchronously after mount
-onMounted(() => {
+// Load data before mount to start fetching earlier
+onBeforeMount(() => {
   Promise.all([
     projectStore.load(),
     categoryStore.load(),

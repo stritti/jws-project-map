@@ -80,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onBeforeMount } from "vue";
 import { storeToRefs } from "pinia";
 import { useLoadingStore } from "../stores/loading.store";
 import { useProjectStore } from "../stores/project.store";
@@ -125,8 +125,8 @@ const projectCount = computed(() => projectList.value.length);
 const projectsPlannedCount = computed(() => projectStore.projectsPlanned.length);
 const projectsUnderConstructionCount = computed(() => projectStore.projectsUnderConstruction.length);
 
-onMounted(() => {
-  // Load data asynchronously after mount
+onBeforeMount(() => {
+  // Load data asynchronously before mount to start fetching earlier
   Promise.all([
     projectStore.load(),
     categoryStore.load(),

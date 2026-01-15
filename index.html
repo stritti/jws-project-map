@@ -37,10 +37,99 @@
     <script defer data-domain="jws-projects-map.netlify.app" src="https://analytics.5tritti.de/js/script.js"></script>
 
   </head>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <link rel="icon" href="/img/favicon.ico" sizes="48x48">
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon-180x180.png" sizes="180x180">
+    <link rel="mask-icon" href="/img/icons/safari-pinned-tab.svg" color="#3d5e9e">
+    <meta name="theme-color" content="#3d5e9e">
+
+    <title>JWF + Humanaktiv: Wells and Schools in Westafrica | Jörg Wolff Foundation</title>
+
+    <meta name="description" content="The Jörg Wolff Foundation in Stuttgart promotes development programs to fight against hunger and disease in the world, especially in West Africa.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="JWF + Humanaktiv: Wells and Schools in Westafrica | Jörg Wolff Foundation">
+
+    <meta property="og:image" content="/img/cropped-joerg-wolff-stiftung.png">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="JWF + Humanaktiv: Wells and Schools in Westafrica | Jörg Wolff Foundation">
+    <meta property="og:description" content="The Jörg Wolff Foundation in Stuttgart promotes development programs to fight against hunger and disease in the world, especially in West Africa.">
+    <meta property="og:url" content="https://www.joerg-wolff-stiftung.de/en/development-aid/">
+    <meta property="og:site_name" content="Jörg Wolff Foundation">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="JWF + Humanaktiv: Wells and Schools in Westafrica | Jörg Wolff Foundation">
+    <meta name="twitter:description" content="The Jörg Wolff Foundation in Stuttgart promotes development programs to fight against hunger and disease in the world, especially in West Africa.">
+    <meta name="twitter:image" content="/img/cropped-joerg-wolff-stiftung.png">
+    <meta name="twitter:image:width" content="512">
+    <meta name="twitter:image:height" content="512">
+
+    <script defer data-domain="jws-projects-map.netlify.app" src="https://analytics.5tritti.de/js/script.js"></script>
+
+    <!-- Inline critical CSS for instant app shell -->
+    <style>
+      body { margin: 0; font-family: Roboto, sans-serif; }
+      .app-shell {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #f8f9fa;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.3s ease-out;
+      }
+      .app-shell.fade-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .app-shell h1 {
+        color: rgb(61, 94, 158);
+        font-size: 48px;
+        font-weight: 300;
+        margin-bottom: 2rem;
+        text-align: center;
+        padding: 0 1rem;
+      }
+      @media screen and (max-width: 768px) {
+        .app-shell h1 { font-size: 24px; }
+      }
+      .spinner {
+        border: 4px solid rgba(61, 94, 158, 0.1);
+        border-left-color: rgb(61, 94, 158);
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      #app { opacity: 0; transition: opacity 0.3s ease-in; }
+      #app.mounted { opacity: 1; }
+    </style>
+  </head>
   <body>
     <noscript>
       <strong>We're sorry but this app doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
+    
+    <!-- App shell that shows immediately -->
+    <div id="app-shell" class="app-shell">
+      <h1>JWF + Humanaktiv: Projects in Westafrica</h1>
+      <div class="spinner"></div>
+    </div>
+    
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
