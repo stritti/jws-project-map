@@ -153,7 +153,7 @@ const categoryStore = useCategoryStore();
 const countryStore = useCountryStore();
 
 // Load data asynchronously after mount
-onMounted(async () => {
+onMounted(() => {
   Promise.all([
     projectStore.load(),
     categoryStore.load(),

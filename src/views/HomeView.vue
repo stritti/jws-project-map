@@ -6,7 +6,7 @@ import { useCategoryStore } from "../stores/category.store";
 import { useCountryStore } from "../stores/country.store";
 
 // Initialize data loading after component mounts for progressive loading
-onMounted(async () => {
+onMounted(() => {
   const projectStore = useProjectStore();
   const categoryStore = useCategoryStore();
   const countryStore = useCountryStore();
