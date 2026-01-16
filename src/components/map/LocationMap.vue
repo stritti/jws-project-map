@@ -153,6 +153,9 @@ import ProjectDetails from "../../components/project/ProjectDetails.vue";
 import projectService from "../../services/project.service";
 import type { Project } from "@/interfaces/Project";
 
+// Lazy load Leaflet CSS to reduce initial bundle
+import("leaflet/dist/leaflet.css");
+
 const loadingStore = useLoadingStore();
 const categoryStore = useCategoryStore();
 const projectStore = useProjectStore();
@@ -188,7 +191,8 @@ const mapOptions = ref({
 });
 const map = ref<any>(null);
 
-const showMap = computed(() => locations.value.length > 0 || mapReady.value);
+// Show map immediately instead of waiting for data
+const showMap = computed(() => true);
 
 const projectsFinished = computed(() =>
   locations.value.filter((loc) => loc.state === "finished")
@@ -226,12 +230,9 @@ watch(
 );
 
 onMounted(() => {
-  setTimeout(() => {
-    if (!initialDataLoaded.value) {
-      mapReady.value = true;
-    }
-  }, 300);
-
+  // Show map immediately
+  mapReady.value = true;
+  
   if (locations.value.length > 0) {
     initialDataLoaded.value = true;
   }
@@ -335,7 +336,7 @@ const updateMaxBounds = () => {
 </script>
 
 <style lang="scss">
-@import "leaflet/dist/leaflet.css";
+/* Leaflet CSS is lazy loaded in the script section for better performance */
 
 .leaflet-top {
   top: calc(5rem + env(safe-area-inset-top));

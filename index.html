@@ -36,6 +36,12 @@
 
     <script defer data-domain="jws-projects-map.netlify.app" src="https://analytics.5tritti.de/js/script.js"></script>
 
+    <!-- Preconnect to map tile servers for faster loading -->
+    <link rel="preconnect" href="https://server.arcgisonline.com" crossorigin>
+    <link rel="preconnect" href="https://tile.openstreetmap.org" crossorigin>
+    <link rel="dns-prefetch" href="https://server.arcgisonline.com">
+    <link rel="dns-prefetch" href="https://tile.openstreetmap.org">
+
     <!-- Inline critical CSS for instant app shell -->
     <style>
       body { margin: 0; font-family: Roboto, sans-serif; }
