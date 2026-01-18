@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
 import projectService from "../services/project.service";
-import { useLoadingStore } from "./loading.store";
 import type { Project } from "@/interfaces/Project";
 
 interface State {
@@ -54,13 +53,9 @@ export const useProjectStore = defineStore("project", {
       }
       this.initialized = true; // Set flag immediately
 
-      const loadingStore = useLoadingStore();
-
-      // Show loading indicator
-      loadingStore.updateLoading(true);
-
+      // Don't use loading store to avoid blocking UI
+      // Load data in background without blocking
       try {
-        // Der verbesserte projectService kümmert sich jetzt selbst um das Caching
         const result = await projectService.getAll();
 
         if (result && Array.isArray(result)) {
@@ -85,8 +80,6 @@ export const useProjectStore = defineStore("project", {
         }
       } catch (error) {
         console.error('Error fetching projects:', error);
-      } finally {
-        loadingStore.updateLoading(false);
       }
     },
     doFilter(
