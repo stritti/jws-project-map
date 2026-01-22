@@ -8,8 +8,8 @@ const axiosInstance = axios.create({
 export class NocoDBService {
   private baseURL: string;
   private tableId: string;
-  private cache: Map<string, { data: Record<string, unknown>[]; timestamp: number }> = new Map();
-  private pendingRequests: Map<string, Promise<Record<string, unknown>[]>> = new Map();
+  private cache: Map<string, { data: Record<string, unknown>; timestamp: number }> = new Map();
+  private pendingRequests: Map<string, Promise<Record<string, unknown>>> = new Map();
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   constructor(tableId: string) {
@@ -28,7 +28,7 @@ export class NocoDBService {
     return `${this.tableId}:${JSON.stringify(params || {})}`;
   }
 
-  private getFromCache(key: string): Record<string, unknown>[] | null {
+  private getFromCache(key: string): Record<string, unknown> | null {
     const cached = this.cache.get(key);
     if (cached && (Date.now() - cached.timestamp) < this.CACHE_TTL) {
       return cached.data;
@@ -45,7 +45,7 @@ export class NocoDBService {
     sort?: string;
     populate?: string;
     fields?: string[];
-  }): Promise<Record<string, unknown>[]> {
+  }): Promise<Record<string, unknown>> {
     const cacheKey = this.getCacheKey(params);
     
     // Check cache first
@@ -68,6 +68,7 @@ export class NocoDBService {
       }
     })
     .then(response => {
+      // Return the full response data structure (which should have .list property)
       const data = response.data;
       this.cache.set(cacheKey, { data, timestamp: Date.now() });
       this.pendingRequests.delete(cacheKey);
@@ -76,7 +77,8 @@ export class NocoDBService {
     .catch(error => {
       console.error('NocoDB request failed:', error.message);
       this.pendingRequests.delete(cacheKey);
-      return [];
+      // Return empty structure that matches expected format
+      return { list: [] };
     });
 
     this.pendingRequests.set(cacheKey, request);
