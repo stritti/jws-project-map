@@ -1,5 +1,23 @@
 <script setup lang="ts">
+import { onBeforeMount } from "vue";
 import LocationMap from "../components/map/LocationMap.vue";
+import { useProjectStore } from "../stores/project.store";
+import { useCategoryStore } from "../stores/category.store";
+import { useCountryStore } from "../stores/country.store";
+
+// Start loading data as early as possible (before mount)
+onBeforeMount(() => {
+  const projectStore = useProjectStore();
+  const categoryStore = useCategoryStore();
+  const countryStore = useCountryStore();
+  
+  // Load data in parallel without blocking rendering
+  Promise.all([
+    projectStore.load(),
+    categoryStore.load(),
+    countryStore.load(),
+  ]);
+});
 </script>
 
 <template>

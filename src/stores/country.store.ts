@@ -1,7 +1,6 @@
 import type { Country } from "@/interfaces/Country";
 import { defineStore } from "pinia";
 import countryService from "../services/country.service";
-import { useLoadingStore } from "./loading.store";
 
 interface State {
   countries: Country[];
@@ -29,17 +28,12 @@ export const useCountryStore = defineStore("country", {
       }
       this.initialized = true; // Set flag immediately
 
-      const loadingStore = useLoadingStore();
-      loadingStore.updateLoading(true);
-      // Use async/await for cleaner error handling and flow
+      // Load data in background without blocking UI
       try {
         const list = await countryService.getAll();
         this.countries = list as Array<Country>;
       } catch (error) {
         console.error("Error initializing country store:", error);
-      } finally {
-        // Only update loading state here, list assignment happens in try block
-        loadingStore.updateLoading(false);
       }
     },
   },

@@ -1,7 +1,6 @@
 import type { Category } from "@/interfaces/Category";
 import { defineStore } from "pinia";
 import categoryService from "../services/category.service";
-import { useLoadingStore } from "./loading.store";
 
 interface State {
   categories: Category[];
@@ -29,17 +28,12 @@ export const useCategoryStore = defineStore("category", {
       }
       this.initialized = true; // Set flag immediately
 
-      const loadingStore = useLoadingStore();
-      loadingStore.updateLoading(true);
-      // Use async/await for cleaner error handling and flow
+      // Load data in background without blocking UI
       try {
         const list = await categoryService.getAll();
         this.categories = list as Array<Category>;
       } catch (error) {
         console.error("Error initializing category store:", error);
-      } finally {
-        // Only update loading state here, list assignment happens in try block
-        loadingStore.updateLoading(false);
       }
     },
   },
