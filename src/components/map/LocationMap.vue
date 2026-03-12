@@ -177,7 +177,7 @@ import { storeToRefs } from "pinia";
 import { useLoadingStore } from "../../stores/loading.store";
 import { useCategoryStore } from "../../stores/category.store";
 import { useProjectStore } from "@/features/projects/stores/project.store";
-import L, { latLngBounds, featureGroup, Marker, LatLng } from "leaflet";
+import L, { latLngBounds } from "leaflet";
 import {
   LMap,
   LControlLayers,
