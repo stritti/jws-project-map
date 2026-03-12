@@ -414,7 +414,8 @@ const onSidePanelClose = () => {
 // Globale Cache für Pin-URLs und Marker-Klassen - außerhalb der Komponente definiert
 // für bessere Performance und Speichernutzung
 const PIN_CACHE = new Map<string, string>();
-const DEFAULT_PIN = "/pins/default.png";
+const DEFAULT_PIN = new URL("../../assets/pins/default.png", import.meta.url)
+  .href;
 const MARKER_CLASS_CACHE = new Map<string, string>();
 
 // Computed-Wert für den aktuellen Zoom-Level
@@ -495,7 +496,10 @@ const getPin = (location: Project) => {
       return DEFAULT_PIN;
     }
 
-    const pinUrl = `/pins/${categoryNames}.png`;
+    const pinUrl = new URL(
+      `../../assets/pins/${categoryNames}.png`,
+      import.meta.url,
+    ).href;
     PIN_CACHE.set(cacheKey, pinUrl);
     return pinUrl;
   } catch (error) {
