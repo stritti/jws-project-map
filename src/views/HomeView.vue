@@ -4,8 +4,14 @@ import { useProjectStore } from "@/features/projects/stores/project.store";
 
 // Sofort mit dem Laden der Projektdaten beginnen
 const projectStore = useProjectStore();
-const mapVisible = ref(true); // Sofort sichtbar machen
+const mapVisible = ref(false); // Zunächst Platzhalter anzeigen
 
+onMounted(() => {
+  // Karte erst nach kurzer Verzögerung sichtbar machen
+  setTimeout(() => {
+    mapVisible.value = true;
+  }, 100);
+});
 // Lazy load map to remove Leaflet from initial bundle
 const LocationMap = defineAsyncComponent(
   () => import("../components/map/LocationMap.vue"),
