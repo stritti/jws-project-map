@@ -52,17 +52,14 @@ export const useProjectStore = defineStore("project", {
 
       return result;
     },
-    projectsFinished: (state) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (state as any).projectsByState.finished || [];
+    projectsFinished() {
+      return this.projectsByState.finished || [];
     },
-    projectsUnderConstruction: (state) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (state as any).projectsByState["under construction"] || [];
+    projectsUnderConstruction() {
+      return this.projectsByState["under construction"] || [];
     },
-    projectsPlanned: (state) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (state as any).projectsByState.planned || [];
+    projectsPlanned() {
+      return this.projectsByState.planned || [];
     },
   },
   actions: {
