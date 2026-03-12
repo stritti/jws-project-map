@@ -1,6 +1,6 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
-import {createBootstrap} from 'bootstrap-vue-next'
+import { createBootstrap } from "bootstrap-vue-next";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -12,7 +12,7 @@ import App from "./App.vue";
 import router from "./router";
 
 // Import stores
-import { useProjectStore } from "./stores/project.store";
+import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useCategoryStore } from "./stores/category.store";
 import { useCountryStore } from "./stores/country.store";
 
@@ -29,7 +29,7 @@ const app = createApp(App);
 
 app.use(pinia);
 app.use(router);
-app.use(createBootstrap())
+app.use(createBootstrap());
 app.use(Vue3VideoPlayer, {
   lang: "en",
 });

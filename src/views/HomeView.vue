@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onMounted, ref } from 'vue';
-import { useProjectStore } from '../stores/project.store';
+import { defineAsyncComponent, onMounted, ref } from "vue";
+import { useProjectStore } from "@/features/projects/stores/project.store";
 
 // Sofort mit dem Laden der Projektdaten beginnen
 const projectStore = useProjectStore();
@@ -27,7 +27,7 @@ if (projectStore.projects.length === 0) {
         </div>
         <p class="mt-2">Loading map...</p>
       </div>
-      
+
       <!-- Karte wird erst nach kurzer Verzögerung geladen -->
       <Suspense v-if="mapVisible">
         <template #default>
@@ -66,7 +66,7 @@ if (projectStore.projects.length === 0) {
     position: absolute;
     z-index: 1;
   }
-  
+
   .map-loading {
     width: 100%;
     height: 100vh;

@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
-import projectService from "../services/project.service";
-import { useLoadingStore } from "./loading.store";
+import projectService from "@/features/projects/services/project.service";
+import { useLoadingStore } from "@/stores/loading.store";
 import type { Project } from "@/interfaces/Project";
 
 interface State {
@@ -38,12 +38,12 @@ export const useProjectStore = defineStore("project", {
       // Nur einmal filtern statt dreimal
       const result = {
         finished: [] as Project[],
-        'under construction': [] as Project[],
-        planned: [] as Project[]
+        "under construction": [] as Project[],
+        planned: [] as Project[],
       };
 
       if (state.projects.length > 0) {
-        state.projects.forEach(project => {
+        state.projects.forEach((project) => {
           if (project.state && result[project.state as keyof typeof result]) {
             result[project.state as keyof typeof result].push(project);
           }
@@ -58,7 +58,7 @@ export const useProjectStore = defineStore("project", {
     },
     projectsUnderConstruction: (state) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (state as any).projectsByState['under construction'] || [];
+      return (state as any).projectsByState["under construction"] || [];
     },
     projectsPlanned: (state) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -69,14 +69,18 @@ export const useProjectStore = defineStore("project", {
     // Schnelles Laden nur der Kartendaten mit Promise-Rückgabe
     async preloadMapData(): Promise<Array<Project>> {
       // Wenn bereits Kartendaten vorhanden sind und nicht zu alt, nicht erneut laden
-      if (this.mapInitialized && this.mapProjects.length > 0 && !this.shouldRefreshCache()) {
+      if (
+        this.mapInitialized &&
+        this.mapProjects.length > 0 &&
+        !this.shouldRefreshCache()
+      ) {
         return this.mapProjects;
       }
 
       // Wenn bereits ein Ladevorgang läuft, warten wir auf dessen Abschluss
       if (this.loading) {
         // Warte auf den nächsten Tick, um sicherzustellen, dass die Daten geladen sind
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
         return this.mapProjects;
       }
 
@@ -101,7 +105,7 @@ export const useProjectStore = defineStore("project", {
         }
         return [];
       } catch (error) {
-        console.error('Error loading map data:', error);
+        console.error("Error loading map data:", error);
         return this.mapProjects;
       } finally {
         this.loading = false;
@@ -144,7 +148,7 @@ export const useProjectStore = defineStore("project", {
           console.log(`Loaded ${result.length} complete projects`);
         }
       } catch (error) {
-        console.error('Error fetching projects:', error);
+        console.error("Error fetching projects:", error);
         // Wenn ein Fehler auftritt und wir haben Kartendaten, behalten wir diese
         if (!this.projects.length && this.mapProjects.length > 0) {
           this.projects = [...this.mapProjects];
@@ -160,7 +164,7 @@ export const useProjectStore = defineStore("project", {
     // Hilfsmethode, um zu prüfen, ob der Cache aktualisiert werden sollte
     shouldRefreshCache(): boolean {
       if (!this.lastFetched) return true;
-      return (Date.now() - this.lastFetched) > CACHE_VALIDITY_MS;
+      return Date.now() - this.lastFetched > CACHE_VALIDITY_MS;
     },
 
     doFilter(
@@ -169,21 +173,22 @@ export const useProjectStore = defineStore("project", {
       countryFilter: Array<number>,
     ) {
       // Optimierte Filterung mit Array.filter statt forEach
-      this.filteredList = this.projects.filter((project: Project) =>
-        (stateFilter.length === 0 || stateFilter.includes(project.state)) &&
-        (categoryFilter.length === 0 ||
-          (project.category?.some(cat =>
-            categoryFilter.includes(cat.Id)
-          ) ?? false)) &&
-        (countryFilter.length === 0 ||
-          (project.country && countryFilter.includes(project.country.Id)))
+      this.filteredList = this.projects.filter(
+        (project: Project) =>
+          (stateFilter.length === 0 || stateFilter.includes(project.state)) &&
+          (categoryFilter.length === 0 ||
+            (project.category?.some((cat) => categoryFilter.includes(cat.Id)) ??
+              false)) &&
+          (countryFilter.length === 0 ||
+            (project.country && countryFilter.includes(project.country.Id))),
       );
     },
 
     doStateFilter(stateFilter: Array<string>) {
       // Optimierte Filterung mit Array.filter statt forEach
-      this.filteredList = this.projects.filter((project: Project) =>
-        stateFilter.length === 0 || stateFilter.includes(project.state)
+      this.filteredList = this.projects.filter(
+        (project: Project) =>
+          stateFilter.length === 0 || stateFilter.includes(project.state),
       );
     },
   },

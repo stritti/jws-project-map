@@ -5,7 +5,7 @@ import {
   type RouteLocationNormalized,
 } from "vue-router";
 import HomeView from "../views/HomeView.vue";
-import { useProjectStore } from "@/stores/project.store";
+import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useCategoryStore } from "@/stores/category.store";
 import { useCountryStore } from "@/stores/country.store";
 
@@ -17,7 +17,7 @@ const routes = [
     beforeEnter: async (
       _to: RouteLocationNormalized,
       _from: RouteLocationNormalized,
-      next: NavigationGuardNext
+      next: NavigationGuardNext,
     ) => {
       const projectStore = useProjectStore();
       const categoryStore = useCategoryStore();
@@ -39,7 +39,7 @@ const routes = [
     beforeEnter: async (
       _to: RouteLocationNormalized,
       _from: RouteLocationNormalized,
-      next: NavigationGuardNext
+      next: NavigationGuardNext,
     ) => {
       const projectStore = useProjectStore();
       const categoryStore = useCategoryStore();
@@ -63,7 +63,7 @@ const routes = [
     beforeEnter: async (
       _to: RouteLocationNormalized,
       _from: RouteLocationNormalized,
-      next: NavigationGuardNext
+      next: NavigationGuardNext,
     ) => {
       const projectStore = useProjectStore();
       const categoryStore = useCategoryStore();
@@ -96,4 +96,3 @@ const router = createRouter({
 // Data initialization is handled within the components that need it (e.g., ProjectListView mounted hook)
 
 export default router;
-

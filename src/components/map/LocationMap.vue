@@ -51,7 +51,13 @@
           <!-- Verwende v-memo für bessere Performance bei der Marker-Darstellung -->
           <l-marker
             v-for="loc in projectsFinished"
-            v-memo="[loc.id, loc.latitude, loc.longitude, selectedLocation?.id === loc.id, currentZoom > 7]"
+            v-memo="[
+              loc.id,
+              loc.latitude,
+              loc.longitude,
+              selectedLocation?.id === loc.id,
+              currentZoom > 7,
+            ]"
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
@@ -72,13 +78,23 @@
         </l-layer-group>
 
         <l-layer-group
-          v-if="pinsReady && projectsUnderConstruction && projectsUnderConstruction.length > 0"
+          v-if="
+            pinsReady &&
+            projectsUnderConstruction &&
+            projectsUnderConstruction.length > 0
+          "
           layer-type="overlay"
           :name="layerLabelProjectsUnderConstruction"
         >
           <l-marker
             v-for="loc in projectsUnderConstruction"
-            v-memo="[loc.id, loc.latitude, loc.longitude, selectedLocation?.id === loc.id, currentZoom > 7]"
+            v-memo="[
+              loc.id,
+              loc.latitude,
+              loc.longitude,
+              selectedLocation?.id === loc.id,
+              currentZoom > 7,
+            ]"
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
@@ -104,7 +120,13 @@
         >
           <l-marker
             v-for="loc in projectsPlanned"
-            v-memo="[loc.id, loc.latitude, loc.longitude, selectedLocation?.id === loc.id, currentZoom > 7]"
+            v-memo="[
+              loc.id,
+              loc.latitude,
+              loc.longitude,
+              selectedLocation?.id === loc.id,
+              currentZoom > 7,
+            ]"
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
@@ -122,7 +144,7 @@
             </l-tooltip>
           </l-marker>
         </l-layer-group>
-        
+
         <!-- Lade-Indikator für Pins -->
         <div v-if="mapInitialized && !pinsReady" class="pins-loading-indicator">
           <div class="spinner-border text-primary" role="status">
@@ -141,17 +163,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick, onBeforeMount, shallowRef, onBeforeUnmount } from "vue";
+import {
+  ref,
+  computed,
+  onMounted,
+  watch,
+  nextTick,
+  onBeforeMount,
+  shallowRef,
+  onBeforeUnmount,
+} from "vue";
 import { storeToRefs } from "pinia";
 import { useLoadingStore } from "../../stores/loading.store";
 import { useCategoryStore } from "../../stores/category.store";
-import { useProjectStore } from "../../stores/project.store";
-import L, {
-  latLngBounds,
-  featureGroup,
-  Marker,
-  LatLng,
-} from "leaflet";
+import { useProjectStore } from "@/features/projects/stores/project.store";
+import L, { latLngBounds, featureGroup, Marker, LatLng } from "leaflet";
 import {
   LMap,
   LControlLayers,
@@ -162,7 +188,7 @@ import {
   LTooltip,
 } from "@vue-leaflet/vue-leaflet";
 import ProjectDetails from "../../components/project/ProjectDetails.vue";
-import projectService from "../../services/project.service";
+import projectService from "@/features/projects/services/project.service";
 import type { Project } from "@/interfaces/Project";
 
 const loadingStore = useLoadingStore();
@@ -179,13 +205,13 @@ const bounds = shallowRef(
   latLngBounds([
     [-14.5981259, 5.8997233],
     [8.9490075, 11.322326],
-  ])
+  ]),
 );
 const maxBounds = shallowRef(
   latLngBounds([
     [-14.6, 5.9],
     [8.9490075, 11.322326],
-  ])
+  ]),
 );
 const isOpened = ref(false);
 const isLoadingMap = ref(true);
@@ -200,30 +226,30 @@ const mapOptions = ref({
   touchZoom: true,
   wheelPxPerZoomLevel: 60,
   preferCanvas: true, // Verwende Canvas-Renderer für bessere Performance
-  renderer: L.canvas({ 
+  renderer: L.canvas({
     padding: 0.5,
-    tolerance: 5 // Erhöhte Toleranz für bessere Performance
+    tolerance: 5, // Erhöhte Toleranz für bessere Performance
   }) as any,
   // Reduziere die Anzahl der Neuberechnungen während des Zoomens/Verschiebens
   zoomAnimation: false,
   markerZoomAnimation: false,
   // Deaktiviere Animationen auf mobilen Geräten für bessere Performance
-  fadeAnimation: !('ontouchstart' in window),
+  fadeAnimation: !("ontouchstart" in window),
   // Reduziere die Anzahl der Neuberechnungen während des Zoomens
   updateWhenZooming: false,
-  updateWhenIdle: true
+  updateWhenIdle: true,
 });
 const map = ref<any>(null);
 
 // Compute project lists directly
-const projectsFinished = computed(() => 
-  projectStore.projects.filter(p => p.state === 'finished')
+const projectsFinished = computed(() =>
+  projectStore.projects.filter((p) => p.state === "finished"),
 );
-const projectsUnderConstruction = computed(() => 
-  projectStore.projects.filter(p => p.state === 'under construction')
+const projectsUnderConstruction = computed(() =>
+  projectStore.projects.filter((p) => p.state === "under construction"),
 );
-const projectsPlanned = computed(() => 
-  projectStore.projects.filter(p => p.state === 'planned')
+const projectsPlanned = computed(() =>
+  projectStore.projects.filter((p) => p.state === "planned"),
 );
 
 // Memoization für Layer-Labels, um unnötige Neuberechnungen zu vermeiden
@@ -232,7 +258,10 @@ const layerLabelCache = new Map<string, string>();
 const layerLabelProjectsFinished = computed(() => {
   const cacheKey = `finished-${projectsFinished.value.length}`;
   if (!layerLabelCache.has(cacheKey)) {
-    layerLabelCache.set(cacheKey, `Projects: finished (${projectsFinished.value.length})`);
+    layerLabelCache.set(
+      cacheKey,
+      `Projects: finished (${projectsFinished.value.length})`,
+    );
   }
   return layerLabelCache.get(cacheKey)!;
 });
@@ -240,7 +269,10 @@ const layerLabelProjectsFinished = computed(() => {
 const layerLabelProjectsUnderConstruction = computed(() => {
   const cacheKey = `under-construction-${projectsUnderConstruction.value.length}`;
   if (!layerLabelCache.has(cacheKey)) {
-    layerLabelCache.set(cacheKey, `Projects: under construction (${projectsUnderConstruction.value.length})`);
+    layerLabelCache.set(
+      cacheKey,
+      `Projects: under construction (${projectsUnderConstruction.value.length})`,
+    );
   }
   return layerLabelCache.get(cacheKey)!;
 });
@@ -248,7 +280,10 @@ const layerLabelProjectsUnderConstruction = computed(() => {
 const layerLabelProjectsPlanned = computed(() => {
   const cacheKey = `planned-${projectsPlanned.value.length}`;
   if (!layerLabelCache.has(cacheKey)) {
-    layerLabelCache.set(cacheKey, `Projects: planned (${projectsPlanned.value.length})`);
+    layerLabelCache.set(
+      cacheKey,
+      `Projects: planned (${projectsPlanned.value.length})`,
+    );
   }
   return layerLabelCache.get(cacheKey)!;
 });
@@ -257,7 +292,7 @@ const layerLabelProjectsPlanned = computed(() => {
 onBeforeMount(() => {
   // Karte ist sofort bereit (mapReady ist bereits true)
   isLoadingMap.value = false;
-  
+
   // Starte das Laden der Projektdaten im Hintergrund
   projectStore.load(false);
 });
@@ -269,7 +304,7 @@ watch(
     if (newLocations?.length > 0) {
       initialDataLoaded.value = true;
       pinsReady.value = true; // Pins sind bereit, wenn Daten geladen sind
-      
+
       if (mapInitialized.value && map.value) {
         nextTick(() => {
           updateMaxBounds();
@@ -277,51 +312,51 @@ watch(
       }
     }
   },
-  { deep: true }
+  { deep: true },
 );
 
 // Verwende eine debounced Funktion für mapLoaded mit defineAsyncComponent für bessere Performance
 const mapLoaded = () => {
   mapInitialized.value = true;
-  
+
   // Karte sofort als geladen markieren
   isLoadingMap.value = false;
-  
+
   // Verwende requestIdleCallback für nicht-kritische Operationen
   // Mit Fallback für Browser ohne Unterstützung
-  const useIdleCallback = typeof window.requestIdleCallback === 'function';
-  
+  const useIdleCallback = typeof window.requestIdleCallback === "function";
+
   // Optimiere die Leaflet-Karte für bessere Performance
   if (map.value?.leafletObject) {
     // Deaktiviere automatisches Zoomen während des Ladens
     map.value.leafletObject.options.trackResize = false;
-    
+
     // Reduziere die Anzahl der Neuberechnungen
-    map.value.leafletObject.options.renderer = L.canvas({ 
+    map.value.leafletObject.options.renderer = L.canvas({
       padding: 0.5,
-      tolerance: 5 // Erhöhte Toleranz für bessere Performance
+      tolerance: 5, // Erhöhte Toleranz für bessere Performance
     }) as any;
-    
+
     // Aktiviere Hardwarebeschleunigung, wenn verfügbar
     if (map.value.leafletObject._container) {
-      map.value.leafletObject._container.style.transform = 'translateZ(0)';
-      
+      map.value.leafletObject._container.style.transform = "translateZ(0)";
+
       // Optimiere DOM-Rendering
-      map.value.leafletObject._container.style.willChange = 'transform';
-      map.value.leafletObject._container.style.backfaceVisibility = 'hidden';
+      map.value.leafletObject._container.style.willChange = "transform";
+      map.value.leafletObject._container.style.backfaceVisibility = "hidden";
     }
-    
+
     // Optimiere Leaflet-Events
     map.value.leafletObject.options.zoomSnap = 0.5;
     map.value.leafletObject.options.wheelPxPerZoomLevel = 60;
   }
-  
+
   // Memoized Funktion zum Laden der Pins
   const loadPins = () => {
     // Wenn wir bereits Daten haben, Pins anzeigen und Grenzen aktualisieren
     if (locations.value.length > 0) {
       pinsReady.value = true;
-      
+
       // Verzögere das Aktualisieren der Grenzen, um die Rendering-Performance zu verbessern
       setTimeout(() => updateMaxBounds(), 100);
     } else {
@@ -330,14 +365,14 @@ const mapLoaded = () => {
         // Verwende requestAnimationFrame für flüssigeres Rendering
         requestAnimationFrame(() => {
           pinsReady.value = true;
-          
+
           // Verzögere das Aktualisieren der Grenzen, um die Rendering-Performance zu verbessern
           setTimeout(() => updateMaxBounds(), 100);
         });
       });
     }
   };
-  
+
   if (useIdleCallback) {
     window.requestIdleCallback(loadPins, { timeout: 2000 });
   } else {
@@ -386,27 +421,31 @@ const currentZoom = ref(5);
 // Verwende ein debounced Zoom-Event für bessere Performance
 let zoomTimeout: number | null = null;
 
-watch(() => map.value?.leafletObject, (newMap) => {
-  if (newMap) {
-    newMap.on('zoomend', () => {
-      // Debounce Zoom-Events
-      if (zoomTimeout) {
-        clearTimeout(zoomTimeout);
-      }
-      
-      zoomTimeout = window.setTimeout(() => {
-        currentZoom.value = newMap.getZoom();
-      }, 100);
-    });
-  }
-}, { immediate: true });
+watch(
+  () => map.value?.leafletObject,
+  (newMap) => {
+    if (newMap) {
+      newMap.on("zoomend", () => {
+        // Debounce Zoom-Events
+        if (zoomTimeout) {
+          clearTimeout(zoomTimeout);
+        }
+
+        zoomTimeout = window.setTimeout(() => {
+          currentZoom.value = newMap.getZoom();
+        }, 100);
+      });
+    }
+  },
+  { immediate: true },
+);
 
 // Bereinige Timeouts beim Unmount
 onBeforeUnmount(() => {
   if (zoomTimeout) {
     clearTimeout(zoomTimeout);
   }
-  
+
   if (updateMaxBoundsTimeout.value) {
     clearTimeout(updateMaxBoundsTimeout.value);
   }
@@ -417,26 +456,29 @@ const getPin = (location: Project) => {
   if (!location) {
     return DEFAULT_PIN;
   }
-  
+
   // Eindeutigen Schlüssel für den Cache erstellen
-  const cacheKey = location.id + '-' + (location.category?.map(c => c.Id).join('-') || 'none');
-  
+  const cacheKey =
+    location.id +
+    "-" +
+    (location.category?.map((c) => c.Id).join("-") || "none");
+
   // Prüfen, ob wir bereits einen Cache-Eintrag haben
   if (PIN_CACHE.has(cacheKey)) {
     return PIN_CACHE.get(cacheKey)!;
   }
-  
+
   try {
     const categories = location.category;
     if (!categories || categories.length === 0) {
       PIN_CACHE.set(cacheKey, DEFAULT_PIN);
       return DEFAULT_PIN;
     }
-    
+
     // Optimierte Kategorienamen-Verarbeitung
     let categoryNames = "";
     const len = categories.length;
-    
+
     for (let i = 0; i < len; i++) {
       const cat = categories[i];
       if (cat && cat.Name) {
@@ -444,12 +486,12 @@ const getPin = (location: Project) => {
         categoryNames += cat.Name.toLowerCase();
       }
     }
-    
+
     if (!categoryNames) {
       PIN_CACHE.set(cacheKey, DEFAULT_PIN);
       return DEFAULT_PIN;
     }
-    
+
     const pinUrl = `/pins/${categoryNames}.png`;
     PIN_CACHE.set(cacheKey, pinUrl);
     return pinUrl;
@@ -464,24 +506,24 @@ const getPin = (location: Project) => {
 const pinClass = (current: Project) => {
   // Eindeutigen Schlüssel für den Cache erstellen
   const cacheKey = `${current.id}-${current.state}-${selectedLocation.value?.id === current.id}`;
-  
+
   // Prüfen, ob wir bereits einen Cache-Eintrag haben
   if (MARKER_CLASS_CACHE.has(cacheKey)) {
     return MARKER_CLASS_CACHE.get(cacheKey)!;
   }
-  
+
   const isSelected = selectedLocation.value?.id === current.id;
-  let cssClass = '';
-  
+  let cssClass = "";
+
   // Optimierte Klassen-Berechnung
   if (current.state) {
     cssClass = `marker-state-${current.state.toLowerCase().replace(" ", "-")}`;
   }
-  
+
   if (isSelected) {
-    cssClass = cssClass ? `marker-selected ${cssClass}` : 'marker-selected';
+    cssClass = cssClass ? `marker-selected ${cssClass}` : "marker-selected";
   }
-  
+
   // Ergebnis cachen
   MARKER_CLASS_CACHE.set(cacheKey, cssClass);
   return cssClass;
@@ -498,62 +540,70 @@ const updateMaxBounds = () => {
   if (updateMaxBoundsTimeout.value) {
     clearTimeout(updateMaxBoundsTimeout.value);
   }
-  
+
   updateMaxBoundsTimeout.value = window.setTimeout(() => {
-    if (!locations.value || locations.value.length === 0 || !map.value?.leafletObject) {
+    if (
+      !locations.value ||
+      locations.value.length === 0 ||
+      !map.value?.leafletObject
+    ) {
       return;
     }
-    
+
     try {
       // Erstelle einen Cache-Schlüssel basierend auf der Anzahl der Standorte
       // Dies ist eine Vereinfachung - in einer realen Anwendung könnte man einen
       // komplexeren Schlüssel basierend auf den tatsächlichen Daten verwenden
       const cacheKey = `bounds-${locations.value.length}`;
-      
+
       // Prüfe, ob wir bereits berechnete Grenzen im Cache haben
       if (boundsCache.has(cacheKey)) {
         const cachedBounds = boundsCache.get(cacheKey);
-        
+
         // Verwende die gecachten Grenzen
         requestAnimationFrame(() => {
           const leafletMap = map.value.leafletObject;
-          leafletMap.fitBounds(cachedBounds, { 
+          leafletMap.fitBounds(cachedBounds, {
             padding: [50, 50],
             animate: false,
-            duration: 0
+            duration: 0,
           });
         });
-        
+
         return;
       }
-      
+
       // Deaktiviere Animationen während der Berechnung für bessere Performance
       const leafletMap = map.value.leafletObject;
       const wasAnimating = leafletMap.options.animate;
       leafletMap.options.animate = false;
-      
+
       // Verwende eine schnellere Methode zur Berechnung der Grenzen
-      let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
+      let minLat = 90,
+        maxLat = -90,
+        minLng = 180,
+        maxLng = -180;
       let validPoints = 0;
-      
+
       // Optimierte Schleife für bessere Performance
       const locationsArray = locations.value;
       const len = locationsArray.length;
-      
+
       // Begrenze die Anzahl der zu verarbeitenden Punkte für bessere Performance
       // Bei sehr großen Datensätzen können wir eine Stichprobe nehmen
       const stride = len > 1000 ? Math.floor(len / 1000) : 1;
-      
+
       for (let i = 0; i < len; i += stride) {
         const loc = locationsArray[i];
         const lat = loc.latitude;
         const lng = loc.longitude;
-        
-        if (typeof lat === "number" && 
-            typeof lng === "number" && 
-            !isNaN(lat) && 
-            !isNaN(lng)) {
-          
+
+        if (
+          typeof lat === "number" &&
+          typeof lng === "number" &&
+          !isNaN(lat) &&
+          !isNaN(lng)
+        ) {
           minLat = lat < minLat ? lat : minLat;
           maxLat = lat > maxLat ? lat : maxLat;
           minLng = lng < minLng ? lng : minLng;
@@ -561,26 +611,26 @@ const updateMaxBounds = () => {
           validPoints++;
         }
       }
-      
+
       // Nur wenn wir gültige Grenzen haben
       if (validPoints > 0) {
         const calculatedBounds = latLngBounds(
           [minLat, minLng],
-          [maxLat, maxLng]
+          [maxLat, maxLng],
         );
-        
+
         // Cache die berechneten Grenzen
         boundsCache.set(cacheKey, calculatedBounds);
-        
+
         // Verwende requestAnimationFrame für flüssigere Animation
         requestAnimationFrame(() => {
           // Verwende eine nicht-animierte Anpassung für bessere Performance
-          leafletMap.fitBounds(calculatedBounds, { 
+          leafletMap.fitBounds(calculatedBounds, {
             padding: [50, 50],
             animate: false,
-            duration: 0
+            duration: 0,
           });
-          
+
           // Stelle die ursprüngliche Animationseinstellung wieder her
           leafletMap.options.animate = wasAnimating;
         });
@@ -618,7 +668,7 @@ const updateMaxBounds = () => {
   transform: translate3d(0, 0, 0); /* Aktiviere Hardware-Beschleunigung */
   backface-visibility: hidden; /* Verhindere Rendering-Probleme */
   perspective: 1000; /* Verbessere 3D-Rendering */
-  
+
   &:hover {
     transform: scale(1.5) translate3d(0, 0, 0);
     filter: drop-shadow(0px 0px 10px rgba(210, 28, 28, 0.75));
