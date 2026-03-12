@@ -21,6 +21,22 @@ let projectsCache: CacheData | null = null;
 // Cache für die Datenverarbeitung
 const processDataCache = new Map<string, Array<Project>>();
 
+// Rohformat eines Projektdatensatzes aus NocoDB
+interface RawProjectRecord {
+  Id: number;
+  Name: string;
+  Latitude: number;
+  Longitude: number;
+  State?: string;
+  Category?: LinkedRecord[];
+  Country?: LinkedRecord[];
+  TeaserImage?: unknown;
+  Notes?: string;
+  Link?: string;
+  Since?: string;
+  Gallery?: unknown;
+}
+
 // Hilfsfunktion zur Datenverarbeitung - optimiert für Leistung mit Memoization
 function processProjectData(
   response: unknown,
@@ -36,7 +52,7 @@ function processProjectData(
     return [];
   }
 
-  const list = (response as { list: unknown[] }).list;
+  const list = (response as { list: RawProjectRecord[] }).list;
 
   const cacheKey = `${forMapOnly ? "map" : "full"}-${list.length}`;
 
@@ -50,10 +66,10 @@ function processProjectData(
 
   // Verwende eine for-Schleife statt map/filter für bessere Performance
   for (let i = 0; i < len; i++) {
-    const record = list[i];
+    const record: RawProjectRecord = list[i];
 
     // Grundlegende Validierung
-    if (!record || typeof record.Id !== "number") {
+    if (typeof record.Id !== "number") {
       continue;
     }
 
@@ -81,7 +97,7 @@ function processProjectData(
     // Nur die zusätzlichen Felder hinzufügen, wenn nicht nur für die Karte
     if (!forMapOnly) {
       if (record.TeaserImage) {
-        project.teaserImg = record.TeaserImage as unknown;
+        project.teaserImg = record.TeaserImage as Project["teaserImg"];
       }
 
       if (record.Notes) {
@@ -101,7 +117,7 @@ function processProjectData(
       }
 
       if (record.Gallery) {
-        project.gallery = record.Gallery as unknown;
+        project.gallery = record.Gallery as Project["gallery"];
       }
     }
 
