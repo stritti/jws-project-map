@@ -2,13 +2,6 @@ import httpClient from "@/services/api/http.client";
 
 export class NocoDBService {
   private tableId: string;
-  private cache: Map<
-    string,
-    { data: Record<string, unknown>; timestamp: number }
-  > = new Map();
-  private pendingRequests: Map<string, Promise<Record<string, unknown>>> =
-    new Map();
-  private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   constructor(tableId: string) {
     this.tableId = tableId;
