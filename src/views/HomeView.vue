@@ -4,7 +4,7 @@ import { useProjectStore } from "@/features/projects/stores/project.store";
 
 // Sofort mit dem Laden der Projektdaten beginnen
 const projectStore = useProjectStore();
-const mapVisible = ref(true); // Sofort sichtbar machen
+const mapVisible = ref(false);
 
 // Lazy load map to remove Leaflet from initial bundle
 const LocationMap = defineAsyncComponent(
@@ -13,9 +13,15 @@ const LocationMap = defineAsyncComponent(
 
 // Daten im Hintergrund laden
 if (projectStore.projects.length === 0) {
-  // Nur laden, wenn keine Daten vorhanden sind
   projectStore.load(false);
 }
+
+// Map erst nach First Paint laden (verhindert Blockieren von FCP)
+onMounted(() => {
+  requestAnimationFrame(() => {
+    mapVisible.value = true;
+  });
+});
 </script>
 
 <template>
