@@ -22,17 +22,17 @@ export class NocoDBService {
     sort?: string;
     populate?: string;
     fields?: string[];
-  }): Promise<T[]> {
+  }): Promise<{ list: T[] }> {
     return httpClient
       .get(`/api/v2/tables/${this.tableId}/records`, {
         params: {
           ...params,
         },
       })
-      .then((response) => response.data as T[])
+      .then((response) => response.data as { list: T[] })
       .catch((error) => {
         console.error(error);
-        return [] as T[];
+        return { list: [] as T[] };
       });
   }
 
