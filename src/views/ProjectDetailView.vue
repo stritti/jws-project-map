@@ -134,14 +134,23 @@ import { useCategoryStore } from "@/stores/category.store";
 import { useCountryStore } from "@/stores/country.store";
 import CountryLabel from "../components/CountryLabel.vue";
 import CategoryBadge from "../components/CategoryBadge.vue";
-import MarkdownText from "../components/MarkdownText.vue";
+const MarkdownText = defineAsyncComponent(
+  () => import("../components/MarkdownText.vue"),
+);
 import SiteFooter from "../components/SiteFooter.vue";
 import { useLoadingStore } from "../stores/loading.store";
 import BackButton from "../components/actions/BackButton.vue";
 import ShareButton from "../components/actions/ShareButton.vue";
 import NavigateButton from "../components/actions/NavigateButton.vue";
-import ProjectGallery from "@/components/project/ProjectGallery.vue";
-import ProjectGalleryModal from "@/components/project/ProjectGalleryModal.vue";
+import { defineAsyncComponent } from "vue";
+
+const ProjectGallery = defineAsyncComponent(
+  () => import("@/components/project/ProjectGallery.vue"),
+);
+
+const ProjectGalleryModal = defineAsyncComponent(
+  () => import("@/components/project/ProjectGalleryModal.vue"),
+);
 import type { Project } from "@/interfaces/Project";
 
 const props = defineProps({

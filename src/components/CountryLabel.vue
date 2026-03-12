@@ -5,7 +5,6 @@
 </template>
 
 <script lang="ts">
-import "flag-icons/css/flag-icons.min.css";
 import { mapState } from "pinia";
 import { useCountryStore } from "../stores/country.store";
 import { defineComponent } from "vue";

@@ -1,6 +1,6 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
-import { createBootstrap } from "bootstrap-vue-next";
+// Removed global bootstrap registration for better code splitting
 
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 
@@ -13,6 +13,7 @@ import { useCategoryStore } from "./stores/category.store";
 import { useCountryStore } from "./stores/country.store";
 
 import "./assets/style-config.scss";
+import "flag-icons/css/flag-icons.min.css";
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
@@ -21,7 +22,7 @@ const app = createApp(App);
 
 app.use(pinia);
 app.use(router);
-app.use(createBootstrap());
+// Bootstrap components should be imported locally per view
 
 // Initialize stores after Pinia is attached to the app
 // This ensures they can access the Pinia instance

@@ -1,7 +1,4 @@
-import {
-  createRouter,
-  createWebHistory,
-} from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useCategoryStore } from "@/stores/category.store";
@@ -17,7 +14,9 @@ const routes = [
     path: "/project/",
     name: "ProjectList",
     component: () =>
-      import(/* webpackChunkName: "project" */ "../views/ProjectListView.vue"),
+      import(
+        /* webpackChunkName: "project-list" */ "../views/ProjectListView.vue"
+      ),
   },
   {
     path: "/project/:projectId",
@@ -25,7 +24,7 @@ const routes = [
     name: "ProjectDetail",
     component: () =>
       import(
-        /* webpackChunkName: "project" */ "../views/ProjectDetailView.vue"
+        /* webpackChunkName: "project-detail" */ "../views/ProjectDetailView.vue"
       ),
   },
   {
