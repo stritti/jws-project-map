@@ -127,7 +127,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import CountryLabel from "../components/CountryLabel.vue";
@@ -152,6 +152,17 @@ const props = defineProps({
 const route = useRoute();
 const loadingStore = useLoadingStore();
 const projectStore = useProjectStore();
+const categoryStore = useCategoryStore();
+const countryStore = useCountryStore();
+
+// Load data before mount to start fetching earlier
+onBeforeMount(() => {
+  Promise.all([
+    projectStore.load(),
+    categoryStore.load(),
+    countryStore.load(),
+  ]);
+});
 
 const loading = computed(() => loadingStore.showLoadingSpinner);
 const project = computed((): Project | undefined => {

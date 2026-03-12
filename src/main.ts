@@ -2,10 +2,6 @@ import { createApp } from "vue";
 import { createPinia } from "pinia";
 import { createBootstrap } from "bootstrap-vue-next";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import Vue3VideoPlayer from "@cloudgeek/vue3-video-player";
-import "@cloudgeek/vue3-video-player/dist/vue3-video-player.css";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 
 import App from "./App.vue";
@@ -20,10 +16,6 @@ import "./assets/style-config.scss";
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
-
-// Initialize stores after Pinia is created but before the app mounts
-// Note: Stores need the Pinia instance implicitly provided by app.use(pinia)
-// We call init *after* app.use(pinia)
 
 const app = createApp(App);
 
@@ -43,3 +35,22 @@ useCountryStore(pinia);
 // app.component('vue-picture-swipe', VuePictureSwipe)
 
 app.mount("#app");
+
+// Hide app shell and show app after mount
+requestAnimationFrame(() => {
+  const appElement = document.getElementById('app');
+  const shellElement = document.getElementById('app-shell');
+  
+  if (appElement) {
+    appElement.classList.add('mounted');
+  }
+  
+  if (shellElement) {
+    shellElement.classList.add('fade-out');
+    setTimeout(() => {
+      if (shellElement.parentNode) {
+        shellElement.parentNode.removeChild(shellElement);
+      }
+    }, 300);
+  }
+});

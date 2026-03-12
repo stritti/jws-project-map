@@ -1,8 +1,6 @@
 import {
   createRouter,
   createWebHistory,
-  type NavigationGuardNext,
-  type RouteLocationNormalized,
 } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import { useProjectStore } from "@/features/projects/stores/project.store";
@@ -45,8 +43,5 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 });
-
-// Removing the beforeEach guard that was causing navigation delays
-// Data initialization is handled within the components that need it (e.g., ProjectListView mounted hook)
 
 export default router;
