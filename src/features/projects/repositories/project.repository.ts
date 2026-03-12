@@ -47,21 +47,23 @@ const FULL_FIELDS = [
 
 export const projectRepository = {
   async fetchMinimal(): Promise<RawProjectRecord[]> {
-    return base.list<RawProjectRecord>({
+    const result = await base.list<RawProjectRecord>({
       limit: 1000,
       offset: 0,
       viewId: "vwlnl4t095iifqc9",
       fields: MINIMAL_FIELDS,
     });
+    return result.list;
   },
 
   async fetchFull(): Promise<RawProjectRecord[]> {
-    return base.list<RawProjectRecord>({
+    const result = await base.list<RawProjectRecord>({
       limit: 1000,
       offset: 0,
       viewId: "vwlnl4t095iifqc9",
       fields: FULL_FIELDS,
     });
+    return result.list;
   },
 
   async fetchById(id: number): Promise<RawProjectRecord> {
