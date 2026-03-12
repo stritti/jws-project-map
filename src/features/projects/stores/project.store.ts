@@ -52,15 +52,12 @@ export const useProjectStore = defineStore("project", {
 
       return result;
     },
-    projectsFinished() {
-      return this.projectsByState.finished || [];
-    },
-    projectsUnderConstruction() {
-      return this.projectsByState["under construction"] || [];
-    },
-    projectsPlanned() {
-      return this.projectsByState.planned || [];
-    },
+    projectsFinished: (state): Project[] =>
+      state.projects.filter((p) => p.state === "finished"),
+    projectsUnderConstruction: (state): Project[] =>
+      state.projects.filter((p) => p.state === "under construction"),
+    projectsPlanned: (state): Project[] =>
+      state.projects.filter((p) => p.state === "planned"),
   },
   actions: {
     // Schnelles Laden nur der Kartendaten mit Promise-Rückgabe
