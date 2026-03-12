@@ -4,31 +4,6 @@ import type { Project } from "@/interfaces/Project";
 import type { LatLng } from "leaflet";
 
 // Optimierte Feldliste - nur die Felder, die wir wirklich brauchen
-const REQUIRED_FIELDS = [
-  "Id",
-  "Name",
-  "TeaserImage",
-  "Category",
-  "Notes",
-  "Country",
-  "Latitude",
-  "Longitude",
-  "Link",
-  "State",
-  "Since",
-  "Gallery",
-];
-
-// Minimale Feldliste für die Kartenansicht - für schnelleres initiales Laden
-const MAP_VIEW_FIELDS = [
-  "Id",
-  "Name",
-  "Category",
-  "Country",
-  "Latitude",
-  "Longitude",
-  "State",
-];
 
 // In-Memory Cache mit Zeitstempel
 interface CacheData {
@@ -48,23 +23,28 @@ const processDataCache = new Map<string, Array<Project>>();
 
 // Hilfsfunktion zur Datenverarbeitung - optimiert für Leistung mit Memoization
 function processProjectData(
-  response: any,
+  response: unknown,
   forMapOnly: boolean,
 ): Array<Project> {
-  if (!response || !response.list || !Array.isArray(response.list)) {
+  if (
+    typeof response !== "object" ||
+    response === null ||
+    !("list" in response) ||
+    !Array.isArray((response as { list: unknown }).list)
+  ) {
     console.error("Invalid response format:", response);
     return [];
   }
 
-  // Erstelle einen Cache-Schlüssel basierend auf der Antwort und dem Modus
-  const cacheKey = `${forMapOnly ? "map" : "full"}-${response.list.length}`;
+  const list = (response as { list: unknown[] }).list;
+
+  const cacheKey = `${forMapOnly ? "map" : "full"}-${list.length}`;
 
   // Prüfe, ob wir bereits verarbeitete Daten im Cache haben
   if (processDataCache.has(cacheKey)) {
     return processDataCache.get(cacheKey)!;
   }
 
-  const list = response.list || [];
   const result: Project[] = [];
   const len = list.length;
 
@@ -101,7 +81,7 @@ function processProjectData(
     // Nur die zusätzlichen Felder hinzufügen, wenn nicht nur für die Karte
     if (!forMapOnly) {
       if (record.TeaserImage) {
-        project.teaserImg = record.TeaserImage as any;
+        project.teaserImg = record.TeaserImage as unknown;
       }
 
       if (record.Notes) {
@@ -121,7 +101,7 @@ function processProjectData(
       }
 
       if (record.Gallery) {
-        project.gallery = record.Gallery as any;
+        project.gallery = record.Gallery as unknown;
       }
     }
 

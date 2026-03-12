@@ -1,5 +1,4 @@
 import { NocoDBService } from "@/services/nocodb.service";
-import type { Project } from "@/interfaces/Project";
 
 const tableId = "mdctuswlmsfvi8i";
 
@@ -31,7 +30,7 @@ const FULL_FIELDS = [
 ];
 
 export const projectRepository = {
-  async fetchMinimal(): Promise<any> {
+  async fetchMinimal(): Promise<unknown> {
     return base.list({
       limit: 1000,
       offset: 0,
@@ -40,7 +39,7 @@ export const projectRepository = {
     });
   },
 
-  async fetchFull(): Promise<any> {
+  async fetchFull(): Promise<unknown> {
     return base.list({
       limit: 1000,
       offset: 0,
@@ -49,7 +48,7 @@ export const projectRepository = {
     });
   },
 
-  async fetchById(id: number): Promise<any> {
+  async fetchById(id: number): Promise<unknown> {
     return base.read(id, { fields: FULL_FIELDS });
   },
 };
