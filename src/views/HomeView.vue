@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, onMounted, ref } from "vue";
 import { useProjectStore } from "@/features/projects/stores/project.store";
 
 // Sofort mit dem Laden der Projektdaten beginnen

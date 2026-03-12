@@ -34,7 +34,7 @@ export const useProjectStore = defineStore("project", {
     getById: (state) => (id: number) =>
       state.projects.find((project: Project) => project.id === id) as Project,
     // Optimierte Getter mit Memoization für bessere Performance
-    projectsByState: (state) => {
+    projectsByState: (state): { finished: Project[]; "under construction": Project[]; planned: Project[] } => {
       // Nur einmal filtern statt dreimal
       const result = {
         finished: [] as Project[],
