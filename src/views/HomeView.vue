@@ -6,8 +6,10 @@ import { useProjectStore } from "@/features/projects/stores/project.store";
 const projectStore = useProjectStore();
 const mapVisible = ref(true); // Sofort sichtbar machen
 
-// Direkt importieren statt async für schnelleres Rendering
-import LocationMap from "../components/map/LocationMap.vue";
+// Lazy load map to remove Leaflet from initial bundle
+const LocationMap = defineAsyncComponent(
+  () => import("../components/map/LocationMap.vue"),
+);
 
 // Daten im Hintergrund laden
 if (projectStore.projects.length === 0) {

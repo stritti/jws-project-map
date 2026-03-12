@@ -130,6 +130,8 @@
 import { computed, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
 import { useProjectStore } from "@/features/projects/stores/project.store";
+import { useCategoryStore } from "@/stores/category.store";
+import { useCountryStore } from "@/stores/country.store";
 import CountryLabel from "../components/CountryLabel.vue";
 import CategoryBadge from "../components/CategoryBadge.vue";
 import MarkdownText from "../components/MarkdownText.vue";
@@ -157,11 +159,7 @@ const countryStore = useCountryStore();
 
 // Load data before mount to start fetching earlier
 onBeforeMount(() => {
-  Promise.all([
-    projectStore.load(),
-    categoryStore.load(),
-    countryStore.load(),
-  ]);
+  Promise.all([projectStore.load(), categoryStore.load(), countryStore.load()]);
 });
 
 const loading = computed(() => loadingStore.showLoadingSpinner);
