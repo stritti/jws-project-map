@@ -45,7 +45,7 @@ export default defineConfig({
   build: {
     // Increase the warning limit to avoid unnecessary warnings
     chunkSizeWarningLimit: 800,
-    // Enable source map for production build for better debugging
+    // Disable source maps in production to reduce bundle size and avoid exposing source code
     sourcemap: false,
     // Minify options
     minify: "terser",
