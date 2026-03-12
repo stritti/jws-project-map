@@ -22,37 +22,14 @@ let projectsCache: CacheData | null = null;
 const processDataCache = new Map<string, Array<Project>>();
 
 // Rohformat eines Projektdatensatzes aus NocoDB
-interface RawProjectRecord {
-  Id: number;
-  Name: string;
-  Latitude: number;
-  Longitude: number;
-  State?: string;
-  Category?: LinkedRecord[];
-  Country?: LinkedRecord[];
-  TeaserImage?: unknown;
-  Notes?: string;
-  Link?: string;
-  Since?: string;
-  Gallery?: unknown;
-}
+import type { RawProjectRecord } from "@/features/projects/repositories/project.repository";
 
 // Hilfsfunktion zur Datenverarbeitung - optimiert für Leistung mit Memoization
 function processProjectData(
-  response: unknown,
+  records: RawProjectRecord[],
   forMapOnly: boolean,
 ): Array<Project> {
-  if (
-    typeof response !== "object" ||
-    response === null ||
-    !("list" in response) ||
-    !Array.isArray((response as { list: unknown }).list)
-  ) {
-    console.error("Invalid response format:", response);
-    return [];
-  }
-
-  const list = (response as { list: RawProjectRecord[] }).list;
+  const list = records;
 
   const cacheKey = `${forMapOnly ? "map" : "full"}-${list.length}`;
 

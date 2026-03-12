@@ -2,15 +2,19 @@ import httpClient from "@/services/api/http.client";
 
 export class NocoDBService {
   private tableId: string;
-  private cache: Map<string, { data: Record<string, unknown>; timestamp: number }> = new Map();
-  private pendingRequests: Map<string, Promise<Record<string, unknown>>> = new Map();
+  private cache: Map<
+    string,
+    { data: Record<string, unknown>; timestamp: number }
+  > = new Map();
+  private pendingRequests: Map<string, Promise<Record<string, unknown>>> =
+    new Map();
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   constructor(tableId: string) {
     this.tableId = tableId;
   }
 
-  list(params?: {
+  list<T = Record<string, unknown>>(params?: {
     where?: string;
     offset?: number;
     limit?: number;
@@ -18,17 +22,17 @@ export class NocoDBService {
     sort?: string;
     populate?: string;
     fields?: string[];
-  }): Promise<Record<string, unknown>[]> {
+  }): Promise<T[]> {
     return httpClient
       .get(`/api/v2/tables/${this.tableId}/records`, {
         params: {
           ...params,
         },
       })
-      .then((response) => response.data)
+      .then((response) => response.data as T[])
       .catch((error) => {
         console.error(error);
-        return [];
+        return [] as T[];
       });
   }
 
