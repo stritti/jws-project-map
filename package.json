@@ -6,6 +6,8 @@
   "scripts": {
     "start": "bun run dev",
     "build": "run-p type-check build-only",
+    "budget": "node scripts/check-bundle-budget.cjs",
+    "build:prod": "npm run build && npm run budget",
     "lint": "eslint .",
     "build-only": "vite build",
     "dev": "vite",
@@ -36,6 +38,8 @@
   },
   "devDependencies": {
     "@iconify-json/bi": "^1.2.4",
+    "@lhci/cli": "^0.15.1",
+    "@netlify/plugin-lighthouse": "^6.0.4",
     "@rushstack/eslint-patch": "^1.12.0",
     "@types/leaflet": "^1.9.19",
     "@types/markdown-it": "^14.1.2",

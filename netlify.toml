@@ -1,6 +1,14 @@
 [build]
   publish = "dist"
-  command = "yarn run build"
+  command = "npm run build:prod"
+
+[[plugins]]
+package = "@netlify/plugin-lighthouse"
+
+  [plugins.inputs]
+  audits = ["performance"]
+  output_path = "lighthouse"
+  fail_deploy_on_score_thresholds = false
 
 [[redirects]]
   from = "/*"
