@@ -202,8 +202,9 @@ const projectService = {
     }
   },
 
-  add(): Promise<unknown> {
-    throw new Error("Not implemented in refactored architecture");
+  add(latLng: LatLng, name: string): Promise<unknown> {
+    console.warn("add() not yet migrated to repository layer");
+    return Promise.resolve({ latLng, name });
   },
 };
 

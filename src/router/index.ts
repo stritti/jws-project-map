@@ -14,43 +14,12 @@ const routes = [
     path: "/",
     name: "home",
     component: HomeView,
-    beforeEnter: async (
-      _to: RouteLocationNormalized,
-      _from: RouteLocationNormalized,
-      next: NavigationGuardNext,
-    ) => {
-      const projectStore = useProjectStore();
-      const categoryStore = useCategoryStore();
-      const countryStore = useCountryStore();
-      await Promise.all([
-        projectStore.load(true),
-        categoryStore.load(),
-        countryStore.load(),
-      ]);
-      next();
-    },
   },
   {
     path: "/project/",
-
     name: "ProjectList",
     component: () =>
       import(/* webpackChunkName: "project" */ "../views/ProjectListView.vue"),
-    beforeEnter: async (
-      _to: RouteLocationNormalized,
-      _from: RouteLocationNormalized,
-      next: NavigationGuardNext,
-    ) => {
-      const projectStore = useProjectStore();
-      const categoryStore = useCategoryStore();
-      const countryStore = useCountryStore();
-      await Promise.all([
-        projectStore.load(),
-        categoryStore.load(),
-        countryStore.load(),
-      ]);
-      next();
-    },
   },
   {
     path: "/project/:projectId",
@@ -60,21 +29,6 @@ const routes = [
       import(
         /* webpackChunkName: "project" */ "../views/ProjectDetailView.vue"
       ),
-    beforeEnter: async (
-      _to: RouteLocationNormalized,
-      _from: RouteLocationNormalized,
-      next: NavigationGuardNext,
-    ) => {
-      const projectStore = useProjectStore();
-      const categoryStore = useCategoryStore();
-      const countryStore = useCountryStore();
-      await Promise.all([
-        projectStore.load(),
-        categoryStore.load(),
-        countryStore.load(),
-      ]);
-      next();
-    },
   },
   {
     path: "/about",
