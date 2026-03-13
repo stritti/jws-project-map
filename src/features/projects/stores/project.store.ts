@@ -28,7 +28,11 @@ export const useProjectStore = defineStore("project", {
       lastFetched: null,
     };
   },
-  persist: true, // Enable persistence for the entire store
+  persist: {
+    // Transient state (loading, filteredList) must not be persisted
+    // to avoid a stuck "loading" flag across page reloads
+    pick: ["projects", "mapProjects", "initialized", "lastFetched"],
+  },
   getters: {
     getAll: (state) => state.projects as Array<Project>,
     getById: (state) => (id: number) =>
