@@ -10,6 +10,7 @@ interface State {
   initialized: boolean;
   mapInitialized: boolean; // Separater Flag für Kartendaten
   loading: boolean;
+  loadingMapData: boolean; // Separates Flag für paralleles Laden der Kartendaten
   lastFetched: number | null;
 }
 
@@ -25,6 +26,7 @@ export const useProjectStore = defineStore("project", {
       initialized: false,
       mapInitialized: false,
       loading: false,
+      loadingMapData: false,
       lastFetched: null,
     };
   },
@@ -75,15 +77,13 @@ export const useProjectStore = defineStore("project", {
         return this.mapProjects;
       }
 
-      // Wenn bereits ein Ladevorgang läuft, warten wir auf dessen Abschluss
-      if (this.loading) {
-        // Warte auf den nächsten Tick, um sicherzustellen, dass die Daten geladen sind
-        await new Promise((resolve) => setTimeout(resolve, 100));
+      // Separates Flag erlaubt paralleles Ausführen neben load()
+      if (this.loadingMapData) {
         return this.mapProjects;
       }
 
       // Sofort mit dem Laden beginnen
-      this.loading = true;
+      this.loadingMapData = true;
 
       try {
         // Nur die für die Karte notwendigen Daten laden
@@ -106,7 +106,7 @@ export const useProjectStore = defineStore("project", {
         console.error("Error loading map data:", error);
         return this.mapProjects;
       } finally {
-        this.loading = false;
+        this.loadingMapData = false;
       }
     },
 

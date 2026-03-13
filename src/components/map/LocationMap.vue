@@ -294,9 +294,6 @@ const layerLabelProjectsPlanned = computed(() => {
 onBeforeMount(() => {
   // Karte ist sofort bereit (mapReady ist bereits true)
   isLoadingMap.value = false;
-
-  // Starte das Laden der Projektdaten im Hintergrund
-  projectStore.load(false);
 });
 
 // Überwache die Projektdaten – immediate:true damit bereits persistierte Daten sofort greifen
