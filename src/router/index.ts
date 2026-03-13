@@ -1,7 +1,4 @@
-import {
-  createRouter,
-  createWebHistory,
-} from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 
 const routes = [
@@ -9,14 +6,14 @@ const routes = [
     path: "/",
     name: "home",
     component: HomeView,
-    // Remove blocking beforeEnter - data loads asynchronously in component
   },
   {
     path: "/project/",
     name: "ProjectList",
     component: () =>
-      import(/* webpackChunkName: "project" */ "../views/ProjectListView.vue"),
-    // Remove blocking beforeEnter - data loads asynchronously in component
+      import(
+        /* webpackChunkName: "project-list" */ "../views/ProjectListView.vue"
+      ),
   },
   {
     path: "/project/:projectId",
@@ -24,9 +21,8 @@ const routes = [
     name: "ProjectDetail",
     component: () =>
       import(
-        /* webpackChunkName: "project" */ "../views/ProjectDetailView.vue"
+        /* webpackChunkName: "project-detail" */ "../views/ProjectDetailView.vue"
       ),
-    // Remove blocking beforeEnter - data loads asynchronously in component
   },
   {
     path: "/about",
@@ -45,4 +41,3 @@ const router = createRouter({
 });
 
 export default router;
-

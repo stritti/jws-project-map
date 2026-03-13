@@ -14,7 +14,7 @@
         </template>
         <div v-if="project">
           <b-row>
-            <b-col cols="3" md="1" >
+            <b-col cols="3" md="1">
               <back-button class="back-btn" />
             </b-col>
             <b-col>
@@ -22,7 +22,7 @@
                 {{ project.name }}
               </h1>
             </b-col>
-            <b-col cols="3" class="text-end" >
+            <b-col cols="3" class="text-end">
               <category-badge
                 v-for="category in project.category"
                 :key="category.Id"
@@ -74,28 +74,33 @@
           <h2>Details</h2>
           <table class="project-details__meta">
             <thead>
-            <tr >
-              <th >Name:</th>
-              <td v-if="project.name">{{ project.name }}</td>
-              <th >Country:</th>
-              <td><country-label v-if="project.country" :country-id="project.country.Id" /></td>
-            </tr>
-            <tr >
-              <th v-if="project.state">State:</th>
-              <td v-if="project.state">{{ project.state }}</td>
-              <th v-if="project.since">Since:</th>
-              <td v-if="project.since">{{ project.since }}</td>
-            </tr>
-            <tr v-if="project.category">
-              <th>Category:</th>
-              <td colspan="3">
-                <category-badge
-                  v-for="category in project.category"
-                  :key="category.Id"
-                  :category-id="category.Id"
-                />
-              </td>
-            </tr>
+              <tr>
+                <th>Name:</th>
+                <td v-if="project.name">{{ project.name }}</td>
+                <th>Country:</th>
+                <td>
+                  <country-label
+                    v-if="project.country"
+                    :country-id="project.country.Id"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <th v-if="project.state">State:</th>
+                <td v-if="project.state">{{ project.state }}</td>
+                <th v-if="project.since">Since:</th>
+                <td v-if="project.since">{{ project.since }}</td>
+              </tr>
+              <tr v-if="project.category">
+                <th>Category:</th>
+                <td colspan="3">
+                  <category-badge
+                    v-for="category in project.category"
+                    :key="category.Id"
+                    :category-id="category.Id"
+                  />
+                </td>
+              </tr>
             </thead>
           </table>
           <div v-if="project.notes" class="project-details__description">
@@ -124,19 +129,28 @@
 <script setup lang="ts">
 import { computed, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
-import { useProjectStore } from "../stores/project.store";
-import { useCategoryStore } from "../stores/category.store";
-import { useCountryStore } from "../stores/country.store";
+import { useProjectStore } from "@/features/projects/stores/project.store";
+import { useCategoryStore } from "@/stores/category.store";
+import { useCountryStore } from "@/stores/country.store";
 import CountryLabel from "../components/CountryLabel.vue";
 import CategoryBadge from "../components/CategoryBadge.vue";
-import MarkdownText from "../components/MarkdownText.vue";
+const MarkdownText = defineAsyncComponent(
+  () => import("../components/MarkdownText.vue"),
+);
 import SiteFooter from "../components/SiteFooter.vue";
 import { useLoadingStore } from "../stores/loading.store";
 import BackButton from "../components/actions/BackButton.vue";
 import ShareButton from "../components/actions/ShareButton.vue";
 import NavigateButton from "../components/actions/NavigateButton.vue";
-import ProjectGallery from "@/components/project/ProjectGallery.vue";
-import ProjectGalleryModal from "@/components/project/ProjectGalleryModal.vue";
+import { defineAsyncComponent } from "vue";
+
+const ProjectGallery = defineAsyncComponent(
+  () => import("@/components/project/ProjectGallery.vue"),
+);
+
+const ProjectGalleryModal = defineAsyncComponent(
+  () => import("@/components/project/ProjectGalleryModal.vue"),
+);
 import type { Project } from "@/interfaces/Project";
 
 const props = defineProps({
@@ -154,17 +168,13 @@ const countryStore = useCountryStore();
 
 // Load data before mount to start fetching earlier
 onBeforeMount(() => {
-  Promise.all([
-    projectStore.load(),
-    categoryStore.load(),
-    countryStore.load(),
-  ]);
+  Promise.all([projectStore.load(), categoryStore.load(), countryStore.load()]);
 });
 
 const loading = computed(() => loadingStore.showLoadingSpinner);
 const project = computed((): Project | undefined => {
   const id = parseInt(route.params.projectId as string);
-  return projectStore.getById(id);
+  return projectStore.projects.find((p) => p.id === id);
 });
 
 const teaserImage = computed(() => {

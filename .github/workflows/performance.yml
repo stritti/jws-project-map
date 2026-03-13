@@ -1,0 +1,116 @@
+name: Performance Checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  performance:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (with bundle budget)
+        run: npm run build:prod
+
+      - name: Run Lighthouse CI (static dist)
+        run: |
+          npx lhci autorun \
+            --collect.staticDistDir=dist \
+            --upload.target=filesystem \
+            --upload.outputDir=.lighthouseci
+
+      - name: Upload Lighthouse HTML reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: .lighthouseci
+
+      - name: Extract Lighthouse metrics
+        id: lhmetrics
+        run: |
+          REPORT=$(ls .lighthouseci/*.json | head -n 1)
+          LCP=$(jq '.audits["largest-contentful-paint"].numericValue' $REPORT)
+          TBT=$(jq '.audits["total-blocking-time"].numericValue' $REPORT)
+          CLS=$(jq '.audits["cumulative-layout-shift"].numericValue' $REPORT)
+          BYTE=$(jq '.audits["total-byte-weight"].numericValue' $REPORT)
+          echo "LCP=$LCP" >> $GITHUB_OUTPUT
+          echo "TBT=$TBT" >> $GITHUB_OUTPUT
+          echo "CLS=$CLS" >> $GITHUB_OUTPUT
+          echo "BYTE=$BYTE" >> $GITHUB_OUTPUT
+
+      - name: Publish Lighthouse summary
+        run: |
+          echo "## 🚀 Lighthouse Performance Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| LCP (ms) | ${{ steps.lhmetrics.outputs.LCP }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| TBT (ms) | ${{ steps.lhmetrics.outputs.TBT }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| CLS | ${{ steps.lhmetrics.outputs.CLS }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Total Byte Weight | ${{ steps.lhmetrics.outputs.BYTE }} |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Comment or Update PR with Lighthouse metrics
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        env:
+          LCP: ${{ steps.lhmetrics.outputs.LCP }}
+          TBT: ${{ steps.lhmetrics.outputs.TBT }}
+          CLS: ${{ steps.lhmetrics.outputs.CLS }}
+          BYTE: ${{ steps.lhmetrics.outputs.BYTE }}
+        with:
+          script: |
+            const lcp = Number(process.env.LCP || 0);
+            const tbt = Number(process.env.TBT || 0);
+            const cls = Number(process.env.CLS || 0);
+            const byte = Number(process.env.BYTE || 0);
+
+            const status = (value, max) => value <= max ? '✅' : '⚠️';
+
+            const body = `<!-- lighthouse-report -->
+## 🚀 Lighthouse Performance Report
+
+| Metric | Value | Status |
+|--------|--------|--------|
+| LCP (ms) | ${lcp} | ${status(lcp, 2500)} |
+| TBT (ms) | ${tbt} | ${status(tbt, 300)} |
+| CLS | ${cls} | ${status(cls, 0.1)} |
+| Total Byte Weight | ${byte} | ${status(byte, 500000)} |
+
+Full HTML report available in workflow artifacts.`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existing = comments.find(c => c.body && c.body.includes('<!-- lighthouse-report -->'));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }

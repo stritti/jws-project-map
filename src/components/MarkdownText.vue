@@ -1,23 +1,24 @@
 <template>
-  <markdown v-if="text" :source="text" breaks html typographer />
+  <div v-if="compiled" v-html="compiled" />
 </template>
 
-<script lang="ts">
-import Markdown from "vue3-markdown-it";
+<script setup lang="ts">
+import { computed } from "vue";
+import { marked } from "marked";
 
-import { defineComponent } from "vue";
+interface Props {
+  text?: string | null;
+}
 
-export default defineComponent({
-  name: "MarkdownText",
-  components: {
-    Markdown,
-  },
-  props: {
-    text: {
-      type: String,
-      required: false,
-      default: null,
-    },
-  },
+const props = defineProps<Props>();
+
+marked.setOptions({
+  breaks: true,
+  gfm: true,
+});
+
+const compiled = computed(() => {
+  if (!props.text) return "";
+  return marked.parse(props.text);
 });
 </script>

@@ -3,21 +3,28 @@
 @use "sass:math";
 @use "sass:meta";
 
+@use "sass:map";
+@use "bootstrap/scss/functions";
+
+// Disable Bootstrap utility generation
+$utilities: ();
+
 @use "bootstrap/scss/bootstrap" with (
   $primary: #3d5e9e
 );
+
 @use "bootstrap-vue-next/dist/bootstrap-vue-next.css";
 
 // Include any default variable overrides here
 $primary: #3d5e9e;
 
-$font-size-base:              1rem; // Assumes the browser default, typically `16px`
-$h1-font-size:                math.div($font-size-base, 1) * 2;
-$h2-font-size:                math.div($font-size-base, 1) * 1.75;
-$h3-font-size:                math.div($font-size-base, 1) * 1.5;
-$h4-font-size:                math.div($font-size-base, 1) * 1.25;
-$h5-font-size:                math.div($font-size-base, 1) * 1.25;
-$h6-font-size:                $font-size-base;
+$font-size-base: 1rem; // Assumes the browser default, typically `16px`
+$h1-font-size: math.div($font-size-base, 1) * 2;
+$h2-font-size: math.div($font-size-base, 1) * 1.75;
+$h3-font-size: math.div($font-size-base, 1) * 1.5;
+$h4-font-size: math.div($font-size-base, 1) * 1.25;
+$h5-font-size: math.div($font-size-base, 1) * 1.25;
+$h6-font-size: $font-size-base;
 
 // Modern color mixing functions
 @function tint-color($color, $weight) {
@@ -27,6 +34,5 @@ $h6-font-size:                $font-size-base;
 @function shade-color($color, $weight) {
   @return color.mix(black, $color, $weight);
 }
-
 
 // Then add additional custom code here

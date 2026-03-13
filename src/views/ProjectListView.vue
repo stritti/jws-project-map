@@ -83,9 +83,10 @@
 import { ref, computed, watch, onBeforeMount } from "vue";
 import { storeToRefs } from "pinia";
 import { useLoadingStore } from "../stores/loading.store";
-import { useProjectStore } from "../stores/project.store";
+import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useCategoryStore } from "../stores/category.store";
 import { useCountryStore } from "../stores/country.store";
+import type { Project } from "@/interfaces/Project";
 import ProjectListItem from "../components/project/ProjectListItem.vue";
 import SiteFooter from "../components/SiteFooter.vue";
 
@@ -95,7 +96,8 @@ const categoryStore = useCategoryStore();
 const countryStore = useCountryStore();
 
 const { showLoadingSpinner } = storeToRefs(loadingStore);
-const { filteredList: filteredProjectList, projects } = storeToRefs(projectStore);
+const { filteredList: filteredProjectList, projects } =
+  storeToRefs(projectStore);
 const { categories } = storeToRefs(categoryStore);
 const { countries } = storeToRefs(countryStore);
 
@@ -110,20 +112,38 @@ const categoryFilter = ref<string[]>([]);
 const countryFilter = ref<string[]>([]);
 
 const projectList = computed(() =>
-  projects.value.map((project) => ({ text: project.name, value: project.id, ...project }))
+  projects.value.map((project) => ({
+    text: project.name,
+    value: project.id,
+    ...project,
+  })),
 );
 
 const categoryList = computed(() =>
-  categories.value.map((category) => ({ text: category.name, value: Number(category.id), ...category }))
+  categories.value.map((category) => ({
+    text: category.name,
+    value: Number(category.id),
+    ...category,
+  })),
 );
 
 const countryList = computed(() =>
-  countries.value.map((country) => ({ text: country.name, value: Number(country.id), ...country }))
+  countries.value.map((country) => ({
+    text: country.name,
+    value: Number(country.id),
+    ...country,
+  })),
 );
 
 const projectCount = computed(() => projectList.value.length);
-const projectsPlannedCount = computed(() => projectStore.projectsPlanned.length);
-const projectsUnderConstructionCount = computed(() => projectStore.projectsUnderConstruction.length);
+const projectsPlannedCount = computed(
+  () => projectStore.projects.filter((p) => p.state === "planned").length,
+);
+const projectsUnderConstructionCount = computed(
+  () =>
+    projectStore.projects.filter((p) => p.state === "under construction")
+      .length,
+);
 
 onBeforeMount(() => {
   // Load data asynchronously before mount to start fetching earlier
@@ -141,13 +161,25 @@ onBeforeMount(() => {
 watch(
   [projects, stateFilter, categoryFilter, countryFilter],
   () => {
-    projectStore.doFilter(
-      stateFilter.value,
-      categoryFilter.value.map(Number),
-      countryFilter.value.map(Number)
+    // Precompute numeric filter arrays once per callback to avoid recomputing them per project
+    const categoryFilterIds = categoryFilter.value.map(Number);
+    const countryFilterIds = countryFilter.value.map(Number);
+
+    // Filter projects manually
+    projectStore.filteredList = projectStore.projects.filter(
+      (project: Project) =>
+        (stateFilter.value.length === 0 ||
+          stateFilter.value.includes(project.state)) &&
+        (categoryFilterIds.length === 0 ||
+          (project.category?.some((cat: { Id: number }) =>
+            categoryFilterIds.includes(cat.Id),
+          ) ??
+            false)) &&
+        (countryFilterIds.length === 0 ||
+          (project.country && countryFilterIds.includes(project.country.Id))),
     );
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 
