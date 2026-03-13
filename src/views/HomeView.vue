@@ -4,8 +4,11 @@ import { useProjectStore } from "@/features/projects/stores/project.store";
 
 const projectStore = useProjectStore();
 
-// Start loading project data immediately, in parallel with the map component
-projectStore.load(false);
+// Load map pins quickly (minimal fields) AND full project data in parallel.
+// preloadMapData() populates the map pins as soon as the lighter request resolves;
+// load() fetches all fields in the background so the project list is ready too.
+projectStore.preloadMapData().catch((err) => console.error("Map preload failed:", err));
+projectStore.load(false).catch((err) => console.error("Full project load failed:", err));
 
 // Lazy-load the map component (Leaflet stays out of the initial bundle)
 const LocationMap = defineAsyncComponent(
