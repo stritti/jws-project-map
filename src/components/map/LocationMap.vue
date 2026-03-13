@@ -191,8 +191,7 @@ import ProjectDetails from "../../components/project/ProjectDetails.vue";
 import projectService from "@/features/projects/services/project.service";
 import type { Project } from "@/interfaces/Project";
 
-// Lazy load Leaflet CSS to reduce initial bundle
-import("leaflet/dist/leaflet.css");
+import "leaflet/dist/leaflet.css";
 
 const loadingStore = useLoadingStore();
 const categoryStore = useCategoryStore();
@@ -300,13 +299,13 @@ onBeforeMount(() => {
   projectStore.load(false);
 });
 
-// Überwache die Projektdaten
+// Überwache die Projektdaten – immediate:true damit bereits persistierte Daten sofort greifen
 watch(
   locations,
   (newLocations) => {
     if (newLocations?.length > 0) {
       initialDataLoaded.value = true;
-      pinsReady.value = true; // Pins sind bereit, wenn Daten geladen sind
+      pinsReady.value = true;
 
       if (mapInitialized.value && map.value) {
         nextTick(() => {
@@ -315,19 +314,13 @@ watch(
       }
     }
   },
-  { deep: true },
+  { immediate: true },
 );
 
-// Verwende eine debounced Funktion für mapLoaded mit defineAsyncComponent für bessere Performance
+// Wird aufgerufen, wenn die Leaflet-Karte bereit ist
 const mapLoaded = () => {
   mapInitialized.value = true;
-
-  // Karte sofort als geladen markieren
   isLoadingMap.value = false;
-
-  // Verwende requestIdleCallback für nicht-kritische Operationen
-  // Mit Fallback für Browser ohne Unterstützung
-  const useIdleCallback = typeof window.requestIdleCallback === "function";
 
   // Optimiere die Leaflet-Karte für bessere Performance
   if (map.value?.leafletObject) {
@@ -354,34 +347,13 @@ const mapLoaded = () => {
     map.value.leafletObject.options.wheelPxPerZoomLevel = 60;
   }
 
-  // Memoized Funktion zum Laden der Pins
-  const loadPins = () => {
-    // Wenn wir bereits Daten haben, Pins anzeigen und Grenzen aktualisieren
-    if (locations.value.length > 0) {
-      pinsReady.value = true;
-
-      // Verzögere das Aktualisieren der Grenzen, um die Rendering-Performance zu verbessern
-      setTimeout(() => updateMaxBounds(), 100);
-    } else {
-      // Wenn keine Daten vorhanden sind, starte das Laden
-      projectStore.load(false).then(() => {
-        // Verwende requestAnimationFrame für flüssigeres Rendering
-        requestAnimationFrame(() => {
-          pinsReady.value = true;
-
-          // Verzögere das Aktualisieren der Grenzen, um die Rendering-Performance zu verbessern
-          setTimeout(() => updateMaxBounds(), 100);
-        });
-      });
-    }
-  };
-
-  if (useIdleCallback) {
-    window.requestIdleCallback(loadPins, { timeout: 2000 });
-  } else {
-    // Fallback für Browser ohne requestIdleCallback
-    setTimeout(loadPins, 50);
+  // Wenn Daten bereits vorhanden sind (z.B. aus persistiertem Store), sofort anzeigen
+  if (locations.value.length > 0) {
+    pinsReady.value = true;
+    nextTick(() => updateMaxBounds());
   }
+  // Wenn keine Daten vorhanden, kümmert sich der watch(locations) darum,
+  // sobald das Laden abgeschlossen ist
 };
 
 const addMarker = (event: {
