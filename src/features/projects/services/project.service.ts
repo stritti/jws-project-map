@@ -24,6 +24,17 @@ const processDataCache = new Map<string, Array<Project>>();
 // Rohformat eines Projektdatensatzes aus NocoDB
 import type { RawProjectRecord } from "@/features/projects/repositories/project.repository";
 
+// Hilfsfunktion um verknüpfte Datensätze aus dem NocoDB-Format zu extrahieren
+// NocoDB v2 liefert verknüpfte Felder entweder als Array (LTAR) oder als { list: T[] } (Links-Feldtyp)
+function extractLinkedRecords<T>(value: unknown): T[] | undefined {
+  if (!value) return undefined;
+  if (Array.isArray(value)) return value as T[];
+  if (typeof value === "object" && value !== null && "list" in (value as object)) {
+    return (value as { list: T[] }).list;
+  }
+  return undefined;
+}
+
 // Hilfsfunktion zur Datenverarbeitung - optimiert für Leistung mit Memoization
 function processProjectData(
   records: RawProjectRecord[],
@@ -59,16 +70,14 @@ function processProjectData(
     };
 
     // Nur die notwendigen Felder für die Kartenansicht
-    if (record.Category) {
-      project.category = record.Category as Array<LinkedRecord>;
+    const categoryRecords = extractLinkedRecords<LinkedRecord>(record.Category);
+    if (categoryRecords && categoryRecords.length > 0) {
+      project.category = categoryRecords;
     }
 
-    if (
-      record.Country &&
-      Array.isArray(record.Country) &&
-      record.Country.length > 0
-    ) {
-      project.country = record.Country[0];
+    const countryRecords = extractLinkedRecords<LinkedRecord>(record.Country);
+    if (countryRecords && countryRecords.length > 0) {
+      project.country = countryRecords[0];
     }
 
     // Nur die zusätzlichen Felder hinzufügen, wenn nicht nur für die Karte
