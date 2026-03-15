@@ -16,10 +16,12 @@ export class NocoDBService {
     populate?: string;
     fields?: string[];
   }): Promise<{ list: T[] }> {
+    const { fields, ...rest } = params ?? {};
     return httpClient
       .get(`/api/v2/tables/${this.tableId}/records`, {
         params: {
-          ...params,
+          ...rest,
+          ...(fields && fields.length > 0 ? { fields: fields.join(",") } : {}),
         },
       })
       .then((response) => response.data as { list: T[] })
