@@ -21,7 +21,7 @@ export class NocoDBService {
       .get(`/api/v2/tables/${this.tableId}/records`, {
         params: {
           ...rest,
-          ...(fields ? { fields: fields.join(",") } : {}),
+          ...(fields && fields.length > 0 ? { fields: fields.join(",") } : {}),
         },
       })
       .then((response) => response.data as { list: T[] })

@@ -30,7 +30,8 @@ function extractLinkedRecords<T>(value: unknown): T[] | undefined {
   if (!value) return undefined;
   if (Array.isArray(value)) return value as T[];
   if (typeof value === "object" && value !== null && "list" in (value as object)) {
-    return (value as { list: T[] }).list;
+    const list = (value as { list: unknown }).list;
+    if (Array.isArray(list)) return list as T[];
   }
   return undefined;
 }
