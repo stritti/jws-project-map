@@ -24,11 +24,13 @@
           {{ projectsPlannedCount }} planned)
         </h3>
 
-        <b-button v-b-toggle.collapse-filter variant="primary">
-          <IBiFilter />
+        <b-button @click="filterVisible = !filterVisible" variant="primary" class="d-flex align-items-center gap-2 px-3 fw-bold shadow-sm">
+          <IBiFunnelFill />
           Filter
+          <IBiCaretUpFill v-if="filterVisible" />
+          <IBiCaretDownFill v-else />
         </b-button>
-        <b-collapse id="collapse-filter">
+        <b-collapse id="collapse-filter" v-model:visible="filterVisible">
           <b-card bg-variant="light" class="mb-5">
             <b-form-group label="Project State:">
               <b-form-checkbox-group
@@ -110,6 +112,7 @@ const stateOptions = [
 const stateFilter = ref<string[]>([]);
 const categoryFilter = ref<string[]>([]);
 const countryFilter = ref<string[]>([]);
+const filterVisible = ref(false);
 
 const projectList = computed(() =>
   projects.value.map((project) => ({
@@ -161,25 +164,18 @@ onBeforeMount(() => {
 watch(
   [projects, stateFilter, categoryFilter, countryFilter],
   () => {
-    // Precompute numeric filter arrays once per callback to avoid recomputing them per project
-    const categoryFilterIds = categoryFilter.value.map(Number);
-    const countryFilterIds = countryFilter.value.map(Number);
+    // Ensure filters are numeric where necessary
+    const categoryFilterIds = categoryFilter.value.map(Number).filter(n => !isNaN(n));
+    const countryFilterIds = countryFilter.value.map(Number).filter(n => !isNaN(n));
 
-    // Filter projects manually
-    projectStore.filteredList = projectStore.projects.filter(
-      (project: Project) =>
-        (stateFilter.value.length === 0 ||
-          stateFilter.value.includes(project.state)) &&
-        (categoryFilterIds.length === 0 ||
-          (project.category?.some((cat: { Id: number }) =>
-            categoryFilterIds.includes(cat.Id),
-          ) ??
-            false)) &&
-        (countryFilterIds.length === 0 ||
-          (project.country && countryFilterIds.includes(project.country.Id))),
+    // Delegate filtering to the store for consistency
+    projectStore.doFilter(
+      stateFilter.value,
+      categoryFilterIds,
+      countryFilterIds
     );
   },
-  { immediate: true },
+  { immediate: true, deep: true },
 );
 </script>
 

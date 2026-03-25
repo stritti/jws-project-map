@@ -12,13 +12,15 @@
         {{ project.name }}
       </h3>
       <b-card-body :sub-title="null">
-        <category-badge
-          v-for="category in project.category"
-          :key="category.Id"
-          :category-id="category.Id"
-        />
-        <div v-if="project.country">
-          <country-label :country-id="project.country.id" />
+        <div class="category-badges mb-2">
+          <category-badge
+            v-for="category in project.category"
+            :key="category.Id"
+            :category-id="category.Id"
+          />
+        </div>
+        <div v-if="project.country && project.country.Id">
+          <country-label :country-id="project.country.Id" />
         </div>
         <div>Project State: {{ project.state }}</div>
       </b-card-body>
@@ -42,14 +44,15 @@ export default defineComponent({
   },
   computed: {
     teaserImage() {
-      if (this.project.teaserImg) {
-        return this.project.teaserImg[0].thumbnails.card_cover.signedUrl;
+      if (this.project.teaserImg && this.project.teaserImg.length > 0) {
+        const img = this.project.teaserImg[0];
+        return img.thumbnails?.card_cover?.signedUrl || img.signedUrl || "/img/placeholder.png";
       } else {
         return "/img/placeholder.png";
       }
     },
     imageStyleClasses() {
-      return this.project.state.replace(" ", "-");
+      return this.project.state ? this.project.state.replace(" ", "-") : "";
     },
   },
 });
@@ -63,19 +66,65 @@ a {
 
 .project-list-item {
   min-height: 24rem;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  border: none !important;
+  border-radius: 1.25rem !important;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  background: #fff;
+  height: 100%;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+
+    .card-img-top {
+      transform: scale(1.08);
+    }
+
+    .project-list-item__title {
+      background: linear-gradient(
+        135deg,
+        rgb(70, 105, 175) 0%,
+        rgb(61, 94, 158) 100%
+      );
+    }
+  }
+
   &__title {
-    padding: 1rem;
-    font-size: 1.2em;
+    padding: 1.25rem 1rem;
+    font-size: 1.3rem;
+    font-weight: 700;
     text-decoration: none;
-    color: #eee;
-    background-color: rgb(61, 94, 158);
+    color: #fff;
+    background: linear-gradient(
+      135deg,
+      rgb(61, 94, 158) 0%,
+      rgb(45, 70, 120) 100%
+    );
+    margin: 0;
+    transition: background 0.3s ease;
   }
 
   .card-img-top {
     min-height: 15rem;
     max-height: 15rem;
     object-fit: cover;
-    object-position: 100% 0;
+    object-position: center;
+    transition: transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+
+  .card-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .category-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
 }
 

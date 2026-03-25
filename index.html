@@ -44,48 +44,68 @@
 
     <!-- Inline critical CSS for instant app shell -->
     <style>
-      body { margin: 0; font-family: Roboto, sans-serif; }
+      :root {
+        --jws-primary: rgb(61, 94, 158);
+        --jws-bg: #f8fafc;
+      }
+      body { 
+        margin: 0; 
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: var(--jws-bg);
+      }
       .app-shell {
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: #f8f9fa;
+        background-color: var(--jws-bg);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         z-index: 9999;
-        transition: opacity 0.3s ease-out;
+        transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       }
       .app-shell.fade-out {
         opacity: 0;
         pointer-events: none;
       }
       .app-shell h1 {
-        color: rgb(61, 94, 158);
-        font-size: 48px;
-        font-weight: 300;
-        margin-bottom: 2rem;
+        color: var(--jws-primary);
+        font-size: 2.5rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-bottom: 2.5rem;
         text-align: center;
-        padding: 0 1rem;
+        padding: 0 1.5rem;
+        max-width: 600px;
+        line-height: 1.2;
       }
       @media screen and (max-width: 768px) {
-        .app-shell h1 { font-size: 24px; }
+        .app-shell h1 { font-size: 1.5rem; }
       }
       .spinner {
-        border: 4px solid rgba(61, 94, 158, 0.1);
-        border-left-color: rgb(61, 94, 158);
+        position: relative;
+        width: 64px;
+        height: 64px;
+      }
+      .spinner::before,
+      .spinner::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border: 3px solid rgba(61, 94, 158, 0.1);
         border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        animation: spin 1s linear infinite;
+      }
+      .spinner::after {
+        border-color: var(--jws-primary) transparent transparent transparent;
+        animation: spin 0.8s cubic-bezier(0.5, 0, 0.5, 1) infinite;
       }
       @keyframes spin {
         to { transform: rotate(360deg); }
       }
-      #app { opacity: 0; transition: opacity 0.3s ease-in; }
+      #app { opacity: 0; transition: opacity 0.5s ease-in; }
       #app.mounted { opacity: 1; }
     </style>
   </head>

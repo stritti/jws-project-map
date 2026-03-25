@@ -41,7 +41,12 @@ export default defineComponent({
 
 <style lang="scss">
 .category-badge {
-  padding: 0.5rem 1rem 0.25rem 1rem;
-  margin: 0.25rem 0.25rem 0.25rem 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.8rem;
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 </style>
