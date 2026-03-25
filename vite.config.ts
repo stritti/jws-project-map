@@ -45,16 +45,10 @@ export default defineConfig({
   build: {
     // Increase the warning limit to avoid unnecessary warnings
     chunkSizeWarningLimit: 800,
-    // Enable source map for production build for better debugging
+    // Disable source maps in production to reduce bundle size and avoid exposing source code
     sourcemap: false,
-    // Minify options
-    minify: "terser",
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
-    },
+    // Minify options (use Vite's default minifier to avoid requiring the 'terser' package)
+    minify: "esbuild",
     // Configure Rollup options
     rollupOptions: {
       output: {

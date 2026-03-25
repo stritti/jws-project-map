@@ -161,19 +161,22 @@ onBeforeMount(() => {
 watch(
   [projects, stateFilter, categoryFilter, countryFilter],
   () => {
+    // Precompute numeric filter arrays once per callback to avoid recomputing them per project
+    const categoryFilterIds = categoryFilter.value.map(Number);
+    const countryFilterIds = countryFilter.value.map(Number);
+
     // Filter projects manually
     projectStore.filteredList = projectStore.projects.filter(
       (project: Project) =>
         (stateFilter.value.length === 0 ||
           stateFilter.value.includes(project.state)) &&
-        (categoryFilter.value.length === 0 ||
+        (categoryFilterIds.length === 0 ||
           (project.category?.some((cat: { Id: number }) =>
-            categoryFilter.value.map(Number).includes(cat.Id),
+            categoryFilterIds.includes(cat.Id),
           ) ??
             false)) &&
-        (countryFilter.value.length === 0 ||
-          (project.country &&
-            countryFilter.value.map(Number).includes(project.country.Id))),
+        (countryFilterIds.length === 0 ||
+          (project.country && countryFilterIds.includes(project.country.Id))),
     );
   },
   { immediate: true },

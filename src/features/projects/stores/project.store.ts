@@ -28,13 +28,17 @@ export const useProjectStore = defineStore("project", {
       lastFetched: null,
     };
   },
-  persist: true, // Enable persistence for the entire store
+  persist: {
+    // Transient state (loading, filteredList) must not be persisted
+    // to avoid a stuck "loading" flag across page reloads
+    pick: ["projects", "mapProjects", "initialized", "lastFetched"],
+  },
   getters: {
     getAll: (state) => state.projects as Array<Project>,
     getById: (state) => (id: number) =>
       state.projects.find((project: Project) => project.id === id) as Project,
     // Optimierte Getter mit Memoization für bessere Performance
-    projectsByState: (state) => {
+    projectsByState: (state): { finished: Project[]; "under construction": Project[]; planned: Project[] } => {
       // Nur einmal filtern statt dreimal
       const result = {
         finished: [] as Project[],
@@ -52,18 +56,12 @@ export const useProjectStore = defineStore("project", {
 
       return result;
     },
-    projectsFinished: (state) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (state as any).projectsByState.finished || [];
-    },
-    projectsUnderConstruction: (state) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (state as any).projectsByState["under construction"] || [];
-    },
-    projectsPlanned: (state) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (state as any).projectsByState.planned || [];
-    },
+    projectsFinished: (state): Project[] =>
+      state.projects.filter((p) => p.state === "finished"),
+    projectsUnderConstruction: (state): Project[] =>
+      state.projects.filter((p) => p.state === "under construction"),
+    projectsPlanned: (state): Project[] =>
+      state.projects.filter((p) => p.state === "planned"),
   },
   actions: {
     // Schnelles Laden nur der Kartendaten mit Promise-Rückgabe
