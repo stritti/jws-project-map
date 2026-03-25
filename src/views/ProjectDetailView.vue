@@ -13,7 +13,7 @@
           </b-row>
         </template>
         <div v-if="project" class="page-header d-flex flex-wrap align-items-center gap-3 mb-4">
-            <back-button class="back-btn shadow-sm" />
+            <back-button v-if="!isIFrame" class="back-btn shadow-sm" />
             <h1 class="title mb-0 flex-grow-1 fw-bold">
               {{ project.name }}
             </h1>
@@ -120,7 +120,6 @@
         </b-placeholder-wrapper>
       </div>
     </b-container>
-    <site-footer />
   </div>
 </template>
 
@@ -132,7 +131,9 @@ import { useCategoryStore } from "@/stores/category.store";
 import { useCountryStore } from "@/stores/country.store";
 import CountryLabel from "../components/CountryLabel.vue";
 import CategoryBadge from "../components/CategoryBadge.vue";
-import SiteFooter from "../components/SiteFooter.vue";
+import { useWebFrame } from "../composables/useWebFrame";
+
+const { isIFrame } = useWebFrame();
 import { useLoadingStore } from "../stores/loading.store";
 import BackButton from "../components/actions/BackButton.vue";
 import ShareButton from "../components/actions/ShareButton.vue";

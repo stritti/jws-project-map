@@ -1,14 +1,21 @@
 <script setup lang="ts">
 import MainMenu from "./components/MainMenu.vue";
+import SiteFooter from "./components/SiteFooter.vue";
+import { useWebFrame } from "./composables/useWebFrame";
+
+const { isIFrame } = useWebFrame();
 </script>
 
 <template>
-  <main>
-    <router-view />
-  </main>
-  <nav>
-    <main-menu class="menu" />
-  </nav>
+  <div class="app-wrapper">
+    <main class="content">
+      <router-view />
+    </main>
+    <site-footer v-if="!isIFrame" />
+    <nav>
+      <main-menu v-if="!isIFrame" class="menu" />
+    </nav>
+  </div>
 </template>
 
 <style lang="scss">
@@ -36,6 +43,16 @@ p {
 .container {
   margin-top: env(safe-area-inset-top);
   margin-bottom: env(safe-area-inset-bottom);
+}
+
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content {
+  flex-grow: 1;
 }
 
 .menu {

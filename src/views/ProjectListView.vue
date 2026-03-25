@@ -78,7 +78,6 @@
       </b-overlay>
     </div>
   </b-container>
-  <site-footer />
 </template>
 
 <script setup lang="ts">
@@ -90,7 +89,6 @@ import { useCategoryStore } from "../stores/category.store";
 import { useCountryStore } from "../stores/country.store";
 import type { Project } from "@/interfaces/Project";
 import ProjectListItem from "../components/project/ProjectListItem.vue";
-import SiteFooter from "../components/SiteFooter.vue";
 
 const loadingStore = useLoadingStore();
 const projectStore = useProjectStore();
@@ -181,7 +179,6 @@ watch(
 
 <style lang="scss" scoped>
 .project-list {
-  min-height: calc(100vh - 7rem);
   padding: 1rem;
 }
 </style>
