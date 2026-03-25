@@ -1,0 +1,12 @@
+{
+    "mcpServers": {
+        "jws-project-map": {
+            "command": "bun",
+            "args": [
+                "run",
+                "mcp"
+            ],
+            "env": {}
+        }
+    }
+}

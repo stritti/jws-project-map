@@ -14,10 +14,12 @@
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit",
     "update:browserlist": "npx browserslist@latest --update-db",
-    "generate-pwa-assets": "pwa-assets-generator --preset minimal-2023 public/img/cropped-joerg-wolff-stiftung.png"
+    "generate-pwa-assets": "pwa-assets-generator --preset minimal-2023 public/img/cropped-joerg-wolff-stiftung.png",
+    "mcp": "bun run scripts/mcp-server.ts"
   },
   "dependencies": {
     "@cloudgeek/vue3-video-player": "^0.3.10",
+    "@modelcontextprotocol/sdk": "^1.27.1",
     "@popperjs/core": "^2.11.8",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "axios": "^1.13.6",
