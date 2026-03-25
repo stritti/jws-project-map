@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "@cloudgeek/vue3-video-player": "^0.3.10",
-    "@modelcontextprotocol/sdk": "^1.27.1",
     "@popperjs/core": "^2.11.8",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "axios": "^1.13.6",
@@ -42,6 +41,7 @@
   "devDependencies": {
     "@iconify-json/bi": "^1.2.4",
     "@lhci/cli": "^0.15.1",
+    "@modelcontextprotocol/sdk": "^1.27.1",
     "@netlify/plugin-lighthouse": "^6.0.4",
     "@rushstack/eslint-patch": "^1.12.0",
     "@types/leaflet": "^1.9.19",
