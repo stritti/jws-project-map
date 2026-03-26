@@ -10,7 +10,7 @@ export function useWebFrame() {
     try {
       // Standard way to detect if the page is in an iframe
       isIFrame.value = window.self !== window.top;
-    } catch (_e) {
+    } catch {
       // In case of security restrictions (e.g., cross-origin top access),
       // we usually assume it IS an iframe if we can't access window.top.
       isIFrame.value = true;
