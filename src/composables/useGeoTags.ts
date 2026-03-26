@@ -7,7 +7,7 @@ import type { Project } from "@/interfaces/Project";
  */
 export function useGeoTags(project: Ref<Project | undefined>) {
   const metaTags = [
-    { name: "geo.region", value: (p: Project) => p.country?.code || "" },
+    { name: "geo.region", value: (p: Project) => p.country?.Name || "" },
     { name: "geo.placename", value: (p: Project) => p.name },
     { name: "geo.position", value: (p: Project) => `${p.latitude};${p.longitude}` },
     { name: "ICBM", value: (p: Project) => `${p.latitude}, ${p.longitude}` },
