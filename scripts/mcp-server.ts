@@ -156,8 +156,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       return {
         content: [{ type: "text", text: JSON.stringify(files, null, 2) }],
       };
-    } catch (e: any) {
-      return { content: [{ type: "text", text: `Error reading structure: ${e.message}` }], isError: true };
+    } catch (e) {
+      return { content: [{ type: "text", text: `Error reading structure: ${e instanceof Error ? e.message : String(e)}` }], isError: true };
     }
   }
 
@@ -174,8 +174,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       return {
         content: [{ type: "text", text: `Available Environment Variables: \\n${keys.join("\\n")}` }],
       };
-    } catch (e: any) {
-      return { content: [{ type: "text", text: `.env.local file not easily readable or does not exist: ${e.message}` }], isError: true };
+    } catch (e) {
+      return { content: [{ type: "text", text: `.env.local file not easily readable or does not exist: ${e instanceof Error ? e.message : String(e)}` }], isError: true };
     }
   }
 
@@ -209,9 +209,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       return {
         content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
       };
-    } catch (e: any) {
+    } catch (e) {
       return {
-        content: [{ type: "text", text: `Failed to query NocoDB: ${e.message}` }],
+        content: [{ type: "text", text: `Failed to query NocoDB: ${e instanceof Error ? e.message : String(e)}` }],
         isError: true,
       };
     }
@@ -236,8 +236,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       return {
         content: [{ type: "text", text: `Vue Components found:\\n${vueFiles.join("\\n")}` }],
       };
-    } catch (e: any) {
-      return { content: [{ type: "text", text: `Could not read components: ${e.message}` }], isError: true };
+    } catch (e) {
+      return { content: [{ type: "text", text: `Could not read components: ${e instanceof Error ? e.message : String(e)}` }], isError: true };
     }
   }
 
