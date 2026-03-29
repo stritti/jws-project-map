@@ -1,34 +1,6 @@
 import httpClient from "@/services/api/http.client";
 
-type SortEntry = { direction: "asc" | "desc"; field: string };
-type SortParam = string | SortEntry[];
-
-function convertSort(sort?: SortParam): string | undefined {
-  if (!sort) return undefined;
-  if (Array.isArray(sort)) return JSON.stringify(sort);
-  // Convert v2 string format "field1,-field2" to v3 JSON array
-  const sortArray: SortEntry[] = sort
-    .split(",")
-    .map((field) => field.trim())
-    .filter((trimmed) => trimmed !== "")
-    .reduce<SortEntry[]>((acc, trimmed) => {
-      const desc = trimmed.startsWith("-");
-      const fieldName = desc ? trimmed.slice(1).trim() : trimmed;
-      // Skip entries with no actual field name (e.g. "-", " , ")
-      if (!fieldName) {
-        return acc;
-      }
-      acc.push({
-        direction: desc ? "desc" : "asc",
-        field: fieldName,
-      });
-      return acc;
-    }, []);
-  if (!sortArray.length) {
-    return undefined;
-  }
-  return JSON.stringify(sortArray);
-}
+export type SortEntry = { direction: "asc" | "desc"; field: string };
 
 export class NocoDBService {
   private tableId: string;
@@ -50,7 +22,7 @@ export class NocoDBService {
     offset?: number;
     limit?: number;
     viewId?: string;
-    sort?: SortParam;
+    sort?: SortEntry[];
     fields?: string[];
   }): Promise<{ list: T[] }> {
     const pageSize = params?.limit;
@@ -73,7 +45,7 @@ export class NocoDBService {
           page,
           pageSize,
           viewId: params?.viewId,
-          sort: convertSort(params?.sort),
+          sort: params?.sort ? JSON.stringify(params.sort) : undefined,
           fields: params?.fields?.join(","),
         },
       })

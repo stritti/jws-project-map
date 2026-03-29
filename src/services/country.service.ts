@@ -8,7 +8,7 @@ const countryService = {
     try {
       const response = await base
         .list({
-          sort: "Name",
+          sort: [{ direction: "asc", field: "Name" }],
           viewId: "vw0goq0zeuzgkmxw",
         })
       const countryList: Array<Country> = ((response as unknown) as { list: Record<string, unknown>[] })

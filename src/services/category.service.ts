@@ -8,7 +8,7 @@ const categoryService = {
     try {
       const response = await base
         .list({
-          sort: "Name",
+          sort: [{ direction: "asc", field: "Name" }],
           viewId: "vwoztb7dgc077xfd", // published
         })
 
