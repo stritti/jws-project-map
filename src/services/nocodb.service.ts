@@ -7,14 +7,26 @@ function convertSort(sort?: SortParam): string | undefined {
   if (!sort) return undefined;
   if (Array.isArray(sort)) return JSON.stringify(sort);
   // Convert v2 string format "field1,-field2" to v3 JSON array
-  const sortArray: SortEntry[] = sort.split(",").map((field) => {
-    const trimmed = field.trim();
-    const desc = trimmed.startsWith("-");
-    return {
-      direction: desc ? "desc" : "asc",
-      field: desc ? trimmed.slice(1) : trimmed,
-    };
-  });
+  const sortArray: SortEntry[] = sort
+    .split(",")
+    .map((field) => field.trim())
+    .filter((trimmed) => trimmed !== "")
+    .reduce<SortEntry[]>((acc, trimmed) => {
+      const desc = trimmed.startsWith("-");
+      const fieldName = desc ? trimmed.slice(1).trim() : trimmed;
+      // Skip entries with no actual field name (e.g. "-", " , ")
+      if (!fieldName) {
+        return acc;
+      }
+      acc.push({
+        direction: desc ? "desc" : "asc",
+        field: fieldName,
+      });
+      return acc;
+    }, []);
+  if (!sortArray.length) {
+    return undefined;
+  }
   return JSON.stringify(sortArray);
 }
 
