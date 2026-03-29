@@ -54,10 +54,17 @@ export class NocoDBService {
     fields?: string[];
   }): Promise<{ list: T[] }> {
     const pageSize = params?.limit;
-    const page =
-      params?.offset !== undefined && pageSize
-        ? Math.floor(params.offset / pageSize) + 1
-        : undefined;
+    let page: number | undefined;
+    if (pageSize && params?.offset !== undefined) {
+      if (params.offset % pageSize === 0) {
+        page = params.offset / pageSize + 1;
+      } else {
+        console.warn(
+          "NocoDBService.list: 'offset' must be a multiple of 'limit' to be converted to a page. Ignoring 'offset' value:",
+          params.offset,
+        );
+      }
+    }
 
     return httpClient
       .get(`/api/v3/data/${this.baseId}/${this.tableId}/records`, {
