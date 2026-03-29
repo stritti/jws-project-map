@@ -64,7 +64,7 @@ export class NocoDBService {
     return response.data;
   }
 
-  async update(data: Array<{ Id: string } & Record<string, unknown>>) {
+  async update(data: Array<{ Id: number } & Record<string, unknown>>) {
     const response = await httpClient.patch(
       `/api/v3/data/${this.baseId}/${this.tableId}/records`,
       data,
@@ -72,7 +72,7 @@ export class NocoDBService {
     return response.data;
   }
 
-  async delete(ids: Array<{ Id: string }>) {
+  async delete(ids: Array<{ Id: number }>) {
     const response = await httpClient.delete(
       `/api/v3/data/${this.baseId}/${this.tableId}/records`,
       { data: ids },
