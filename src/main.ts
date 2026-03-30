@@ -26,9 +26,18 @@ app.use(router);
 
 // Initialize stores after Pinia is attached to the app
 // This ensures they can access the Pinia instance
-useProjectStore(pinia);
-useCategoryStore(pinia);
-useCountryStore(pinia);
+const projectStore = useProjectStore(pinia);
+const categoryStore = useCategoryStore(pinia);
+const countryStore = useCountryStore(pinia);
+
+// Start loading map data immediately, before any route is rendered
+projectStore
+  .preloadMapData()
+  .catch((err) => console.error("Map preload failed:", err));
+categoryStore
+  .load()
+  .catch((err) => console.error("Category load failed:", err));
+countryStore.load().catch((err) => console.error("Country load failed:", err));
 
 // app.component('vue-picture-swipe', VuePictureSwipe)
 
