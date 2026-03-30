@@ -71,7 +71,7 @@ jobs:
           CLS: ${{ steps.lhmetrics.outputs.CLS }}
           BYTE: ${{ steps.lhmetrics.outputs.BYTE }}
         with:
-          script: |
+          script: |-
             const lcp = Number(process.env.LCP || 0);
             const tbt = Number(process.env.TBT || 0);
             const cls = Number(process.env.CLS || 0);
@@ -80,16 +80,16 @@ jobs:
             const status = (value, max) => value <= max ? '✅' : '⚠️';
 
             const body = `<!-- lighthouse-report -->
-## 🚀 Lighthouse Performance Report
+            ## 🚀 Lighthouse Performance Report
 
-| Metric | Value | Status |
-|--------|--------|--------|
-| LCP (ms) | ${lcp} | ${status(lcp, 2500)} |
-| TBT (ms) | ${tbt} | ${status(tbt, 300)} |
-| CLS | ${cls} | ${status(cls, 0.1)} |
-| Total Byte Weight | ${byte} | ${status(byte, 500000)} |
+            | Metric | Value | Status |
+            |--------|--------|--------|
+            | LCP (ms) | ${lcp} | ${status(lcp, 2500)} |
+            | TBT (ms) | ${tbt} | ${status(tbt, 300)} |
+            | CLS | ${cls} | ${status(cls, 0.1)} |
+            | Total Byte Weight | ${byte} | ${status(byte, 500000)} |
 
-Full HTML report available in workflow artifacts.`;
+            Full HTML report available in workflow artifacts.`;
 
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
