@@ -20,8 +20,8 @@
             <div class="categories d-flex gap-2 flex-wrap">
               <category-badge
                 v-for="category in project.category"
-                :key="category.Id"
-                :category-id="category.Id"
+                :key="category.id"
+                :category-id="category.id"
               />
             </div>
         </div>
@@ -78,7 +78,7 @@
                   <div class="info-icon">🌍</div>
                   <div class="info-content">
                     <span class="info-label">Country</span>
-                    <strong class="info-value"><country-label :country-id="project.country.Id" /></strong>
+                    <strong class="info-value"><country-label :country-id="project.country.id" /></strong>
                   </div>
                </div>
                

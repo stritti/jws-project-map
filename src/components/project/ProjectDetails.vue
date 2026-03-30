@@ -10,9 +10,9 @@
       <h2>
         <b-img
           v-for="category in project.category"
-          :key="category.Id"
+          :key="category.id"
           class="pin"
-          :src="getPin(category.Id)"
+          :src="getPin(category.id)"
           :alt="project?.name"
         />
         <router-link :to="`/project/${project.id}`">{{
@@ -22,12 +22,17 @@
     </template>
 
     <div class="sidepanel__content">
-      <h3><country-label v-if="project.country" :country-id="project.country.Id" /></h3>
+      <h3>
+        <country-label
+          v-if="project.country"
+          :country-id="project.country.id"
+        />
+      </h3>
       <div>
         <category-badge
           v-for="category in project.category"
-          :key="category.Id"
-          :category-id="category.Id"
+          :key="category.id"
+          :category-id="category.id"
         />
       </div>
 

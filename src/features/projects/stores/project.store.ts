@@ -40,7 +40,13 @@ export const useProjectStore = defineStore("project", {
     getById: (state) => (id: number) =>
       state.projects.find((project: Project) => project.id === id) as Project,
     // Optimierte Getter mit Memoization für bessere Performance
-    projectsByState: (state): { finished: Project[]; "under construction": Project[]; planned: Project[] } => {
+    projectsByState: (
+      state,
+    ): {
+      finished: Project[];
+      "under construction": Project[];
+      planned: Project[];
+    } => {
       // Nur einmal filtern statt dreimal
       const result = {
         finished: [] as Project[],
@@ -175,10 +181,10 @@ export const useProjectStore = defineStore("project", {
         (project: Project) =>
           (stateFilter.length === 0 || stateFilter.includes(project.state)) &&
           (categoryFilter.length === 0 ||
-            (project.category?.some((cat) => categoryFilter.includes(cat.Id)) ??
+            (project.category?.some((cat) => categoryFilter.includes(cat.id)) ??
               false)) &&
           (countryFilter.length === 0 ||
-            (project.country && countryFilter.includes(project.country.Id))),
+            (project.country && countryFilter.includes(project.country.id))),
       );
     },
 
