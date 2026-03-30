@@ -45,13 +45,27 @@ export class NocoDBService {
           page,
           pageSize,
           viewId: params?.viewId,
-          sort: params?.sort ? JSON.stringify(params.sort) : undefined,
+          sort: params?.sort,
           fields: params?.fields?.join(","),
         },
       })
-      .then((response) => response.data as { list: T[] })
+      .then((response) => {
+        const data = response.data;
+
+        if (data?.list && Array.isArray(data.list)) {
+          return { list: data.list as T[] };
+        }
+        if (data?.records && Array.isArray(data.records)) {
+          return { list: data.records as T[] };
+        }
+        console.warn(
+          "NocoDBService.list: Unexpected response structure:",
+          data,
+        );
+        return { list: [] as T[] };
+      })
       .catch((error) => {
-        console.error(error);
+        console.error("NocoDBService.list error:", error);
         return { list: [] as T[] };
       });
   }

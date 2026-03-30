@@ -147,11 +147,7 @@ const projectsUnderConstructionCount = computed(
 
 onBeforeMount(() => {
   // Load data asynchronously before mount to start fetching earlier
-  Promise.all([
-    projectStore.load(),
-    categoryStore.load(),
-    countryStore.load(),
-  ]);
+  Promise.all([projectStore.load(), categoryStore.load(), countryStore.load()]);
 
   if (stateFilter.value.length === 0) {
     stateFilter.value = ["finished", "planned", "under construction"];
@@ -171,12 +167,12 @@ watch(
         (stateFilter.value.length === 0 ||
           stateFilter.value.includes(project.state)) &&
         (categoryFilterIds.length === 0 ||
-          (project.category?.some((cat: { Id: number }) =>
-            categoryFilterIds.includes(cat.Id),
+          (project.category?.some((cat) =>
+            categoryFilterIds.includes(cat.id),
           ) ??
             false)) &&
         (countryFilterIds.length === 0 ||
-          (project.country && countryFilterIds.includes(project.country.Id))),
+          (project.country && countryFilterIds.includes(project.country.id))),
     );
   },
   { immediate: true },
