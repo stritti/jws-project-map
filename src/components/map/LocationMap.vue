@@ -300,7 +300,7 @@ onBeforeMount(() => {
 watch(
   locations,
   (newLocations) => {
-    if (newLocations?.length > 0) {
+    if (newLocations) {
       initialDataLoaded.value = true;
       pinsReady.value = true;
 
@@ -433,7 +433,7 @@ const getPin = (location: Project) => {
   const cacheKey =
     location.id +
     "-" +
-    (location.category?.map((c) => c.Id).join("-") || "none");
+    (location.category?.map((c) => c.id).join("-") || "none");
 
   // Prüfen, ob wir bereits einen Cache-Eintrag haben
   if (PIN_CACHE.has(cacheKey)) {
@@ -453,9 +453,12 @@ const getPin = (location: Project) => {
 
     for (let i = 0; i < len; i++) {
       const cat = categories[i];
-      if (cat && cat.Name) {
-        if (categoryNames) categoryNames += "-";
-        categoryNames += cat.Name.toLowerCase();
+      if (cat) {
+        const name = cat.fields?.Name || String(cat.id);
+        if (name && name !== "undefined" && name !== "null") {
+          if (categoryNames) categoryNames += "-";
+          categoryNames += String(name).toLowerCase();
+        }
       }
     }
 

@@ -1,4 +1,6 @@
 export interface LinkedRecord {
-  Id: number;
-  Name: string;
+  id: number;
+  fields: {
+    Name: string;
+  };
 }

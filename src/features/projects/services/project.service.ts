@@ -1,4 +1,3 @@
-import { LinkedRecord } from "@/interfaces/LinkedRecord";
 import { projectRepository } from "@/features/projects/repositories/project.repository";
 import type { Project } from "@/interfaces/Project";
 import type { LatLng } from "leaflet";
@@ -29,7 +28,8 @@ function processProjectData(
   records: RawProjectRecord[],
   forMapOnly: boolean,
 ): Array<Project> {
-  const list = records;
+  // Defensive Programmierung: Sicherstellen, dass records existiert und ein Array ist
+  const list = Array.isArray(records) ? records : [];
 
   const cacheKey = `${forMapOnly ? "map" : "full"}-${list.length}`;
 
@@ -43,58 +43,81 @@ function processProjectData(
 
   // Verwende eine for-Schleife statt map/filter für bessere Performance
   for (let i = 0; i < len; i++) {
-    const record: RawProjectRecord = list[i];
+    const record = list[i];
 
-    // Grundlegende Validierung
-    if (typeof record.Id !== "number") {
+    // Grundlegende Validierung - wir brauchen mindestens eine ID und Koordinaten
+    const id = record.id;
+    const lat = record.fields?.Latitude;
+    const lng = record.fields?.Longitude;
+
+    if (!id) {
+      console.warn(
+        `Skipping project due to missing ID. Record keys:`,
+        Object.keys(record),
+      );
       continue;
     }
 
-    const project: Partial<Project> = {
-      id: record.Id,
-      name: record.Name as string,
-      latitude: record.Latitude as number,
-      longitude: record.Longitude as number,
-      state: record.State as string,
+    const latNum = Number(lat);
+    const lngNum = Number(lng);
+
+    if (isNaN(latNum) || isNaN(lngNum) || !lat || !lng) {
+      console.warn(
+        `Skipping project ${id} due to invalid coordinates. Raw record:`,
+        JSON.stringify(record).substring(0, 300),
+      );
+      continue;
+    }
+
+    const project: Project = {
+      id: Number(id),
+      name: (record.fields?.Name || "Unbenannt") as string,
+      latitude: latNum,
+      longitude: lngNum,
+      state: (record.fields?.State || "finished") as string,
+      category: undefined,
+      country: undefined,
+      notes: undefined,
+      link: undefined,
     };
 
     // Nur die notwendigen Felder für die Kartenansicht
-    if (record.Category) {
-      project.category = record.Category as Array<LinkedRecord>;
+    if (record.fields?.Category && Array.isArray(record.fields.Category)) {
+      project.category = record.fields.Category;
     }
 
     if (
-      record.Country &&
-      Array.isArray(record.Country) &&
-      record.Country.length > 0
+      record.fields?.Country &&
+      Array.isArray(record.fields.Country) &&
+      record.fields.Country.length > 0
     ) {
-      project.country = record.Country[0];
+      project.country = record.fields.Country[0];
     }
 
     // Nur die zusätzlichen Felder hinzufügen, wenn nicht nur für die Karte
     if (!forMapOnly) {
-      if (record.TeaserImage) {
-        project.teaserImg = record.TeaserImage as Project["teaserImg"];
+      if (record.fields?.TeaserImage) {
+        project.teaserImg = record.fields.TeaserImage as Project["teaserImg"];
       }
 
-      if (record.Notes) {
-        project.notes = (record.Notes as string)
+      if (record.fields?.Notes) {
+        project.notes = (record.fields.Notes as string)
           .replaceAll('"<http', '"http')
           .replaceAll('>"', '"');
       } else {
         project.notes = "";
       }
 
-      if (record.Link) {
-        project.link = record.Link as string;
+      if (record.fields?.Link) {
+        project.link = record.fields.Link as string;
       }
 
-      if (record.Since) {
-        project.since = new Date(record.Since as string);
+      if (record.fields?.Since) {
+        project.since = new Date(record.fields.Since as string);
       }
 
-      if (record.Gallery) {
-        project.gallery = record.Gallery as Project["gallery"];
+      if (record.fields?.Gallery) {
+        project.gallery = record.fields.Gallery as Project["gallery"];
       }
     }
 
