@@ -2,10 +2,11 @@ import Fuse from "fuse.js";
 import { computed, ref, type Ref } from "vue";
 import type { Project } from "@/interfaces/Project";
 
-const MAX_RESULTS = 20;
+const DEFAULT_MAX_RESULTS = 20;
 
-export function useProjectSearch(projects: Ref<Project[]>) {
+export function useProjectSearch(projects: Ref<Project[]>, options?: { limit?: number }) {
   const query = ref("");
+  const limit = options?.limit || DEFAULT_MAX_RESULTS;
 
   const fuse = computed(
     () =>
@@ -27,7 +28,7 @@ export function useProjectSearch(projects: Ref<Project[]>) {
     const q = query.value.trim();
     if (q.length < 2) return [];
     return fuse.value
-      .search(q, { limit: MAX_RESULTS })
+      .search(q, { limit })
       .map((r) => r.item);
   });
 

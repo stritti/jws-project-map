@@ -256,6 +256,8 @@ const teaserImage = computed(() => {
   box-shadow: var(--jws-shadow-lg);
   overflow: hidden;
   
+  animation: revealImage 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+
   @media (min-width: 768px) {
     border-radius: var(--jws-radius-xl);
   }
@@ -267,8 +269,6 @@ const teaserImage = computed(() => {
     background: linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,0.4) 100%);
     pointer-events: none;
   }
-
-  animation: revealImage 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
 @keyframes revealImage {

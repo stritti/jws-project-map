@@ -102,6 +102,7 @@ import { storeToRefs } from "pinia";
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import type { Project } from "@/interfaces/Project";
 import { useProjectSearch } from "@/composables/useProjectSearch";
+import { useSearchStore } from "@/stores/search.store";
 
 const router = useRouter();
 const projectStore = useProjectStore();
@@ -154,9 +155,18 @@ function stateBadgeVariant(state: string) {
 
 // Ctrl+K / Cmd+K keyboard shortcut
 function handleKeydown(e: KeyboardEvent) {
+  // Don't open if user is currently typing in another input
+  if (
+    document.activeElement?.tagName === "INPUT" ||
+    document.activeElement?.tagName === "TEXTAREA"
+  ) {
+    return;
+  }
+
   if ((e.ctrlKey || e.metaKey) && e.key === "k") {
     e.preventDefault();
-    show();
+    const searchStore = useSearchStore();
+    searchStore.openSearch();
   }
 }
 

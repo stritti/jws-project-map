@@ -26,8 +26,8 @@ declare module 'vue' {
     BDropdown: typeof import('bootstrap-vue-next/components/BDropdown')['BDropdown']
     BDropdownDivider: typeof import('bootstrap-vue-next/components/BDropdown')['BDropdownDivider']
     BDropdownItem: typeof import('bootstrap-vue-next/components/BDropdown')['BDropdownItem']
+    BFormCheckbox: typeof import('bootstrap-vue-next/components/BFormCheckbox')['BFormCheckbox']
     BFormCheckboxGroup: typeof import('bootstrap-vue-next/components/BFormCheckbox')['BFormCheckboxGroup']
-    BFormGroup: typeof import('bootstrap-vue-next/components/BFormGroup')['BFormGroup']
     BFormInput: typeof import('bootstrap-vue-next/components/BFormInput')['BFormInput']
     BImg: typeof import('bootstrap-vue-next/components/BImg')['BImg']
     BListGroup: typeof import('bootstrap-vue-next/components/BListGroup')['BListGroup']
@@ -45,11 +45,9 @@ declare module 'vue' {
     IBiCardList: typeof import('~icons/bi/card-list')['default']
     IBiCaretDownFill: typeof import('~icons/bi/caret-down-fill')['default']
     IBiCaretUpFill: typeof import('~icons/bi/caret-up-fill')['default']
-    IBiChevronDown: typeof import('~icons/bi/chevron-down')['default']
+    IBiCheck2Circle: typeof import('~icons/bi/check2-circle')['default']
     IBiChevronRight: typeof import('~icons/bi/chevron-right')['default']
-    IBiChevronUp: typeof import('~icons/bi/chevron-up')['default']
     IBiEmojiDizzy: typeof import('~icons/bi/emoji-dizzy')['default']
-    IBiFilter: typeof import('~icons/bi/filter')['default']
     IBiFunnelFill: typeof import('~icons/bi/funnel-fill')['default']
     IBiGeoAlt: typeof import('~icons/bi/geo-alt')['default']
     IBiGlobe2: typeof import('~icons/bi/globe2')['default']
@@ -58,6 +56,8 @@ declare module 'vue' {
     IBiPinMapFill: typeof import('~icons/bi/pin-map-fill')['default']
     IBiSearch: typeof import('~icons/bi/search')['default']
     IBiShareFill: typeof import('~icons/bi/share-fill')['default']
+    IBiTag: typeof import('~icons/bi/tag')['default']
+    IBiX: typeof import('~icons/bi/x')['default']
     LocationMap: typeof import('./src/components/map/LocationMap.vue')['default']
     MainMenu: typeof import('./src/components/MainMenu.vue')['default']
     MarkdownText: typeof import('./src/components/MarkdownText.vue')['default']
@@ -71,8 +71,5 @@ declare module 'vue' {
     SearchModal: typeof import('./src/components/SearchModal.vue')['default']
     ShareButton: typeof import('./src/components/actions/ShareButton.vue')['default']
     SiteFooter: typeof import('./src/components/SiteFooter.vue')['default']
-  }
-  export interface GlobalDirectives {
-    vBToggle: typeof import('bootstrap-vue-next/directives/BToggle')['vBToggle']
   }
 }

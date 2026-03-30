@@ -1,3 +1,13 @@
+<script setup lang="ts">
+import { useSearchStore } from "@/stores/search.store";
+
+const searchStore = useSearchStore();
+
+function openSearch() {
+  searchStore.openSearch();
+}
+</script>
+
 <template>
   <div class="main-menu-container">
     <div class="main-menu">
@@ -19,20 +29,8 @@
         </b-dropdown-item>
       </b-dropdown>
     </div>
-    <search-modal ref="searchModal" />
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref } from "vue";
-import SearchModal from "@/components/SearchModal.vue";
-
-const searchModal = ref<InstanceType<typeof SearchModal> | null>(null);
-
-function openSearch() {
-  searchModal.value?.show();
-}
-</script>
 
 <style lang="scss" scoped>
 .main-menu-container {
