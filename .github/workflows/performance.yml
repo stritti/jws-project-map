@@ -41,11 +41,15 @@ jobs:
       - name: Extract Lighthouse metrics
         id: lhmetrics
         run: |
-          REPORT=$(ls .lighthouseci/*.json | head -n 1)
-          LCP=$(jq '.audits["largest-contentful-paint"].numericValue' $REPORT)
-          TBT=$(jq '.audits["total-blocking-time"].numericValue' $REPORT)
-          CLS=$(jq '.audits["cumulative-layout-shift"].numericValue' $REPORT)
-          BYTE=$(jq '.audits["total-byte-weight"].numericValue' $REPORT)
+          REPORT=$(ls .lighthouseci/lhr-*.json 2>/dev/null | head -n 1)
+          if [ -z "$REPORT" ]; then
+            echo "No Lighthouse report found"
+            exit 1
+          fi
+          LCP=$(jq '.audits["largest-contentful-paint"].numericValue' "$REPORT")
+          TBT=$(jq '.audits["total-blocking-time"].numericValue' "$REPORT")
+          CLS=$(jq '.audits["cumulative-layout-shift"].numericValue' "$REPORT")
+          BYTE=$(jq '.audits["total-byte-weight"].numericValue' "$REPORT")
           echo "LCP=$LCP" >> $GITHUB_OUTPUT
           echo "TBT=$TBT" >> $GITHUB_OUTPUT
           echo "CLS=$CLS" >> $GITHUB_OUTPUT
