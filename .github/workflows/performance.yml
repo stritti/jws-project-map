@@ -64,7 +64,7 @@ jobs:
 
       - name: Comment or Update PR with Lighthouse metrics
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           LCP: ${{ steps.lhmetrics.outputs.LCP }}
           TBT: ${{ steps.lhmetrics.outputs.TBT }}
