@@ -65,7 +65,7 @@ src/
 
 ### Key architectural facts
 
-- **No global Bootstrap component registration.** All Bootstrap components are auto-imported at build time by `unplugin-vue-components` with `BootstrapVueNextResolver`. Import paths are never needed.
+- **No global Bootstrap component registration.** All Bootstrap components are auto-imported at build time by `unplugin-vue-components` with `BootstrapVueNextResolver`. Import paths are never needed. This generates `components.d.ts` — never edit it manually.
 - **Icons** are auto-imported by `unplugin-icons`. Usage: `<IconBiList />` for Bootstrap Icons, `<IconMdiAccount />` for Material Design Icons, etc. Icons resolve automatically from `@iconify-json/bi` (already installed).
 - **`@` path alias** → `src/` (configured in both Vite and tsconfig).
 - **NocoDB API is v3.** All requests go to `/api/v3/data/{baseId}/{tableId}/records`. The `baseId` is from `VITE_APP_NOCODB_BASE_ID` env var (or passed to constructor). Table IDs (`mdctuswlmsfvi8i`) are hardcoded in the repository layer.
@@ -103,7 +103,7 @@ These are required at build time. No defaults.
 - Uses **NocoDB v3 API** (`/api/v3/data/{baseId}/{tableId}/records`).
 - The `NocoDBService` class handles: `list` (with pagination, sorting, field filtering, viewId), `read` (single record), `create`, `update`, `delete`, `count`.
 - `list()` automatically handles offset→page conversion (offset must be a multiple of limit).
-- The raw response shape is `RawProjectRecord` with `{ Id, fields: { Name, Latitude, ... } }` (NocoDB v2-style wrapper). The service layer transforms this into the clean `Project` interface.
+- The raw response shape is `RawProjectRecord` with `{ id, fields: { Name, Latitude, ... } }` (NocoDB v2-style wrapper, lowercase `id`). The service layer transforms this into the clean `Project` interface.
 - The project repository hardcodes `tableId = "mdctuswlmsfvi8i"` and `viewId = "vwlnl4t095iifqc9"`.
 
 ## MCP Server
