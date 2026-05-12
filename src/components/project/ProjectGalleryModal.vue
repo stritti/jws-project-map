@@ -1,10 +1,9 @@
 <template>
   <div v-if="isVisible" class="fullscreen-gallery">
-    <div class="gallery-close" @click="$emit('update:isVisible', false)">
+    <div class="gallery-close" @click="emit('update:isVisible', false)">
       <span>&times;</span>
     </div>
     <BCarousel
-      ref="carousel"
       v-model="currentIndex"
       controls
       indicators
@@ -13,7 +12,7 @@
       no-animation
       background="rgba(0, 0, 0, 0.3)"
       class="gallery-carousel"
-      @slide="onSlide"
+      @slid="onSlid"
     >
       <BCarouselSlide
         v-for="(item, index) in galleryItems"
@@ -31,7 +30,7 @@
             <template v-else-if="item.mimetype.startsWith('video')">
               <div class="gallery-video" @click.stop>
                 <video
-                  ref="videoPlayers"
+                  :ref="(el) => setVideoRef(index, el)"
                   :src="item.signedUrl"
                   :type="item.mimetype"
                   controls
@@ -53,69 +52,63 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType, ref, watch, nextTick } from 'vue';
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+import type { Attachment } from '@/interfaces/Attachment'
 
-export default defineComponent({
-  name: 'ProjectGalleryModal',
-  props: {
-    isVisible: {
-      type: Boolean,
-      default: false
-    },
-    currentItem: {
-      type: Object as PropType<any>,
-      default: null
-    },
-    galleryItems: {
-      type: Array as PropType<any[]>,
-      default: () => []
-    }
-  },
-  emits: ['update:isVisible'],
-  setup(props) {
-    const currentIndex = ref(0);
-    const carousel = ref(null);
-    const videoPlayers = ref([]);
+const props = defineProps<{
+  isVisible: boolean
+  currentItem: Attachment | null
+  galleryItems: Attachment[]
+}>()
 
-    const findCurrentIndex = () => {
-      if (props.currentItem) {
-        const index = props.galleryItems.findIndex(
-          item => item.signedUrl === props.currentItem.signedUrl
-        );
-        return index !== -1 ? index : 0;
-      }
-      return 0;
-    };
+const emit = defineEmits<{
+  'update:isVisible': [value: boolean]
+}>()
 
-    watch(() => props.currentItem, () => {
-      currentIndex.value = findCurrentIndex();
-    }, { immediate: true });
+const currentIndex = ref(0)
 
-    return {
-      currentIndex,
-      carousel,
-      videoPlayers
-    };
-  },
-  methods: {
-    async onSlide() {
-      // Pause all video players before changing slides
-      await nextTick();
-      if (this.videoPlayers) {
-        this.videoPlayers.forEach((player: any) => {
-          if (player) {
-            try {
-              player.pause();
-            } catch (error) {
-              console.warn('Could not pause video player', error);
-            }
-          }
-        });
-      }
+/**
+ * Store active video elements keyed by gallery index.
+ * Callback ref pattern is needed for v-for — template refs on v-for
+ * produce an array only via Options API `$refs`. In <script setup>
+ * we manage them explicitly.
+ */
+const videoElements = ref<Map<number, HTMLVideoElement>>(new Map())
+
+function setVideoRef(index: number, el: unknown) {
+  if (el instanceof HTMLVideoElement) {
+    videoElements.value.set(index, el)
+  }
+}
+
+function onSlid() {
+  // Pause all videos after a slide transition completes
+  for (const video of videoElements.value.values()) {
+    try {
+      video.pause()
+    } catch {
+      // Silently ignore — video may already be paused / detached
     }
   }
-});
+}
+
+function findCurrentIndex(): number {
+  if (!props.currentItem) return 0
+  const index = props.galleryItems.findIndex(
+    (item) => item.signedUrl === props.currentItem?.signedUrl,
+  )
+  return index !== -1 ? index : 0
+}
+
+// Keep currentIndex in sync when the parent changes which item is active
+watch(
+  () => props.currentItem,
+  () => {
+    currentIndex.value = findCurrentIndex()
+  },
+  { immediate: true },
+)
 </script>
 
 <style scoped>
