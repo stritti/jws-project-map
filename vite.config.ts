@@ -47,8 +47,8 @@ export default defineConfig({
     chunkSizeWarningLimit: 800,
     // Disable source maps in production to reduce bundle size and avoid exposing source code
     sourcemap: false,
-    // Minify options (use Vite's default minifier to avoid requiring the 'terser' package)
-    minify: "esbuild",
+    // Minify options (use oxc minifier, the default in Vite 8+)
+    minify: "oxc",
     // Configure Rollup options
     rollupOptions: {
       output: {
