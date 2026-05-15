@@ -24,120 +24,98 @@
           {{ projectsPlannedCount }} geplant)
         </h3>
 
-        <!-- Unified Toolbar -->
-        <div class="toolbar-section mb-3">
-          <div class="d-flex flex-wrap gap-3 align-items-stretch">
-            <div class="search-input-wrapper flex-grow-1 shadow-sm">
-              <IBiSearch class="search-icon" />
-              <b-form-input
-                v-model="searchQuery"
-                placeholder="Name, Kategorie oder Land suchen..."
-                class="search-input border-0 shadow-none"
-                aria-label="Projekte suchen"
-              />
-              <kbd class="shortcut-hint d-none d-md-inline ms-2">Ctrl+K</kbd>
-            </div>
-            
-            <b-button 
-              @click="filterVisible = !filterVisible" 
-              variant="outline-primary" 
-              class="filter-toggle-btn d-flex align-items-center gap-2 px-4 shadow-sm fw-bold border-2"
-              :class="{ 'active': filterVisible || activeFiltersCount > 0 }"
-            >
-              <IBiFunnelFill />
-              Filter
-              <b-badge v-if="activeFiltersCount > 0" pill variant="primary" class="ms-1">{{ activeFiltersCount }}</b-badge>
-              <IBiCaretUpFill v-if="filterVisible" />
-              <IBiCaretDownFill v-else />
-            </b-button>
+        <!-- Filter overlay container – sticky, filter overlays the list -->
+        <div class="filter-overlay-container">
+          <div class="toolbar-section">
+            <SearchBar
+              v-model="searchQuery"
+              v-model:state-filter="stateFilterSearch"
+              placeholder="Name, Kategorie oder Land suchen..."
+              filter-label="Filter"
+              :show-filter-chips="false"
+              :filter-count="activeFiltersCount"
+              @filter-click="filterVisible = !filterVisible"
+              @state-change="handleStateFilterChange"
+            />
           </div>
 
-          <!-- Active Filter Pills -->
-          <div v-if="activeFilters.length > 0" class="active-filters-pills d-flex flex-wrap gap-2 mt-3 mb-2 px-1">
-            <b-badge
-              v-for="filter in activeFilters"
-              :key="filter.id"
-              variant="light"
-              pill
-              class="filter-pill d-flex align-items-center gap-2 px-3 py-2 border"
-            >
-              <span class="pill-label text-muted small">{{ filter.type }}:</span>
-              <span class="pill-value fw-semibold">{{ filter.name }}</span>
-              <IBiX @click="removeFilter(filter)" class="pill-close-icon" title="Entfernen" />
-            </b-badge>
-            <b-button variant="link" size="sm" class="clear-all-btn text-decoration-none p-0 ms-2" @click="clearAllFilters">
-              Alle löschen
-            </b-button>
+          <!-- Filter panel overlays the list via absolute positioning -->
+          <div v-if="filterVisible" class="filter-dropdown">
+            <b-card bg-variant="white" class="shadow-sm border-0 rounded-4 filter-card">
+              <b-row>
+                <b-col md="4">
+                  <div class="filter-group mb-4 mb-md-0">
+                    <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
+                      <IBiCheck2Circle /> Status
+                    </h6>
+                    <b-form-checkbox-group
+                      v-model="stateFilter"
+                      name="stateFilter"
+                      stack
+                      class="custom-check-group"
+                    >
+                      <b-form-checkbox v-for="opt in stateOptions" :key="opt.value" :value="opt.value">
+                         {{ opt.text }}
+                      </b-form-checkbox>
+                    </b-form-checkbox-group>
+                  </div>
+                </b-col>
+                <b-col md="4">
+                  <div class="filter-group mb-4 mb-md-0">
+                    <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
+                      <IBiTag /> Kategorien
+                    </h6>
+                    <b-form-checkbox-group
+                      v-model="categoryFilter"
+                      stack
+                      class="custom-check-group scrollable-group"
+                    >
+                      <b-form-checkbox v-for="cat in categoryList" :key="cat.value" :value="cat.value">
+                        {{ cat.text }}
+                      </b-form-checkbox>
+                    </b-form-checkbox-group>
+                  </div>
+                </b-col>
+                <b-col md="4">
+                  <div class="filter-group">
+                    <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
+                      <IBiGeoAlt /> Länder
+                    </h6>
+                    <b-form-checkbox-group
+                      v-model="countryFilter"
+                      stack
+                      class="custom-check-group scrollable-group"
+                    >
+                      <b-form-checkbox v-for="c in countryList" :key="c.value" :value="c.value">
+                        {{ c.text }}
+                      </b-form-checkbox>
+                    </b-form-checkbox-group>
+                  </div>
+                </b-col>
+              </b-row>
+            </b-card>
           </div>
         </div>
-
-        <b-collapse id="collapse-filter" v-model:visible="filterVisible">
-          <b-card bg-variant="white" class="mb-4 shadow-sm border-0 rounded-4">
-            <b-row>
-              <b-col md="4">
-                <div class="filter-group mb-4 mb-md-0">
-                  <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                    <IBiCheck2Circle /> Status
-                  </h6>
-                  <b-form-checkbox-group
-                    v-model="stateFilter"
-                    name="stateFilter"
-                    stack
-                    class="custom-check-group"
-                  >
-                    <b-form-checkbox v-for="opt in stateOptions" :key="opt.value" :value="opt.value">
-                       {{ opt.text }}
-                    </b-form-checkbox>
-                  </b-form-checkbox-group>
-                </div>
-              </b-col>
-              <b-col md="4">
-                <div class="filter-group mb-4 mb-md-0">
-                  <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                    <IBiTag /> Kategorien
-                  </h6>
-                  <b-form-checkbox-group
-                    v-model="categoryFilter"
-                    stack
-                    class="custom-check-group scrollable-group"
-                  >
-                    <b-form-checkbox v-for="cat in categoryList" :key="cat.value" :value="cat.value">
-                      {{ cat.text }}
-                    </b-form-checkbox>
-                  </b-form-checkbox-group>
-                </div>
-              </b-col>
-              <b-col md="4">
-                <div class="filter-group">
-                  <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                    <IBiGeoAlt /> Länder
-                  </h6>
-                  <b-form-checkbox-group
-                    v-model="countryFilter"
-                    stack
-                    class="custom-check-group scrollable-group"
-                  >
-                    <b-form-checkbox v-for="c in countryList" :key="c.value" :value="c.value">
-                      {{ c.text }}
-                    </b-form-checkbox>
-                  </b-form-checkbox-group>
-                </div>
-              </b-col>
-            </b-row>
-          </b-card>
-        </b-collapse>
         <div class="mb-4 text-muted small" v-if="filteredProjectList.length !== finalProjectList.length || activeFiltersCount > 0 || searchQuery">
           <strong>{{ finalProjectList.length }}</strong> Projekte gefunden
         </div>
       </b-placeholder-wrapper>
       <b-overlay :show="showLoadingSpinner" fixed :opacity="0.5">
-        <b-card-group columns class="my-3">
-          <project-list-item
+        <b-row class="my-3 g-4">
+          <b-col
             v-for="project in finalProjectList"
             :key="project.id"
-            :project="project"
-          />
-        </b-card-group>
+            cols="12"
+            md="6"
+            lg="4"
+          >
+            <project-list-item
+              :project="project"
+              :to="`/project/${project.id}`"
+              class="h-100"
+            />
+          </b-col>
+        </b-row>
         <div v-if="finalProjectList.length === 0" class="no-results py-5 text-center">
           <div class="display-1 text-muted opacity-25 mb-4">
             <IBiEmojiDizzy />
@@ -154,20 +132,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onBeforeMount } from "vue";
+import { ref, computed, onBeforeMount } from "vue";
 import { storeToRefs } from "pinia";
 import { useLoadingStore } from "../stores/loading.store";
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useCategoryStore } from "../stores/category.store";
 import { useCountryStore } from "../stores/country.store";
+import { useFilterStore } from "../stores/filter.store";
 import type { Project } from "@/interfaces/Project";
 import ProjectListItem from "../components/project/ProjectListItem.vue";
-import { useProjectSearch } from "@/composables/useProjectSearch";
+import { useProjectSearch, type ProjectState } from "@/composables/useProjectSearch";
+import SearchBar from "../components/SearchBar.vue";
 
 const loadingStore = useLoadingStore();
 const projectStore = useProjectStore();
 const categoryStore = useCategoryStore();
 const countryStore = useCountryStore();
+const filterStore = useFilterStore();
 
 const { showLoadingSpinner } = storeToRefs(loadingStore);
 const { filteredList: filteredProjectList, projects } =
@@ -175,7 +156,10 @@ const { filteredList: filteredProjectList, projects } =
 const { categories } = storeToRefs(categoryStore);
 const { countries } = storeToRefs(countryStore);
 
-// Real-time fuzzy search
+// Derive refs from shared filter store for template bindings
+const { stateFilter, categoryFilter, countryFilter, filterVisible } = storeToRefs(filterStore);
+
+// Real-time fuzzy search on the store's filtered list
 const { query: searchQuery, results: searchResults } = useProjectSearch(filteredProjectList, { limit: 200 });
 
 // Combine fuzzy search and store filters
@@ -192,10 +176,17 @@ const stateOptions = [
   { text: "Geplant", value: "planned" },
 ];
 
-const stateFilter = ref<string[]>([]);
-const categoryFilter = ref<string[]>([]);
-const countryFilter = ref<string[]>([]);
-const filterVisible = ref(false);
+// SearchBar state filter (local – for SearchBar's internal state binding)
+const stateFilterSearch = ref<ProjectState>("all");
+
+function handleStateFilterChange(state: ProjectState) {
+  stateFilterSearch.value = state;
+  if (state === "all") {
+    filterStore.stateFilter = [];
+  } else {
+    filterStore.stateFilter = [state];
+  }
+}
 
 const activeFilters = computed(() => {
   const filters: { id: string; type: string; name: string; value: any; category: string }[] = [];
@@ -206,12 +197,12 @@ const activeFilters = computed(() => {
   });
   
   categoryFilter.value.forEach(c => {
-    const cat = categoryList.value.find(cl => cl.value === Number(c));
+    const cat = categoryList.value.find(cl => cl.value === c);
     if (cat) filters.push({ id: `cat-${c}`, type: "Kategorie", name: cat.text, value: c, category: "category" });
   });
   
   countryFilter.value.forEach(c => {
-    const cou = countryList.value.find(cl => cl.value === Number(c));
+    const cou = countryList.value.find(cl => cl.value === c);
     if (cou) filters.push({ id: `cou-${c}`, type: "Land", name: cou.text, value: c, category: "country" });
   });
   
@@ -222,19 +213,20 @@ const activeFiltersCount = computed(() => activeFilters.value.length);
 
 function removeFilter(filter: any) {
   if (filter.category === "state") {
-    stateFilter.value = stateFilter.value.filter(s => s !== filter.value);
+    filterStore.stateFilter = filterStore.stateFilter.filter(s => s !== filter.value);
   } else if (filter.category === "category") {
-    categoryFilter.value = categoryFilter.value.filter(c => c !== filter.value);
+    filterStore.categoryFilter = filterStore.categoryFilter.filter(c => c !== filter.value);
   } else if (filter.category === "country") {
-    countryFilter.value = countryFilter.value.filter(c => c !== filter.value);
+    filterStore.countryFilter = filterStore.countryFilter.filter(c => c !== filter.value);
   }
 }
 
 function clearAllFilters() {
-  stateFilter.value = [];
-  categoryFilter.value = [];
-  countryFilter.value = [];
+  filterStore.stateFilter = [];
+  filterStore.categoryFilter = [];
+  filterStore.countryFilter = [];
   searchQuery.value = "";
+  stateFilterSearch.value = "all";
 }
 
 const projectList = computed(() =>
@@ -275,149 +267,90 @@ onBeforeMount(() => {
   // Load data asynchronously before mount to start fetching earlier
   Promise.all([projectStore.load(), categoryStore.load(), countryStore.load()]);
 
-  if (stateFilter.value.length === 0) {
-    stateFilter.value = ["finished", "planned", "under construction"];
+  // Set default state filters if none are active
+  if (filterStore.stateFilter.length === 0) {
+    filterStore.stateFilter = ["finished", "planned", "under construction"];
   }
 });
-
-watch(
-  [projects, stateFilter, categoryFilter, countryFilter],
-  () => {
-    // Ensure filters are numeric where necessary
-    const categoryFilterIds = categoryFilter.value.map(Number).filter(n => !isNaN(n));
-    const countryFilterIds = countryFilter.value.map(Number).filter(n => !isNaN(n));
-
-    // Delegate filtering to the store for consistency
-    projectStore.doFilter(
-      stateFilter.value,
-      categoryFilterIds,
-      countryFilterIds
-    );
-  },
-  { immediate: true, deep: true },
-);
 </script>
 
 <style lang="scss" scoped>
+@use "@/assets/design-tokens.scss" as *;
+
 .project-list {
-  padding: 1rem;
+  padding: var(--spacing-gutter-md);
+  position: relative;
+}
+
+.filter-overlay-container {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  // Backdrop behind toolbar so content doesn't show through
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(var(--color-surface-rgb, 248, 249, 250), 0.95);
+    backdrop-filter: blur(10px);
+    pointer-events: none;
+  }
+
+  > * {
+    position: relative; // stack above the backdrop
+  }
 }
 
 .toolbar-section {
-  position: sticky;
-  top: 1rem;
-  z-index: 100;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  padding: 0.5rem 0;
+  padding: calc(var(--spacing-unit) * 2) 0;
 }
 
-.search-input-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 1.25rem;
-  background: #f8f9fa;
-  border: 1px solid rgba(0,0,0,0.05);
-  border-radius: 1.25rem;
-  transition: all 0.3s ease;
-  min-width: 280px;
-
-  &:focus-within {
-    background: #fff;
-    border-color: var(--jws-primary);
-    box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.1) !important;
-  }
+.filter-dropdown {
+  position: absolute;
+  top: 100%; // directly below the toolbar
+  left: 0;
+  right: 0;
+  z-index: 50;
 }
 
-.search-input {
-  font-size: 1.1rem;
-  font-weight: 500;
-  background: transparent;
-  color: var(--jws-text);
-  
-  &::placeholder {
-    color: var(--jws-text-muted);
-    font-weight: 400;
-  }
-}
-
-.search-icon {
-  font-size: 1.2rem;
-  color: var(--jws-primary);
-}
-
-.filter-toggle-btn {
-  border-radius: 1.25rem;
-  transition: all 0.3s ease;
-  
-  &.active {
-    background: var(--jws-primary);
-    color: white;
-    border-color: var(--jws-primary);
-  }
-}
-
-.active-filters-pills {
-  min-height: 2.5rem;
-}
-
-.filter-pill {
-  background: white !important;
-  color: var(--jws-text) !important;
-  font-weight: 500;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-  transition: all 0.2s ease;
-  
-  &:hover {
-    border-color: var(--jws-primary) !important;
-  }
-}
-
-.pill-close-icon {
-  cursor: pointer;
-  font-size: 1.25rem;
-  color: #dc3545;
-  border-radius: 50%;
-  padding: 2px;
-  
-  &:hover {
-    background: rgba(220, 53, 69, 0.1);
-  }
+.filter-card {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.08) !important;
 }
 
 .filter-group-title {
-  color: var(--jws-primary);
-  font-weight: 700;
+  color: var(--color-secondary);
+  font-weight: var(--font-weight-label-md);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-size: 0.85rem;
+  font-size: var(--font-size-label-sm);
 }
 
 .custom-check-group {
   .form-check {
-    margin-bottom: 0.5rem;
-    padding-left: 1.75rem;
+    margin-bottom: calc(var(--spacing-unit) * 2);
+    padding-left: calc(var(--spacing-unit) * 7);
     
     .form-check-input {
-      width: 1.2rem;
-      height: 1.2rem;
-      margin-left: -1.75rem;
+      width: calc(var(--spacing-unit) * 5);
+      height: calc(var(--spacing-unit) * 5);
+      margin-left: calc(-1 * var(--spacing-unit) * 7);
       cursor: pointer;
+      border-radius: var(--shape-round-default);
       
       &:checked {
-        background-color: var(--jws-primary);
-        border-color: var(--jws-primary);
+        background-color: var(--color-secondary);
+        border-color: var(--color-secondary);
       }
     }
     
     .form-check-label {
       cursor: pointer;
-      font-size: 0.95rem;
+      font-size: var(--font-size-body-md);
       transition: color 0.2s ease;
       
       &:hover {
-        color: var(--jws-primary);
+        color: var(--color-secondary);
       }
     }
   }
@@ -426,7 +359,7 @@ watch(
 .scrollable-group {
   max-height: 250px;
   overflow-y: auto;
-  padding-right: 0.5rem;
+  padding-right: calc(var(--spacing-unit) * 2);
   
   &::-webkit-scrollbar {
     width: 6px;
@@ -437,27 +370,19 @@ watch(
   }
   
   &::-webkit-scrollbar-thumb {
-    background: rgba(0,0,0,0.1);
+    background: var(--color-outline-variant);
     border-radius: 3px;
     
     &:hover {
-      background: rgba(0,0,0,0.2);
+      background: var(--color-outline);
     }
   }
 }
 
-.shortcut-hint {
-  font-size: 0.7rem;
-  background: rgba(0,0,0,0.05);
-  border: 1px solid rgba(0,0,0,0.1);
-  border-radius: 4px;
-  padding: 1px 6px;
-  color: var(--jws-text-muted);
-}
-
 .no-results {
-  background: #f8f9fa;
-  border-radius: 2rem;
-  margin: 2rem 0;
+  background: var(--color-surface);
+  border-radius: var(--shape-round-xl);
+  margin: var(--spacing-margin-lg) 0;
+  padding: var(--spacing-margin-lg);
 }
 </style>

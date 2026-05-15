@@ -1,8 +1,6 @@
 <template>
   <b-button
-    size="sm"
     title="go back"
-    variant="light"
     class="back-button-inner d-flex align-items-center justify-content-center"
     @click="$router.go(-1)"
   >
@@ -19,15 +17,32 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+@use "@/assets/design-tokens.scss" as *;
+
 .back-button-inner {
-  padding: 0;
-  color: var(--bs-primary);
-  border: 1px solid var(--bs-border-color);
+  background-color: transparent;
+  color: var(--color-primary);
+  border: none;
+  border-radius: var(--shape-round-default);
+  padding: var(--spacing-unit);
+  font-size: var(--font-size-label-md);
+  font-weight: var(--font-weight-label-md);
+  line-height: var(--line-height-label-md);
+  letter-spacing: var(--letter-spacing-label-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, color 0.2s;
   
   &:hover {
-    background-color: var(--bs-primary);
-    color: #fff;
-    border-color: var(--bs-primary);
+    background-color: var(--color-primary-container);
+    color: var(--color-on-primary);
+  }
+  
+  /* Ensure icon inherits color */
+  .ibi-arrow-left {
+    color: inherit;
+    font-size: 1.25rem; /* 20px, matches fs-5 approx */
   }
 }
 </style>

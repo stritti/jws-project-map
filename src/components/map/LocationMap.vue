@@ -199,7 +199,20 @@ const projectStore = useProjectStore();
 
 const { getById: getCategoryById } = storeToRefs(categoryStore);
 const { showLoadingSpinner } = storeToRefs(loadingStore);
-const { projects: locations } = storeToRefs(projectStore);
+const { projects: allProjects } = storeToRefs(projectStore);
+
+// Props
+const props = defineProps({
+  filteredProjects: {
+    type: Array as () => Project[],
+    default: () => [],
+  },
+});
+
+// Use filtered projects if provided, otherwise use all projects
+const locations = computed(() => {
+  return props.filteredProjects.length > 0 ? props.filteredProjects : allProjects.value;
+});
 
 // Verwende shallowRef für nicht-reaktive Objekte für bessere Performance
 const zoom = ref(5);
@@ -243,15 +256,15 @@ const mapOptions = ref({
 });
 const map = ref<any>(null);
 
-// Compute project lists directly
+// Compute project lists from the filtered locations
 const projectsFinished = computed(() =>
-  projectStore.projects.filter((p) => p.state === "finished"),
+  locations.value.filter((p) => p.state === "finished"),
 );
 const projectsUnderConstruction = computed(() =>
-  projectStore.projects.filter((p) => p.state === "under construction"),
+  locations.value.filter((p) => p.state === "under construction"),
 );
 const projectsPlanned = computed(() =>
-  projectStore.projects.filter((p) => p.state === "planned"),
+  locations.value.filter((p) => p.state === "planned"),
 );
 
 // Memoization für Layer-Labels, um unnötige Neuberechnungen zu vermeiden
@@ -618,10 +631,12 @@ const updateMaxBounds = () => {
 </script>
 
 <style lang="scss">
+@use "@/assets/design-tokens.scss" as *;
+
 /* Leaflet CSS is lazy loaded in the script section for better performance */
 
 .leaflet-top {
-  top: calc(5rem + env(safe-area-inset-top));
+  top: calc(var(--spacing-unit) * 12.5 + env(safe-area-inset-top)); /* 5rem = 20 * 4px */
 }
 .leaflet-left {
   left: env(safe-area-inset-left);
@@ -633,8 +648,8 @@ const updateMaxBounds = () => {
   bottom: env(safe-area-inset-bottom);
 }
 .leaflet-control-attribution {
-  max-width: calc(100vw - 8.5rem);
-  font-size: 0.75rem;
+  max-width: calc(100vw - var(--spacing-unit) * 21.25); /* 8.5rem = 34 * 4px */
+  font-size: calc(var(--spacing-unit) * 1.875); /* 0.75rem = 3 * 4px */
 }
 
 /* Optimierte CSS-Transformationen für bessere Performance */
@@ -681,7 +696,7 @@ const updateMaxBounds = () => {
 .map-skeleton {
   width: 100%;
   height: 100vh;
-  background-color: #f8f9fa;
+  background-color: var(--color-background);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -689,6 +704,16 @@ const updateMaxBounds = () => {
 
 .map-skeleton-content {
   text-align: center;
+  
+  .spinner-border {
+    color: var(--color-primary);
+  }
+  
+  p {
+    margin-top: var(--spacing-unit);
+    font-size: var(--font-size-body-md);
+    color: var(--color-on-surface);
+  }
 }
 
 .pins-loading-indicator {
@@ -696,12 +721,22 @@ const updateMaxBounds = () => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: rgba(255, 255, 255, 0.8);
-  padding: 15px;
-  border-radius: 8px;
+  background-color: rgba(var(--color-surface-rgb), 0.8);
+  padding: calc(var(--spacing-unit) * 3.75); /* 15px */
+  border-radius: var(--shape-round-default);
   z-index: 1000;
   text-align: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit) * 2.5) rgba(0, 0, 0, 0.1);
+  
+  .spinner-border {
+    color: var(--color-primary);
+  }
+  
+  p {
+    margin-top: var(--spacing-unit);
+    font-size: var(--font-size-body-md);
+    color: var(--color-on-surface);
+  }
 }
 
 /* Optimiere Leaflet-Container für bessere Performance */

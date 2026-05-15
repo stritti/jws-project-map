@@ -4,8 +4,11 @@ import type { Project } from "@/interfaces/Project";
 
 const DEFAULT_MAX_RESULTS = 20;
 
+export type ProjectState = "all" | "planned" | "under construction" | "finished";
+
 export function useProjectSearch(projects: Ref<Project[]>, options?: { limit?: number }) {
   const query = ref("");
+  const stateFilter = ref<ProjectState>("all");
   const limit = options?.limit || DEFAULT_MAX_RESULTS;
 
   const fuse = computed(
@@ -26,15 +29,30 @@ export function useProjectSearch(projects: Ref<Project[]>, options?: { limit?: n
 
   const results = computed<Project[]>(() => {
     const q = query.value.trim();
-    if (q.length < 2) return [];
-    return fuse.value
-      .search(q, { limit })
-      .map((r) => r.item);
+    let filteredProjects: Project[];
+
+    if (q.length < 2) {
+      filteredProjects = projects.value;
+    } else {
+      filteredProjects = fuse.value
+        .search(q, { limit })
+        .map((r) => r.item);
+    }
+
+    // Apply state filter
+    if (stateFilter.value !== "all") {
+      filteredProjects = filteredProjects.filter(
+        (p) => p.state === stateFilter.value
+      );
+    }
+
+    return filteredProjects;
   });
 
   function reset() {
     query.value = "";
+    stateFilter.value = "all";
   }
 
-  return { query, results, reset };
+  return { query, stateFilter, results, reset };
 }

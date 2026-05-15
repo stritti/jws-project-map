@@ -1,81 +1,39 @@
 <template>
-  <BOffcanvas
-    v-if="project"
-    class="sidepanel"
-    header-class="sidepanel__header"
-    placement="end"
-    v-model="showPanel"
-  >
-    <template #title>
-      <h2>
-        <b-img
-          v-for="category in project.category"
-          :key="category.id"
-          class="pin"
-          :src="getPin(category.id)"
-          :alt="project?.name"
-        />
-        <router-link :to="`/project/${project.id}`">{{
-          project.name
-        }}</router-link>
-      </h2>
-    </template>
-
-    <div class="sidepanel__content">
-      <h3>
-        <country-label
-          v-if="project.country"
-          :country-id="project.country.id"
-        />
-      </h3>
-      <div>
-        <category-badge
-          v-for="category in project.category"
-          :key="category.id"
-          :category-id="category.id"
-        />
-      </div>
-
-      <b-img
-        v-if="project.teaserImg"
-        :src="project.teaserImg[0].signedUrl"
-        :alt="project.name"
-        fluid
-      />
-
-      <p><em>Project State:</em> {{ project.state }}</p>
-
-      <markdown-text :text="project.notes" />
-
-      <div class="sidepanel__footer">
-        <b-button :to="`/project/${project.id}`" variant="primary">
-          More &hellip;
-        </b-button>
-        <navigate-button
-          class="navigate-btn"
-          :lat="project.latitude"
-          :lng="project.longitude"
-        />
+  <Transition name="slide-up">
+    <div v-if="project && isOpened" class="project-card-overlay">
+      <div class="project-card-container">
+        <!-- Close button -->
+        <button class="close-btn" @click="onClose" aria-label="Schließen">
+          <IBiX />
+        </button>
+        
+        <!-- Use ProjectListItem with actions slot -->
+        <project-list-item :project="project">
+          <template #actions>
+            <b-button :to="`/project/${project.id}`" variant="primary" size="sm" class="details-btn">
+              <IBiBoxArrowUpRight />
+            </b-button>
+            <navigate-button
+              size="sm"
+              :lat="project.latitude"
+              :lng="project.longitude"
+            />
+          </template>
+        </project-list-item>
       </div>
     </div>
-  </BOffcanvas>
+  </Transition>
 </template>
 
 <script lang="ts">
-import { mapState } from "pinia";
 import { defineComponent } from "vue";
 import type { PropType } from "vue";
-import { useCategoryStore } from "../../stores/category.store";
-
-import CategoryBadge from "../../components/CategoryBadge.vue";
-import CountryLabel from "../../components/CountryLabel.vue";
-import MarkdownText from "../../components/MarkdownText.vue";
-import NavigateButton from "../../components/actions/NavigateButton.vue";
+import ProjectListItem from "./ProjectListItem.vue";
 import type { Project } from "../../interfaces/Project";
 
 export default defineComponent({
   name: "ProjectDetails",
-  components: { CategoryBadge, CountryLabel, MarkdownText, NavigateButton },
+  components: { ProjectListItem },
   props: {
     project: {
       type: Object as PropType<Project>,
@@ -87,90 +45,83 @@ export default defineComponent({
     },
   },
   emits: ["close"],
-  data() {
-    return {
-      showPanel: false as boolean,
-    };
-  },
-  computed: {
-    ...mapState(useCategoryStore, {
-      getCategoryById: (store) => store.getById,
-    }),
-  },
-  watch: {
-    isOpened(val) {
-      this.showPanel = val;
-    },
-    showPanel(val) {
-      if (val) {
-        this.$nextTick(() => {
-          this.onSidePanelOpen();
-        });
-      } else {
-        this.$nextTick(() => {
-          this.onSidePanelClose();
-        });
-      }
-    },
-  },
   methods: {
-    onSidePanelOpen() {},
-    onSidePanelClose() {
-      this.showPanel = false;
+    onClose() {
       this.$emit("close");
-    },
-    getPin(categoryId: number) {
-      const category = this.getCategoryById(categoryId);
-      if (category) {
-        return `/pins/${category.name.toLowerCase()}.png`;
-      } else {
-        return "/pins/unknown.png";
-      }
     },
   },
 });
 </script>
 
 <style lang="scss">
-.sidepanel {
-  padding-top: env(safe-area-inset-top);
-  padding-right: env(safe-area-inset-right);
-  padding-bottom: env(safe-area-inset-bottom);
+@use "@/assets/design-tokens.scss" as *;
 
-  &__header {
-    text-transform: uppercase;
+// Bottom navigation height
+$bottom-nav-height: 56px;
 
-    background-color: var(--bs-secondary);
-    border-bottom: 1px solid var(--bs-secondary-text-emphasis);
+.project-card-overlay {
+  position: fixed;
+  bottom: calc($bottom-nav-height + calc(var(--spacing-unit) * 3));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  width: 90%;
+  max-width: 600px;
+}
 
-    .pin {
-      margin-right: 0.25rem;
-    }
+.project-card-container {
+  position: relative;
+}
 
-    a {
-      color: var(--bs-secondary-bg-subtle);
-      text-decoration: none;
-    }
-  }
-
-  &__content {
-    img {
-      max-width: 100%;
-      max-height: 50vh;
-    }
-    .share-btn {
-      margin-left: 0.5rem;
-    }
-    .navigate-btn {
-      margin-left: 0.5rem;
-    }
-  }
-
-  &__footer {
-    width: 100%;
-    padding-bottom: 0.5rem;
-    display: flex;
-    justify-content: space-between;
+.close-btn {
+  position: absolute;
+  top: calc(var(--spacing-unit) * -1.5);
+  right: calc(var(--spacing-unit) * -1.5);
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--shape-round-full);
+  border: none;
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  box-shadow: 0 var(--spacing-unit) calc(var(--spacing-unit) * 3) rgba(9, 20, 38, 0.12);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: var(--color-surface-variant);
+    transform: scale(1.1);
   }
 }
+
+.details-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--spacing-unit) * 1);
+  width: 36px;
+  height: 36px;
+}
+
+// Transition
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.slide-up-enter-from,
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(20px);
+}
+
+.slide-up-enter-to,
+.slide-up-leave-from {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
 </style>
+

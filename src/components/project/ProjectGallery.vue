@@ -31,7 +31,7 @@
           />
           <div class="hover-overlay">
              <span class="zoom-icon">🔍</span>
-          </div>
+           </div>
         </template>
         <div
           v-else-if="item.mimetype.startsWith('video')"
@@ -105,67 +105,69 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+@use "@/assets/design-tokens.scss" as *;
+
 .project-gallery-section {
   position: relative;
-  margin-top: 4rem;
+  margin-top: calc(var(--spacing-unit) * 16); /* 64px */
 }
 
 .section-title {
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--jws-text-main);
-  margin-bottom: 2rem;
+  font-size: calc(var(--spacing-unit) * 8); /* 32px */
+  font-weight: 600; /* Closest to 800 in our system */
+  color: var(--color-on-surface);
+  margin-bottom: calc(var(--spacing-unit) * 8); /* 32px */
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--spacing-margin-sm); /* 12px */
   
   &::before {
     content: "";
-    width: 6px;
+    width: calc(var(--spacing-unit) * 1.5); /* 6px */
     height: 1.5em;
-    background: var(--jws-primary);
-    border-radius: 3px;
+    background: var(--color-primary);
+    border-radius: calc(var(--spacing-unit) * 0.75); /* 3px */
   }
 }
 
 .gallery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  grid-auto-rows: 280px;
-  gap: 1.5rem;
-  margin-top: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(calc(var(--spacing-unit) * 70), 1fr));
+  grid-auto-rows: calc(var(--spacing-unit) * 70);
+  gap: var(--spacing-margin-lg); /* 24px */
+  margin-top: var(--spacing-margin-lg); /* 24px */
   
-  @media (max-width: 576px) {
+  @media (max-width: calc(var(--spacing-unit) * 144)) { /* 576px */
     grid-template-columns: 1fr;
-    grid-auto-rows: 240px;
+    grid-auto-rows: calc(var(--spacing-unit) * 60); /* 240px */
   }
 }
 
 .gallery-item {
   position: relative;
-  border-radius: var(--jws-radius-lg);
+  border-radius: var(--shape-round-xl); /* 1.5rem */
   overflow: hidden;
   cursor: pointer;
-  box-shadow: var(--jws-shadow-sm);
-  transition: var(--jws-transition);
-  background: #eee;
+  box-shadow: 0 calc(var(--spacing-unit) * 1) calc(var(--spacing-unit) * 5) rgba(0, 0, 0, 0.06);
+  transition: 0.3s ease;
+  background: var(--color-surface-variant);
   
   &:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--jws-shadow-lg);
+    transform: translateY(calc(-1 * var(--spacing-unit) * 2)); /* -8px */
+    box-shadow: 0 calc(var(--spacing-unit) * 3.75) calc(var(--spacing-unit) * 8.75) rgba(0, 0, 0, 0.12);
     z-index: 2;
-
+    
     .hover-overlay {
       opacity: 1;
     }
     
     .video-overlay {
-      background: rgba(0,0,0,0.4);
-      backdrop-filter: blur(4px);
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(calc(var(--spacing-unit) * 1)); /* 4px */
       .play-button {
         transform: scale(1.15);
-        background: #fff;
-        color: var(--jws-primary);
+        background: var(--color-surface);
+        color: var(--color-primary);
       }
     }
     
@@ -173,7 +175,7 @@ export default defineComponent({
       transform: scale(1.1);
     }
   }
-
+  
   img {
     width: 100%;
     height: 100%;
@@ -193,9 +195,9 @@ export default defineComponent({
   transition: opacity 0.3s ease;
   
   .zoom-icon {
-    font-size: 2.5rem;
-    color: white;
-    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+    font-size: calc(var(--spacing-unit) * 10); /* 40px */
+    color: var(--color-on-primary);
+    filter: drop-shadow(0 calc(var(--spacing-unit) * 1) calc(var(--spacing-unit) * 3) rgba(0,0,0,0.3));
     transform: scale(0.9);
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     user-select: none;
@@ -210,7 +212,7 @@ export default defineComponent({
   width: 100%;
   height: 100%;
   position: relative;
-  background-color: #000;
+  background-color: var(--color-background);
 }
 
 .video-preview {
@@ -227,29 +229,30 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: var(--jws-transition);
+  transition: 0.3s ease;
 }
 
 .play-button {
-  width: 72px;
-  height: 72px;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(8px);
+  width: calc(var(--spacing-unit) * 18); /* 72px */
+  height: calc(var(--spacing-unit) * 18); /* 72px */
+  background: rgba(var(--color-surface-rgb), 0.9);
+  backdrop-filter: blur(calc(var(--spacing-unit) * 2)); /* 8px */
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: var(--jws-transition);
+  transition: 0.3s ease;
   position: relative;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-
+  box-shadow: 0 calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 6) rgba(0,0,0,0.2);
+  
   &::after {
     content: '';
     position: absolute;
-    margin-left: 6px;
+    margin-left: calc(var(--spacing-unit) * 1.5); /* 6px */
     border-style: solid;
-    border-width: 12px 0 12px 20px;
-    border-color: transparent transparent transparent var(--jws-primary);
+    border-width: calc(var(--spacing-unit) * 3) 0 calc(var(--spacing-unit) * 3) calc(var(--spacing-unit) * 5); /* 12px 0 12px 20px */
+    border-color: transparent transparent transparent var(--color-primary);
   }
 }
 </style>
+

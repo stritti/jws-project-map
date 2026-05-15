@@ -27,19 +27,49 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+@use "@/assets/design-tokens.scss" as *;
+
 footer {
   margin: 0;
-  padding: 1rem;
-  height: 7rem;
-  background-color: #000;
-  color: #fff;
+  padding: var(--spacing-gutter-md);
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-outline-variant);
+  
   p {
-    font-size: 12px;
+    margin: 0;
+    font-size: var(--font-size-label-sm);
+    color: var(--color-on-surface-variant);
+    
+    strong {
+      font-weight: var(--font-weight-label-md);
+      color: var(--color-on-surface);
+      
+      a {
+        color: var(--color-on-surface);
+        text-decoration: none;
+        
+        &:hover,
+        &:focus {
+          color: var(--color-primary);
+          text-decoration: underline;
+        }
+      }
+    }
+    
+    a {
+      color: var(--color-on-surface-variant);
+      text-decoration: none;
+      
+      &:hover,
+      &:focus {
+        color: var(--color-primary);
+        text-decoration: underline;
+      }
+    }
   }
-  a {
-    background-color: #000;
-    color: #fff;
-    text-decoration: none;
+  
+  p + p {
+    margin-top: var(--spacing-unit);
   }
 }
 </style>

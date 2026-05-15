@@ -1,35 +1,66 @@
 <template>
-  <router-link :to="`/project/${project.id}`">
+  <!-- Use router-link if no external link prop, otherwise use a tag -->
+  <component
+    :is="to ? 'router-link' : 'div'"
+    :to="to"
+    :href="href"
+    :target="target"
+    class="project-card-link"
+    :class="{ 'external-link': href }"
+  >
     <b-card class="project-list-item" no-body>
-      <b-card-img
-        :class="imageStyleClasses"
-        :src="teaserImage"
-        :lazy="true"
-        :alt="project.name"
-        top
-      />
-      <h3 class="project-list-item__title text-truncate">
-        {{ project.name }}
-      </h3>
-      <b-card-body :sub-title="null">
-        <div class="category-badges mb-2">
-          <category-badge
-            v-for="category in project.category"
-            :key="category.Id"
-            :category-id="category.Id"
+      <b-row no-gutters class="g-0">
+        <!-- Image Section - Left side -->
+        <b-col cols="5" class="image-col">
+          <b-card-img
+            :src="teaserImage"
+            :alt="project.name"
+            class="project-image"
+            placement="top"
           />
-        </div>
-        <div v-if="project.country && project.country.Id">
-          <country-label :country-id="project.country.Id" />
-        </div>
-        <div>Project State: {{ project.state }}</div>
-      </b-card-body>
+          <!-- State badge overlay -->
+          <div class="state-badge" :class="project.state?.replace(' ', '-')">
+            {{ stateLabel }}
+          </div>
+        </b-col>
+        
+        <!-- Content Section - Right side -->
+        <b-col cols="7" class="content-col">
+          <b-card-body class="project-content">
+            <b-card-title class="project-title text-truncate">
+              {{ project.name }}
+            </b-card-title>
+            
+            <div class="project-meta">
+              <!-- Category badges -->
+              <div class="category-badges">
+                <category-badge
+                  v-for="category in project.category"
+                  :key="category.id"
+                  :category-id="category.id"
+                />
+              </div>
+              
+              <!-- Country -->
+              <div v-if="project.country && project.country.id" class="country-row">
+                <IBiGeoAlt class="country-icon" />
+                <country-label :country-id="project.country.id" />
+              </div>
+            </div>
+            
+            <!-- Optional actions slot (for map overlay) -->
+            <div v-if="$slots.actions" class="project-actions">
+              <slot name="actions" />
+            </div>
+          </b-card-body>
+        </b-col>
+      </b-row>
     </b-card>
-  </router-link>
+  </component>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, computed } from "vue";
 import CategoryBadge from "../../components/CategoryBadge.vue";
 import CountryLabel from "../../components/CountryLabel.vue";
 
@@ -41,6 +72,19 @@ export default defineComponent({
       type: Object,
       required: true,
     },
+    // Optional props for external links
+    to: {
+      type: String,
+      default: null,
+    },
+    href: {
+      type: String,
+      default: null,
+    },
+    target: {
+      type: String,
+      default: undefined,
+    },
   },
   computed: {
     teaserImage() {
@@ -51,106 +95,148 @@ export default defineComponent({
         return "/img/placeholder.png";
       }
     },
-    imageStyleClasses() {
-      return this.project.state ? this.project.state.replace(" ", "-") : "";
+    stateLabel() {
+      const labels: Record<string, string> = {
+        finished: "Abgeschlossen",
+        "under construction": "Im Bau",
+        planned: "Geplant",
+      };
+      return labels[this.project.state] || this.project.state;
     },
   },
 });
 </script>
 
 <style lang="scss">
-a {
+@use "@/assets/design-tokens.scss" as *;
+
+.project-card-link {
   color: inherit;
   text-decoration: none;
+  display: block;
+  height: 100%;
+
+  &.external-link {
+    cursor: pointer;
+  }
 }
 
 .project-list-item {
-  min-height: 24rem;
+  height: 100%;
+  min-height: 180px;
   transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
   border: none !important;
-  border-radius: 1.25rem !important;
+  border-radius: var(--shape-round-xl) !important;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  background: #fff;
-  height: 100%;
+  box-shadow: 0 var(--spacing-unit) calc(var(--spacing-unit) * 3) rgba(9, 20, 38, 0.08);
+  background: var(--color-surface);
+  position: relative;
 
   &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+    transform: translateY(calc(-1 * var(--spacing-unit) * 2));
+    box-shadow: 0 calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 6) rgba(9, 20, 38, 0.12);
 
-    .card-img-top {
-      transform: scale(1.08);
+    .project-image {
+      transform: scale(1.05);
     }
-
-    .project-list-item__title {
-      background: linear-gradient(
-        135deg,
-        rgb(70, 105, 175) 0%,
-        rgb(61, 94, 158) 100%
-      );
-    }
-  }
-
-  &__title {
-    padding: 1.25rem 1rem;
-    font-size: 1.3rem;
-    font-weight: 700;
-    text-decoration: none;
-    color: #fff;
-    background: linear-gradient(
-      135deg,
-      rgb(61, 94, 158) 0%,
-      rgb(45, 70, 120) 100%
-    );
-    margin: 0;
-    transition: background 0.3s ease;
-  }
-
-  .card-img-top {
-    min-height: 15rem;
-    max-height: 15rem;
-    object-fit: cover;
-    object-position: center;
-    transition: transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
-  }
-
-  .card-body {
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .category-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
   }
 }
 
-.under-construction {
-  filter:grayscale(0.85) &::after {
-    content: "... still under construction ...";
-    position: absolute;
-    top: 80px;
-    white-space: pre;
-    right: 15px;
-    font-weight: bold;
-    text-align: right;
-    font-size: 30px;
+.image-col {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+}
+
+.project-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
+  border-radius: var(--shape-round-default);
+}
+
+.state-badge {
+  position: absolute;
+  top: calc(var(--spacing-unit) * 1.5);
+  right: calc(var(--spacing-unit) * 1.5);
+  padding: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit) * 1);
+  border-radius: var(--shape-round-full);
+  font-size: var(--font-size-label-sm);
+  font-weight: var(--font-weight-label-md);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  z-index: 1;
+
+  &.finished {
+    background: var(--color-tertiary);
+    color: var(--color-on-tertiary);
+  }
+
+  &.under-construction {
+    background: var(--color-secondary);
+    color: var(--color-on-secondary);
+  }
+
+  &.planned {
+    background: var(--color-surface-variant);
+    color: var(--color-on-surface-variant);
   }
 }
 
-.planned {
-  filter:grayscale(0.85) &::after {
-    content: "just planned";
-    position: absolute;
-    top: 80px;
-    white-space: pre;
-    right: 15px;
-    font-weight: bold;
-    text-align: right;
-    font-size: 30px;
-  }
+.content-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 180px;
+}
+
+.project-content {
+  padding: calc(var(--spacing-unit) * 2);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 0.5);
+  flex: 1;
+}
+
+.project-title {
+  font-size: var(--font-size-headline-md);
+  font-weight: var(--font-weight-headline-md);
+  color: var(--color-on-surface);
+  margin: 0;
+  line-height: var(--line-height-headline-md);
+  letter-spacing: var(--letter-spacing-headline-md);
+}
+
+.project-meta {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 0.5);
+}
+
+.category-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing-unit) * 0.5);
+}
+
+.country-row {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing-unit) * 0.5);
+  font-size: var(--font-size-body-md);
+  color: var(--color-on-surface-variant);
+}
+
+.country-icon {
+  font-size: var(--font-size-body-md);
+  color: var(--color-on-surface-variant);
+}
+
+.project-actions {
+  display: flex;
+  gap: calc(var(--spacing-unit) * 1);
+  margin-top: auto;
+  padding-top: calc(var(--spacing-unit) * 1);
 }
 </style>
