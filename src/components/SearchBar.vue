@@ -58,7 +58,7 @@
         :key="state.value"
         class="filter-chip"
         :class="{ active: stateFilter === state.value }"
-        @click="$emit('state-change', state.value)"
+        @click="onChipClick(state.value)"
       >
         {{ state.label }}
       </button>
@@ -122,6 +122,13 @@ const stateOptions = computed(() => [
   { value: "finished" as ProjectState, label: t("search.chips.finished") },
 ]);
 
+// Handle filter-chip click: update local state + emit both events (Codex #P2)
+function onChipClick(value: ProjectState) {
+  stateFilter.value = value;
+  emit("update:stateFilter", value);
+  emit("state-change", value);
+}
+
 watch(query, (newValue) => {
   emit("update:modelValue", newValue);
 });
@@ -130,11 +137,21 @@ watch(stateFilter, (newValue) => {
   emit("update:stateFilter", newValue);
 });
 
+// Sync local state when parent resets modelValue via v-model (Codex #P2)
+watch(() => props.modelValue, (newVal) => {
+  query.value = newVal ?? "";
+});
+
+// Sync local state when parent resets stateFilter via v-model (Codex #P2)
+watch(() => props.stateFilter, (newVal) => {
+  stateFilter.value = newVal ?? "all";
+});
+
 // Expose methods for parent components
+const inputRef = ref<HTMLInputElement | null>(null);
 defineExpose({
   focus: () => {
-    const input = document.querySelector(".search-bar .search-input") as HTMLInputElement;
-    input?.focus();
+    inputRef.value?.focus();
   },
   reset: () => {
     query.value = "";

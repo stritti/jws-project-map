@@ -3,6 +3,7 @@ import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { i18n, setLocale, type Locale } from "@/plugins/i18n";
+import { useProjectStore } from "@/features/projects/stores/project.store";
 
 const { t } = useI18n();
 import IBiMap from "~icons/bi/map";
@@ -14,6 +15,12 @@ import AboutModal from "./AboutModal.vue";
 
 const route = useRoute();
 const currentLocale = computed(() => i18n.global.locale as unknown as string);
+
+function switchLocale(locale: Locale) {
+  setLocale(locale);
+  // Reload project data so localized fields (name, notes) are refetched (Codex #P2)
+  useProjectStore().load(false).catch(() => {});
+}
 
 const aboutModalRef = ref<InstanceType<typeof AboutModal> | null>(null);
 
@@ -84,7 +91,7 @@ function isActive(item: NavItem): boolean {
         :lang="lang.code"
         :aria-label="lang.label"
         :aria-current="currentLocale === lang.code ? 'true' : undefined"
-        @click="setLocale(lang.code)"
+        @click="switchLocale(lang.code)"
       >
         <span :class="`fi fis fi-${lang.flag}`" aria-hidden="true" />
       </button>

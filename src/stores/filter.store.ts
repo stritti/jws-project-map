@@ -25,6 +25,7 @@ export const useFilterStore = defineStore("filter", () => {
   );
 
   // Re-apply filters when project data loads (so filteredList gets populated)
+  // Also run immediately to handle cached/hydrated project data (Codex #P2)
   watch(
     () => useProjectStore().projects,
     (newProjects) => {
@@ -32,7 +33,7 @@ export const useFilterStore = defineStore("filter", () => {
         applyFilters();
       }
     },
-    { deep: false },
+    { immediate: true, deep: false },
   );
 
   return {

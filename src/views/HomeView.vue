@@ -37,9 +37,6 @@ const LocationMap = defineAsyncComponent(
   () => import("../components/map/LocationMap.vue"),
 );
 
-// Search functionality
-const searchQuery = ref("");
-
 // Map base layer (satellite or OSM)
 const baseLayer = ref<'satellite' | 'osm'>('osm');
 
@@ -50,7 +47,9 @@ const stateOptions = computed(() => [
 ]);
 
 // Fuzzy search on the store's filtered list
-const { results: searchResults } = useProjectSearch(filteredList, { limit: 50 });
+// NOTE: destructure `query` as `searchQuery` so the SearchBar v-model
+// binds to the Fuse query directly (Codex #P2).
+const { results: searchResults, query: searchQuery } = useProjectSearch(filteredList, { limit: 50 });
 
 const activeFilters = computed(() => {
   const filters: { id: string; type: string; name: string; value: any; category: string }[] = [];

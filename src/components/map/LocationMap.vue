@@ -175,6 +175,7 @@ import { storeToRefs } from "pinia";
 import { useLoadingStore } from "../../stores/loading.store";
 import { useCategoryStore } from "../../stores/category.store";
 import { useProjectStore } from "@/features/projects/stores/project.store";
+import { useFilterStore } from "@/stores/filter.store";
 import L, { latLngBounds } from "leaflet";
 import {
   LMap,
@@ -212,9 +213,22 @@ const props = defineProps({
   },
 });
 
-// Use filtered projects if provided, otherwise use all projects
+// Version counter bumped when filteredProjects reference changes, used to
+// invalidate bounds cache so different filter results get fresh fitBounds (Codex #P2).
+const locationsVersion = ref(0);
+watch(() => props.filteredProjects, () => { locationsVersion.value++; });
+
+// Use filtered projects if provided, otherwise use all projects.
+// When filters are active but produce zero matches, show empty map (Codex #P2).
 const locations = computed(() => {
-  return props.filteredProjects.length > 0 ? props.filteredProjects : allProjects.value;
+  if (props.filteredProjects.length > 0) return props.filteredProjects;
+  const filterStore = useFilterStore();
+  const hasActiveFilters =
+    filterStore.stateFilter.length > 0 ||
+    filterStore.categoryFilter.length > 0 ||
+    filterStore.countryFilter.length > 0;
+  if (hasActiveFilters) return [];
+  return allProjects.value;
 });
 
 // Verwende shallowRef für nicht-reaktive Objekte für bessere Performance
@@ -521,7 +535,9 @@ const updateMaxBounds = () => {
       // Erstelle einen Cache-Schlüssel basierend auf der Anzahl der Standorte
       // Dies ist eine Vereinfachung - in einer realen Anwendung könnte man einen
       // komplexeren Schlüssel basierend auf den tatsächlichen Daten verwenden
-      const cacheKey = `bounds-${locations.value.length}`;
+      // Nutze locationsVersion um Cache zu invalidieren wenn sich Quelle ändert
+      // (verhindert stale bounds bei Filterwechsel mit gleicher Anzahl, Codex #P2)
+      const cacheKey = `bounds-v${locationsVersion.value}-${locations.value.length}`;
 
       // Prüfe, ob wir bereits berechnete Grenzen im Cache haben
       if (boundsCache.has(cacheKey)) {
