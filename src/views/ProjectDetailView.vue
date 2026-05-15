@@ -17,13 +17,6 @@
             <h1 class="title mb-0 flex-grow-1 fw-bold">
               {{ project.name }}
             </h1>
-            <div class="categories d-flex gap-2 flex-wrap">
-              <category-badge
-                v-for="category in project.category"
-                :key="category.id"
-                :category-id="category.id"
-              />
-            </div>
         </div>
       </b-placeholder-wrapper>
     </b-container>
@@ -73,9 +66,23 @@
 
           <div v-if="project">
             
+            <!-- Category tiles -->
+            <div v-if="project.category?.length" class="category-tiles mb-4">
+              <div
+                v-for="category in project.category"
+                :key="category.id"
+                class="category-tile"
+                :style="categoryTileStyle(category.id)"
+              >
+                {{ categoryName(category.id) }}
+              </div>
+            </div>
+
             <div class="info-grid mb-5">
                <div class="info-card" v-if="project.country">
-                  <div class="info-icon">🌍</div>
+                  <div class="info-icon">
+                    <IBiGlobe2 />
+                  </div>
                   <div class="info-content">
                     <span class="info-label">Country</span>
                     <strong class="info-value"><country-label :country-id="project.country.id" /></strong>
@@ -83,20 +90,51 @@
                </div>
                
                <div class="info-card" v-if="project.state">
-                  <div class="info-icon">📍</div>
+                  <div class="info-icon">
+                    <IBiCheck2Circle />
+                  </div>
                   <div class="info-content">
                     <span class="info-label">Project State</span>
-                    <strong class="info-value">{{ project.state }}</strong>
+                    <span class="state-badge" :class="project.state.replace(' ', '-')">
+                      {{ stateLabel }}
+                    </span>
                   </div>
                </div>
 
                <div class="info-card" v-if="project.since">
-                  <div class="info-icon">🗓️</div>
+                  <div class="info-icon">
+                    <IBiCalendar3 />
+                  </div>
                   <div class="info-content">
                     <span class="info-label">Since</span>
-                    <strong class="info-value">{{ project.since }}</strong>
+                    <strong class="info-value">{{ formattedSince }}</strong>
                   </div>
                </div>
+            </div>
+
+            <!-- Mini location map -->
+            <div v-if="project.latitude && project.longitude" class="location-section mb-5">
+              <h2 class="section-title mb-4">Standort</h2>
+              <div class="mini-map rounded-4 overflow-hidden shadow-sm">
+                <l-map
+                  :zoom="13"
+                  :center="[project.latitude, project.longitude]"
+                  :options="mapOptions"
+                  :use-global-leaflet="true"
+                  style="height: 300px; width: 100%"
+                >
+                  <l-tile-layer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    layer-type="base"
+                    name="OpenStreetMap"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  />
+                  <l-marker
+                    :lat-lng="[project.latitude, project.longitude]"
+                    :icon="detailMarkerIcon"
+                  />
+                </l-map>
+              </div>
             </div>
 
             <div v-if="project.notes" class="project-details__description mb-5">
@@ -110,7 +148,7 @@
             </div>
 
             <div v-if="project.link" class="mb-5">
-              <b-button :href="project.link" variant="primary" class="rounded-pill px-4 py-2 shadow-sm fw-bold border-0" target="_blank" style="background: var(--bs-primary);">
+              <b-button :href="project.link" variant="primary" class="rounded-pill px-4 py-2 shadow-sm fw-bold border-0" target="_blank">
                 more &hellip;
               </b-button>
             </div>
@@ -129,29 +167,28 @@ import { useRoute } from "vue-router";
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useCategoryStore } from "@/stores/category.store";
 import { useCountryStore } from "@/stores/country.store";
-import CountryLabel from "../components/CountryLabel.vue";
-import CategoryBadge from "../components/CategoryBadge.vue";
-import { useWebFrame } from "../composables/useWebFrame";
-
-const { isIFrame } = useWebFrame();
-import { useLoadingStore } from "../stores/loading.store";
-import BackButton from "../components/actions/BackButton.vue";
-import ShareButton from "../components/actions/ShareButton.vue";
-import NavigateButton from "../components/actions/NavigateButton.vue";
+import CountryLabel from "@/components/CountryLabel.vue";
+import CategoryBadge from "@/components/CategoryBadge.vue";
+import { useWebFrame } from "@/composables/useWebFrame";
+import { useLoadingStore } from "@/stores/loading.store";
+import BackButton from "@/components/actions/BackButton.vue";
+import ShareButton from "@/components/actions/ShareButton.vue";
+import NavigateButton from "@/components/actions/NavigateButton.vue";
 import { defineAsyncComponent } from "vue";
 import type { Project } from "@/interfaces/Project";
 import { useGeoTags } from "@/composables/useGeoTags";
+import L from "leaflet";
+import { LMap, LTileLayer, LMarker } from "@vue-leaflet/vue-leaflet";
+import "leaflet/dist/leaflet.css";
+
+const { isIFrame } = useWebFrame();
 
 const MarkdownText = defineAsyncComponent(
-  () => import("../components/MarkdownText.vue"),
+  () => import("@/components/MarkdownText.vue"),
 );
 
 const ProjectGallery = defineAsyncComponent(
   () => import("@/components/project/ProjectGallery.vue"),
-);
-
-const ProjectGalleryModal = defineAsyncComponent(
-  () => import("@/components/project/ProjectGalleryModal.vue"),
 );
 
 const props = defineProps({
@@ -176,6 +213,7 @@ const loading = computed(() => {
   if (project.value) return false;
   return loadingStore.showLoadingSpinner || projectStore.loading || projectStore.projects.length === 0;
 });
+
 const project = computed((): Project | undefined => {
   const id = parseInt(route.params.projectId as string);
   return projectStore.projects.find((p) => p.id === id);
@@ -184,12 +222,62 @@ const project = computed((): Project | undefined => {
 // Implement GEO-tags for SEO
 useGeoTags(project);
 
+const formattedSince = computed(() => {
+  if (!project.value?.since) return "";
+  return new Date(project.value.since).toLocaleDateString("de-DE", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+});
+
 const teaserImage = computed(() => {
   if (project.value?.teaserImg) {
     return project.value.teaserImg[0].signedUrl;
-  } else {
-    return "/img/placeholder.png";
   }
+  return "/img/placeholder.png";
+});
+
+const stateLabel = computed(() => {
+  const labels: Record<string, string> = {
+    finished: "Abgeschlossen",
+    "under construction": "Im Bau",
+    planned: "Geplant",
+  };
+  const state = project.value?.state;
+  return state ? (labels[state] || state) : "";
+});
+
+const mapOptions = {
+  zoomControl: true,
+  scrollWheelZoom: false,
+};
+
+function categoryName(id: number): string {
+  return categoryStore.getById(id)?.name ?? "";
+}
+
+function categoryTileStyle(id: number): Record<string, string> {
+  const cat = categoryStore.getById(id);
+  if (cat?.color) {
+    return { backgroundColor: cat.color, color: "#fff" };
+  }
+  return { backgroundColor: "var(--jws-bg-subtle)", color: "var(--jws-text-main)" };
+}
+
+const detailMarkerIcon = computed(() => {
+  return L.divIcon({
+    className: "detail-marker-icon",
+    html: `<div style="
+      width: 28px; height: 28px;
+      background: #3d5e9e;
+      border: 3px solid white;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    "></div>`,
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+  }) as unknown as L.Icon;
 });
 </script>
 
@@ -341,6 +429,32 @@ const teaserImage = computed(() => {
   flex-shrink: 0;
 }
 
+.state-badge {
+  display: inline-block;
+  position: static;
+  padding: 0.35rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+
+  &.finished {
+    background: #198754;
+    color: #fff;
+  }
+
+  &.under-construction {
+    background: #ffc107;
+    color: #212529;
+  }
+
+  &.planned {
+    background: #3d5e9e;
+    color: #fff;
+  }
+}
+
 .info-content {
   display: flex;
   flex-direction: column;
@@ -356,9 +470,11 @@ const teaserImage = computed(() => {
 }
 
 .info-value {
-  font-size: 1.15rem;
-  font-weight: 600;
+  font-size: 1.05rem;
+  font-weight: 700;
   color: var(--jws-text-main);
+  display: flex;
+  align-items: center;
 }
 
 .section-title {
@@ -390,12 +506,36 @@ const teaserImage = computed(() => {
   }
 }
 
-.categories {
-  :deep(.badge) {
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
-    font-weight: 600;
-    border-radius: 2rem;
+.category-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.category-tile {
+  padding: 0.5rem 1.25rem;
+  border-radius: 2rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.mini-map {
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  line-height: 0;
+
+  :deep(.leaflet-control-attribution) {
+    font-size: 9px;
   }
+}
+</style>
+
+<!-- Unscoped: Leaflet renders its DOM outside Vue's scope -->
+<style lang="scss">
+.detail-marker-icon {
+  background: none !important;
+  border: none !important;
 }
 </style>
