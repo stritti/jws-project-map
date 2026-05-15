@@ -23,7 +23,6 @@
             :alt="project.name"
             class="project-image"
             placement="top"
-            @error="onImageError"
           />
           <!-- State badge overlay -->
           <div class="state-badge" :class="project.state?.replace(' ', '-')">
@@ -70,7 +69,6 @@
 import { defineComponent, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
-import { useAttachment } from "@/composables/useAttachment";
 import { useWebFrame } from "@/composables/useWebFrame";
 import CategoryBadge from "../../components/CategoryBadge.vue";
 import CountryLabel from "../../components/CountryLabel.vue";
@@ -80,10 +78,9 @@ export default defineComponent({
   components: { CategoryBadge, CountryLabel },
   setup() {
     const { t } = useI18n();
-    const { onImageError } = useAttachment();
     const { isIFrame, notifyNavigate } = useWebFrame();
     const router = useRouter();
-    return { t, onImageError, isIFrame, notifyNavigate, router };
+    return { t, isIFrame, notifyNavigate, router };
   },
   emits: ['click'],
   props: {

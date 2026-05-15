@@ -25,7 +25,6 @@
                 :src="item.signedUrl"
                 :alt="item.name"
                 class="gallery-image"
-                @error="onImageError"
               />
             </template>
             <template v-else-if="item.mimetype.startsWith('video')">
@@ -56,7 +55,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import type { Attachment } from '@/interfaces/Attachment'
-import { useAttachment } from '@/composables/useAttachment'
 
 const props = defineProps<{
   isVisible: boolean
@@ -67,8 +65,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:isVisible', value: boolean): void
 }>()
-
-const { onImageError } = useAttachment()
 
 const currentIndex = ref(0)
 

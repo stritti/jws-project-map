@@ -16,7 +16,6 @@
           :src="project.teaserImg[0].signedUrl"
           :alt="project.name + ' Teaser Image'"
           loading="lazy"
-          @error="onImageError"
         />
         <div class="hover-overlay">
           <IBiZoomIn class="zoom-icon" />
@@ -38,7 +37,6 @@
             :src="item.thumbnails?.card_cover?.signedUrl || item.signedUrl"
             :alt="item.name"
             loading="lazy"
-            @error="onImageError"
           />
           <div class="hover-overlay">
             <IBiZoomIn class="zoom-icon" />
@@ -74,7 +72,6 @@
 <script lang="ts">
 import { defineComponent, PropType, ref, computed } from 'vue';
 import type { Project } from '@/interfaces/Project';
-import { useAttachment } from '@/composables/useAttachment';
 import ProjectGalleryModal from './ProjectGalleryModal.vue';
 
 export default defineComponent({
@@ -95,7 +92,6 @@ export default defineComponent({
   setup(props) {
     const modalVisible = ref(false);
     const currentItem = ref(null);
-    const { onImageError } = useAttachment();
 
     const galleryWithTeaserImg = computed(() => {
       const gallery = props.project.gallery || [];
@@ -106,8 +102,7 @@ export default defineComponent({
     return {
       modalVisible,
       currentItem,
-      galleryWithTeaserImg,
-      onImageError
+      galleryWithTeaserImg
     };
   },
   methods: {
