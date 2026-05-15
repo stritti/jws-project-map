@@ -37,6 +37,7 @@ declare module 'vue' {
     BRow: typeof import('bootstrap-vue-next/components/BContainer')['BRow']
     CategoryBadge: typeof import('./src/components/CategoryBadge.vue')['default']
     CountryLabel: typeof import('./src/components/CountryLabel.vue')['default']
+    FilterPanel: typeof import('./src/components/FilterPanel.vue')['default']
     FloatingMeta: typeof import('./src/components/FloatingMeta.vue')['default']
     IBiArrowLeft: typeof import('~icons/bi/arrow-left')['default']
     IBiArrowRepeat: typeof import('~icons/bi/arrow-repeat')['default']

@@ -53,61 +53,7 @@
           <div v-if="filterVisible" class="filter-backdrop" @click="filterVisible = false" />
 
           <!-- Filter panel overlays the list via absolute positioning -->
-          <div v-if="filterVisible" class="filter-dropdown">
-            <b-card bg-variant="white" class="shadow-sm border-0 rounded-4 filter-card">
-              <b-row>
-                <b-col md="4">
-                  <div class="filter-group mb-4 mb-md-0">
-                    <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                      <IBiCheck2Circle /> {{ t("search.filterGroups.status") }}
-                    </h6>
-                    <b-form-checkbox-group
-                      v-model="stateFilter"
-                      name="stateFilter"
-                      stack
-                      class="custom-check-group"
-                    >
-                      <b-form-checkbox v-for="opt in stateOptions" :key="opt.value" :value="opt.value">
-                         {{ opt.text }}
-                      </b-form-checkbox>
-                    </b-form-checkbox-group>
-                  </div>
-                </b-col>
-                <b-col md="4">
-                  <div class="filter-group mb-4 mb-md-0">
-                    <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                      <IBiTag /> {{ t("search.filterGroups.categories") }}
-                    </h6>
-                    <b-form-checkbox-group
-                      v-model="categoryFilter"
-                      stack
-                      class="custom-check-group scrollable-group"
-                    >
-                      <b-form-checkbox v-for="cat in categoryList" :key="cat.value" :value="cat.value">
-                        {{ cat.text }}
-                      </b-form-checkbox>
-                    </b-form-checkbox-group>
-                  </div>
-                </b-col>
-                <b-col md="4">
-                  <div class="filter-group">
-                    <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                      <IBiGeoAlt /> {{ t("search.filterGroups.countries") }}
-                    </h6>
-                    <b-form-checkbox-group
-                      v-model="countryFilter"
-                      stack
-                      class="custom-check-group scrollable-group"
-                    >
-                      <b-form-checkbox v-for="c in countryList" :key="c.value" :value="c.value">
-                        {{ c.text }}
-                      </b-form-checkbox>
-                    </b-form-checkbox-group>
-                  </div>
-                </b-col>
-              </b-row>
-            </b-card>
-          </div>
+          <FilterPanel v-if="filterVisible" @close="filterVisible = false" />
         </div>
         <div class="mb-4 text-muted small" v-if="filteredProjectList.length !== finalProjectList.length || activeFiltersCount > 0 || searchQuery">
           {{ t("search.resultsCount", { count: finalProjectList.length }) }}
@@ -156,6 +102,7 @@ import { useFilterStore } from "../stores/filter.store";
 import type { Project } from "@/interfaces/Project";
 import ProjectListItem from "../components/project/ProjectListItem.vue";
 import { useProjectSearch, type ProjectState } from "@/composables/useProjectSearch";
+import FilterPanel from "@/components/FilterPanel.vue";
 import SearchBar from "../components/SearchBar.vue";
 
 const { t } = useI18n();
@@ -375,71 +322,6 @@ onBeforeMount(() => {
     inset: 0;
     z-index: 999;
     background: rgba(0, 0, 0, 0.3);
-  }
-}
-
-.filter-card {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.08) !important;
-}
-
-.filter-group-title {
-  color: var(--color-secondary);
-  font-weight: var(--font-weight-label-md);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: var(--font-size-label-sm);
-}
-
-.custom-check-group {
-  .form-check {
-    margin-bottom: calc(var(--spacing-unit) * 2);
-    padding-left: calc(var(--spacing-unit) * 7);
-    
-    .form-check-input {
-      width: calc(var(--spacing-unit) * 5);
-      height: calc(var(--spacing-unit) * 5);
-      margin-left: calc(-1 * var(--spacing-unit) * 7);
-      cursor: pointer;
-      border-radius: var(--shape-round-default);
-      
-      &:checked {
-        background-color: var(--color-secondary);
-        border-color: var(--color-secondary);
-      }
-    }
-    
-    .form-check-label {
-      cursor: pointer;
-      font-size: var(--font-size-body-md);
-      transition: color 0.2s ease;
-      
-      &:hover {
-        color: var(--color-secondary);
-      }
-    }
-  }
-}
-
-.scrollable-group {
-  max-height: 250px;
-  overflow-y: auto;
-  padding-right: calc(var(--spacing-unit) * 2);
-  
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: var(--color-outline-variant);
-    border-radius: 3px;
-    
-    &:hover {
-      background: var(--color-outline);
-    }
   }
 }
 
