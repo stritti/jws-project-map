@@ -1,0 +1,57 @@
+{
+  "app": {
+    "title": "JWF + Humanaktiv: Projekte in Westafrika"
+  },
+  "search": {
+    "placeholder": "Name, Kategorie oder Land suchen...",
+    "placeholderShort": "Projekte suchen…",
+    "filter": "Filter",
+    "filterGroups": {
+      "status": "Status",
+      "categories": "Kategorien",
+      "countries": "Länder"
+    },
+    "chips": {
+      "all": "Alle",
+      "planned": "Geplant",
+      "underConstruction": "Im Bau",
+      "finished": "Abgeschlossen"
+    },
+    "minChars": "Mindestens 2 Zeichen eingeben",
+    "noResults": "Keine Projekte gefunden für",
+    "noResultsTitle": "Keine Projekte gefunden",
+    "noResultsHint": "Passen Sie Ihre Suchanfrage oder Filter an.",
+    "resultsCount": "{count} Projekte gefunden",
+    "resetFilters": "Filter zurücksetzen",
+    "stats": "{total} Projekte (davon: {ub} im Bau, {pl} geplant)",
+    "more": "weitere Projekte",
+    "loadingMap": "Karte wird geladen…",
+    "resultsLabel": "Suchergebnisse"
+  },
+  "common": {
+    "close": "Schließen"
+  },
+  "project": {
+    "detail": {
+      "country": "Land",
+      "state": "Projekt Status",
+      "since": "Seit",
+      "location": "Standort",
+      "description": "Beschreibung",
+      "more": "mehr …"
+    },
+    "state": {
+      "finished": "Abgeschlossen",
+      "underConstruction": "Im Bau",
+      "planned": "Geplant"
+    }
+  },
+  "gallery": {
+    "title": "Galerie"
+  },
+  "map": {
+    "layerFinished": "Projekte: abgeschlossen ({count})",
+    "layerUnderConstruction": "Projekte: im Bau ({count})",
+    "layerPlanned": "Projekte: geplant ({count})"
+  }
+}

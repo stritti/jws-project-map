@@ -8,7 +8,7 @@ const countryService = {
     try {
       const response = await base.list<{
         id: number;
-        fields: { Name: string; Code: string };
+        fields: { Name: string; Code: string; "Name (de)": string; "Name (en)": string; "Name (fr)": string };
       }>({
         sort: [{ direction: "asc", field: "Name" }],
         viewId: "vw0goq0zeuzgkmxw",
@@ -19,6 +19,9 @@ const countryService = {
             id: record.id,
             name: record.fields.Name,
             code: record.fields.Code,
+            name_de: record.fields["Name (de)"] || undefined,
+            name_en: record.fields["Name (en)"] || undefined,
+            name_fr: record.fields["Name (fr)"] || undefined,
           }) as Country,
       );
 

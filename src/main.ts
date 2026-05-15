@@ -12,6 +12,8 @@ import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useCategoryStore } from "./stores/category.store";
 import { useCountryStore } from "./stores/country.store";
 
+import { i18n } from "./plugins/i18n";
+
 import "./assets/style-config.scss";
 import "flag-icons/css/flag-icons.min.css";
 
@@ -22,6 +24,7 @@ const app = createApp(App);
 
 app.use(pinia);
 app.use(router);
+app.use(i18n);
 // Bootstrap components should be imported locally per view
 
 // Initialize stores after Pinia is attached to the app

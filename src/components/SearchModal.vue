@@ -15,8 +15,8 @@
         ref="searchBarRef"
         v-model="query"
         v-model:state-filter="stateFilter"
-        placeholder="Projekte suchen…"
-        filter-label="Filter"
+        :placeholder="t('search.placeholderShort')"
+        :filter-label="t('search.filter')"
         @escape="hide()"
       />
     </template>
@@ -26,7 +26,7 @@
       <!-- Hint when query is too short -->
       <div v-if="query.trim().length < 2" class="p-4 text-center text-muted">
         <IBiSearch style="font-size: 2rem; opacity: 0.3" />
-        <p class="mt-2 mb-0 small">Mindestens 2 Zeichen eingeben</p>
+        <p class="mt-2 mb-0 small">{{ t("search.minChars") }}</p>
       </div>
 
       <!-- No results -->
@@ -35,11 +35,11 @@
         class="p-4 text-center text-muted"
       >
         <IBiEmojiDizzy style="font-size: 2rem; opacity: 0.3" />
-        <p class="mt-2 mb-0 small">Keine Projekte gefunden für <strong>{{ query }}</strong></p>
+        <p class="mt-2 mb-0 small">{{ t("search.noResults") }} <strong>{{ query }}</strong></p>
       </div>
 
       <!-- Result list -->
-      <b-list-group v-else flush role="listbox" id="search-results-list" aria-label="Suchergebnisse">
+      <b-list-group v-else flush role="listbox" id="search-results-list" :aria-label="t('search.resultsLabel')">
         <b-list-group-item
           v-for="project in results"
           :key="project.id"
@@ -91,8 +91,11 @@
 
 <script setup lang="ts">
 import { ref, nextTick, onMounted, onUnmounted } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
+
+const { t } = useI18n();
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import type { Project } from "@/interfaces/Project";
 import { useProjectSearch } from "@/composables/useProjectSearch";

@@ -23,11 +23,10 @@ export default defineComponent({
   computed: {
     ...mapState(useCategoryStore, {
       getById: (store) => store.getById,
+      getDisplayName: (store) => store.getDisplayName,
     }),
     displayName() {
-      return this.getById(this.categoryId)
-        ? this.getById(this.categoryId)?.name
-        : "";
+      return this.getDisplayName(this.categoryId);
     },
     categoryStyle() {
       const category = this.getById(this.categoryId);

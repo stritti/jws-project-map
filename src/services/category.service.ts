@@ -8,7 +8,7 @@ const categoryService = {
     try {
       const response = await base.list<{
         id: number;
-        fields: { Name: string; Color: string };
+        fields: { Name: string; Color: string; "Name (de)": string; "Name (en)": string; "Name (fr)": string };
       }>({
         sort: [{ direction: "asc", field: "Name" }],
         viewId: "vwoztb7dgc077xfd",
@@ -20,6 +20,9 @@ const categoryService = {
             id: record.id,
             name: record.fields.Name,
             color: record.fields.Color,
+            name_de: record.fields["Name (de)"] || undefined,
+            name_en: record.fields["Name (en)"] || undefined,
+            name_fr: record.fields["Name (fr)"] || undefined,
           }) as Category,
       );
       return categoryList;

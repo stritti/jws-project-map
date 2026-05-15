@@ -61,12 +61,17 @@
 
 <script lang="ts">
 import { defineComponent, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import CategoryBadge from "../../components/CategoryBadge.vue";
 import CountryLabel from "../../components/CountryLabel.vue";
 
 export default defineComponent({
   name: "ProjectListItem",
   components: { CategoryBadge, CountryLabel },
+  setup() {
+    const { t } = useI18n();
+    return { t };
+  },
   props: {
     project: {
       type: Object,
@@ -97,9 +102,9 @@ export default defineComponent({
     },
     stateLabel() {
       const labels: Record<string, string> = {
-        finished: "Abgeschlossen",
-        "under construction": "Im Bau",
-        planned: "Geplant",
+        finished: this.$t("project.state.finished"),
+        "under construction": this.$t("project.state.underConstruction"),
+        planned: this.$t("project.state.planned"),
       };
       return labels[this.project.state] || this.project.state;
     },

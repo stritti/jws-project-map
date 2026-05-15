@@ -21,6 +21,12 @@ export interface RawProjectRecord {
     Link?: string;
     Since?: string;
     Gallery?: unknown;
+    "Name (de)"?: string;
+    "Name (en)"?: string;
+    "Name (fr)"?: string;
+    "Notes (de)"?: string;
+    "Notes (en)"?: string;
+    "Notes (fr)"?: string;
   };
 }
 

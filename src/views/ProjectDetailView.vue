@@ -84,7 +84,7 @@
                     <IBiGlobe2 />
                   </div>
                   <div class="info-content">
-                    <span class="info-label">Country</span>
+                    <span class="info-label">{{ t("project.detail.country") }}</span>
                     <strong class="info-value"><country-label :country-id="project.country.id" /></strong>
                   </div>
                </div>
@@ -94,7 +94,7 @@
                     <IBiCheck2Circle />
                   </div>
                   <div class="info-content">
-                    <span class="info-label">Project State</span>
+                    <span class="info-label">{{ t("project.detail.state") }}</span>
                     <span class="state-badge" :class="project.state.replace(' ', '-')">
                       {{ stateLabel }}
                     </span>
@@ -106,7 +106,7 @@
                     <IBiCalendar3 />
                   </div>
                   <div class="info-content">
-                    <span class="info-label">Since</span>
+                    <span class="info-label">{{ t("project.detail.since") }}</span>
                     <strong class="info-value">{{ formattedSince }}</strong>
                   </div>
                </div>
@@ -114,7 +114,7 @@
 
             <!-- Mini location map -->
             <div v-if="project.latitude && project.longitude" class="location-section mb-5">
-              <h2 class="section-title mb-4">Standort</h2>
+              <h2 class="section-title mb-4">{{ t("project.detail.location") }}</h2>
               <div class="mini-map rounded-4 overflow-hidden shadow-sm">
                 <l-map
                   :zoom="13"
@@ -138,7 +138,7 @@
             </div>
 
             <div v-if="project.notes" class="project-details__description mb-5">
-              <h2 class="section-title mb-4">Description</h2>
+              <h2 class="section-title mb-4">{{ t("project.detail.description") }}</h2>
               <div class="notes-content">
                 <markdown-text
                    class="project-details__notes"
@@ -149,11 +149,11 @@
 
             <div v-if="project.link" class="mb-5">
               <b-button :href="project.link" variant="primary" class="rounded-pill px-4 py-2 shadow-sm fw-bold border-0" target="_blank">
-                more &hellip;
+                {{ t("project.detail.more") }}
               </b-button>
             </div>
 
-            <project-gallery v-if="project.gallery || project.teaserImg" :project="project" />
+            <project-gallery v-if="project.gallery || project.teaserImg" :project="project" :title="t('gallery.title')" />
           </div>
         </b-placeholder-wrapper>
       </div>
@@ -175,6 +175,7 @@ import BackButton from "@/components/actions/BackButton.vue";
 import ShareButton from "@/components/actions/ShareButton.vue";
 import NavigateButton from "@/components/actions/NavigateButton.vue";
 import { defineAsyncComponent } from "vue";
+import { useI18n } from "vue-i18n";
 import type { Project } from "@/interfaces/Project";
 import { useGeoTags } from "@/composables/useGeoTags";
 import L from "leaflet";
@@ -182,6 +183,7 @@ import { LMap, LTileLayer, LMarker } from "@vue-leaflet/vue-leaflet";
 import "leaflet/dist/leaflet.css";
 
 const { isIFrame } = useWebFrame();
+const { t, locale } = useI18n();
 
 const MarkdownText = defineAsyncComponent(
   () => import("@/components/MarkdownText.vue"),
@@ -224,7 +226,7 @@ useGeoTags(project);
 
 const formattedSince = computed(() => {
   if (!project.value?.since) return "";
-  return new Date(project.value.since).toLocaleDateString("de-DE", {
+  return new Date(project.value.since).toLocaleDateString(locale.value, {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -238,14 +240,17 @@ const teaserImage = computed(() => {
   return "/img/placeholder.png";
 });
 
+const stateKeyMap: Record<string, string> = {
+  finished: "finished",
+  "under construction": "underConstruction",
+  planned: "planned",
+};
+
 const stateLabel = computed(() => {
-  const labels: Record<string, string> = {
-    finished: "Abgeschlossen",
-    "under construction": "Im Bau",
-    planned: "Geplant",
-  };
-  const state = project.value?.state;
-  return state ? (labels[state] || state) : "";
+  const key = project.value?.state;
+  if (!key) return "";
+  const localeKey = stateKeyMap[key];
+  return localeKey ? t(`project.state.${localeKey}`) : key;
 });
 
 const mapOptions = {
@@ -254,7 +259,7 @@ const mapOptions = {
 };
 
 function categoryName(id: number): string {
-  return categoryStore.getById(id)?.name ?? "";
+  return categoryStore.getDisplayName(id);
 }
 
 function categoryTileStyle(id: number): Record<string, string> {

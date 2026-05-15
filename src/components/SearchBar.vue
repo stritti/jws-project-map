@@ -7,8 +7,8 @@
         ref="inputRef"
         v-model="query"
         type="search"
-        placeholder="Search projects"
-        :aria-label="placeholder"
+        :placeholder="resolvedPlaceholder"
+        :aria-label="resolvedPlaceholder"
         autocomplete="off"
         class="search-input"
         @keydown.escape="$emit('escape')"
@@ -16,11 +16,11 @@
       <button 
         class="filter-btn" 
         :class="{ active: filterCount > 0 }"
-        :aria-label="filterLabel"
+        :aria-label="resolvedFilterLabel"
         @click="$emit('filter-click')"
       >
         <IBiFilterRight />
-        <span class="filter-label">{{ filterLabel }}</span>
+        <span class="filter-label">{{ resolvedFilterLabel }}</span>
         <span v-if="filterCount > 0" class="filter-badge">{{ filterCount }}</span>
       </button>
     </div>
@@ -41,8 +41,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import type { ProjectState } from "@/composables/useProjectSearch";
+
+const { t } = useI18n();
 
 interface Props {
   modelValue?: string;
@@ -64,8 +67,8 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
   modelValue: "",
   stateFilter: "all",
-  placeholder: "Search projects",
-  filterLabel: "Filter",
+  placeholder: "",
+  filterLabel: "",
   showFilterChips: true,
   filterCount: 0,
 });
@@ -75,12 +78,15 @@ const emit = defineEmits<Emits>();
 const query = ref(props.modelValue);
 const stateFilter = ref(props.stateFilter);
 
-const stateOptions: { value: ProjectState; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "planned", label: "Planned" },
-  { value: "under construction", label: "Under Construction" },
-  { value: "finished", label: "Finished" },
-];
+const resolvedPlaceholder = computed(() => props.placeholder || t("search.placeholder"));
+const resolvedFilterLabel = computed(() => props.filterLabel || t("search.filter"));
+
+const stateOptions = computed(() => [
+  { value: "all" as ProjectState, label: t("search.chips.all") },
+  { value: "planned" as ProjectState, label: t("search.chips.planned") },
+  { value: "under construction" as ProjectState, label: t("search.chips.underConstruction") },
+  { value: "finished" as ProjectState, label: t("search.chips.finished") },
+]);
 
 watch(query, (newValue) => {
   emit("update:modelValue", newValue);

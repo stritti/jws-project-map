@@ -1,0 +1,57 @@
+{
+  "app": {
+    "title": "JWF + Humanaktiv : Projets en Afrique de l'Ouest"
+  },
+  "search": {
+    "placeholder": "Rechercher par nom, catégorie ou pays...",
+    "placeholderShort": "Rechercher des projets…",
+    "filter": "Filtrer",
+    "filterGroups": {
+      "status": "Statut",
+      "categories": "Catégories",
+      "countries": "Pays"
+    },
+    "chips": {
+      "all": "Tous",
+      "planned": "Planifié",
+      "underConstruction": "En construction",
+      "finished": "Terminé"
+    },
+    "minChars": "Saisissez au moins 2 caractères",
+    "noResults": "Aucun projet trouvé pour",
+    "noResultsTitle": "Aucun projet trouvé",
+    "noResultsHint": "Ajustez votre recherche ou vos filtres.",
+    "resultsCount": "{count} projets trouvés",
+    "resetFilters": "Réinitialiser les filtres",
+    "stats": "{total} projets ({ub} en construction, {pl} planifiés)",
+    "more": "plus de projets",
+    "loadingMap": "Chargement de la carte…",
+    "resultsLabel": "Résultats de recherche"
+  },
+  "common": {
+    "close": "Fermer"
+  },
+  "project": {
+    "detail": {
+      "country": "Pays",
+      "state": "Statut du projet",
+      "since": "Depuis",
+      "location": "Emplacement",
+      "description": "Description",
+      "more": "plus …"
+    },
+    "state": {
+      "finished": "Terminé",
+      "underConstruction": "En construction",
+      "planned": "Planifié"
+    }
+  },
+  "gallery": {
+    "title": "Galerie"
+  },
+  "map": {
+    "layerFinished": "Projets : terminés ({count})",
+    "layerUnderConstruction": "Projets : en construction ({count})",
+    "layerPlanned": "Projets : planifiés ({count})"
+  }
+}

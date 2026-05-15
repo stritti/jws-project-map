@@ -22,16 +22,36 @@ const processDataCache = new Map<string, Array<Project>>();
 
 // Rohformat eines Projektdatensatzes aus NocoDB
 import type { RawProjectRecord } from "@/features/projects/repositories/project.repository";
+import { i18n } from "@/plugins/i18n";
+
+
+
+
+
+function currentLocale(): string {
+  try {
+    const loc = (i18n.global.locale as unknown as { value: string }).value;
+    if (loc && typeof loc === "string") return loc;
+  } catch {
+    // ignore
+  }
+  return "en";
+}
 
 // Hilfsfunktion zur Datenverarbeitung - optimiert für Leistung mit Memoization
 function processProjectData(
   records: RawProjectRecord[],
   forMapOnly: boolean,
+  locale?: string,
 ): Array<Project> {
+  // Determine locale-aware field suffixes
+  const lc = locale || "en";
+  const nameField = `Name (${lc})`;
+  const notesField = `Notes (${lc})`;
   // Defensive Programmierung: Sicherstellen, dass records existiert und ein Array ist
   const list = Array.isArray(records) ? records : [];
 
-  const cacheKey = `${forMapOnly ? "map" : "full"}-${list.length}`;
+  const cacheKey = `${locale || "default"}-${forMapOnly ? "map" : "full"}-${list.length}`;
 
   // Prüfe, ob wir bereits verarbeitete Daten im Cache haben
   if (processDataCache.has(cacheKey)) {
@@ -71,7 +91,8 @@ function processProjectData(
 
     const project: Project = {
       id: Number(id),
-      name: (record.fields?.Name || "Unbenannt") as string,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      name: ((record.fields as any)?.[nameField] || record.fields?.Name || "Unbenannt") as string,
       latitude: latNum,
       longitude: lngNum,
       state: (record.fields?.State || "finished") as string,
@@ -100,8 +121,10 @@ function processProjectData(
         project.teaserImg = record.fields.TeaserImage as Project["teaserImg"];
       }
 
-      if (record.fields?.Notes) {
-        project.notes = (record.fields.Notes as string)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const rawNotes = ((record.fields as any)?.[notesField] || record.fields?.Notes) as string | undefined;
+      if (rawNotes) {
+        project.notes = rawNotes
           .replaceAll('"<http', '"http')
           .replaceAll('>"', '"');
       } else {
@@ -146,7 +169,8 @@ const projectService = {
       // Nur die für die Karte notwendigen Felder laden
       const response = await projectRepository.fetchMinimal();
 
-      const mapData = processProjectData(response, true);
+      const loc = currentLocale();
+      const mapData = processProjectData(response, true, loc);
 
       // Cache aktualisieren
       if (!projectsCache) {
@@ -182,7 +206,8 @@ const projectService = {
       // Alle benötigten Felder laden
       const response = await projectRepository.fetchFull();
 
-      const projects = processProjectData(response, false);
+      const loc = currentLocale();
+      const projects = processProjectData(response, false, loc);
 
       // Cache aktualisieren
       projectsCache = {

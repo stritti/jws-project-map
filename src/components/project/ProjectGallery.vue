@@ -1,6 +1,6 @@
 <template>
   <div v-if="project.gallery || project.teaserImg" class="project-gallery-section">
-    <h2 class="gallery-title mb-4">Gallery</h2>
+    <h2 class="gallery-title mb-4">{{ title }}</h2>
     <div class="gallery-grid">
       <div
         v-if="project.teaserImg"
@@ -72,6 +72,10 @@ export default defineComponent({
     project: {
       type: Object as PropType<Project>,
       required: true
+    },
+    title: {
+      type: String,
+      default: "Gallery"
     }
   },
   setup(props) {

@@ -1,7 +1,7 @@
 <template>
   <b-container>
     <div class="project-list">
-      <h1>JWF + Humanaktiv: Project Overview</h1>
+      <h1>{{ t("app.title") }}</h1>
 
       <b-placeholder-wrapper :loading="showLoadingSpinner">
         <template #loading>
@@ -19,9 +19,7 @@
         </template>
 
         <h3 class="my-3 text-muted fs-5">
-          {{ projectCount }} Projekte (davon:
-          {{ projectsUnderConstructionCount }} im Bau,
-          {{ projectsPlannedCount }} geplant)
+          {{ t("search.stats", { total: projectCount, ub: projectsUnderConstructionCount, pl: projectsPlannedCount }) }}
         </h3>
 
         <!-- Filter overlay container – sticky, filter overlays the list -->
@@ -30,8 +28,8 @@
             <SearchBar
               v-model="searchQuery"
               v-model:state-filter="stateFilterSearch"
-              placeholder="Name, Kategorie oder Land suchen..."
-              filter-label="Filter"
+              :placeholder="t('search.placeholder')"
+              :filter-label="t('search.filter')"
               :show-filter-chips="false"
               :filter-count="activeFiltersCount"
               @filter-click="filterVisible = !filterVisible"
@@ -46,7 +44,7 @@
                 <b-col md="4">
                   <div class="filter-group mb-4 mb-md-0">
                     <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                      <IBiCheck2Circle /> Status
+                      <IBiCheck2Circle /> {{ t("search.filterGroups.status") }}
                     </h6>
                     <b-form-checkbox-group
                       v-model="stateFilter"
@@ -63,7 +61,7 @@
                 <b-col md="4">
                   <div class="filter-group mb-4 mb-md-0">
                     <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                      <IBiTag /> Kategorien
+                      <IBiTag /> {{ t("search.filterGroups.categories") }}
                     </h6>
                     <b-form-checkbox-group
                       v-model="categoryFilter"
@@ -79,7 +77,7 @@
                 <b-col md="4">
                   <div class="filter-group">
                     <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                      <IBiGeoAlt /> Länder
+                      <IBiGeoAlt /> {{ t("search.filterGroups.countries") }}
                     </h6>
                     <b-form-checkbox-group
                       v-model="countryFilter"
@@ -97,7 +95,7 @@
           </div>
         </div>
         <div class="mb-4 text-muted small" v-if="filteredProjectList.length !== finalProjectList.length || activeFiltersCount > 0 || searchQuery">
-          <strong>{{ finalProjectList.length }}</strong> Projekte gefunden
+          {{ t("search.resultsCount", { count: finalProjectList.length }) }}
         </div>
       </b-placeholder-wrapper>
       <b-overlay :show="showLoadingSpinner" fixed :opacity="0.5">
@@ -120,10 +118,10 @@
           <div class="display-1 text-muted opacity-25 mb-4">
             <IBiEmojiDizzy />
           </div>
-          <h3>Keine Projekte gefunden</h3>
-          <p class="text-muted">Passen Sie Ihre Suchanfrage oder Filter an.</p>
+          <h3>{{ t("search.noResultsTitle") }}</h3>
+          <p class="text-muted">{{ t("search.noResultsHint") }}</p>
           <b-button @click="clearAllFilters" variant="outline-primary" class="mt-3 rounded-pill px-4">
-            Filter zurücksetzen
+            {{ t("search.resetFilters") }}
           </b-button>
         </div>
       </b-overlay>
@@ -133,6 +131,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onBeforeMount } from "vue";
+import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import { useLoadingStore } from "../stores/loading.store";
 import { useProjectStore } from "@/features/projects/stores/project.store";
@@ -144,6 +143,7 @@ import ProjectListItem from "../components/project/ProjectListItem.vue";
 import { useProjectSearch, type ProjectState } from "@/composables/useProjectSearch";
 import SearchBar from "../components/SearchBar.vue";
 
+const { t } = useI18n();
 const loadingStore = useLoadingStore();
 const projectStore = useProjectStore();
 const categoryStore = useCategoryStore();
@@ -170,11 +170,11 @@ const finalProjectList = computed(() => {
   return searchResults.value;
 });
 
-const stateOptions = [
-  { text: "Abgeschlossen", value: "finished" },
-  { text: "Im Bau", value: "under construction" },
-  { text: "Geplant", value: "planned" },
-];
+const stateOptions = computed(() => [
+  { text: t("project.state.finished"), value: "finished" },
+  { text: t("project.state.underConstruction"), value: "under construction" },
+  { text: t("project.state.planned"), value: "planned" },
+]);
 
 // SearchBar state filter (local – for SearchBar's internal state binding)
 const stateFilterSearch = ref<ProjectState>("all");
@@ -192,18 +192,18 @@ const activeFilters = computed(() => {
   const filters: { id: string; type: string; name: string; value: any; category: string }[] = [];
   
   stateFilter.value.forEach(s => {
-    const opt = stateOptions.find(o => o.value === s);
-    if (opt) filters.push({ id: `state-${s}`, type: "Status", name: opt.text, value: s, category: "state" });
+    const opt = stateOptions.value.find(o => o.value === s);
+    if (opt) filters.push({ id: `state-${s}`, type: t("search.filterGroups.status"), name: opt.text, value: s, category: "state" });
   });
   
   categoryFilter.value.forEach(c => {
     const cat = categoryList.value.find(cl => cl.value === c);
-    if (cat) filters.push({ id: `cat-${c}`, type: "Kategorie", name: cat.text, value: c, category: "category" });
+    if (cat) filters.push({ id: `cat-${c}`, type: t("search.filterGroups.categories"), name: cat.text, value: c, category: "category" });
   });
   
   countryFilter.value.forEach(c => {
     const cou = countryList.value.find(cl => cl.value === c);
-    if (cou) filters.push({ id: `cou-${c}`, type: "Land", name: cou.text, value: c, category: "country" });
+    if (cou) filters.push({ id: `cou-${c}`, type: t("search.filterGroups.countries"), name: cou.text, value: c, category: "country" });
   });
   
   return filters;
@@ -239,7 +239,7 @@ const projectList = computed(() =>
 
 const categoryList = computed(() =>
   categories.value.map((category) => ({
-    text: category.name,
+    text: categoryStore.getDisplayName(category.id),
     value: Number(category.id),
     ...category,
   })),
@@ -247,7 +247,7 @@ const categoryList = computed(() =>
 
 const countryList = computed(() =>
   countries.value.map((country) => ({
-    text: country.name,
+    text: countryStore.getDisplayName(country.id),
     value: Number(country.id),
     ...country,
   })),

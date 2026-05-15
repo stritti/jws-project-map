@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import { useProjectStore } from "@/features/projects/stores/project.store";
@@ -9,6 +10,7 @@ import { useFilterStore } from "../stores/filter.store";
 import { useProjectSearch, type ProjectState } from "@/composables/useProjectSearch";
 import SearchBar from "../components/SearchBar.vue";
 
+const { t } = useI18n();
 const router = useRouter();
 const projectStore = useProjectStore();
 const categoryStore = useCategoryStore();
@@ -36,11 +38,11 @@ const LocationMap = defineAsyncComponent(
 // Search functionality
 const searchQuery = ref("");
 
-const stateOptions = [
-  { text: "Abgeschlossen", value: "finished" },
-  { text: "Im Bau", value: "under construction" },
-  { text: "Geplant", value: "planned" },
-];
+const stateOptions = computed(() => [
+  { text: t("project.state.finished"), value: "finished" },
+  { text: t("project.state.underConstruction"), value: "under construction" },
+  { text: t("project.state.planned"), value: "planned" },
+]);
 
 // Fuzzy search on the store's filtered list
 const { results: searchResults } = useProjectSearch(filteredList, { limit: 50 });
@@ -49,18 +51,18 @@ const activeFilters = computed(() => {
   const filters: { id: string; type: string; name: string; value: any; category: string }[] = [];
   
   stateFilter.value.forEach(s => {
-    const opt = stateOptions.find(o => o.value === s);
-    if (opt) filters.push({ id: `state-${s}`, type: "Status", name: opt.text, value: s, category: "state" });
+    const opt = stateOptions.value.find(o => o.value === s);
+    if (opt) filters.push({ id: `state-${s}`, type: t("search.filterGroups.status"), name: opt.text, value: s, category: "state" });
   });
   
   categoryFilter.value.forEach(c => {
     const cat = categoryList.value.find(cl => cl.value === c);
-    if (cat) filters.push({ id: `cat-${c}`, type: "Kategorie", name: cat.text, value: c, category: "category" });
+    if (cat) filters.push({ id: `cat-${c}`, type: t("search.filterGroups.categories"), name: cat.text, value: c, category: "category" });
   });
   
   countryFilter.value.forEach(c => {
     const cou = countryList.value.find(cl => cl.value === c);
-    if (cou) filters.push({ id: `cou-${c}`, type: "Land", name: cou.text, value: c, category: "country" });
+    if (cou) filters.push({ id: `cou-${c}`, type: t("search.filterGroups.countries"), name: cou.text, value: c, category: "country" });
   });
   
   return filters;
@@ -95,7 +97,7 @@ function clearAllFilters() {
 
 const categoryList = computed(() =>
   categories.value.map((category) => ({
-    text: category.name,
+    text: categoryStore.getDisplayName(category.id),
     value: Number(category.id),
     ...category,
   })),
@@ -103,7 +105,7 @@ const categoryList = computed(() =>
 
 const countryList = computed(() =>
   countries.value.map((country) => ({
-    text: country.name,
+    text: countryStore.getDisplayName(country.id),
     value: Number(country.id),
     ...country,
   })),
@@ -120,14 +122,14 @@ countryStore.load();
 
 <template>
   <div class="home">
-    <h1>JWF + Humanaktiv: Projects in Westafrica</h1>
+    <h1>{{ t("app.title") }}</h1>
     
     <!-- Search bar overlay -->
     <div class="search-overlay">
       <SearchBar
         v-model="searchQuery"
-        placeholder="Search projects..."
-        filter-label="Filter"
+        :placeholder="t('search.placeholder')"
+        :filter-label="t('search.filter')"
         :filter-count="activeFiltersCount"
         :show-filter-chips="false"
         @filter-click="filterVisible = !filterVisible"
@@ -140,7 +142,7 @@ countryStore.load();
             <b-col md="4">
               <div class="filter-group mb-4 mb-md-0">
                 <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                  <IBiCheck2Circle /> Status
+                  <IBiCheck2Circle /> {{ t("search.filterGroups.status") }}
                 </h6>
                 <b-form-checkbox-group
                   v-model="stateFilter"
@@ -157,7 +159,7 @@ countryStore.load();
             <b-col md="4">
               <div class="filter-group mb-4 mb-md-0">
                 <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                  <IBiTag /> Kategorien
+                  <IBiTag /> {{ t("search.filterGroups.categories") }}
                 </h6>
                 <b-form-checkbox-group
                   v-model="categoryFilter"
@@ -173,7 +175,7 @@ countryStore.load();
             <b-col md="4">
               <div class="filter-group">
                 <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                  <IBiGeoAlt /> Länder
+                  <IBiGeoAlt /> {{ t("search.filterGroups.countries") }}
                 </h6>
                 <b-form-checkbox-group
                   v-model="countryFilter"
@@ -205,7 +207,7 @@ countryStore.load();
           </div>
         </div>
         <div v-if="searchResults.length > 10" class="search-result-more">
-          +{{ searchResults.length - 10 }} weitere Projekte
+          +{{ searchResults.length - 10 }} {{ t("search.more") }}
         </div>
       </div>
     </div>
@@ -219,9 +221,9 @@ countryStore.load();
         <template #fallback>
           <div class="map-loading">
             <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading map...</span>
+              <span class="visually-hidden">{{ t("search.loadingMap") }}</span>
             </div>
-            <p class="mt-2">Loading map...</p>
+            <p class="mt-2">{{ t("search.loadingMap") }}</p>
           </div>
         </template>
       </Suspense>

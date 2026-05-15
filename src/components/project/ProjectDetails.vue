@@ -3,7 +3,7 @@
     <div v-if="project && isOpened" class="project-card-overlay">
       <div class="project-card-container">
         <!-- Close button -->
-        <button class="close-btn" @click="onClose" aria-label="Schließen">
+        <button class="close-btn" @click="onClose" :aria-label="t('common.close')">
           <IBiX />
         </button>
         
@@ -28,12 +28,17 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import type { PropType } from "vue";
+import { useI18n } from "vue-i18n";
 import ProjectListItem from "./ProjectListItem.vue";
 import type { Project } from "../../interfaces/Project";
 
 export default defineComponent({
   name: "ProjectDetails",
   components: { ProjectListItem },
+  setup() {
+    const { t } = useI18n();
+    return { t };
+  },
   props: {
     project: {
       type: Object as PropType<Project>,

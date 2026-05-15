@@ -21,10 +21,11 @@ export default defineComponent({
   computed: {
     ...mapState(useCountryStore, {
       getById: (store) => store.getById,
+      getDisplayName: (store) => store.getDisplayName,
     }),
     countryLabel(): string {
       if (this.countryId && this.getById(this.countryId)) {
-        return this.getById(this.countryId)?.name as string;
+        return this.getDisplayName(this.countryId);
       } else {
         return "";
       }

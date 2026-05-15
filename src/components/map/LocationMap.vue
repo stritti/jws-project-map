@@ -5,9 +5,9 @@
       <div v-if="!mapReady" class="map-skeleton">
         <div class="map-skeleton-content">
           <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading map...</span>
+            <span class="visually-hidden">{{ t("search.loadingMap") }}</span>
           </div>
-          <p class="mt-2">Loading map...</p>
+          <p class="mt-2">{{ t("search.loadingMap") }}</p>
         </div>
       </div>
 
@@ -190,12 +190,14 @@ import {
 import ProjectDetails from "../../components/project/ProjectDetails.vue";
 import projectService from "@/features/projects/services/project.service";
 import type { Project } from "@/interfaces/Project";
+import { useI18n } from "vue-i18n";
 
 import "leaflet/dist/leaflet.css";
 
 const loadingStore = useLoadingStore();
 const categoryStore = useCategoryStore();
 const projectStore = useProjectStore();
+const { t } = useI18n();
 
 const { getById: getCategoryById } = storeToRefs(categoryStore);
 const { showLoadingSpinner } = storeToRefs(loadingStore);
@@ -267,41 +269,17 @@ const projectsPlanned = computed(() =>
   locations.value.filter((p) => p.state === "planned"),
 );
 
-// Memoization für Layer-Labels, um unnötige Neuberechnungen zu vermeiden
-const layerLabelCache = new Map<string, string>();
+const layerLabelProjectsFinished = computed(() =>
+  t("map.layerFinished", { count: projectsFinished.value.length }),
+);
 
-const layerLabelProjectsFinished = computed(() => {
-  const cacheKey = `finished-${projectsFinished.value.length}`;
-  if (!layerLabelCache.has(cacheKey)) {
-    layerLabelCache.set(
-      cacheKey,
-      `Projects: finished (${projectsFinished.value.length})`,
-    );
-  }
-  return layerLabelCache.get(cacheKey)!;
-});
+const layerLabelProjectsUnderConstruction = computed(() =>
+  t("map.layerUnderConstruction", { count: projectsUnderConstruction.value.length }),
+);
 
-const layerLabelProjectsUnderConstruction = computed(() => {
-  const cacheKey = `under-construction-${projectsUnderConstruction.value.length}`;
-  if (!layerLabelCache.has(cacheKey)) {
-    layerLabelCache.set(
-      cacheKey,
-      `Projects: under construction (${projectsUnderConstruction.value.length})`,
-    );
-  }
-  return layerLabelCache.get(cacheKey)!;
-});
-
-const layerLabelProjectsPlanned = computed(() => {
-  const cacheKey = `planned-${projectsPlanned.value.length}`;
-  if (!layerLabelCache.has(cacheKey)) {
-    layerLabelCache.set(
-      cacheKey,
-      `Projects: planned (${projectsPlanned.value.length})`,
-    );
-  }
-  return layerLabelCache.get(cacheKey)!;
-});
+const layerLabelProjectsPlanned = computed(() =>
+  t("map.layerPlanned", { count: projectsPlanned.value.length }),
+);
 
 // Sofort mit dem Laden der Karte beginnen
 onBeforeMount(() => {
