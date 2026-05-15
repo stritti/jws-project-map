@@ -31,7 +31,8 @@ export default defineComponent({
 
 footer {
   margin: 0;
-  padding: var(--spacing-gutter-md);
+  padding: var(--spacing-gutter-md) var(--spacing-gutter-md)
+    calc(72px + env(safe-area-inset-bottom, 0px));
   background-color: var(--color-surface);
   border-top: 1px solid var(--color-outline-variant);
   

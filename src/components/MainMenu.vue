@@ -103,7 +103,7 @@ function isActive(item: NavItem): boolean {
   z-index: 999;
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-evenly;
   padding: 0.5rem 0.75rem calc(0.5rem + env(safe-area-inset-bottom, 0px)) 0.75rem;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(16px);
@@ -127,8 +127,6 @@ function isActive(item: NavItem): boolean {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  flex: 1;
-  justify-content: space-around;
 }
 
 .nav-item {
@@ -204,9 +202,6 @@ function isActive(item: NavItem): boolean {
   display: flex;
   align-items: center;
   gap: 0.15rem;
-  margin-left: 0.5rem;
-  padding-left: 0.75rem;
-  border-left: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .lang-btn {

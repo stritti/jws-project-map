@@ -120,6 +120,7 @@ export default defineComponent({
   text-decoration: none;
   display: block;
   height: 100%;
+  cursor: pointer;
 
   &.external-link {
     cursor: pointer;

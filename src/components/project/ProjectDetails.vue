@@ -1,16 +1,16 @@
 <template>
   <Transition name="slide-up">
-    <div v-if="project && isOpened" class="project-card-overlay">
+    <div v-if="project && isOpened" class="project-card-overlay" @click="onCardClick">
       <div class="project-card-container">
-        <!-- Close button -->
-        <button class="close-btn" @click="onClose" :aria-label="t('common.close')">
+        <!-- Close button — stop propagation to prevent navigation -->
+        <button class="close-btn" @click.stop="onClose" :aria-label="t('common.close')">
           <IBiX />
         </button>
         
-        <!-- Use ProjectListItem with actions slot -->
+        <!-- Use ProjectListItem with actions slot — entire card links to detail page -->
         <project-list-item :project="project">
           <template #actions>
-            <b-button :to="`/project/${project.id}`" variant="primary" size="sm" class="details-btn">
+            <b-button variant="primary" size="sm" class="details-btn" @click.stop="goToDetail">
               <IBiBoxArrowUpRight />
             </b-button>
             <navigate-button
@@ -53,6 +53,16 @@ export default defineComponent({
   methods: {
     onClose() {
       this.$emit("close");
+    },
+    onCardClick() {
+      if (this.project) {
+        this.$router.push(`/project/${this.project.id}`);
+      }
+    },
+    goToDetail() {
+      if (this.project) {
+        this.$router.push(`/project/${this.project.id}`);
+      }
     },
   },
 });
