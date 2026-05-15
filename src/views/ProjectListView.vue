@@ -33,8 +33,10 @@
               :show-filter-chips="false"
               :filter-count="activeFiltersCount"
               :filter-visible="filterVisible"
+              view-mode="list"
               @filter-click="filterVisible = !filterVisible"
               @state-change="handleStateFilterChange"
+              @view-change="() => $router.push('/')"
             />
           </div>
 
@@ -323,12 +325,12 @@ onBeforeMount(() => {
 @media (max-width: 767.98px) {
   .project-list {
     padding: var(--spacing-gutter-md);
-    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 56px + 1rem);
+    padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px) + 4rem);
   }
 
   .filter-overlay-container {
     position: fixed;
-    bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 0.75rem);
+    bottom: calc(3rem + env(safe-area-inset-bottom, 0px));
     left: 0.75rem;
     right: 0.75rem;
     z-index: 1000;

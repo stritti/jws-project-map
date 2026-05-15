@@ -25,11 +25,8 @@
         @click="addMarker"
         @ready="mapLoaded"
       >
-        <l-control-layers
-          ref="control"
-          position="bottomright"
-        ></l-control-layers>
         <l-tile-layer
+          v-if="baseLayer === 'satellite'"
           url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
           layer-type="base"
           name="Satellite"
@@ -37,6 +34,7 @@
         ></l-tile-layer>
 
         <l-tile-layer
+          v-if="baseLayer === 'osm'"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           layer-type="base"
           name="OpenStreetMap"
@@ -180,7 +178,6 @@ import { useProjectStore } from "@/features/projects/stores/project.store";
 import L, { latLngBounds } from "leaflet";
 import {
   LMap,
-  LControlLayers,
   LLayerGroup,
   LTileLayer,
   LMarker,
@@ -208,6 +205,10 @@ const props = defineProps({
   filteredProjects: {
     type: Array as () => Project[],
     default: () => [],
+  },
+  baseLayer: {
+    type: String as () => 'satellite' | 'osm',
+    default: 'osm',
   },
 });
 

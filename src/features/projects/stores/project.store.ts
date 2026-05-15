@@ -12,10 +12,14 @@ interface State {
   loading: boolean;
   loadingMapData: boolean; // Separates Flag für paralleles Laden der Kartendaten
   lastFetched: number | null;
+  lastRefreshAttempted: number | null; // Verhindert mehrfache Refresh-Versuche
 }
 
 // Konstante für Cache-Gültigkeit (30 Minuten)
 const CACHE_VALIDITY_MS = 30 * 60 * 1000;
+
+// Daten gelten als "stale" wenn älter als 1 Stunde – dann wird Background-Refresh erzwungen
+const STALE_DATA_MS = 60 * 60 * 1000;
 
 export const useProjectStore = defineStore("project", {
   state: (): State => {
@@ -28,12 +32,13 @@ export const useProjectStore = defineStore("project", {
       loading: false,
       loadingMapData: false,
       lastFetched: null,
+      lastRefreshAttempted: null,
     };
   },
   persist: {
     // Transient state (loading, filteredList) must not be persisted
     // to avoid a stuck "loading" flag across page reloads
-    pick: ["projects", "mapProjects", "initialized", "lastFetched"],
+    pick: ["projects", "mapProjects", "initialized", "lastFetched", "lastRefreshAttempted"],
   },
   getters: {
     getAll: (state) => state.projects as Array<Project>,
@@ -169,6 +174,33 @@ export const useProjectStore = defineStore("project", {
     shouldRefreshCache(): boolean {
       if (!this.lastFetched) return true;
       return Date.now() - this.lastFetched > CACHE_VALIDITY_MS;
+    },
+
+    // Prüft ob die gecachten Daten so alt sind, dass signed URLs vermutlich abgelaufen sind.
+    // Löst einen Background-Refresh aus ohne die aktuelle Anzeige zu blockieren.
+    refreshIfStale(): void {
+      if (!this.lastFetched) return;
+
+      // Nicht mehr als einmal pro Minute versuchen
+      if (
+        this.lastRefreshAttempted &&
+        Date.now() - this.lastRefreshAttempted < 60 * 1000
+      ) {
+        return;
+      }
+      this.lastRefreshAttempted = Date.now();
+
+      const age = Date.now() - this.lastFetched;
+      if (age > STALE_DATA_MS) {
+        console.log(
+          `[ProjectStore] Data is stale (${Math.round(age / 60000)} min old), refreshing in background…`,
+        );
+        setTimeout(() => {
+          this.load(false).catch((err) =>
+            console.error("[ProjectStore] Background refresh failed:", err),
+          );
+        }, 0);
+      }
     },
 
     doFilter(

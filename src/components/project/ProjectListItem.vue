@@ -1,12 +1,18 @@
 <template>
-  <!-- Use router-link if no external link prop, otherwise use a tag -->
+  <!--
+    router-link → in-app navigation (normal mode)
+    <a target="_blank"> → new tab when embedded in an iframe
+    <div> → static card (no navigation)
+  -->
   <component
-    :is="to ? 'router-link' : 'div'"
-    :to="to"
-    :href="href"
-    :target="target"
+    :is="resolvedComponent"
+    :to="resolvedTo"
+    :href="resolvedHref"
+    :target="resolvedTarget"
+    :rel="resolvedRel"
     class="project-card-link"
-    :class="{ 'external-link': href }"
+    :class="{ 'external-link': href || (to && isIFrame) }"
+    @click="onCardClick"
   >
     <b-card class="project-list-item" no-body>
       <b-row no-gutters class="g-0">
@@ -17,6 +23,7 @@
             :alt="project.name"
             class="project-image"
             placement="top"
+            @error="onImageError"
           />
           <!-- State badge overlay -->
           <div class="state-badge" :class="project.state?.replace(' ', '-')">
@@ -62,6 +69,9 @@
 <script lang="ts">
 import { defineComponent, computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+import { useAttachment } from "@/composables/useAttachment";
+import { useWebFrame } from "@/composables/useWebFrame";
 import CategoryBadge from "../../components/CategoryBadge.vue";
 import CountryLabel from "../../components/CountryLabel.vue";
 
@@ -70,8 +80,12 @@ export default defineComponent({
   components: { CategoryBadge, CountryLabel },
   setup() {
     const { t } = useI18n();
-    return { t };
+    const { onImageError } = useAttachment();
+    const { isIFrame, notifyNavigate } = useWebFrame();
+    const router = useRouter();
+    return { t, onImageError, isIFrame, notifyNavigate, router };
   },
+  emits: ['click'],
   props: {
     project: {
       type: Object,
@@ -92,6 +106,33 @@ export default defineComponent({
     },
   },
   computed: {
+    // In iframe mode: render as <a href="..." target="_blank">
+    // so the project detail opens in a new browser tab.
+    resolvedComponent() {
+      if (this.href) return 'a';
+      if (this.to && this.isIFrame) return 'a';
+      if (this.to) return 'router-link';
+      return 'div';
+    },
+    resolvedTo() {
+      return this.to && !this.isIFrame ? this.to : null;
+    },
+    resolvedHref() {
+      if (this.href) return this.href;
+      if (this.to && this.isIFrame) {
+        return this.router.resolve(this.to, this.$route).href;
+      }
+      return null;
+    },
+    resolvedTarget() {
+      if (this.href) return '_blank';
+      if (this.to && this.isIFrame) return '_blank';
+      return undefined;
+    },
+    resolvedRel() {
+      if (this.resolvedTarget === '_blank') return 'noopener noreferrer';
+      return undefined;
+    },
     teaserImage() {
       if (this.project.teaserImg && this.project.teaserImg.length > 0) {
         const img = this.project.teaserImg[0];
@@ -107,6 +148,15 @@ export default defineComponent({
         planned: this.$t("project.state.planned"),
       };
       return labels[this.project.state] || this.project.state;
+    },
+  },
+  methods: {
+    onCardClick() {
+      // In iframe mode: notify the parent frame about the navigation
+      if (this.isIFrame && this.to && this.project) {
+        this.notifyNavigate(this.to, this.project.id);
+      }
+      this.$emit('click');
     },
   },
 });

@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import MainMenu from "./components/MainMenu.vue";
 import SiteFooter from "./components/SiteFooter.vue";
+import FloatingMeta from "./components/FloatingMeta.vue";
 import SearchModal from "@/components/SearchModal.vue";
 import { useWebFrame } from "./composables/useWebFrame";
 import { useSearchStore } from "@/stores/search.store";
 import { storeToRefs } from "pinia";
 import { watch, ref } from "vue";
+import { useRouter } from "vue-router";
 
-const { isIFrame } = useWebFrame();
+import "./assets/iframe.scss";
+
+const { isIFrame, notifyNavigate } = useWebFrame();
+const router = useRouter();
 const searchStore = useSearchStore();
 const { isSearchVisible } = storeToRefs(searchStore);
 
@@ -26,6 +30,16 @@ watch(isSearchVisible, (isVisible) => {
 function onSearchHidden() {
   searchStore.closeSearch();
 }
+
+// Notify parent iframe about route changes
+router.afterEach((to) => {
+  if (isIFrame.value) {
+    const projectId = to.params.projectId
+      ? Number(to.params.projectId)
+      : undefined;
+    notifyNavigate(to.fullPath, projectId);
+  }
+});
 </script>
 
 <template>
@@ -39,9 +53,7 @@ function onSearchHidden() {
       <router-view />
     </main>
     <site-footer v-if="!isIFrame" />
-    <nav>
-      <main-menu v-if="!isIFrame" class="menu" />
-    </nav>
+    <floating-meta v-if="!isIFrame" />
     <search-modal ref="searchModalRef" @hidden="onSearchHidden" />
   </div>
 </template>
@@ -49,6 +61,7 @@ function onSearchHidden() {
 <style lang="scss">
 body {
   font-family: Roboto, sans-serif !important;
+  overflow-x: hidden;
 }
 h1 {
   color: rgb(61, 94, 158);
@@ -81,12 +94,6 @@ p {
 
 .content {
   flex-grow: 1;
-}
-
-.menu {
-  position: fixed;
-  bottom: calc(1rem + env(safe-area-inset-bottom));
-  left: calc(1rem + env(safe-area-inset-left));
 }
 
 /* Skip-to-content link — visible only when focused via keyboard */

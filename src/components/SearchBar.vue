@@ -13,6 +13,31 @@
         class="search-input"
         @keydown.escape="$emit('escape')"
       />
+
+      <!-- View toggle: Map / List -->
+      <div class="view-toggle" role="group" :aria-label="t('search.viewToggleLabel')">
+        <button
+          class="view-btn"
+          :class="{ active: viewMode === 'map' }"
+          :aria-label="t('search.viewMap')"
+          :aria-current="viewMode === 'map' ? 'true' : undefined"
+          :disabled="viewMode === 'map'"
+          @click="$emit('view-change', 'map')"
+        >
+          <IBiMap aria-hidden="true" />
+        </button>
+        <button
+          class="view-btn"
+          :class="{ active: viewMode === 'list' }"
+          :aria-label="t('search.viewList')"
+          :aria-current="viewMode === 'list' ? 'true' : undefined"
+          :disabled="viewMode === 'list'"
+          @click="$emit('view-change', 'list')"
+        >
+          <IBiListUl aria-hidden="true" />
+        </button>
+      </div>
+
       <button 
         class="filter-btn" 
         :class="{ active: filterCount > 0 }"
@@ -46,6 +71,9 @@ import { ref, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import type { ProjectState } from "@/composables/useProjectSearch";
 
+import IBiMap from "~icons/bi/map";
+import IBiListUl from "~icons/bi/list-ul";
+
 const { t } = useI18n();
 
 interface Props {
@@ -56,6 +84,7 @@ interface Props {
   showFilterChips?: boolean;
   filterCount?: number;
   filterVisible?: boolean;
+  viewMode?: "map" | "list";
 }
 
 interface Emits {
@@ -64,6 +93,7 @@ interface Emits {
   (e: "escape"): void;
   (e: "filter-click"): void;
   (e: "state-change", value: ProjectState): void;
+  (e: "view-change", view: "map" | "list"): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -74,6 +104,7 @@ const props = withDefaults(defineProps<Props>(), {
   showFilterChips: true,
   filterCount: 0,
   filterVisible: false,
+  viewMode: "map",
 });
 
 const emit = defineEmits<Emits>();
@@ -158,6 +189,44 @@ defineExpose({
   }
 }
 
+// View toggle — segmented control style
+.view-toggle {
+  display: flex;
+  gap: 1px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+  padding: 2px;
+  flex-shrink: 0;
+}
+
+.view-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-on-surface-variant, #64748b);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 1rem;
+  line-height: 1;
+
+  &:hover {
+    color: var(--color-secondary, #3d5e9e);
+    background: rgba(60, 93, 157, 0.06);
+  }
+
+  &.active {
+    color: #fff;
+    background: var(--color-secondary, #3d5e9e);
+    box-shadow: 0 1px 4px rgba(60, 93, 157, 0.3);
+  }
+}
+
+// Filter button
 .filter-btn {
   display: flex;
   align-items: center;
@@ -170,6 +239,7 @@ defineExpose({
   cursor: pointer;
   font-size: var(--font-size-body-md);
   position: relative;
+  flex-shrink: 0;
   
   &:hover {
     background: var(--color-surface-variant);

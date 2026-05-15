@@ -4,6 +4,7 @@ import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import { useProjectStore } from "@/features/projects/stores/project.store";
+import { useWebFrame } from "@/composables/useWebFrame";
 import { useCategoryStore } from "../stores/category.store";
 import { useCountryStore } from "../stores/country.store";
 import { useFilterStore } from "../stores/filter.store";
@@ -12,6 +13,7 @@ import SearchBar from "../components/SearchBar.vue";
 
 const { t } = useI18n();
 const router = useRouter();
+const { navigateToProject } = useWebFrame();
 const projectStore = useProjectStore();
 const categoryStore = useCategoryStore();
 const countryStore = useCountryStore();
@@ -37,6 +39,9 @@ const LocationMap = defineAsyncComponent(
 
 // Search functionality
 const searchQuery = ref("");
+
+// Map base layer (satellite or OSM)
+const baseLayer = ref<'satellite' | 'osm'>('osm');
 
 const stateOptions = computed(() => [
   { text: t("project.state.finished"), value: "finished" },
@@ -112,7 +117,7 @@ const countryList = computed(() =>
 );
 
 function handleProjectClick(projectId: number) {
-  router.push(`/project/${projectId}`);
+  navigateToProject(projectId);
 }
 
 // Load categories and countries
@@ -134,7 +139,9 @@ countryStore.load();
           :filter-count="activeFiltersCount"
           :show-filter-chips="false"
           :filter-visible="filterVisible"
+          view-mode="map"
           @filter-click="filterVisible = !filterVisible"
+          @view-change="(view) => view === 'list' && router.push('/project/')"
         />
       </div>
       
@@ -196,6 +203,35 @@ countryStore.load();
                 </div>
               </b-col>
             </b-row>
+
+            <!-- Map type toggle (nur auf der Karten-Ansicht) -->
+            <b-row class="mt-3">
+              <b-col cols="12">
+                <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
+                  <IBiMap /> {{ t("search.filterGroups.mapType") }}
+                </h6>
+                <div class="map-type-toggle" role="group" :aria-label="t('search.filterGroups.mapType')">
+                  <button
+                    class="map-type-btn"
+                    :class="{ active: baseLayer === 'satellite' }"
+                    :aria-pressed="baseLayer === 'satellite'"
+                    @click="baseLayer = 'satellite'"
+                  >
+                    <IBiGlobe2 class="me-1" aria-hidden="true" />
+                    {{ t("search.mapTypes.satellite") }}
+                  </button>
+                  <button
+                    class="map-type-btn"
+                    :class="{ active: baseLayer === 'osm' }"
+                    :aria-pressed="baseLayer === 'osm'"
+                    @click="baseLayer = 'osm'"
+                  >
+                    <IBiMap class="me-1" aria-hidden="true" />
+                    {{ t("search.mapTypes.map") }}
+                  </button>
+                </div>
+              </b-col>
+            </b-row>
           </div>
         </b-card>
       </div>
@@ -228,7 +264,7 @@ countryStore.load();
       <!-- Map and data load in parallel: map tiles show immediately, pins appear when data is ready -->
       <Suspense>
         <template #default>
-          <location-map :filtered-projects="filteredList" />
+          <location-map :filtered-projects="filteredList" :base-layer="baseLayer" />
         </template>
         <template #fallback>
           <div class="map-loading">
@@ -279,27 +315,41 @@ countryStore.load();
   }
 
   // Mobile: search floats at the bottom (Apple-style)
+  // The filter panel fills the space between search bar and viewport top,
+  // adapting dynamically when the keyboard opens (via 100dvh).
   @media (max-width: 767.98px) {
     .search-overlay {
       position: fixed;
-      bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 0.75rem);
-      left: 0.75rem;
-      right: 0.75rem;
+      bottom: 0;
+      left: 0;
+      right: 0;
       z-index: 1000;
       display: flex;
       flex-direction: column-reverse;
-      gap: 0.75rem;
+      overflow: hidden;
+      max-height: 100dvh;
+      padding: 0.75rem;
+      padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
     }
 
     .toolbar-section {
       position: relative;
       z-index: 1001;
+      flex-shrink: 0;
     }
 
     .filter-dropdown {
-      position: relative;
+      position: static;
       z-index: 1000;
-      max-height: min(50vh, 24rem);
+      flex: 1;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .filter-scroll {
+      max-height: 100%;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
   }
 
@@ -317,8 +367,7 @@ countryStore.load();
 
   .filter-scroll {
     max-height: inherit;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow: hidden;
 
     // Hide scrollbar on mobile for cleaner look
     &::-webkit-scrollbar {
@@ -514,5 +563,38 @@ countryStore.load();
     justify-content: center;
     background-color: #f8f9fa;
   }
+
+  // Map type toggle — segmented control
+  .map-type-toggle {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .map-type-btn {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: var(--font-size-label-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 1px solid var(--color-outline, #c5c6cd);
+    background: var(--color-surface, #fff);
+    color: var(--color-on-surface, #1e293b);
+
+    &:hover {
+      border-color: var(--color-secondary, #3d5e9e);
+      background: rgba(61, 94, 158, 0.04);
+    }
+
+    &.active {
+      background: var(--color-secondary, #3d5e9e);
+      border-color: var(--color-secondary, #3d5e9e);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(61, 94, 158, 0.25);
+    }
+  }
 }
+
 </style>

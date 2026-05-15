@@ -54,6 +54,7 @@
             :src="getTeaserImage(project)"
             :alt="project.name"
             class="result-thumb rounded"
+            @error="onImageError"
           />
           <div v-else class="result-thumb-placeholder rounded d-flex align-items-center justify-content-center">
             <IBiGlobe2 class="text-muted" aria-hidden="true" />
@@ -99,6 +100,8 @@ const { t } = useI18n();
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import type { Project } from "@/interfaces/Project";
 import { useProjectSearch } from "@/composables/useProjectSearch";
+import { useAttachment } from "@/composables/useAttachment";
+import { useWebFrame } from "@/composables/useWebFrame";
 import { useSearchStore } from "@/stores/search.store";
 import SearchBar from "./SearchBar.vue";
 
@@ -107,6 +110,8 @@ const projectStore = useProjectStore();
 const { projects } = storeToRefs(projectStore);
 
 const { query, stateFilter, results, reset } = useProjectSearch(projects);
+const { onImageError } = useAttachment();
+const { navigateToProject } = useWebFrame();
 
 const modalRef = ref<{ show: () => void; hide: () => void } | null>(null);
 const searchBarRef = ref<InstanceType<typeof SearchBar> | null>(null);
@@ -126,7 +131,7 @@ async function onShown() {
 
 function navigate(id: number) {
   hide();
-  router.push(`/project/${id}`);
+  navigateToProject(id);
 }
 
 function getTeaserImage(project: Project) {

@@ -29,6 +29,7 @@
 import { defineComponent } from "vue";
 import type { PropType } from "vue";
 import { useI18n } from "vue-i18n";
+import { useWebFrame } from "@/composables/useWebFrame";
 import ProjectListItem from "./ProjectListItem.vue";
 import type { Project } from "../../interfaces/Project";
 
@@ -37,7 +38,8 @@ export default defineComponent({
   components: { ProjectListItem },
   setup() {
     const { t } = useI18n();
-    return { t };
+    const { navigateToProject } = useWebFrame();
+    return { t, navigateToProject };
   },
   props: {
     project: {
@@ -56,12 +58,12 @@ export default defineComponent({
     },
     onCardClick() {
       if (this.project) {
-        this.$router.push(`/project/${this.project.id}`);
+        this.navigateToProject(this.project.id);
       }
     },
     goToDetail() {
       if (this.project) {
-        this.$router.push(`/project/${this.project.id}`);
+        this.navigateToProject(this.project.id);
       }
     },
   },

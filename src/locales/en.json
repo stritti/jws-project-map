@@ -9,7 +9,12 @@
     "filterGroups": {
       "status": "Status",
       "categories": "Categories",
-      "countries": "Countries"
+      "countries": "Countries",
+      "mapType": "Map View"
+    },
+    "mapTypes": {
+      "satellite": "Satellite",
+      "map": "Map"
     },
     "chips": {
       "all": "All",
@@ -26,12 +31,17 @@
     "stats": "{total} projects ({ub} under construction, {pl} planned)",
     "more": "more projects",
     "loadingMap": "Loading map…",
-    "resultsLabel": "Search results"
+    "resultsLabel": "Search results",
+    "viewToggleLabel": "View: Map or List",
+    "viewMap": "Map view",
+    "viewList": "List view"
   },
   "nav": {
     "map": "Map",
     "list": "List",
-    "about": "About"
+    "about": "About",
+    "more": "More",
+    "close": "Close"
   },
   "common": {
     "close": "Close"

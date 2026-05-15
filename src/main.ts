@@ -63,4 +63,7 @@ requestAnimationFrame(() => {
       }
     }, 300);
   }
+
+  // Stale-data check: Bild-URLs könnten abgelaufen sein wenn die Daten älter als 1h sind
+  projectStore.refreshIfStale();
 });
