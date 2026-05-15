@@ -1,143 +1,245 @@
 <script setup lang="ts">
-import { useSearchStore } from "@/stores/search.store";
+import { ref, computed } from "vue";
+import { useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
+import { i18n, setLocale, type Locale } from "@/plugins/i18n";
 
-const searchStore = useSearchStore();
+const { t } = useI18n();
+import IBiMap from "~icons/bi/map";
+import IBiMapFill from "~icons/bi/map-fill";
+import IBiListUl from "~icons/bi/list-ul";
+import IBiListCheck from "~icons/bi/list-check";
+import IBiInfoCircle from "~icons/bi/info-circle";
+import AboutModal from "./AboutModal.vue";
 
-function openSearch() {
-  searchStore.openSearch();
+const route = useRoute();
+const currentLocale = computed(() => i18n.global.locale as unknown as string);
+
+const aboutModalRef = ref<InstanceType<typeof AboutModal> | null>(null);
+
+const languages: { code: Locale; flag: string; label: string }[] = [
+  { code: "de", flag: "de", label: "Deutsch" },
+  { code: "en", flag: "gb", label: "English" },
+  { code: "fr", flag: "fr", label: "Français" },
+];
+
+interface NavItem {
+  to: string;
+  iconInactive: unknown;
+  iconActive: unknown;
+  label: string;
+  exact?: boolean;
+}
+
+const navItems = computed<NavItem[]>(() => [
+  { to: "/", iconInactive: IBiMap, iconActive: IBiMapFill, label: t("nav.map"), exact: true },
+  { to: "/project", iconInactive: IBiListUl, iconActive: IBiListCheck, label: t("nav.list") },
+]);
+
+function isActive(item: NavItem): boolean {
+  if (item.exact) return route.path === item.to;
+  return route.path.startsWith(item.to);
 }
 </script>
 
 <template>
-  <div class="main-menu-container">
-    <div class="main-menu">
-      <b-dropdown id="dropdown-dropup" dropup variant="primary" class="m-2">
-        <template #button-content> <IBiList /> Menu </template>
-        <b-dropdown-item to="/">
-          <IBiGlobe2 class="me-2" /> Map
-        </b-dropdown-item>
-        <b-dropdown-item to="/project/">
-          <IBiCardList class="me-2" /> List
-        </b-dropdown-item>
-        <b-dropdown-item @click="openSearch">
-          <IBiSearch class="me-2" /> Search
-          <kbd class="ms-2 shortcut-hint">Ctrl+K</kbd>
-        </b-dropdown-item>
-        <b-dropdown-divider />
-        <b-dropdown-item to="/about">
-          <IBiInfoCircle class="me-2" /> About
-        </b-dropdown-item>
-      </b-dropdown>
+  <nav
+    class="main-menu"
+    aria-label="Main navigation"
+  >
+    <!-- Navigation items -->
+    <div class="nav-items">
+      <router-link
+        v-for="item in navItems"
+        :key="item.to"
+        :to="item.to"
+        class="nav-item"
+        :class="{ active: isActive(item) }"
+        :aria-current="isActive(item) ? 'page' : undefined"
+      >
+        <component :is="isActive(item) ? item.iconActive : item.iconInactive" class="nav-icon" aria-hidden="true" />
+        <span class="nav-label">{{ item.label }}</span>
+      </router-link>
     </div>
-  </div>
+
+    <!-- About button -->
+    <button
+      class="about-btn"
+      :aria-label="t('nav.about')"
+      :title="t('nav.about')"
+      @click="aboutModalRef?.show()"
+    >
+      <IBiInfoCircle aria-hidden="true" />
+    </button>
+
+    <AboutModal ref="aboutModalRef" />
+
+    <!-- Language switcher -->
+    <div class="lang-section" role="group" aria-label="Language selector">
+      <button
+        v-for="lang in languages"
+        :key="lang.code"
+        class="lang-btn"
+        :class="{ active: currentLocale === lang.code }"
+        :lang="lang.code"
+        :aria-label="lang.label"
+        :aria-current="currentLocale === lang.code ? 'true' : undefined"
+        @click="setLocale(lang.code)"
+      >
+        <span :class="`fi fis fi-${lang.flag}`" aria-hidden="true" />
+      </button>
+    </div>
+  </nav>
 </template>
 
 <style lang="scss" scoped>
 @use "@/assets/design-tokens.scss" as *;
 
-.main-menu-container {
-  z-index: 999;
+.main-menu {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 56px; /* Standard mobile nav height */
-  background-color: var(--color-surface);
-  border-top: 1px solid var(--color-outline-variant);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0.5rem 0.75rem calc(0.5rem + env(safe-area-inset-bottom, 0px)) 0.75rem;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 1rem 1rem 0 0;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+
+  // Thin top border for definition on light backgrounds
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 1rem;
+    right: 1rem;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.06);
+  }
+}
+
+.nav-items {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1;
+  justify-content: space-around;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  text-decoration: none;
+  color: var(--color-on-surface-variant, #45474c);
+  padding: 0.375rem 1rem;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+  min-width: 64px;
+
+  &:hover {
+    color: var(--color-primary, #3d5e9e);
+    background: rgba(60, 93, 157, 0.06);
+  }
+
+  &.active {
+    color: var(--color-secondary, #3d5e9e);
+    background: rgba(60, 93, 157, 0.12);
+    font-weight: 700;
+
+    .nav-label {
+      font-weight: 700;
+    }
+  }
+}
+
+.nav-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.nav-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  transition: all 0.2s ease;
+}
+
+/* About button */
+.about-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(4px 4px 4px rgba(25, 25, 25, 0.1));
-}
-
-.main-menu {
-  display: inline-flex;
-  align-items: center;
-}
-
-.b-dropdown {
-  /* Override Bootstrap dropdown styles to match design system */
-  --bs-btn-bg: transparent;
-  --bs-btn-color: var(--color-on-surface);
-  --bs-btn-border-color: transparent;
-  --bs-btn-hover-bg: var(--color-primary-container);
-  --bs-btn-hover-color: var(--color-on-primary);
-  --bs-btn-active-bg: var(--color-primary);
-  --bs-btn-active-color: var(--color-on-primary);
-  --bs-btn-focus-box-shadow: 0 0 0 0.2rem rgba(9, 20, 38, 0.25);
-  
-  /* Ensure dropdown menu uses design tokens */
-  --bs-dropdown-bg: var(--color-surface);
-  --bs-dropdown-link-color: var(--color-on-surface);
-  --bs-dropdown-link-hover-bg: var(--color-primary-container);
-  --bs-dropdown-link-hover-color: var(--color-on-primary);
-  --bs-dropdown-link-active-bg: var(--color-primary);
-  --bs-dropdown-link-active-color: var(--color-on-primary);
-  
-  /* Border radius for dropdown items */
-  --bs-dropdown-link-border-radius: var(--shape-round-default);
-  
-  /* Padding for dropdown items */
-  --bs-dropdown-link-padding-y: calc(var(--spacing-unit) * 0.5);
-  --bs-dropdown-link-padding-x: var(--spacing-unit);
-  
-  /* Font size for dropdown items */
-  --bs-dropdown-link-font-size: var(--font-size-label-sm);
-  --bs-dropdown-link-font-weight: var(--font-weight-label-sm);
-}
-
-.shortcut-hint {
-  font-size: var(--font-size-label-sm);
-  background: rgba(var(--color-on-surface-rgb), 0.2);
-  border: 1px solid rgba(var(--color-on-surface-rgb), 0.4);
-  border-radius: var(--shape-round-default);
-  padding: calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit));
-  color: inherit;
-  vertical-align: middle;
-  font-family: var(--font-family-inter);
-  font-weight: var(--font-weight-label-sm);
-  line-height: var(--line-height-label-sm);
-  letter-spacing: var(--letter-spacing-label-sm);
-}
-
-/* Since we can't directly access RGB values in SCSS, we'll use the hex values with opacity */
-.shortcut-hint {
-  background: rgba(25, 28, 29, 0.2);
-  border: 1px solid rgba(25, 28, 29, 0.4);
-}
-
-/* Icon styling */
-.b-dropdown .ibi-list,
-.b-dropdown .ibi-globe2,
-.b-dropdown .ibi-card-list,
-.b-dropdown .ibi-search,
-.b-dropdown .ibi-infocircle {
-  font-size: 1.25rem; /* 20px */
-  transition: color 0.2s ease;
-}
-
-/* Active icon color */
-.b-dropdown.show .ibi-list,
-.b-dropdown.show .ibi-globe2,
-.b-dropdown.show .ibi-card-list,
-.b-dropdown.show .ibi-search,
-.b-dropdown.show .ibi-infocircle {
-  color: var(--color-on-primary);
-}
-
-/* Text label styling */
-.b-dropdown .btn {
-  font-size: var(--font-size-label-sm);
-  font-weight: var(--font-weight-label-sm);
-  line-height: var(--line-height-label-sm);
-  letter-spacing: var(--letter-spacing-label-sm);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
   padding: 0;
-  text-transform: none;
-  white-space: nowrap;
+  transition: all 0.2s ease;
+  color: var(--color-on-surface-variant, #45474c);
+
+  &:hover {
+    color: var(--color-primary, #3d5e9e);
+    background: rgba(60, 93, 157, 0.08);
+  }
+
+  :deep(svg) {
+    font-size: 1.25rem;
+  }
 }
 
-/* Adjust spacing between icon and text */
-.b-dropdown .btn .me-2 {
-  margin-right: var(--spacing-unit) !important;
+/* Language switcher */
+.lang-section {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  margin-left: 0.5rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.lang-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+  opacity: 0.45;
+  filter: grayscale(0.5);
+
+  &:hover {
+    opacity: 0.8;
+    filter: grayscale(0);
+    background: rgba(60, 93, 157, 0.1);
+  }
+
+  &.active {
+    opacity: 1;
+    filter: grayscale(0);
+    background: var(--color-secondary, #3d5e9e);
+    box-shadow: 0 0 0 2px #fff;
+  }
+
+  :deep(.fi) {
+    font-size: 0.95rem;
+    border-radius: 2px;
+  }
 }
 </style>

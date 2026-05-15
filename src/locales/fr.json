@@ -28,6 +28,11 @@
     "loadingMap": "Chargement de la carte…",
     "resultsLabel": "Résultats de recherche"
   },
+  "nav": {
+    "map": "Carte",
+    "list": "Liste",
+    "about": "À propos"
+  },
   "common": {
     "close": "Fermer"
   },
@@ -45,6 +50,19 @@
       "underConstruction": "En construction",
       "planned": "Planifié"
     }
+  },
+  "about": {
+    "title": "À propos de cette app",
+    "description": "Tous les projets de la {foundation} sont affichés sur cette carte d'ensemble. Les projets terminés sont marqués par des épingles colorées, les projets planifiés ou en construction sont en gris.",
+    "foundation": "Fondation Jörg Wolff",
+    "development": "Développement",
+    "developer": "Stephan Strittmatter",
+    "sources": "Sources",
+    "version": "Version",
+    "reload": "Recharger l'application et vider le cache",
+    "credits": "Crédits",
+    "license": "Licence MIT",
+    "moreLibs": "et plus de bibliothèques"
   },
   "gallery": {
     "title": "Galerie"

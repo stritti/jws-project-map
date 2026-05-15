@@ -11,6 +11,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AboutModal: typeof import('./src/components/AboutModal.vue')['default']
     BackButton: typeof import('./src/components/actions/BackButton.vue')['default']
     BBadge: typeof import('bootstrap-vue-next/components/BBadge')['BBadge']
     BButton: typeof import('bootstrap-vue-next/components/BButton')['BButton']
@@ -43,6 +44,7 @@ declare module 'vue' {
     CategoryBadge: typeof import('./src/components/CategoryBadge.vue')['default']
     CountryLabel: typeof import('./src/components/CountryLabel.vue')['default']
     IBiArrowLeft: typeof import('~icons/bi/arrow-left')['default']
+    IBiArrowRepeat: typeof import('~icons/bi/arrow-repeat')['default']
     IBiBoxArrowUpRight: typeof import('~icons/bi/box-arrow-up-right')['default']
     IBiCalendar3: typeof import('~icons/bi/calendar3')['default']
     IBiCardList: typeof import('~icons/bi/card-list')['default']
@@ -77,5 +79,8 @@ declare module 'vue' {
     SearchModal: typeof import('./src/components/SearchModal.vue')['default']
     ShareButton: typeof import('./src/components/actions/ShareButton.vue')['default']
     SiteFooter: typeof import('./src/components/SiteFooter.vue')['default']
+  }
+  export interface GlobalDirectives {
+    vBModal: typeof import('bootstrap-vue-next/directives/BModal')['vBModal']
   }
 }

@@ -28,6 +28,11 @@
     "loadingMap": "Loading map…",
     "resultsLabel": "Search results"
   },
+  "nav": {
+    "map": "Map",
+    "list": "List",
+    "about": "About"
+  },
   "common": {
     "close": "Close"
   },
@@ -45,6 +50,19 @@
       "underConstruction": "Under Construction",
       "planned": "Planned"
     }
+  },
+  "about": {
+    "title": "About this App",
+    "description": "All projects of the {foundation} are shown on this overview map. Completed projects are marked with colored pins, while planned or under-construction projects are marked in gray.",
+    "foundation": "Jörg Wolff Foundation",
+    "development": "Development",
+    "developer": "Stephan Strittmatter",
+    "sources": "Sources",
+    "version": "Version",
+    "reload": "Reload app and clear cache",
+    "credits": "Credits",
+    "license": "MIT License",
+    "moreLibs": "and more libraries"
   },
   "gallery": {
     "title": "Gallery"

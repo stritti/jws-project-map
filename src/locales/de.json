@@ -28,6 +28,11 @@
     "loadingMap": "Karte wird geladen…",
     "resultsLabel": "Suchergebnisse"
   },
+  "nav": {
+    "map": "Karte",
+    "list": "Liste",
+    "about": "Über uns"
+  },
   "common": {
     "close": "Schließen"
   },
@@ -45,6 +50,19 @@
       "underConstruction": "Im Bau",
       "planned": "Geplant"
     }
+  },
+  "about": {
+    "title": "Über diese App",
+    "description": "Auf dieser Übersichtskarte werden alle Projekte der {foundation} angezeigt. Abgeschlossene Projekte sind mit farbigen Pins markiert, geplante und in Bau befindliche Projekte in Grau.",
+    "foundation": "Jörg Wolff Stiftung",
+    "development": "Entwicklung",
+    "developer": "Stephan Strittmatter",
+    "sources": "Quellen",
+    "version": "Version",
+    "reload": "App neu laden und Cache leeren",
+    "credits": "Danksagungen",
+    "license": "MIT Lizenz",
+    "moreLibs": "und weitere Bibliotheken"
   },
   "gallery": {
     "title": "Galerie"
