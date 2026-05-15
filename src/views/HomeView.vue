@@ -133,6 +133,7 @@ countryStore.load();
           :filter-label="t('search.filter')"
           :filter-count="activeFiltersCount"
           :show-filter-chips="false"
+          :filter-visible="filterVisible"
           @filter-click="filterVisible = !filterVisible"
         />
       </div>
@@ -200,12 +201,16 @@ countryStore.load();
       </div>
       
       <!-- Search results dropdown -->
-      <div v-if="searchResults.length > 0 && searchQuery.trim().length >= 2" class="search-results-dropdown">
+      <div v-if="searchResults.length > 0 && searchQuery.trim().length >= 2" class="search-results-dropdown" role="listbox" :aria-label="t('search.resultsLabel')">
         <div
           v-for="project in searchResults.slice(0, 10)"
           :key="project.id"
           class="search-result-item"
+          role="option"
+          tabindex="0"
           @click="handleProjectClick(project.id)"
+          @keydown.enter="handleProjectClick(project.id)"
+          @keydown.space.prevent="handleProjectClick(project.id)"
         >
           <div class="result-name">{{ project.name }}</div>
           <div class="result-meta">
@@ -351,6 +356,12 @@ countryStore.load();
     }
     
     &:hover {
+      background-color: var(--color-surface-variant);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-secondary);
+      outline-offset: -2px;
       background-color: var(--color-surface-variant);
     }
   }

@@ -5,7 +5,12 @@
       <div
         v-if="project.teaserImg"
         class="gallery-item teaser-item"
+        role="button"
+        tabindex="0"
+        :aria-label="'Open ' + (project.teaserImg[0].name || 'teaser image')"
         @click="openModal(project.teaserImg[0])"
+        @keydown.enter="openModal(project.teaserImg[0])"
+        @keydown.space.prevent="openModal(project.teaserImg[0])"
       >
         <img
           :src="project.teaserImg[0].signedUrl"
@@ -20,7 +25,12 @@
         v-for="(item, index) in project.gallery"
         :key="index"
         class="gallery-item"
+        role="button"
+        tabindex="0"
+        :aria-label="'Open ' + (item.name || 'gallery item')"
         @click="openModal(item)"
+        @keydown.enter="openModal(item)"
+        @keydown.space.prevent="openModal(item)"
       >
         <template v-if="item.mimetype.startsWith('image')">
           <img
@@ -39,6 +49,7 @@
           <video
             :src="item.signedUrl"
             preload="metadata"
+            controls
             class="video-preview"
           >
             Your browser does not support the video tag.
@@ -173,6 +184,13 @@ export default defineComponent({
     img {
       transform: scale(1.08);
     }
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--color-secondary);
+    outline-offset: 2px;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   }
 
   img {

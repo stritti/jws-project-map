@@ -148,7 +148,7 @@
             </div>
 
             <div v-if="project.link" class="mb-5">
-              <b-button :href="project.link" variant="primary" class="rounded-pill px-4 py-2 shadow-sm fw-bold border-0" target="_blank">
+              <b-button :href="project.link" variant="primary" class="rounded-pill px-4 py-2 shadow-sm fw-bold border-0" target="_blank" rel="noopener noreferrer">
                 {{ t("project.detail.more") }}
               </b-button>
             </div>

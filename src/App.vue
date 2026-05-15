@@ -29,8 +29,13 @@ function onSearchHidden() {
 </script>
 
 <template>
+  <!-- Skip-to-content link for keyboard users -->
+  <a href="#main-content" class="skip-link">
+    Skip to main content
+  </a>
+
   <div class="app-wrapper">
-    <main class="content">
+    <main id="main-content" class="content" aria-label="Main content">
       <router-view />
     </main>
     <site-footer v-if="!isIFrame" />
@@ -82,5 +87,38 @@ p {
   position: fixed;
   bottom: calc(1rem + env(safe-area-inset-bottom));
   left: calc(1rem + env(safe-area-inset-left));
+}
+
+/* Skip-to-content link — visible only when focused via keyboard */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 10000;
+  padding: 0.75rem 1.5rem;
+  background: var(--color-secondary, #3d5e9e);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0 0 0.5rem 0;
+  transition: top 0.1s ease;
+
+  &:focus {
+    top: 0;
+    outline: 3px solid #fff;
+    outline-offset: 2px;
+  }
+}
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 </style>

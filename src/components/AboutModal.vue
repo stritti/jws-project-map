@@ -15,7 +15,7 @@
       <p class="about-description">
         <i18n-t keypath="about.description" tag="span">
           <template #foundation>
-            <a href="https://www.joerg-wolff-stiftung.de/" target="_blank" class="fw-semibold">{{ t("about.foundation") }}</a>
+            <a href="https://www.joerg-wolff-stiftung.de/" target="_blank" rel="noopener noreferrer" class="fw-semibold">{{ t("about.foundation") }}</a>
           </template>
         </i18n-t>
       </p>
@@ -29,7 +29,7 @@
       <!-- Sources -->
       <h6 class="section-label">{{ t("about.sources") }}</h6>
       <p class="about-value">
-        <a href="https://github.com/stritti/jws-project-map" target="_blank" class="about-link">GitHub</a>
+        <a href="https://github.com/stritti/jws-project-map" target="_blank" rel="noopener noreferrer" class="about-link">GitHub</a>
       </p>
 
       <!-- Version and Reload -->
@@ -51,12 +51,12 @@
       <!-- Credits -->
       <h6 class="section-label">{{ t("about.credits") }}</h6>
       <ul class="about-credits">
-        <li><a href="https://nocodb.com/" target="_blank" class="about-link">NocoDB</a></li>
-        <li><a href="https://vuejs.org" target="_blank" class="about-link">vue.js</a>, {{ t("about.license") }}</li>
-        <li><a href="https://leafletjs.com/" target="_blank" class="about-link">Leaflet</a>, OpenStreetMap</li>
+        <li><a href="https://nocodb.com/" target="_blank" rel="noopener noreferrer" class="about-link">NocoDB</a></li>
+        <li><a href="https://vuejs.org" target="_blank" rel="noopener noreferrer" class="about-link">vue.js</a>, {{ t("about.license") }}</li>
+        <li><a href="https://leafletjs.com/" target="_blank" rel="noopener noreferrer" class="about-link">Leaflet</a>, OpenStreetMap</li>
         <li>
           {{ t("about.moreLibs") }}
-          <a href="https://github.com/stritti/jws-project-map/blob/main/package.json" target="_blank" class="about-link fw-semibold">awesome libs &hellip;</a>
+          <a href="https://github.com/stritti/jws-project-map/blob/main/package.json" target="_blank" rel="noopener noreferrer" class="about-link fw-semibold">awesome libs &hellip;</a>
         </li>
       </ul>
     </div>

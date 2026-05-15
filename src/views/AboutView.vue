@@ -27,7 +27,7 @@ const reloadApp = async () => {
     <h1>About this App</h1>
     <p>
       All projects of the
-      <a href="https://www.joerg-wolff-stiftung.de/">Jörg Wolff Foundation</a>
+      <a href="https://www.joerg-wolff-stiftung.de/" target="_blank" rel="noopener noreferrer">Jörg Wolff Foundation</a>
       are shown on this overview map.
       Completed projects are marked with colored pins, while planned or
       under-construction projects are marked in gray.
@@ -36,7 +36,7 @@ const reloadApp = async () => {
     <p>Stephan Strittmatter</p>
     <p>
       Sources:
-      <a href="https://github.com/stritti/jws-project-map" target="_blank">
+      <a href="https://github.com/stritti/jws-project-map" target="_blank" rel="noopener noreferrer">
         GitHub
       </a>
     </p>
@@ -51,13 +51,13 @@ const reloadApp = async () => {
 
     <ul>
       <li>
-        <a href="https://nocodb.com/" target="_blank">NocoDB</a>
+        <a href="https://nocodb.com/" target="_blank" rel="noopener noreferrer">NocoDB</a>
       </li>
       <li>
-        <a href="https://vuejs.org" target="_blank">vue.js</a>, MIT License
+        <a href="https://vuejs.org" target="_blank" rel="noopener noreferrer">vue.js</a>, MIT License
       </li>
       <li>
-        <a href="https://leafletjs.com/" target="_blank">Leaflet</a>,
+        <a href="https://leafletjs.com/" target="_blank" rel="noopener noreferrer">Leaflet</a>,
         OpenStreetMap
       </li>
       <li>
@@ -65,6 +65,7 @@ const reloadApp = async () => {
         <a
           href="https://github.com/stritti/jws-project-map/blob/main/package.json"
           target="_blank"
+          rel="noopener noreferrer"
         >
           awesome libs &hellip;
         </a>

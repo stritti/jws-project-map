@@ -32,6 +32,7 @@
               :filter-label="t('search.filter')"
               :show-filter-chips="false"
               :filter-count="activeFiltersCount"
+              :filter-visible="filterVisible"
               @filter-click="filterVisible = !filterVisible"
               @state-change="handleStateFilterChange"
             />

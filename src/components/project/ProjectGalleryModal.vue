@@ -1,8 +1,8 @@
 <template>
   <div v-if="props.isVisible" class="fullscreen-gallery">
-    <div class="gallery-close" @click="emit('update:isVisible', false)">
-      <span>&times;</span>
-    </div>
+    <button class="gallery-close" @click="emit('update:isVisible', false)" aria-label="Close gallery">
+      <span aria-hidden="true">&times;</span>
+    </button>
     <BCarousel
       v-model="currentIndex"
       controls
@@ -151,6 +151,11 @@ watch(
 .gallery-close:hover {
   background: rgba(var(--color-on-surface-rgb), 0.2);
   transform: scale(1.1);
+}
+
+.gallery-close:focus-visible {
+  outline: 3px solid var(--color-secondary);
+  outline-offset: 2px;
 }
 
 .gallery-carousel {

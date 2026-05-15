@@ -17,6 +17,7 @@
         class="filter-btn" 
         :class="{ active: filterCount > 0 }"
         :aria-label="resolvedFilterLabel"
+        :aria-expanded="filterVisible"
         @click="$emit('filter-click')"
       >
         <IBiFilterRight />
@@ -54,6 +55,7 @@ interface Props {
   filterLabel?: string;
   showFilterChips?: boolean;
   filterCount?: number;
+  filterVisible?: boolean;
 }
 
 interface Emits {
@@ -71,6 +73,7 @@ const props = withDefaults(defineProps<Props>(), {
   filterLabel: "",
   showFilterChips: true,
   filterCount: 0,
+  filterVisible: false,
 });
 
 const emit = defineEmits<Emits>();
@@ -145,7 +148,8 @@ defineExpose({
   color: var(--color-on-surface);
   
   &:focus {
-    outline: none;
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
     box-shadow: none;
   }
   
