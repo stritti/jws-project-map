@@ -234,7 +234,7 @@ const formattedSince = computed(() => {
 });
 
 const teaserImage = computed(() => {
-  if (project.value?.teaserImg) {
+  if (project.value?.teaserImg && project.value.teaserImg.length > 0) {
     return project.value.teaserImg[0].signedUrl;
   }
   return "/img/placeholder.png";

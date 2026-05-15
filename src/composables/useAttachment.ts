@@ -1,6 +1,5 @@
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import type { Attachment } from "@/interfaces/Attachment";
-import type { Project } from "@/interfaces/Project";
 
 const PLACEHOLDER = "/img/placeholder.png";
 
