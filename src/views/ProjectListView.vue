@@ -5,17 +5,26 @@
 
       <b-placeholder-wrapper :loading="showLoadingSpinner">
         <template #loading>
-          <h3><b-placeholder width="75%"></b-placeholder></h3>
-          <p>
-            <b-placeholder width="85%"></b-placeholder>
-            <b-placeholder width="55%"></b-placeholder>
-            <b-placeholder width="70%"></b-placeholder>
-          </p>
-          <b-card-group columns class="my-3">
-            <BPlaceholderCard animation="wave" no-footer />
-            <BPlaceholderCard animation="wave" no-footer />
-            <BPlaceholderCard animation="wave" no-footer />
-          </b-card-group>
+          <div class="skeleton-grid">
+            <b-row class="g-4">
+              <b-col v-for="n in 6" :key="n" cols="12" md="6" lg="4">
+                <div class="skeleton-card">
+                  <b-row no-gutters class="g-0 h-100">
+                    <b-col cols="5" class="skeleton-image-col">
+                      <b-placeholder class="skeleton-image" animation="wave" />
+                    </b-col>
+                    <b-col cols="7" class="skeleton-content-col">
+                      <div class="skeleton-content">
+                        <b-placeholder class="skeleton-title" animation="wave" />
+                        <b-placeholder class="skeleton-category" animation="wave" width="65%" />
+                        <b-placeholder class="skeleton-country" animation="wave" width="45%" />
+                      </div>
+                    </b-col>
+                  </b-row>
+                </div>
+              </b-col>
+            </b-row>
+          </div>
         </template>
 
         <h3 class="my-3 text-muted fs-5">
@@ -439,5 +448,65 @@ onBeforeMount(() => {
   border-radius: var(--shape-round-xl);
   margin: var(--spacing-margin-lg) 0;
   padding: var(--spacing-margin-lg);
+}
+
+/* ── Skeleton Loading ───────────────────────────── */
+.skeleton-grid {
+  padding: var(--spacing-gutter-md) 0;
+}
+
+.skeleton-card {
+  height: 100%;
+  min-height: 180px;
+  border: none;
+  border-radius: var(--shape-round-xl);
+  overflow: hidden;
+  box-shadow: 0 var(--spacing-unit) calc(var(--spacing-unit) * 3) rgba(9, 20, 38, 0.08);
+  background: var(--color-surface);
+}
+
+.skeleton-image-col {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+}
+
+.skeleton-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--shape-round-default);
+}
+
+.skeleton-content-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 180px;
+}
+
+.skeleton-content {
+  padding: calc(var(--spacing-unit) * 2);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 1.5);
+  flex: 1;
+}
+
+.skeleton-title {
+  display: block;
+  height: 1.3rem;
+  border-radius: 4px;
+}
+
+.skeleton-category {
+  display: block;
+  height: 0.85rem;
+  border-radius: 4px;
+}
+
+.skeleton-country {
+  display: block;
+  height: 0.85rem;
+  border-radius: 4px;
 }
 </style>
