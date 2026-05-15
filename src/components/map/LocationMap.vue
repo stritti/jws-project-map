@@ -717,6 +717,13 @@ const updateMaxBounds = () => {
   }
 }
 
+/* Zoom controls nur auf Desktop anzeigen */
+@media (max-width: 767.98px) {
+  .leaflet-control-zoom {
+    display: none !important;
+  }
+}
+
 /* Optimiere Leaflet-Container für bessere Performance */
 .leaflet-container {
   transform: translate3d(0, 0, 0);

@@ -37,6 +37,9 @@
             />
           </div>
 
+          <!-- Filter backdrop (mobile only) -->
+          <div v-if="filterVisible" class="filter-backdrop" @click="filterVisible = false" />
+
           <!-- Filter panel overlays the list via absolute positioning -->
           <div v-if="filterVisible" class="filter-dropdown">
             <b-card bg-variant="white" class="shadow-sm border-0 rounded-4 filter-card">
@@ -277,41 +280,90 @@ onBeforeMount(() => {
 <style lang="scss" scoped>
 @use "@/assets/design-tokens.scss" as *;
 
-.project-list {
-  padding: var(--spacing-gutter-md);
-  position: relative;
-}
+// ── Desktop ──────────────────────────────────────────
+@media (min-width: 768px) {
+  .project-list {
+    padding: var(--spacing-gutter-md);
+  }
 
-.filter-overlay-container {
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  .filter-overlay-container {
+    position: sticky;
+    top: 0;
+    z-index: 100;
 
-  // Backdrop behind toolbar so content doesn't show through
-  &::before {
-    content: '';
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(var(--color-surface-rgb, 248, 249, 250), 0.95);
+      backdrop-filter: blur(10px);
+      pointer-events: none;
+    }
+
+    > * {
+      position: relative;
+    }
+  }
+
+  .toolbar-section {
+    padding: calc(var(--spacing-unit) * 2) 0;
+  }
+
+  .filter-dropdown {
     position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 50;
+  }
+}
+
+// ── Mobile ──────────────────────────────────────────
+@media (max-width: 767.98px) {
+  .project-list {
+    padding: var(--spacing-gutter-md);
+    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 56px + 1rem);
+  }
+
+  .filter-overlay-container {
+    position: fixed;
+    bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 0.75rem);
+    left: 0.75rem;
+    right: 0.75rem;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+
+    &::before {
+      display: none;
+    }
+  }
+
+  .toolbar-section {
+    padding: 0;
+    position: relative;
+    z-index: 1001;
+  }
+
+  .filter-dropdown {
+    position: relative;
+    z-index: 1000;
+    max-height: min(50vh, 24rem);
+  }
+}
+
+// ── Shared ──────────────────────────────────────────
+.filter-backdrop {
+  display: none;
+
+  @media (max-width: 767.98px) {
+    display: block;
+    position: fixed;
     inset: 0;
-    background: rgba(var(--color-surface-rgb, 248, 249, 250), 0.95);
-    backdrop-filter: blur(10px);
-    pointer-events: none;
+    z-index: 999;
+    background: rgba(0, 0, 0, 0.3);
   }
-
-  > * {
-    position: relative; // stack above the backdrop
-  }
-}
-
-.toolbar-section {
-  padding: calc(var(--spacing-unit) * 2) 0;
-}
-
-.filter-dropdown {
-  position: absolute;
-  top: 100%; // directly below the toolbar
-  left: 0;
-  right: 0;
-  z-index: 50;
 }
 
 .filter-card {

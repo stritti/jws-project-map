@@ -116,13 +116,17 @@ defineExpose({
   width: 100%;
 }
 
-// Search bar with icons
+// Search bar — Apple-style glassmorphism
 .search-bar {
   display: flex;
   align-items: center;
-  background: #f1f3f4;
-  border-radius: 0.5rem;
-  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  border-radius: 0.75rem;
+  padding: 0.6rem 0.85rem;
   gap: 0.5rem;
 }
 

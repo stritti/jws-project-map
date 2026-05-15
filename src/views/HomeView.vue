@@ -124,73 +124,80 @@ countryStore.load();
   <div class="home">
     <h1>{{ t("app.title") }}</h1>
     
-    <!-- Search bar overlay -->
+    <!-- Search bar overlay with floating filter -->
     <div class="search-overlay">
-      <SearchBar
-        v-model="searchQuery"
-        :placeholder="t('search.placeholder')"
-        :filter-label="t('search.filter')"
-        :filter-count="activeFiltersCount"
-        :show-filter-chips="false"
-        @filter-click="filterVisible = !filterVisible"
-      />
+      <div class="toolbar-section">
+        <SearchBar
+          v-model="searchQuery"
+          :placeholder="t('search.placeholder')"
+          :filter-label="t('search.filter')"
+          :filter-count="activeFiltersCount"
+          :show-filter-chips="false"
+          @filter-click="filterVisible = !filterVisible"
+        />
+      </div>
       
-      <!-- Filter Panel -->
-      <b-collapse id="collapse-filter" v-model:visible="filterVisible" class="mt-2">
-        <b-card bg-variant="white" class="shadow-sm border-0 rounded-4">
-          <b-row>
-            <b-col md="4">
-              <div class="filter-group mb-4 mb-md-0">
-                <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                  <IBiCheck2Circle /> {{ t("search.filterGroups.status") }}
-                </h6>
-                <b-form-checkbox-group
-                  v-model="stateFilter"
-                  name="stateFilter"
-                  stack
-                  class="custom-check-group"
-                >
-                  <b-form-checkbox v-for="opt in stateOptions" :key="opt.value" :value="opt.value">
-                    {{ opt.text }}
-                  </b-form-checkbox>
-                </b-form-checkbox-group>
-              </div>
-            </b-col>
-            <b-col md="4">
-              <div class="filter-group mb-4 mb-md-0">
-                <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                  <IBiTag /> {{ t("search.filterGroups.categories") }}
-                </h6>
-                <b-form-checkbox-group
-                  v-model="categoryFilter"
-                  stack
-                  class="custom-check-group scrollable-group"
-                >
-                  <b-form-checkbox v-for="cat in categoryList" :key="cat.value" :value="cat.value">
-                    {{ cat.text }}
-                  </b-form-checkbox>
-                </b-form-checkbox-group>
-              </div>
-            </b-col>
-            <b-col md="4">
-              <div class="filter-group">
-                <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                  <IBiGeoAlt /> {{ t("search.filterGroups.countries") }}
-                </h6>
-                <b-form-checkbox-group
-                  v-model="countryFilter"
-                  stack
-                  class="custom-check-group scrollable-group"
-                >
-                  <b-form-checkbox v-for="c in countryList" :key="c.value" :value="c.value">
-                    {{ c.text }}
-                  </b-form-checkbox>
-                </b-form-checkbox-group>
-              </div>
-            </b-col>
-          </b-row>
+      <!-- Filter backdrop (mobile only) -->
+      <div v-if="filterVisible" class="filter-backdrop" @click="filterVisible = false" />
+
+      <!-- Filter Panel – absolutely positioned overlay -->
+      <div v-if="filterVisible" class="filter-dropdown">
+        <b-card bg-variant="white" class="shadow-sm border-0 rounded-4 filter-card">
+          <div class="filter-scroll">
+            <b-row>
+              <b-col md="4">
+                <div class="filter-group mb-4 mb-md-0">
+                  <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
+                    <IBiCheck2Circle /> {{ t("search.filterGroups.status") }}
+                  </h6>
+                  <b-form-checkbox-group
+                    v-model="stateFilter"
+                    name="stateFilter"
+                    stack
+                    class="custom-check-group"
+                  >
+                    <b-form-checkbox v-for="opt in stateOptions" :key="opt.value" :value="opt.value">
+                      {{ opt.text }}
+                    </b-form-checkbox>
+                  </b-form-checkbox-group>
+                </div>
+              </b-col>
+              <b-col md="4">
+                <div class="filter-group mb-4 mb-md-0">
+                  <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
+                    <IBiTag /> {{ t("search.filterGroups.categories") }}
+                  </h6>
+                  <b-form-checkbox-group
+                    v-model="categoryFilter"
+                    stack
+                    class="custom-check-group"
+                  >
+                    <b-form-checkbox v-for="cat in categoryList" :key="cat.value" :value="cat.value">
+                      {{ cat.text }}
+                    </b-form-checkbox>
+                  </b-form-checkbox-group>
+                </div>
+              </b-col>
+              <b-col md="4">
+                <div class="filter-group">
+                  <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
+                    <IBiGeoAlt /> {{ t("search.filterGroups.countries") }}
+                  </h6>
+                  <b-form-checkbox-group
+                    v-model="countryFilter"
+                    stack
+                    class="custom-check-group"
+                  >
+                    <b-form-checkbox v-for="c in countryList" :key="c.value" :value="c.value">
+                      {{ c.text }}
+                    </b-form-checkbox>
+                  </b-form-checkbox-group>
+                </div>
+              </b-col>
+            </b-row>
+          </div>
         </b-card>
-      </b-collapse>
+      </div>
       
       <!-- Search results dropdown -->
       <div v-if="searchResults.length > 0 && searchQuery.trim().length >= 2" class="search-results-dropdown">
@@ -245,14 +252,82 @@ countryStore.load();
     background-color: rgba($color: #ffffff, $alpha: 0.5);
   }
 
-  .search-overlay {
-    position: absolute;
-    top: 5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1000;
-    width: 90%;
-    max-width: 600px;
+  // Desktop: search overlay at the top
+  @media (min-width: 768px) {
+    .search-overlay {
+      position: absolute;
+      top: 5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      width: 90%;
+      max-width: 600px;
+    }
+
+    .filter-dropdown {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+  }
+
+  // Mobile: search floats at the bottom (Apple-style)
+  @media (max-width: 767.98px) {
+    .search-overlay {
+      position: fixed;
+      bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 0.75rem);
+      left: 0.75rem;
+      right: 0.75rem;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 0.75rem;
+    }
+
+    .toolbar-section {
+      position: relative;
+      z-index: 1001;
+    }
+
+    .filter-dropdown {
+      position: relative;
+      z-index: 1000;
+      max-height: min(50vh, 24rem);
+    }
+  }
+
+  .filter-backdrop {
+    display: none;
+
+    @media (max-width: 767.98px) {
+      display: block;
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .filter-scroll {
+    max-height: inherit;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
+    // Hide scrollbar on mobile for cleaner look
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--color-outline-variant, #c5c6cd);
+      border-radius: 2px;
+    }
+  }
+
+  .filter-card {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.08) !important;
   }
 
   .search-results-dropdown {
