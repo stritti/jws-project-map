@@ -3,19 +3,23 @@ import SiteFooter from "./components/SiteFooter.vue";
 import FloatingMeta from "./components/FloatingMeta.vue";
 import SearchModal from "@/components/SearchModal.vue";
 import { useWebFrame } from "./composables/useWebFrame";
+import { useLoadingStore } from "@/stores/loading.store";
 import { useSearchStore } from "@/stores/search.store";
 import { storeToRefs } from "pinia";
-import { watch, ref } from "vue";
+import { computed, watch, ref } from "vue";
 import { useRouter } from "vue-router";
 
 import "./assets/iframe.scss";
 
 const { isIFrame, notifyNavigate } = useWebFrame();
+const loadingStore = useLoadingStore();
 const router = useRouter();
 const searchStore = useSearchStore();
 const { isSearchVisible } = storeToRefs(searchStore);
 
 const searchModalRef = ref<InstanceType<typeof SearchModal> | null>(null);
+
+const isLoading = computed(() => loadingStore.showLoadingSpinner);
 
 // Watch for store changes to open the modal
 watch(isSearchVisible, (isVisible) => {
@@ -47,6 +51,11 @@ router.afterEach((to) => {
   <a href="#main-content" class="skip-link">
     Skip to main content
   </a>
+
+  <!-- Global loading bar -->
+  <div v-if="isLoading" class="global-loader" role="status" aria-label="Loading data">
+    <div class="loader-bar"></div>
+  </div>
 
   <div class="app-wrapper">
     <main id="main-content" class="content" aria-label="Main content">
@@ -94,6 +103,31 @@ p {
 
 .content {
   flex-grow: 1;
+}
+
+/* Global loading bar — thin animated bar at the very top of the viewport */
+.global-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10001;
+  height: 3px;
+  overflow: hidden;
+  background: transparent;
+}
+
+.loader-bar {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #3d5e9e, #6a8fd4, #3d5e9e);
+  background-size: 200% 100%;
+  animation: loader-slide 1.4s ease-in-out infinite;
+}
+
+@keyframes loader-slide {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 /* Skip-to-content link — visible only when focused via keyboard */

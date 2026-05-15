@@ -95,6 +95,8 @@ export const useProjectStore = defineStore("project", {
 
       // Sofort mit dem Laden beginnen
       this.loadingMapData = true;
+      const loadingStore = useLoadingStore();
+      loadingStore.updateLoading(true);
 
       try {
         // Nur die für die Karte notwendigen Daten laden
@@ -118,6 +120,7 @@ export const useProjectStore = defineStore("project", {
         return this.mapProjects;
       } finally {
         this.loadingMapData = false;
+        loadingStore.updateLoading(false);
       }
     },
 
