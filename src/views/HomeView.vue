@@ -124,80 +124,56 @@ function handleProjectClick(projectId: number) {
 categoryStore.load();
 countryStore.load();
 
-// ── Keyboard-aware search overlay ──────────────────────────────────────────
-// When the virtual keyboard opens on mobile the search bar must slide up so
-// the user can see what they are typing.  The rest of the view (map, heading)
-// must NOT move.
+// ── Keep search bar visible on mobile when the keyboard opens ──────────
+// On mobile the .home container is position:fixed;inset:0 so the map and
+// heading NEVER move.  The search overlay normally floats at bottom:0 but
+// when the user taps the search input it snaps to top:0 (above the
+// keyboard).  On blur it returns to bottom:0.
 //
-// Strategy:
-//   1. The .home container is `position:fixed; inset:0` on mobile, pinning
-//      everything to the layout viewport (never resized by the keyboard).
-//   2. The .search-overlay is `position:fixed; bottom:0` and we adjust its
-//      `bottom` inline style via the visualViewport API.
-//   3. We ALSO react immediately to `focus`/`blur` on the search input so
-//      the overlay starts moving BEFORE the keyboard animation completes
-//      (iOS visualViewport.resize can be too late).
-//   4. A CSS `transition` on the overlay's `bottom` makes the movement
-//      smooth.
-// ────────────────────────────────────────────────────────────────────────────
+// An additional body lock (.body-locked on html+body) prevents iOS Safari
+// from scrolling the document when an input is focused — without this,
+// position:fixed elements can shift or disappear on iOS.
+// ────────────────────────────────────────────────────────────────────────
 
-const keyboardOffset = ref(0);
+const isSearchActive = ref(false);
 
-/** Recalculate the gap between visual viewport bottom and layout bottom. */
-function onViewportResize() {
-  if (typeof window === "undefined" || !window.visualViewport) return;
-  const vv = window.visualViewport;
-  const offset = window.innerHeight - vv.offsetTop - vv.height;
-  keyboardOffset.value = Math.max(0, Math.round(offset));
+function onSearchFocus() {
+  isSearchActive.value = true;
 }
 
-/**
- * Called immediately when the search input receives focus — BEFORE the keyboard
- * animation finishes and BEFORE visualViewport.resize fires.
- *
- * At this point visualViewport.height hasn't changed yet, so onViewportResize()
- * would return 0.  Instead we use an estimated keyboard height (~40 % of the
- * viewport).  The visualViewport.resize listener will refine it to the exact
- * value within a few frames, and the CSS transition makes the correction
- * imperceptible.
- */
-function onSearchFocus() {
-  if (window.visualViewport) {
-    // The keyboard hasn't shrunk vv.height yet, but we know it will.
-    // ~40 % of window height is a good ballpark on most devices
-    // (ranges from 30 % on tablets to 50 % on phones).
-    keyboardOffset.value = Math.round(window.innerHeight * 0.4);
+function onSearchBlur() {
+  isSearchActive.value = false;
+}
+
+// Backup: detect keyboard dismissal via visualViewport.resize (e.g. iOS
+// "Done" button which can hide the keyboard without blurring the input).
+function onViewportResize() {
+  if (!window.visualViewport) return;
+  if (window.visualViewport.height >= window.innerHeight - 5) {
+    isSearchActive.value = false;
   }
 }
 
-/** Reset the offset when the input loses focus — the keyboard is dismissing. */
-function onSearchBlur() {
-  keyboardOffset.value = 0;
-}
-
-// iOS Safari can scroll the layout viewport when an input is focused, shifting
-// fixed-position elements.  Reset scroll position immediately when this happens.
-function onViewportScroll() {
-  window.scrollTo(0, 0);
-}
-
-// Evaluated once at setup time; mobile state doesn't change during lifecycle
+// iOS Safari body lock — prevents the document from scrolling when an
+// input is focused, which otherwise misaligns fixed-position elements.
+const BODY_LOCK_CLASS = 'body-locked';
 const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
 onMounted(() => {
+  if (isMobile) {
+    document.documentElement.classList.add(BODY_LOCK_CLASS);
+    document.body.classList.add(BODY_LOCK_CLASS);
+  }
   if (window.visualViewport) {
     window.visualViewport.addEventListener("resize", onViewportResize);
-    if (isMobile) {
-      window.visualViewport.addEventListener("scroll", onViewportScroll);
-    }
   }
 });
+
 onUnmounted(() => {
+  document.documentElement.classList.remove(BODY_LOCK_CLASS);
+  document.body.classList.remove(BODY_LOCK_CLASS);
   if (window.visualViewport) {
     window.visualViewport.removeEventListener("resize", onViewportResize);
-    if (isMobile) {
-      window.visualViewport.removeEventListener("scroll", onViewportScroll);
-    }
   }
 });
 </script>
@@ -209,7 +185,7 @@ onUnmounted(() => {
     <!-- Search bar overlay with floating filter -->
     <div
       class="search-overlay"
-      :style="keyboardOffset > 0 ? { bottom: keyboardOffset + 'px', paddingBottom: '0.75rem' } : {}"
+      :class="{ 'search-active': isSearchActive }"
     >
       <div class="toolbar-section">
         <SearchBar
@@ -358,6 +334,7 @@ onUnmounted(() => {
     .search-overlay {
       position: fixed;
       bottom: 0;
+      top: auto;
       left: 0;
       right: 0;
       z-index: 1000;
@@ -367,8 +344,18 @@ onUnmounted(() => {
       max-height: 100dvh;
       padding: 0.75rem;
       padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
-      // Smooth slide up/down with the keyboard
-      transition: bottom 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+      // When the search input is focused, pop the overlay to the top so
+      // it stays above the virtual keyboard.  flex-direction flips so the
+      // search bar sits at the top edge and results extend downward.
+      &.search-active {
+        bottom: auto;
+        top: 0;
+        flex-direction: column;
+        max-height: 50dvh;
+        padding: 0.75rem;
+        padding-top: calc(env(safe-area-inset-top) + 0.75rem);
+      }
     }
 
     .toolbar-section {

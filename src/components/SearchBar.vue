@@ -272,6 +272,12 @@ defineExpose({
   font-size: var(--font-size-body-md);
   position: relative;
   flex-shrink: 0;
+
+  // Touch-friendly minimum on mobile (same as .view-btn)
+  @media (max-width: 767.98px) {
+    padding: 0.6rem 0.75rem;
+    font-size: 1rem;
+  }
   
   &:hover {
     background: var(--color-surface-variant);

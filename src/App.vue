@@ -162,4 +162,15 @@ p {
     scroll-behavior: auto !important;
   }
 }
+
+/* Body lock — prevents iOS from scrolling the document when an input is
+   focused on HomeView, which would otherwise misalign position:fixed elements
+   such as the map and the search overlay.  Toggled via JS on mount/unmount. */
+html.body-locked,
+body.body-locked {
+  height: 100% !important;
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+}
 </style>
