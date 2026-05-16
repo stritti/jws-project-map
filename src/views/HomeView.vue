@@ -124,18 +124,45 @@ function handleProjectClick(projectId: number) {
 categoryStore.load();
 countryStore.load();
 
-// Keep the search bar above the virtual keyboard on mobile.
-// Uses the visualViewport API: when the keyboard opens the visual viewport
-// shrinks, so we calculate its offset from the window bottom and apply it
-// as an inline `bottom` style on the search overlay.  The map and heading
-// are inside a `position:fixed` container (see CSS below) and are therefore
-// unaffected by the viewport resize.
+// ── Keyboard-aware search overlay ──────────────────────────────────────────
+// When the virtual keyboard opens on mobile the search bar must slide up so
+// the user can see what they are typing.  The rest of the view (map, heading)
+// must NOT move.
+//
+// Strategy:
+//   1. The .home container is `position:fixed; inset:0` on mobile, pinning
+//      everything to the layout viewport (never resized by the keyboard).
+//   2. The .search-overlay is `position:fixed; bottom:0` and we adjust its
+//      `bottom` inline style via the visualViewport API.
+//   3. We ALSO react immediately to `focus`/`blur` on the search input so
+//      the overlay starts moving BEFORE the keyboard animation completes
+//      (iOS visualViewport.resize can be too late).
+//   4. A CSS `transition` on the overlay's `bottom` makes the movement
+//      smooth.
+// ────────────────────────────────────────────────────────────────────────────
+
 const keyboardOffset = ref(0);
+
+/** Recalculate the gap between visual viewport bottom and layout bottom. */
 function onViewportResize() {
   if (typeof window === "undefined" || !window.visualViewport) return;
   const vv = window.visualViewport;
   const offset = window.innerHeight - vv.offsetTop - vv.height;
   keyboardOffset.value = Math.max(0, Math.round(offset));
+}
+
+/**
+ * Called immediately when the search input receives focus (before the keyboard
+ * animation finishes).  Forces a visualViewport recalculation so the overlay
+ * rises as early as possible and doesn't wait for the resize event.
+ */
+function onSearchFocus() {
+  onViewportResize();
+}
+
+/** Reset the offset when the input loses focus — the keyboard is dismissing. */
+function onSearchBlur() {
+  keyboardOffset.value = 0;
 }
 
 // iOS Safari can scroll the layout viewport when an input is focused, shifting
@@ -185,6 +212,8 @@ onUnmounted(() => {
           view-mode="map"
           @filter-click="filterVisible = !filterVisible"
           @view-change="(view) => view === 'list' && router.push('/project/')"
+          @focus="onSearchFocus"
+          @blur="onSearchBlur"
         />
       </div>
       
@@ -328,6 +357,8 @@ onUnmounted(() => {
       max-height: 100dvh;
       padding: 0.75rem;
       padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+      // Smooth slide up/down with the keyboard
+      transition: bottom 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .toolbar-section {

@@ -12,6 +12,8 @@
         autocomplete="off"
         class="search-input"
         @keydown.escape="$emit('escape')"
+        @focus="$emit('focus')"
+        @blur="$emit('blur')"
       />
 
       <!-- View toggle: Map / List -->
@@ -94,6 +96,8 @@ interface Emits {
   (e: "filter-click"): void;
   (e: "state-change", value: ProjectState): void;
   (e: "view-change", view: "map" | "list"): void;
+  (e: "focus"): void;
+  (e: "blur"): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
