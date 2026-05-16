@@ -138,17 +138,11 @@ function onViewportResize() {
   keyboardOffset.value = Math.max(0, Math.round(offset));
 }
 
-// iOS Safari scrolls the body when the virtual keyboard opens, shifting
-// fixed-position elements.  Cancel the scroll as soon as it happens.
+// iOS Safari can scroll the layout viewport when an input is focused, shifting
+// fixed-position elements.  Reset scroll position immediately when this happens.
 function onViewportScroll() {
   window.scrollTo(0, 0);
 }
-
-// Saved values restored on unmount (mobile only)
-let savedBodyOverflow = "";
-let savedBodyPosition = "";
-let savedBodyWidth = "";
-let savedBodyTop = "";
 
 // Evaluated once at setup time; mobile state doesn't change during lifecycle
 const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
@@ -160,17 +154,6 @@ onMounted(() => {
       window.visualViewport.addEventListener("scroll", onViewportScroll);
     }
   }
-  // Lock body scroll on mobile to prevent iOS Safari from shifting fixed elements
-  if (isMobile) {
-    savedBodyOverflow = document.body.style.overflow;
-    savedBodyPosition = document.body.style.position;
-    savedBodyWidth = document.body.style.width;
-    savedBodyTop = document.body.style.top;
-    document.body.style.overflow = "hidden";
-    document.body.style.position = "fixed";
-    document.body.style.width = "100%";
-    document.body.style.top = "0";
-  }
 });
 onUnmounted(() => {
   if (window.visualViewport) {
@@ -178,12 +161,6 @@ onUnmounted(() => {
     if (isMobile) {
       window.visualViewport.removeEventListener("scroll", onViewportScroll);
     }
-  }
-  if (isMobile) {
-    document.body.style.overflow = savedBodyOverflow;
-    document.body.style.position = savedBodyPosition;
-    document.body.style.width = savedBodyWidth;
-    document.body.style.top = savedBodyTop;
   }
 });
 </script>

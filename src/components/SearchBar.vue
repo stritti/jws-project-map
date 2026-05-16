@@ -193,6 +193,10 @@ defineExpose({
   border: none;
   padding: 0.25rem 0.5rem;
   font-size: var(--font-size-body-md);
+  // iOS Safari auto-zooms any input with font-size < 16px; force 16px on mobile
+  @media (max-width: 767.98px) {
+    font-size: 1rem;
+  }
   color: var(--color-on-surface);
   
   &:focus {
