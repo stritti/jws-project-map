@@ -239,6 +239,13 @@ defineExpose({
   font-size: 1rem;
   line-height: 1;
 
+  // Touch-friendly minimum 44×44 px on mobile
+  @media (max-width: 767.98px) {
+    width: 44px;
+    height: 44px;
+    font-size: 1.25rem;
+  }
+
   &:hover {
     color: var(--color-secondary, #3d5e9e);
     background: rgba(60, 93, 157, 0.06);

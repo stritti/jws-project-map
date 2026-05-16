@@ -152,12 +152,22 @@ function onViewportResize() {
 }
 
 /**
- * Called immediately when the search input receives focus (before the keyboard
- * animation finishes).  Forces a visualViewport recalculation so the overlay
- * rises as early as possible and doesn't wait for the resize event.
+ * Called immediately when the search input receives focus — BEFORE the keyboard
+ * animation finishes and BEFORE visualViewport.resize fires.
+ *
+ * At this point visualViewport.height hasn't changed yet, so onViewportResize()
+ * would return 0.  Instead we use an estimated keyboard height (~40 % of the
+ * viewport).  The visualViewport.resize listener will refine it to the exact
+ * value within a few frames, and the CSS transition makes the correction
+ * imperceptible.
  */
 function onSearchFocus() {
-  onViewportResize();
+  if (window.visualViewport) {
+    // The keyboard hasn't shrunk vv.height yet, but we know it will.
+    // ~40 % of window height is a good ballpark on most devices
+    // (ranges from 30 % on tablets to 50 % on phones).
+    keyboardOffset.value = Math.round(window.innerHeight * 0.4);
+  }
 }
 
 /** Reset the offset when the input loses focus — the keyboard is dismissing. */
