@@ -8,7 +8,7 @@
     title-class="w-100"
     body-class="p-0"
     @shown="onShown"
-    @hidden="reset()"
+    @hidden="onHidden"
   >
     <template #title>
       <SearchBar
@@ -96,6 +96,11 @@ import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 
 const { t } = useI18n();
+
+const emit = defineEmits<{
+  (e: "hidden"): void;
+}>();
+
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import type { Project } from "@/interfaces/Project";
 import { useProjectSearch } from "@/composables/useProjectSearch";
@@ -119,6 +124,11 @@ function show() {
 
 function hide() {
   modalRef.value?.hide();
+}
+
+function onHidden() {
+  reset();
+  emit("hidden");
 }
 
 async function onShown() {
