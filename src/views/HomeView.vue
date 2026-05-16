@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref, computed } from "vue";
+import { defineAsyncComponent, ref, computed, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
@@ -123,6 +123,30 @@ function handleProjectClick(projectId: number) {
 // Load categories and countries
 categoryStore.load();
 countryStore.load();
+
+// Keep the search bar above the virtual keyboard on mobile.
+// Uses the visualViewport API: when the keyboard opens the visual viewport
+// shrinks, so we calculate its offset from the window bottom and apply it
+// as an inline `bottom` style on the search overlay.  The map and heading
+// are inside a `position:fixed` container (see CSS below) and are therefore
+// unaffected by the viewport resize.
+const keyboardOffset = ref(0);
+function onViewportResize() {
+  if (typeof window === "undefined" || !window.visualViewport) return;
+  const vv = window.visualViewport;
+  const offset = window.innerHeight - vv.offsetTop - vv.height;
+  keyboardOffset.value = Math.max(0, Math.round(offset));
+}
+onMounted(() => {
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", onViewportResize);
+  }
+});
+onUnmounted(() => {
+  if (window.visualViewport) {
+    window.visualViewport.removeEventListener("resize", onViewportResize);
+  }
+});
 </script>
 
 <template>
@@ -130,7 +154,10 @@ countryStore.load();
     <h1>{{ t("app.title") }}</h1>
     
     <!-- Search bar overlay with floating filter -->
-    <div class="search-overlay">
+    <div
+      class="search-overlay"
+      :style="keyboardOffset > 0 ? { bottom: keyboardOffset + 'px', paddingBottom: '0.75rem' } : {}"
+    >
       <div class="toolbar-section">
         <SearchBar
           v-model="searchQuery"
@@ -262,6 +289,16 @@ countryStore.load();
   // The filter panel fills the space between search bar and viewport top,
   // adapting dynamically when the keyboard opens (via 100dvh).
   @media (max-width: 767.98px) {
+    // Pin the home container to the layout viewport so the map and heading
+    // are never resized or repositioned when the virtual keyboard appears.
+    // The .search-overlay uses position:fixed and its `bottom` is updated
+    // via JavaScript (visualViewport API) to stay above the keyboard.
+    & {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+    }
+
     .search-overlay {
       position: fixed;
       bottom: 0;
