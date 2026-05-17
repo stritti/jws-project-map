@@ -218,16 +218,16 @@ function isActive(item: NavItem): boolean {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: none;
+  border: 2px solid transparent;
   background: transparent;
   cursor: pointer;
   padding: 0;
   transition: all 0.2s ease;
-  opacity: 0.45;
-  filter: grayscale(0.5);
+  opacity: 0.4;
+  filter: grayscale(0.6);
 
   &:hover {
-    opacity: 0.8;
+    opacity: 0.85;
     filter: grayscale(0);
     background: rgba(60, 93, 157, 0.1);
   }
@@ -235,8 +235,10 @@ function isActive(item: NavItem): boolean {
   &.active {
     opacity: 1;
     filter: grayscale(0);
-    background: var(--color-secondary, #3d5e9e);
-    box-shadow: 0 0 0 2px #fff;
+    border-color: var(--color-secondary, #3d5e9e);
+    background: rgba(61, 94, 158, 0.12);
+    box-shadow: 0 0 0 2px rgba(61, 94, 158, 0.25);
+    transform: scale(1.15);
   }
 
   :deep(.fi) {
