@@ -176,6 +176,21 @@ import { useI18n } from "vue-i18n";
 
 import "leaflet/dist/leaflet.css";
 
+const TILE_LAYER_CONFIG = {
+  satellite: {
+    name: "Satellite",
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    attribution:
+      "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+  },
+  osm: {
+    name: "OpenStreetMap",
+    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  },
+} as const;
+
 const loadingStore = useLoadingStore();
 const categoryStore = useCategoryStore();
 const projectStore = useProjectStore();
@@ -286,21 +301,7 @@ const projectsPlanned = computed(() =>
   locations.value.filter((p) => p.state === "planned"),
 );
 
-const activeBaseLayer = computed(() =>
-  props.baseLayer === "satellite"
-    ? {
-        name: "Satellite",
-        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-        attribution:
-          "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
-      }
-    : {
-        name: "OpenStreetMap",
-        url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      },
-);
+const activeBaseLayer = computed(() => TILE_LAYER_CONFIG[props.baseLayer]);
 
 const layerLabelProjectsFinished = computed(() =>
   t("map.layerFinished", { count: projectsFinished.value.length }),
@@ -442,13 +443,12 @@ const CLUSTER_ICON_MD = 10;
 
 const getDominantState = (members: Project[]) => {
   const stateCount = new Map<string, number>();
-  for (const member of members) {
-    const state = member.state ?? "unknown";
-    stateCount.set(state, (stateCount.get(state) ?? 0) + 1);
-  }
   let dominantState = "unknown";
   let maxCount = 0;
-  for (const [state, count] of stateCount.entries()) {
+  for (const member of members) {
+    const state = member.state ?? "unknown";
+    const count = (stateCount.get(state) ?? 0) + 1;
+    stateCount.set(state, count);
     if (count > maxCount) {
       dominantState = state;
       maxCount = count;
@@ -563,7 +563,7 @@ const getMarkerIcon = (point: RenderPoint) => {
       return MARKER_ICON_CACHE.get(iconKey)!;
     }
     const clusterIcon = L.divIcon({
-      className: `cluster-marker cluster-marker-${clusterBucket} marker-state-${point.state.toLowerCase().replace(" ", "-")}`,
+      className: `cluster-marker cluster-marker-${clusterBucket} marker-state-${point.state.toLowerCase().replace(/\s+/g, "-")}`,
       html: `<span>${point.count}</span>`,
       iconSize: [36, 36],
       iconAnchor: [18, 18],
@@ -601,6 +601,7 @@ const bindMapEvents = (leafletMap: L.Map) => {
     boundMap.off("zoomend", onMapZoomEnd);
     boundMap.off("moveend", onMapMoveEnd);
     mapEventHandlersBound = false;
+    boundMap = null;
   }
   boundMap = leafletMap;
   leafletMap.on("zoomend", onMapZoomEnd);
@@ -614,6 +615,7 @@ const onMapZoomEnd = () => {
   if (!map.value?.leafletObject) return;
   if (zoomTimeout) {
     clearTimeout(zoomTimeout);
+    zoomTimeout = null;
   }
   zoomTimeout = window.setTimeout(() => {
     if (!map.value?.leafletObject) return;
@@ -641,6 +643,7 @@ watch(
 onBeforeUnmount(() => {
   if (zoomTimeout) {
     clearTimeout(zoomTimeout);
+    zoomTimeout = null;
   }
 
   if (updateMaxBoundsTimeout.value) {
@@ -651,6 +654,8 @@ onBeforeUnmount(() => {
     boundMap.off("zoomend", onMapZoomEnd);
     boundMap.off("moveend", onMapMoveEnd);
   }
+  mapEventHandlersBound = false;
+  boundMap = null;
 });
 
 // Optimierte Pin-URL-Funktion mit Memoization

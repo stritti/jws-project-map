@@ -267,6 +267,10 @@ onMounted(() => {
     showMiniMap.value = true;
     return;
   }
+  if (!miniMapSentinel.value) {
+    showMiniMap.value = true;
+    return;
+  }
   miniMapObserver = new IntersectionObserver(
     (entries) => {
       const [entry] = entries;
@@ -278,9 +282,7 @@ onMounted(() => {
     },
     { rootMargin: "200px 0px" },
   );
-  if (miniMapSentinel.value) {
-    miniMapObserver.observe(miniMapSentinel.value);
-  }
+  miniMapObserver.observe(miniMapSentinel.value);
 });
 
 onBeforeUnmount(() => {
