@@ -15,7 +15,7 @@
         ref="map"
         v-model:zoom="zoom"
         class="map"
-        :crs="L.CRS.EPSG3857"
+        crs="EPSG:4326"
         :min-zoom="4"
         :max-zoom="17"
         :bounds="bounds"
@@ -301,12 +301,8 @@ const projectsPlanned = computed(() =>
   locations.value.filter((p) => p.state === "planned"),
 );
 
-const normalizedBaseLayer = computed<keyof typeof TILE_LAYER_CONFIG>(() =>
-  props.baseLayer === "satellite" ? "satellite" : "osm",
-);
-
 const activeBaseLayer = computed(
-  () => TILE_LAYER_CONFIG[normalizedBaseLayer.value] ?? TILE_LAYER_CONFIG.osm,
+  () => TILE_LAYER_CONFIG[props.baseLayer],
 );
 
 const layerLabelProjectsFinished = computed(() =>
