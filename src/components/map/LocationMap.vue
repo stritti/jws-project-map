@@ -1,5 +1,5 @@
 <template>
-  <div class="map">
+  <div class="map" tabindex="0" ref="mapContainerRef" role="region" :aria-label="t('a11y.skipToMap')" @focus="onMapFocus">
     <b-overlay :show="isLoadingMap" fixed style="height: 100vh" :opacity="0.5">
       <!-- Skeleton loader for map -->
       <div v-if="!mapReady" class="map-skeleton">
@@ -59,6 +59,7 @@
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
+            :title="loc.name"
             @click="onMarkerClick(loc)"
           >
             <l-icon
@@ -96,6 +97,7 @@
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
+            :title="loc.name"
             @click="onMarkerClick(loc)"
           >
             <l-icon
@@ -128,6 +130,7 @@
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
+            :title="loc.name"
             @click="onMarkerClick(loc)"
           >
             <l-icon
@@ -189,6 +192,7 @@ import ProjectDetails from "../../components/project/ProjectDetails.vue";
 import projectService from "@/features/projects/services/project.service";
 import type { Project } from "@/interfaces/Project";
 import { useI18n } from "vue-i18n";
+import { announceToScreenReader } from "@/composables/useAccessibility";
 
 import "leaflet/dist/leaflet.css";
 
@@ -272,6 +276,12 @@ const mapOptions = ref({
   updateWhenIdle: true,
 });
 const map = ref<any>(null);
+const mapContainerRef = ref<HTMLElement | null>(null);
+
+// Announce map keyboard instructions when it receives focus
+function onMapFocus() {
+  announceToScreenReader(t("a11y.mapInstructions"));
+}
 
 // Compute project lists from the filtered locations
 const projectsFinished = computed(() =>
@@ -343,6 +353,16 @@ const mapLoaded = () => {
       // Optimiere DOM-Rendering
       map.value.leafletObject._container.style.willChange = "transform";
       map.value.leafletObject._container.style.backfaceVisibility = "hidden";
+    }
+
+    // Add aria-labels to zoom controls for accessibility
+    const zoomControl = map.value.leafletObject.zoomControl;
+    if (zoomControl?.getContainer) {
+      const container = zoomControl.getContainer();
+      const zoomIn = container?.querySelector(".leaflet-control-zoom-in");
+      const zoomOut = container?.querySelector(".leaflet-control-zoom-out");
+      if (zoomIn) zoomIn.setAttribute("aria-label", t("a11y.zoomIn"));
+      if (zoomOut) zoomOut.setAttribute("aria-label", t("a11y.zoomOut"));
     }
 
     // Optimiere Leaflet-Events
@@ -686,6 +706,12 @@ const updateMaxBounds = () => {
   /* Aktiviere Hardware-Beschleunigung für die Karte */
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
+}
+
+.map:focus-visible {
+  outline: 3px solid #3d5e9e;
+  outline-offset: -3px;
+  z-index: 5;
 }
 
 .map-skeleton {

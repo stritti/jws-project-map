@@ -136,6 +136,15 @@ countryStore.load();
 // ────────────────────────────────────────────────────────────────────────
 
 const isSearchActive = ref(false);
+const mapContainerRef = ref<HTMLElement | null>(null);
+
+function focusMap() {
+  // Find the map container and focus it
+  const mapEl = document.querySelector(".project-map .map") as HTMLElement;
+  if (mapEl) {
+    mapEl.focus();
+  }
+}
 
 function onSearchFocus() {
   isSearchActive.value = true;
@@ -181,6 +190,11 @@ onUnmounted(() => {
 <template>
   <div class="home">
     <h1>{{ t("app.title") }}</h1>
+    
+    <!-- Skip to map link for keyboard users -->
+    <a href="#project-map" class="skip-to-map" @click.prevent="focusMap">
+      {{ t("a11y.skipToMap") }}
+    </a>
     
     <!-- Search bar overlay with floating filter -->
     <div
@@ -238,6 +252,11 @@ onUnmounted(() => {
         </b-row>
       </FilterPanel>
       
+      <!-- Screen reader announcement for search result count -->
+      <div class="sr-only" role="status" aria-live="polite">
+        {{ searchResults.length > 0 ? t("a11y.searchResultsAnnouncement", { count: searchResults.length }) : (searchQuery.trim().length >= 2 ? t("a11y.noResultsAnnouncement") : "") }}
+      </div>
+      
       <!-- Search results dropdown -->
       <div v-if="searchResults.length > 0 && searchQuery.trim().length >= 2" class="search-results-dropdown" role="listbox" :aria-label="t('search.resultsLabel')">
         <div
@@ -262,7 +281,7 @@ onUnmounted(() => {
       </div>
     </div>
     
-    <div class="project-map">
+    <div class="project-map" id="project-map">
       <!-- Map and data load in parallel: map tiles show immediately, pins appear when data is ready -->
       <Suspense>
         <template #default>
@@ -285,6 +304,7 @@ onUnmounted(() => {
 @use "@/assets/design-tokens.scss" as *;
 
 .home {
+  // Skip-to-map link inherits from a11y.scss .skip-to-map class
   h1 {
     top: env(safe-area-inset-top);
     right: env(safe-area-inset-right);

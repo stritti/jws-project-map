@@ -1,5 +1,5 @@
 <template>
-  <div class="filter-dropdown">
+  <div class="filter-dropdown" role="complementary" :aria-label="t('a11y.filterPanel')">
     <button class="filter-close" :aria-label="t('common.close')" @click="emit('close')">
       <span aria-hidden="true">&times;</span>
     </button>
@@ -8,51 +8,57 @@
         <b-row>
           <b-col md="4">
             <div class="filter-group mb-4 mb-md-0">
-              <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                <IBiCheck2Circle /> {{ t("search.filterGroups.status") }}
-              </h6>
-              <b-form-checkbox-group
-                v-model="stateFilter"
-                name="stateFilter"
-                stack
-                class="custom-check-group"
-              >
-                <b-form-checkbox v-for="opt in stateOptions" :key="opt.value" :value="opt.value">
-                  {{ opt.text }}
-                </b-form-checkbox>
-              </b-form-checkbox-group>
+              <fieldset class="filter-fieldset">
+                <legend class="filter-group-title mb-3 d-flex align-items-center gap-2">
+                  <IBiCheck2Circle /> {{ t("search.filterGroups.status") }}
+                </legend>
+                <b-form-checkbox-group
+                  v-model="stateFilter"
+                  name="stateFilter"
+                  stack
+                  class="custom-check-group"
+                >
+                  <b-form-checkbox v-for="opt in stateOptions" :key="opt.value" :value="opt.value">
+                    {{ opt.text }}
+                  </b-form-checkbox>
+                </b-form-checkbox-group>
+              </fieldset>
             </div>
           </b-col>
           <b-col md="4">
             <div class="filter-group mb-4 mb-md-0">
-              <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                <IBiTag /> {{ t("search.filterGroups.categories") }}
-              </h6>
-              <b-form-checkbox-group
-                v-model="categoryFilter"
-                stack
-                class="custom-check-group scrollable-group"
-              >
-                <b-form-checkbox v-for="cat in categoryList" :key="cat.value" :value="cat.value">
-                  {{ cat.text }}
-                </b-form-checkbox>
-              </b-form-checkbox-group>
+              <fieldset class="filter-fieldset">
+                <legend class="filter-group-title mb-3 d-flex align-items-center gap-2">
+                  <IBiTag /> {{ t("search.filterGroups.categories") }}
+                </legend>
+                <b-form-checkbox-group
+                  v-model="categoryFilter"
+                  stack
+                  class="custom-check-group scrollable-group"
+                >
+                  <b-form-checkbox v-for="cat in categoryList" :key="cat.value" :value="cat.value">
+                    {{ cat.text }}
+                  </b-form-checkbox>
+                </b-form-checkbox-group>
+              </fieldset>
             </div>
           </b-col>
           <b-col md="4">
             <div class="filter-group">
-              <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                <IBiGeoAlt /> {{ t("search.filterGroups.countries") }}
-              </h6>
-              <b-form-checkbox-group
-                v-model="countryFilter"
-                stack
-                class="custom-check-group scrollable-group"
-              >
-                <b-form-checkbox v-for="c in countryList" :key="c.value" :value="c.value">
-                  {{ c.text }}
-                </b-form-checkbox>
-              </b-form-checkbox-group>
+              <fieldset class="filter-fieldset">
+                <legend class="filter-group-title mb-3 d-flex align-items-center gap-2">
+                  <IBiGeoAlt /> {{ t("search.filterGroups.countries") }}
+                </legend>
+                <b-form-checkbox-group
+                  v-model="countryFilter"
+                  stack
+                  class="custom-check-group scrollable-group"
+                >
+                  <b-form-checkbox v-for="c in countryList" :key="c.value" :value="c.value">
+                    {{ c.text }}
+                  </b-form-checkbox>
+                </b-form-checkbox-group>
+              </fieldset>
             </div>
           </b-col>
         </b-row>
@@ -154,6 +160,25 @@ const countryList = computed(() =>
   &::-webkit-scrollbar-thumb {
     background: var(--color-outline-variant, #c5c6cd);
     border-radius: 2px;
+  }
+}
+
+/* Fieldset/legend styling — matches previous h6 appearance */
+.filter-fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+
+  legend {
+    float: none;
+    width: auto;
+    padding: 0;
+    color: var(--color-secondary);
+    font-weight: var(--font-weight-label-md);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: var(--font-size-label-sm);
+    margin-bottom: 0.75rem;
   }
 }
 

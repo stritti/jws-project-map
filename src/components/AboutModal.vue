@@ -9,6 +9,7 @@
     header-class="border-0 pb-0"
     body-class="pt-2"
     content-class="rounded-4 border-0 shadow-lg"
+    :header-close-label="t('nav.close')"
   >
     <div class="about-content">
       <!-- Description -->

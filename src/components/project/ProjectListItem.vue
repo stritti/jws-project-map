@@ -14,7 +14,7 @@
     :class="{ 'external-link': href || (to && isIFrame) }"
     @click="onCardClick"
   >
-    <b-card class="project-list-item" no-body>
+      <b-card class="project-list-item" no-body :aria-label="cardAriaLabel">
       <b-row no-gutters class="g-0">
         <!-- Image Section - Left side -->
         <b-col cols="5" class="image-col">
@@ -137,6 +137,14 @@ export default defineComponent({
       } else {
         return "/img/placeholder.png";
       }
+    },
+    cardAriaLabel() {
+      const parts = [this.project.name];
+      if (this.stateLabel) parts.push(this.stateLabel);
+      if (this.project.country && this.project.country.fields?.Name) {
+        parts.push(this.project.country.fields.Name);
+      }
+      return parts.join(", ");
     },
     stateLabel() {
       const labels: Record<string, string> = {

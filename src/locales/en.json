@@ -81,5 +81,30 @@
     "layerFinished": "Projects: finished ({count})",
     "layerUnderConstruction": "Projects: under construction ({count})",
     "layerPlanned": "Projects: planned ({count})"
+  },
+  "a11y": {
+    "skipToContent": "Skip to main content",
+    "skipToMap": "Skip to map",
+    "mapInstructions": "Map: Use arrow keys to pan, plus and minus to zoom. Or press Tab to skip to the project list.",
+    "searchResultsAnnouncement": "{count} results found",
+    "noResultsAnnouncement": "No results found",
+    "projectsLoaded": "Projects loaded",
+    "close": "Close",
+    "closeSearch": "Close search",
+    "closeGallery": "Close gallery",
+    "closeAbout": "Close about dialog",
+    "imageNotAvailable": "Image not available",
+    "imagePosition": "Image {current} of {total}",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "filterResultsAnnouncement": "{count} results found",
+    "mainNavigation": "Main navigation",
+    "languageSelector": "Language selector",
+    "searchResultsLabel": "Search results",
+    "searchInput": "Search projects",
+    "filterPanel": "Filter settings",
+    "statusFilter": "Status",
+    "categoriesFilter": "Categories",
+    "countriesFilter": "Countries"
   }
 }

@@ -27,9 +27,9 @@
           </div>
         </template>
 
-        <h3 class="my-3 text-muted fs-5">
+        <h2 class="my-3 text-muted fs-5">
           {{ t("search.stats", { total: projectCount, ub: projectsUnderConstructionCount, pl: projectsPlannedCount }) }}
-        </h3>
+        </h2>
 
         <!-- Filter overlay container – sticky, filter overlays the list -->
         <div class="filter-overlay-container">
@@ -58,6 +58,10 @@
         <div class="mb-4 text-muted small" v-if="filteredProjectList.length !== finalProjectList.length || activeFiltersCount > 0 || searchQuery">
           {{ t("search.resultsCount", { count: finalProjectList.length }) }}
         </div>
+        <!-- Screen reader announcement for filter result count -->
+        <div class="sr-only" role="status" aria-live="polite">
+          {{ t("a11y.filterResultsAnnouncement", { count: finalProjectList.length }) }}
+        </div>
       </b-placeholder-wrapper>
       <b-overlay :show="showLoadingSpinner" fixed :opacity="0.5">
         <b-row class="my-3 g-4">
@@ -79,7 +83,7 @@
           <div class="display-1 text-muted opacity-25 mb-4">
             <IBiEmojiDizzy />
           </div>
-          <h3>{{ t("search.noResultsTitle") }}</h3>
+          <h2>{{ t("search.noResultsTitle") }}</h2>
           <p class="text-muted">{{ t("search.noResultsHint") }}</p>
           <b-button @click="clearAllFilters" variant="outline-primary" class="mt-3 rounded-pill px-4">
             {{ t("search.resetFilters") }}

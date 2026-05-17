@@ -12,6 +12,7 @@ import IBiListUl from "~icons/bi/list-ul";
 import IBiListCheck from "~icons/bi/list-check";
 import IBiInfoCircle from "~icons/bi/info-circle";
 import AboutModal from "./AboutModal.vue";
+import { useFocusRestore } from "@/composables/useAccessibility";
 
 const route = useRoute();
 const currentLocale = computed(() => i18n.global.locale as unknown as string);
@@ -23,6 +24,12 @@ function switchLocale(locale: Locale) {
 }
 
 const aboutModalRef = ref<InstanceType<typeof AboutModal> | null>(null);
+const { setTrigger, restoreFocus } = useFocusRestore();
+
+function openAbout() {
+  setTrigger();
+  aboutModalRef.value?.show();
+}
 
 const languages: { code: Locale; flag: string; label: string }[] = [
   { code: "de", flag: "de", label: "Deutsch" },
@@ -52,7 +59,8 @@ function isActive(item: NavItem): boolean {
 <template>
   <nav
     class="main-menu"
-    aria-label="Main navigation"
+    role="navigation"
+    :aria-label="t('a11y.mainNavigation')"
   >
     <!-- Navigation items -->
     <div class="nav-items">
@@ -74,15 +82,15 @@ function isActive(item: NavItem): boolean {
       class="about-btn"
       :aria-label="t('nav.about')"
       :title="t('nav.about')"
-      @click="aboutModalRef?.show()"
+      @click="openAbout"
     >
       <IBiInfoCircle aria-hidden="true" />
     </button>
 
-    <AboutModal ref="aboutModalRef" />
+    <AboutModal ref="aboutModalRef" @hidden="restoreFocus" />
 
     <!-- Language switcher -->
-    <div class="lang-section" role="group" aria-label="Language selector">
+    <div class="lang-section" role="group" :aria-label="t('a11y.languageSelector')">
       <button
         v-for="lang in languages"
         :key="lang.code"

@@ -8,7 +8,7 @@
         v-model="query"
         type="search"
         :placeholder="resolvedPlaceholder"
-        :aria-label="resolvedPlaceholder"
+        :aria-label="t('a11y.searchInput')"
         autocomplete="off"
         class="search-input"
         @keydown.escape="$emit('escape')"
