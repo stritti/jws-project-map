@@ -236,9 +236,9 @@ function isActive(item: NavItem): boolean {
     opacity: 1;
     filter: grayscale(0);
     border-color: var(--color-secondary, #3d5e9e);
-    background: rgba(61, 94, 158, 0.12);
-    box-shadow: 0 0 0 2px rgba(61, 94, 158, 0.25);
-    transform: scale(1.15);
+    background: transparent;
+    box-shadow: 0 0 0 2px rgba(61, 94, 158, 0.35);
+    transform: scale(1.2);
   }
 
   :deep(.fi) {
