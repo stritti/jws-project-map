@@ -3,7 +3,7 @@
     <div class="project-list">
       <h1>{{ t("app.title") }}</h1>
 
-      <b-placeholder-wrapper :loading="showLoadingSpinner">
+      <b-placeholder-wrapper :loading="isDataLoading">
         <template #loading>
           <div class="skeleton-grid">
             <b-row class="g-4">
@@ -59,7 +59,7 @@
           {{ t("search.resultsCount", { count: finalProjectList.length }) }}
         </div>
       </b-placeholder-wrapper>
-      <b-overlay :show="showLoadingSpinner" fixed :opacity="0.5">
+      <b-overlay :show="isDataLoading" fixed :opacity="0.5">
         <b-row class="my-3 g-4">
           <b-col
             v-for="project in finalProjectList"
@@ -115,6 +115,10 @@ const filterStore = useFilterStore();
 const { showLoadingSpinner } = storeToRefs(loadingStore);
 const { filteredList: filteredProjectList, projects } =
   storeToRefs(projectStore);
+
+// Show skeleton only while no data has arrived yet; once projects are available
+// images can load asynchronously without blocking the list.
+const isDataLoading = computed(() => showLoadingSpinner.value && projects.value.length === 0);
 const { categories } = storeToRefs(categoryStore);
 const { countries } = storeToRefs(countryStore);
 
@@ -286,13 +290,15 @@ onBeforeMount(() => {
 
   .filter-overlay-container {
     position: fixed;
-    bottom: calc(3rem + env(safe-area-inset-bottom, 0px));
-    left: 0.75rem;
-    right: 0.75rem;
+    bottom: 0;
+    left: 0;
+    right: 0;
     z-index: 1000;
     display: flex;
     flex-direction: column-reverse;
     gap: 0.75rem;
+    padding: 0.75rem;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
 
     &::before {
       display: none;

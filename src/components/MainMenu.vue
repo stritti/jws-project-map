@@ -2,10 +2,10 @@
 import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
-import { i18n, setLocale, type Locale } from "@/plugins/i18n";
+import { setLocale, type Locale } from "@/plugins/i18n";
 import { useProjectStore } from "@/features/projects/stores/project.store";
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 import IBiMap from "~icons/bi/map";
 import IBiMapFill from "~icons/bi/map-fill";
 import IBiListUl from "~icons/bi/list-ul";
@@ -14,10 +14,9 @@ import IBiInfoCircle from "~icons/bi/info-circle";
 import AboutModal from "./AboutModal.vue";
 
 const route = useRoute();
-const currentLocale = computed(() => i18n.global.locale as unknown as string);
 
-function switchLocale(locale: Locale) {
-  setLocale(locale);
+function switchLocale(lang: Locale) {
+  setLocale(lang);
   // Reload project data so localized fields (name, notes) are refetched (Codex #P2)
   useProjectStore().load(false).catch(() => {});
 }
@@ -87,10 +86,10 @@ function isActive(item: NavItem): boolean {
         v-for="lang in languages"
         :key="lang.code"
         class="lang-btn"
-        :class="{ active: currentLocale === lang.code }"
+        :class="{ active: locale === lang.code }"
         :lang="lang.code"
         :aria-label="lang.label"
-        :aria-current="currentLocale === lang.code ? 'true' : undefined"
+        :aria-current="locale === lang.code ? 'true' : undefined"
         @click="switchLocale(lang.code)"
       >
         <span :class="`fi fis fi-${lang.flag}`" aria-hidden="true" />
@@ -218,16 +217,16 @@ function isActive(item: NavItem): boolean {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: none;
+  border: 2px solid transparent;
   background: transparent;
   cursor: pointer;
   padding: 0;
   transition: all 0.2s ease;
-  opacity: 0.45;
-  filter: grayscale(0.5);
+  opacity: 0.4;
+  filter: grayscale(0.6);
 
   &:hover {
-    opacity: 0.8;
+    opacity: 0.85;
     filter: grayscale(0);
     background: rgba(60, 93, 157, 0.1);
   }
@@ -235,8 +234,7 @@ function isActive(item: NavItem): boolean {
   &.active {
     opacity: 1;
     filter: grayscale(0);
-    background: var(--color-secondary, #3d5e9e);
-    box-shadow: 0 0 0 2px #fff;
+    background: rgba(60, 93, 157, 0.1);
   }
 
   :deep(.fi) {
