@@ -14,7 +14,7 @@ import VueDevTools from "vite-plugin-vue-devtools";
 export default defineConfig(({ mode }) => ({
   plugins: [
     vue(),
-    mode === "development" && VueDevTools(),
+    mode === "development" ? VueDevTools() : undefined,
     Components({
       resolvers: [BootstrapVueNextResolver(), IconsResolve()],
       dts: true,
