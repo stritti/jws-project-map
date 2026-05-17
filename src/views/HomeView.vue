@@ -120,10 +120,6 @@ function handleProjectClick(projectId: number) {
   navigateToProject(projectId);
 }
 
-// Load categories and countries
-categoryStore.load();
-countryStore.load();
-
 // ── Keep search bar visible on mobile when the keyboard opens ──────────
 // On mobile the .home container is position:fixed;inset:0 so the map and
 // heading NEVER move.  The search overlay normally floats at bottom:0 but

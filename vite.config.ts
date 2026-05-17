@@ -11,10 +11,10 @@ import version from "vite-plugin-package-version";
 import VueDevTools from "vite-plugin-vue-devtools";
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     vue(),
-    VueDevTools(),
+    mode === "development" && VueDevTools(),
     Components({
       resolvers: [BootstrapVueNextResolver(), IconsResolve()],
       dts: true,
@@ -83,4 +83,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));
