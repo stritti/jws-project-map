@@ -301,7 +301,13 @@ const projectsPlanned = computed(() =>
   locations.value.filter((p) => p.state === "planned"),
 );
 
-const activeBaseLayer = computed(() => TILE_LAYER_CONFIG[props.baseLayer]);
+const normalizedBaseLayer = computed<keyof typeof TILE_LAYER_CONFIG>(() =>
+  props.baseLayer === "satellite" ? "satellite" : "osm",
+);
+
+const activeBaseLayer = computed(
+  () => TILE_LAYER_CONFIG[normalizedBaseLayer.value] ?? TILE_LAYER_CONFIG.osm,
+);
 
 const layerLabelProjectsFinished = computed(() =>
   t("map.layerFinished", { count: projectsFinished.value.length }),
