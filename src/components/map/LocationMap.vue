@@ -436,8 +436,30 @@ const currentZoom = ref(5);
 const viewportBounds = shallowRef<L.LatLngBounds | null>(null);
 
 const CLUSTER_ZOOM_THRESHOLD = 9;
+const CLUSTER_ICON_XL = 50;
+const CLUSTER_ICON_LG = 20;
+const CLUSTER_ICON_MD = 10;
+
+const getDominantState = (members: Project[]) => {
+  const stateCount = new Map<string, number>();
+  for (const member of members) {
+    const state = member.state ?? "unknown";
+    stateCount.set(state, (stateCount.get(state) ?? 0) + 1);
+  }
+  let dominantState = "unknown";
+  let maxCount = 0;
+  for (const [state, count] of stateCount.entries()) {
+    if (count > maxCount) {
+      dominantState = state;
+      maxCount = count;
+    }
+  }
+  return dominantState;
+};
 
 const getClusterCellSize = (zoomLevel: number) => {
+  // Degree-based grid size used for client-side clustering:
+  // lower zoom => larger cells (more aggregation), higher zoom => finer cells.
   if (zoomLevel <= 5) return 1.2;
   if (zoomLevel <= 6) return 0.8;
   if (zoomLevel <= 7) return 0.45;
@@ -504,7 +526,7 @@ const buildRenderPoints = (projects: Project[]): RenderPoint[] => {
       lng,
       count: members.length,
       members,
-      state: members[0]?.state ?? "unknown",
+      state: getDominantState(members),
     });
   }
 
@@ -529,7 +551,13 @@ let boundMap: L.Map | null = null;
 const getMarkerIcon = (point: RenderPoint) => {
   if (point.type === "cluster") {
     const clusterBucket =
-      point.count >= 50 ? "xl" : point.count >= 20 ? "lg" : point.count >= 10 ? "md" : "sm";
+      point.count >= CLUSTER_ICON_XL
+        ? "xl"
+        : point.count >= CLUSTER_ICON_LG
+          ? "lg"
+          : point.count >= CLUSTER_ICON_MD
+            ? "md"
+            : "sm";
     const iconKey = `cluster:${clusterBucket}:${point.state}`;
     if (MARKER_ICON_CACHE.has(iconKey)) {
       return MARKER_ICON_CACHE.get(iconKey)!;
@@ -572,6 +600,7 @@ const bindMapEvents = (leafletMap: L.Map) => {
   if (boundMap && mapEventHandlersBound) {
     boundMap.off("zoomend", onMapZoomEnd);
     boundMap.off("moveend", onMapMoveEnd);
+    mapEventHandlersBound = false;
   }
   boundMap = leafletMap;
   leafletMap.on("zoomend", onMapZoomEnd);
