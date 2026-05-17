@@ -1,146 +1,111 @@
-# Anweisungen zur Erstellung einer modernen Vue 3 Anwendung
+# JWS Project-Map — Agent Instructions
 
-## Technologie-Stack
+Compact guide for AI agents working in this repository. Only repo-specific facts that are easy to miss or get wrong.
 
-Erstelle eine moderne Single-Page-Application mit folgenden Technologien:
+## Stack
 
-- **Vue 3** (Version 3.4+) mit Composition API
-- **TypeScript** (Version 5.3+)
-- **Vite** als Build-Tool
-- **Vue Router** (Version 4.2+) für das Routing
-- **Pinia** (Version 2.1+) für State Management
-- **Boostrap-vue-next** für das Styling und Komponenten
-- **NocoDB** als Backend-Persistenzlösung
-- **Vitest** für Unit-Tests
-- **Cypress** für E2E-Tests
-- **ESLint** und **Prettier** für Code-Qualität
+| Layer | Choice |
+|---|---|
+| Framework | Vue 3.5 + Composition API + `<script setup>` |
+| Language | TypeScript 5.9 (strict) |
+| Build | Vite 7 |
+| Package manager | **Bun** (lockfile: `bun.lock`) |
+| Router | Vue Router 5 (not v4) |
+| State | Pinia 3 + `pinia-plugin-persistedstate` |
+| UI | Bootstrap 5.3 + BootstrapVueNext 0.44 (auto-imported) |
+| Maps | Leaflet 1.9 + `@vue-leaflet/vue-leaflet` 0.10 |
+| Backend | NocoDB v3 REST API |
+| CSS | SCSS (Bootstrap custom build with `#3d5e9e` primary) |
+| Icons | `unplugin-icons` (Iconify, auto-install) + `flag-icons` |
+| PWA | `vite-plugin-pwa` (auto-update) |
+| Type-check | `vue-tsc --noEmit` (not `tsc`) |
 
-## Projektstruktur
+## Commands (all use `bun`)
 
-Folge dem Feature-basierten Ansatz mit klarer Trennung der Verantwortlichkeiten:
+```sh
+bun install              # install deps
+bun run dev              # dev server
+bun run build            # type-check + build (parallel via npm-run-all)
+bun run build:prod       # build + bundle budget check
+bun run type-check       # vue-tsc --noEmit
+bun run lint             # eslint .
+bun run preview          # vite preview (built output)
+bun run budget           # bundle budget check script
+bun run generate-pwa-assets  # regenerate PWA icons from source image
+bun run mcp              # run the stdio MCP server (for AI tooling)
+```
+
+**Build order matters:** CI runs `bun run lint` → `bun run build` → `bun test`. No test infrastructure exists today — `bun test` is a no-op unless tests are added.
+
+**Performance CI** (`.github/workflows/performance.yml`) uses `npm ci` (not Bun) because `@lhci/cli` is Node-native. Always runs `npm run build:prod` (build + bundle budget).
+
+## Architecture
 
 ```
 src/
-├── assets/              # Statische Assets (Bilder, Fonts, etc.)
-├── components/          # Wiederverwendbare UI-Komponenten
-│   ├── common/          # Allgemeine Komponenten (Button, Input, etc.)
-│   └── features/        # Feature-spezifische Komponenten
-├── composables/         # Wiederverwendbare Composition Functions
-├── config/              # Konfigurationsdateien
-├── features/            # Feature-Module
-│   ├── feature1/
-│   │   ├── components/  # Feature-spezifische Komponenten
-│   │   ├── composables/ # Feature-spezifische Composables
-│   │   ├── services/    # Feature-spezifische Services
-│   │   ├── stores/      # Feature-spezifische Stores
-│   │   ├── types/       # Feature-spezifische Typen
-│   │   └── views/       # Feature-spezifische Views
-│   └── feature2/
-│       └── ...
-├── layouts/             # Layout-Komponenten
-├── router/              # Router-Konfiguration
-├── services/            # Service-Layer für API-Kommunikation
-│   ├── api/             # API-Client und Konfiguration
-│   ├── nocodb/          # NocoDB-spezifische Services
-│   └── models/          # Datenmodelle
-├── stores/              # Pinia Stores
-├── types/               # Globale TypeScript-Typdefinitionen
-├── utils/               # Hilfsfunktionen
-└── views/               # Haupt-Views der Anwendung
+├── App.vue              # Root layout: router-view, MainMenu (bottom-fixed), SiteFooter, SearchModal
+├── main.ts              # Pinia init, store preloading, app mount, shell fade-out
+├── features/projects/   # The only feature module
+│   ├── repositories/    # NocoDB data access (RawProjectRecord)
+│   ├── services/        # Domain service (transform RawProjectRecord → Project interface)
+│   ├── stores/          # Pinia store with persisted state + cache logic
+│   └── types/           # (empty — types in src/interfaces/)
+├── services/            # Shared services
+│   ├── api/http.client.ts   # Axios instance (baseURL + xc-token from env)
+│   ├── nocodb.service.ts    # Generic NocoDB v3 CRUD
+│   ├── category.service.ts
+│   └── country.service.ts
+├── stores/              # Global Pinia stores (category, country, loading, search)
+├── components/          # Shared components (map/, project/*, actions/*, MainMenu, etc.)
+├── composables/         # useWebFrame, useGeoTags, useProjectSearch
+├── interfaces/          # Project, Category, Country, Attachment, LinkedRecord
+├── assets/              # style-config.scss (Bootstrap custom build)
+└── views/               # HomeView, ProjectListView, ProjectDetailView, AboutView
 ```
 
-## Service-Layer
+### Key architectural facts
 
-Implementiere eine klare Trennung zwischen UI und Datenquellen durch eine dedizierte Service-Schicht:
+- **No global Bootstrap component registration.** All Bootstrap components are auto-imported at build time by `unplugin-vue-components` with `BootstrapVueNextResolver`. Import paths are never needed. This generates `components.d.ts` — never edit it manually.
+- **Icons** are auto-imported by `unplugin-icons`. Usage: `<IconBiList />` for Bootstrap Icons, `<IconMdiAccount />` for Material Design Icons, etc. Icons resolve automatically from `@iconify-json/bi` (already installed).
+- **`@` path alias** → `src/` (configured in both Vite and tsconfig).
+- **NocoDB API is v3.** All requests go to `/api/v3/data/{baseId}/{tableId}/records`. The `baseId` is from `VITE_APP_NOCODB_BASE_ID` env var (or passed to constructor). Table IDs (`mdctuswlmsfvi8i`) are hardcoded in the repository layer.
+- **Store preloading in `main.ts`** — `useProjectStore().preloadMapData()`, `useCategoryStore().load()`, `useCountryStore().load()` all fire eagerly before mount. This means stores are populated before any route renders.
+- **`LocationMap` component is lazy-loaded** via `defineAsyncComponent` in `HomeView.vue`. Leaflet stays out of the initial bundle.
+- **Persisted Pinia stores** — `project` store persists `{projects, mapProjects, initialized, lastFetched}` via `pinia-plugin-persistedstate`. The `category` and `country` stores explicitly set `persist: false`.
+- **Two-tier data loading**: Map data (minimal fields: name, coords, category) loads first via `preloadMapData()`. Full project data (notes, links, gallery) loads after via `load()`.
 
-1. **API-Service**: Zentrale Konfiguration für HTTP-Requests mit Axios oder Fetch API
-2. **NocoDB-Service**: Spezifische Implementierung für die NocoDB-Integration
-3. **Domain-Services**: Fachliche Services, die die Business-Logik kapseln
-4. **Repository-Pattern**: Implementiere ein Repository-Pattern für den Datenzugriff
+## Environment variables (`.env.local`)
 
-## Sicherheitsrichtlinien
+```
+VITE_APP_NOCODB_URL=<base-url>
+VITE_APP_NOCODB_TOKEN=<xc-token>
+VITE_APP_NOCODB_BASE_ID=<base-id>
+```
 
-- Implementiere JWT-basierte Authentifizierung
-- Nutze HTTPS für alle API-Kommunikation
-- Validiere alle Benutzereingaben sowohl im Frontend als auch im Backend
-- Implementiere CSRF-Schutz
-- Setze sichere HTTP-Header (Content-Security-Policy, X-XSS-Protection, etc.)
-- Vermeide die Speicherung sensibler Daten im localStorage/sessionStorage
-- Nutze Umgebungsvariablen für sensible Konfigurationen
+These are required at build time. No defaults.
 
-## Architekturprinzipien
+## Code quality
 
-1. **Composition API**: Nutze die Composition API für alle Komponenten
-2. **TypeScript**: Verwende strikte Typisierung für alle Komponenten und Services
-3. **Dependency Injection**: Implementiere ein einfaches DI-System für Services
-4. **Single Responsibility**: Jede Komponente und jeder Service hat eine klare, einzelne Verantwortung
-5. **Testbarkeit**: Schreibe Code, der leicht zu testen ist
-6. **Lazy Loading**: Implementiere Lazy Loading für Routes und Komponenten
-7. **Atomic Design**: Folge dem Atomic Design-Prinzip für UI-Komponenten
+- **ESLint** — flat config (`eslint.config.js`), TypeScript + Vue plugins. Key rule overrides: `vue/multi-word-component-names: off`, `vue/no-v-html: off`, `@typescript-eslint/no-explicit-any: warn`, `no-unused-vars: warn`.
+- **Prettier** — empty config (defaults only).
+- **TypeScript** — strict mode enabled. `skipLibCheck: true`.
+- **No tests exist** — no vitest config, no test/spec files. The CI build workflow has a conditional `bun test` step that only runs when `run_tests=true` is set (disabled by default).
 
-## NocoDB-Integration
+## Deployment
 
-1. Erstelle einen dedizierten NocoDB-Service, der die API-Kommunikation kapselt
-2. Implementiere Modelle, die den Tabellen in NocoDB entsprechen
-3. Nutze TypeScript-Interfaces für die Typsicherheit
-4. Implementiere Caching-Strategien für häufig abgefragte Daten
-5. Behandle Offline-Szenarien durch lokale Speicherung und Synchronisierung
+- **Netlify** — SPA with `/* → /index.html 200` redirect (both `public/_redirects` and `netlify.toml`).
+- Build command: `npm run build:prod` (build + bundle budget check).
+- Bundle budget thresholds (in `scripts/check-bundle-budget.cjs`): initial JS ≤ 300 kB gzipped, async chunks ≤ 150 kB, total CSS ≤ 150 kB.
+- Lighthouse CI runs on every PR via `@netlify/plugin-lighthouse` and GitHub Actions (`performance.yml`), with metrics posted as PR comments.
 
-## Routing
+## NocoDB
 
-1. Implementiere verschachtelte Routes mit Vue Router 4
-2. Nutze Route Guards für geschützte Bereiche
-3. Implementiere Meta-Informationen für Routes (Titel, Berechtigungen, etc.)
-4. Nutze dynamische Route-Imports für Code-Splitting
+- Uses **NocoDB v3 API** (`/api/v3/data/{baseId}/{tableId}/records`).
+- The `NocoDBService` class handles: `list` (with pagination, sorting, field filtering, viewId), `read` (single record), `create`, `update`, `delete`, `count`.
+- `list()` automatically handles offset→page conversion (offset must be a multiple of limit).
+- The raw response shape is `RawProjectRecord` with `{ id, fields: { Name, Latitude, ... } }` (NocoDB v2-style wrapper, lowercase `id`). The service layer transforms this into the clean `Project` interface.
+- The project repository hardcodes `tableId = "mdctuswlmsfvi8i"` and `viewId = "vwlnl4t095iifqc9"`.
 
-## State Management
+## MCP Server
 
-1. Nutze Pinia für globalen State
-2. Strukturiere Stores nach Features
-3. Implementiere Persistenz für ausgewählte Stores
-4. Nutze TypeScript für typsichere Stores
-
-## UI/UX-Richtlinien
-
-1. Implementiere ein responsives Design mit TailwindCSS 4
-2. Erstelle wiederverwendbare UI-Komponenten
-3. Nutze CSS-Variablen für ein konsistentes Theming
-4. Implementiere Barrierefreiheit nach WCAG 2.1 AA-Standard
-5. Optimiere für Performance (Code-Splitting, Lazy Loading, etc.)
-
-## Testing-Strategie
-
-1. Schreibe Unit-Tests für Services und Composables mit Vitest
-2. Implementiere Komponententests für kritische UI-Komponenten
-3. Erstelle E2E-Tests für kritische Benutzerflows mit Cypress
-4. Nutze Mock-Services für Tests, die externe Abhängigkeiten haben
-
-## Deployment und CI/CD
-
-1. Konfiguriere GitHub Actions oder GitLab CI für automatisierte Tests und Deployments
-2. Implementiere verschiedene Umgebungen (Development, Staging, Production)
-3. Nutze Docker für konsistente Entwicklungs- und Produktionsumgebungen
-4. Implementiere automatische Versionierung
-
-## Best Practices
-
-1. Folge dem Vue Style Guide (Priority A und B)
-2. Nutze ESLint und Prettier für konsistenten Code-Stil
-3. Dokumentiere komplexe Komponenten und Services
-4. Implementiere Error Boundaries für robuste Fehlerbehandlung
-5. Nutze Performance-Optimierungen wie `v-once`, `v-memo` und `shallowRef` wo sinnvoll
-6. Implementiere Internationalisierung von Anfang an
-7. Nutze moderne JavaScript-Features (Optional Chaining, Nullish Coalescing, etc.)
-
-## Initiale Setup-Schritte
-
-1. Erstelle ein neues Projekt mit Vue CLI oder Vite
-2. Konfiguriere TypeScript mit strikten Optionen
-3. Installiere und konfiguriere Boostrap-vue-next
-4. Richte Vue Router und Pinia ein
-5. Konfiguriere ESLint und Prettier
-6. Erstelle die grundlegende Projektstruktur
-7. Implementiere die Service-Layer für NocoDB
-8. Erstelle Basis-Komponenten und Layouts
-9. Implementiere die Authentifizierung
-10. Richte das Testing-Framework ein
+`scripts/mcp-server.ts` provides an stdio MCP server with tools for project structure introspection, env key listing, NocoDB queries, and Vue component scaffolding. Run with `bun run mcp`. Intended for AI tooling contexts, not normal development.

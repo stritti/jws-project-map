@@ -1,6 +1,15 @@
 import type { Category } from "@/interfaces/Category";
 import { defineStore } from "pinia";
 import categoryService from "../services/category.service";
+import { i18n } from "@/plugins/i18n";
+
+function currentLocale(): string {
+  try {
+    return (i18n.global.locale as unknown as { value: string }).value || "en";
+  } catch {
+    return "en";
+  }
+}
 
 interface State {
   categories: Category[];
@@ -19,6 +28,14 @@ export const useCategoryStore = defineStore("category", {
       state.categories.find(
         (category: Category) => category.id === id,
       ) as Category,
+    /** Returns the category name in the current locale, falling back to the default Name */
+    getDisplayName: (state) => (id: number) => {
+      const cat = state.categories.find((c) => c.id === id);
+      if (!cat) return "";
+      const loc = currentLocale();
+      const key = `name_${loc}` as keyof Category;
+      return (cat[key] as string) || cat.name;
+    },
   },
   actions: {
     async load(): Promise<void> {

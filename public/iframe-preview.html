@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iFrame Preview — JWS Project Map</title>
+  <style>
+    /* ── Reset & Base ───────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #eef0f4;
+      color: #1e293b;
+      min-height: 100vh;
+    }
+
+    /* ── Layout ──────────────────────────────────── */
+    .preview-wrap {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      height: 100vh;
+    }
+
+    /* ── Toolbar ─────────────────────────────────── */
+    .toolbar {
+      background: #fff;
+      border-bottom: 1px solid #dde1e7;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .toolbar-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #3d5e9e;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-right: 0.5rem;
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .toolbar button {
+      font-size: 0.78rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      border: 1px solid #cdd3db;
+      background: #f8f9fb;
+      color: #1e293b;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .toolbar button:hover {
+      background: #eef0f4;
+      border-color: #9ca3af;
+    }
+    .toolbar button:active {
+      background: #dde1e7;
+    }
+    .toolbar button.primary {
+      background: #3d5e9e;
+      border-color: #3d5e9e;
+      color: #fff;
+    }
+    .toolbar button.primary:hover {
+      background: #2e4d80;
+      border-color: #2e4d80;
+    }
+
+    .toolbar input[type="number"] {
+      width: 80px;
+      font-size: 0.78rem;
+      padding: 0.3rem 0.5rem;
+      border: 1px solid #cdd3db;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .toolbar input[type="text"] {
+      font-size: 0.78rem;
+      padding: 0.3rem 0.5rem;
+      border: 1px solid #cdd3db;
+      border-radius: 6px;
+      background: #fff;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .toolbar input[type="range"] {
+      width: 100px;
+      vertical-align: middle;
+    }
+
+    .toolbar label {
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      cursor: pointer;
+      color: #475569;
+    }
+
+    .toolbar-separator {
+      width: 1px;
+      height: 28px;
+      background: #dde1e7;
+    }
+
+    /* ── iFrame Container ────────────────────────── */
+    .iframe-stage {
+      position: relative;
+      overflow: auto;
+      background: #eef0f4;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 1.5rem;
+    }
+
+    /* Desktop mock: centered iframe with device frame */
+    .mock-desktop {
+      width: 100%;
+      max-width: 1200px;
+      min-height: 600px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .mock-mobile {
+      width: 400px;
+      max-width: 100%;
+      min-height: 750px;
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .mock-full {
+      width: 100%;
+      min-height: 100%;
+      background: #fff;
+    }
+
+    #app-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      min-height: 600px;
+    }
+
+    /* ── Message Log ─────────────────────────────── */
+    .log-panel {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      width: 340px;
+      max-height: 260px;
+      background: #1e293b;
+      color: #e2e8f0;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.72rem;
+      line-height: 1.5;
+      border-radius: 8px 0 0 0;
+      overflow: hidden;
+      z-index: 200;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease;
+    }
+    .log-panel.collapsed {
+      transform: translateY(calc(100% - 32px));
+    }
+
+    .log-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.4rem 0.75rem;
+      background: #0f172a;
+      cursor: pointer;
+      user-select: none;
+    }
+    .log-header span {
+      font-weight: 600;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #94a3b8;
+    }
+    .log-header button {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .log-header button:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    .log-entries {
+      padding: 0.5rem 0.75rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .log-entry {
+      padding: 0.15rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      word-break: break-all;
+    }
+    .log-entry .direction {
+      display: inline-block;
+      width: 42px;
+      font-weight: 600;
+    }
+    .log-entry .direction.parent { color: #60a5fa; }
+    .log-entry .direction.iframe { color: #34d399; }
+    .log-entry .data { color: #94a3b8; }
+    .log-empty {
+      color: #64748b;
+      font-style: italic;
+      padding: 0.5rem 0;
+    }
+
+    /* ── Responsive ──────────────────────────────── */
+    @media (max-width: 600px) {
+      .iframe-stage { padding: 0.5rem; }
+      .toolbar { padding: 0.5rem 0.75rem; gap: 0.4rem; }
+      .toolbar-title { display: none; }
+      .mock-mobile { border-radius: 0; }
+      .log-panel {
+        width: 100%;
+        right: auto;
+        border-radius: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="preview-wrap">
+  <!-- ── Toolbar ──────────────────────────────── -->
+  <div class="toolbar">
+    <div class="toolbar-title">iFrame Preview</div>
+
+    <div class="toolbar-group">
+      <button class="primary" data-action="home">🏠 Map</button>
+      <button data-action="list">📋 List</button>
+      <button data-action="project" id="btn-go-project">📍 Project</button>
+      <input type="number" id="project-id-input" value="1" min="1" max="999" style="width:60px" />
+    </div>
+
+    <div class="toolbar-separator"></div>
+
+    <div class="toolbar-group">
+      <button id="btn-desktop" class="primary">🖥 Desktop</button>
+      <button id="btn-mobile">📱 Mobile</button>
+      <button id="btn-full">↗ Full</button>
+    </div>
+
+    <div class="toolbar-separator"></div>
+
+    <label>
+      <input type="checkbox" id="chk-embed" checked />
+      ?embed=1
+    </label>
+
+    <label>
+      <input type="checkbox" id="chk-log" checked />
+      Log
+    </label>
+
+    <div style="flex:1"></div>
+
+    <span style="font-size:0.7rem;color:#94a3b8" id="iframe-size">—</span>
+  </div>
+
+  <!-- ── iFrame Stage ─────────────────────────── -->
+  <div class="iframe-stage" id="iframe-stage">
+    <div id="iframe-container" class="mock-desktop">
+      <iframe id="app-iframe" src="/?embed=1" title="JWS Project Map Preview"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- ── Message Log ───────────────────────────── -->
+<div id="log-panel" class="log-panel">
+  <div class="log-header" id="log-header">
+    <span>📡 postMessage Log</span>
+    <div>
+      <button id="btn-clear-log">Clear</button>
+    </div>
+  </div>
+  <div class="log-entries" id="log-entries">
+    <div class="log-empty">Waiting for messages…</div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ── Elements ────────────────────────────────
+  const iframe = document.getElementById('app-iframe');
+  const container = document.getElementById('iframe-container');
+  const stage = document.getElementById('iframe-stage');
+  const logEntries = document.getElementById('log-entries');
+  const logPanel = document.getElementById('log-panel');
+  const sizeLabel = document.getElementById('iframe-size');
+  const chkEmbed = document.getElementById('chk-embed');
+  const chkLog = document.getElementById('chk-log');
+  const btnDesktop = document.getElementById('btn-desktop');
+  const btnMobile = document.getElementById('btn-mobile');
+  const btnFull = document.getElementById('btn-full');
+
+  // ── Build iframe URL ────────────────────────
+  function buildUrl(path) {
+    const base = window.location.origin;
+    const embed = chkEmbed.checked ? 'embed=1' : '';
+    const sep = path.includes('?') ? '&' : '?';
+    return base + path + (embed ? sep + embed : '');
+  }
+
+  function navigateIframe(path) {
+    iframe.src = buildUrl(path);
+  }
+
+  // ── Toolbar actions ─────────────────────────
+  document.querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.action;
+      switch (action) {
+        case 'home': navigateIframe('/'); break;
+        case 'list': navigateIframe('/project/'); break;
+        case 'project': {
+          const id = document.getElementById('project-id-input').value;
+          navigateIframe('/project/' + id);
+          break;
+        }
+      }
+    });
+  });
+
+  // ── Viewport mocks ─────────────────────────
+  btnDesktop.addEventListener('click', () => {
+    [btnDesktop, btnMobile, btnFull].forEach(b => b.classList.remove('primary'));
+    btnDesktop.classList.add('primary');
+    container.className = 'mock-desktop';
+    container.style.maxWidth = '1200px';
+    container.style.minHeight = '600px';
+  });
+
+  btnMobile.addEventListener('click', () => {
+    [btnDesktop, btnMobile, btnFull].forEach(b => b.classList.remove('primary'));
+    btnMobile.classList.add('primary');
+    container.className = 'mock-mobile';
+    container.style.maxWidth = '400px';
+    container.style.minHeight = '750px';
+  });
+
+  btnFull.addEventListener('click', () => {
+    [btnDesktop, btnMobile, btnFull].forEach(b => b.classList.remove('primary'));
+    btnFull.classList.add('primary');
+    container.className = 'mock-full';
+    container.style.maxWidth = '';
+    container.style.minHeight = '';
+  });
+
+  // ── Embed toggle ────────────────────────────
+  chkEmbed.addEventListener('change', () => {
+    navigateIframe('/');
+  });
+
+  // ── Log toggle ──────────────────────────────
+  chkLog.addEventListener('change', () => {
+    logPanel.style.display = chkLog.checked ? '' : 'none';
+  });
+
+  // ── Log panel collapse ──────────────────────
+  document.getElementById('log-header').addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON') return;
+    logPanel.classList.toggle('collapsed');
+  });
+
+  // ── Logging ─────────────────────────────────
+  function addLog(direction, data) {
+    const empty = logEntries.querySelector('.log-empty');
+    if (empty) empty.remove();
+
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.innerHTML = `<span class="direction ${direction}">${direction === 'parent' ? '→ iFrame' : '← App'}</span> <span class="data">${JSON.stringify(data)}</span>`;
+    logEntries.appendChild(entry);
+    logEntries.scrollTop = logEntries.scrollHeight;
+
+    // Keep max 50 entries
+    while (logEntries.children.length > 50) {
+      logEntries.removeChild(logEntries.firstChild);
+    }
+
+    // Auto-expand on new message
+    logPanel.classList.remove('collapsed');
+  }
+
+  document.getElementById('btn-clear-log').addEventListener('click', () => {
+    logEntries.innerHTML = '<div class="log-empty">Waiting for messages…</div>';
+  });
+
+  // ── postMessage from iframe ──────────────────
+  window.addEventListener('message', (event) => {
+    // Only accept from our iframe
+    if (event.source !== iframe.contentWindow) return;
+
+    addLog('iframe', event.data);
+
+    // Handle resize messages
+    if (event.data.type === 'resize' && !container.classList.contains('mock-desktop')) {
+      // Auto-resize iframe height in mobile/full mode
+      iframe.style.height = event.data.height + 'px';
+      sizeLabel.textContent = event.data.height + 'px';
+    }
+
+    // Handle navigate requests
+    if (event.data.type === 'navigateRequest') {
+      console.log('[iFrame Preview] Navigate request:', event.data.path);
+    }
+
+    // Handle ready
+    if (event.data.type === 'ready') {
+      console.log('[iFrame Preview] App is ready');
+    }
+  });
+
+  // ── Send navigation to iframe ───────────────
+  function sendToIframe(msg) {
+    if (!iframe.contentWindow) return;
+    try {
+      iframe.contentWindow.postMessage(msg, '*');
+      addLog('parent', msg);
+    } catch (e) {
+      console.warn('Failed to send message to iframe:', e);
+    }
+  }
+
+  // Override navigate buttons to also send postMessage
+  document.querySelectorAll('[data-action]').forEach(btn => {
+    const orig = btn._listeners ? true : false;
+    if (orig) return;
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.action;
+      switch (action) {
+        case 'home':
+          sendToIframe({ type: 'navigate', path: '/' });
+          break;
+        case 'list':
+          sendToIframe({ type: 'navigate', path: '/project/' });
+          break;
+        case 'project':
+          const id = document.getElementById('project-id-input').value;
+          sendToIframe({ type: 'navigate', path: '/project/' + id });
+          break;
+      }
+    });
+  });
+
+  // ── Size reporting ──────────────────────────
+  function updateSize() {
+    const h = iframe.offsetHeight;
+    const w = iframe.offsetWidth;
+    sizeLabel.textContent = w + '×' + h;
+  }
+
+  iframe.addEventListener('load', () => {
+    setTimeout(updateSize, 500);
+  });
+
+  // Listen for resize from iframe
+  window.addEventListener('message', (event) => {
+    if (event.source !== iframe.contentWindow) return;
+    if (event.data.type === 'resize') {
+      if (!container.classList.contains('mock-desktop')) {
+        iframe.style.height = event.data.height + 'px';
+      }
+      sizeLabel.textContent = event.data.height + 'px';
+    }
+  });
+
+  // Initial log
+  addLog('parent', { type: 'navigate', path: '/' });
+
+  console.log('[iFrame Preview] Ready — app loaded at', iframe.src);
+})();
+</script>
+</body>
+</html>

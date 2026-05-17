@@ -5,9 +5,9 @@
       <div v-if="!mapReady" class="map-skeleton">
         <div class="map-skeleton-content">
           <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading map...</span>
+            <span class="visually-hidden">{{ t("search.loadingMap") }}</span>
           </div>
-          <p class="mt-2">Loading map...</p>
+          <p class="mt-2">{{ t("search.loadingMap") }}</p>
         </div>
       </div>
 
@@ -25,11 +25,8 @@
         @click="addMarker"
         @ready="mapLoaded"
       >
-        <l-control-layers
-          ref="control"
-          position="bottomright"
-        ></l-control-layers>
         <l-tile-layer
+          v-if="baseLayer === 'satellite'"
           url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
           layer-type="base"
           name="Satellite"
@@ -37,6 +34,7 @@
         ></l-tile-layer>
 
         <l-tile-layer
+          v-if="baseLayer === 'osm'"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           layer-type="base"
           name="OpenStreetMap"
@@ -177,10 +175,10 @@ import { storeToRefs } from "pinia";
 import { useLoadingStore } from "../../stores/loading.store";
 import { useCategoryStore } from "../../stores/category.store";
 import { useProjectStore } from "@/features/projects/stores/project.store";
+import { useFilterStore } from "@/stores/filter.store";
 import L, { latLngBounds } from "leaflet";
 import {
   LMap,
-  LControlLayers,
   LLayerGroup,
   LTileLayer,
   LMarker,
@@ -190,16 +188,48 @@ import {
 import ProjectDetails from "../../components/project/ProjectDetails.vue";
 import projectService from "@/features/projects/services/project.service";
 import type { Project } from "@/interfaces/Project";
+import { useI18n } from "vue-i18n";
 
 import "leaflet/dist/leaflet.css";
 
 const loadingStore = useLoadingStore();
 const categoryStore = useCategoryStore();
 const projectStore = useProjectStore();
+const { t } = useI18n();
 
 const { getById: getCategoryById } = storeToRefs(categoryStore);
 const { showLoadingSpinner } = storeToRefs(loadingStore);
-const { projects: locations } = storeToRefs(projectStore);
+const { projects: allProjects } = storeToRefs(projectStore);
+
+// Props
+const props = defineProps({
+  filteredProjects: {
+    type: Array as () => Project[],
+    default: () => [],
+  },
+  baseLayer: {
+    type: String as () => 'satellite' | 'osm',
+    default: 'osm',
+  },
+});
+
+// Version counter bumped when filteredProjects reference changes, used to
+// invalidate bounds cache so different filter results get fresh fitBounds (Codex #P2).
+const locationsVersion = ref(0);
+watch(() => props.filteredProjects, () => { locationsVersion.value++; });
+
+// Use filtered projects if provided, otherwise use all projects.
+// When filters are active but produce zero matches, show empty map (Codex #P2).
+const locations = computed(() => {
+  if (props.filteredProjects.length > 0) return props.filteredProjects;
+  const filterStore = useFilterStore();
+  const hasActiveFilters =
+    filterStore.stateFilter.length > 0 ||
+    filterStore.categoryFilter.length > 0 ||
+    filterStore.countryFilter.length > 0;
+  if (hasActiveFilters) return [];
+  return allProjects.value;
+});
 
 // Verwende shallowRef für nicht-reaktive Objekte für bessere Performance
 const zoom = ref(5);
@@ -243,52 +273,28 @@ const mapOptions = ref({
 });
 const map = ref<any>(null);
 
-// Compute project lists directly
+// Compute project lists from the filtered locations
 const projectsFinished = computed(() =>
-  projectStore.projects.filter((p) => p.state === "finished"),
+  locations.value.filter((p) => p.state === "finished"),
 );
 const projectsUnderConstruction = computed(() =>
-  projectStore.projects.filter((p) => p.state === "under construction"),
+  locations.value.filter((p) => p.state === "under construction"),
 );
 const projectsPlanned = computed(() =>
-  projectStore.projects.filter((p) => p.state === "planned"),
+  locations.value.filter((p) => p.state === "planned"),
 );
 
-// Memoization für Layer-Labels, um unnötige Neuberechnungen zu vermeiden
-const layerLabelCache = new Map<string, string>();
+const layerLabelProjectsFinished = computed(() =>
+  t("map.layerFinished", { count: projectsFinished.value.length }),
+);
 
-const layerLabelProjectsFinished = computed(() => {
-  const cacheKey = `finished-${projectsFinished.value.length}`;
-  if (!layerLabelCache.has(cacheKey)) {
-    layerLabelCache.set(
-      cacheKey,
-      `Projects: finished (${projectsFinished.value.length})`,
-    );
-  }
-  return layerLabelCache.get(cacheKey)!;
-});
+const layerLabelProjectsUnderConstruction = computed(() =>
+  t("map.layerUnderConstruction", { count: projectsUnderConstruction.value.length }),
+);
 
-const layerLabelProjectsUnderConstruction = computed(() => {
-  const cacheKey = `under-construction-${projectsUnderConstruction.value.length}`;
-  if (!layerLabelCache.has(cacheKey)) {
-    layerLabelCache.set(
-      cacheKey,
-      `Projects: under construction (${projectsUnderConstruction.value.length})`,
-    );
-  }
-  return layerLabelCache.get(cacheKey)!;
-});
-
-const layerLabelProjectsPlanned = computed(() => {
-  const cacheKey = `planned-${projectsPlanned.value.length}`;
-  if (!layerLabelCache.has(cacheKey)) {
-    layerLabelCache.set(
-      cacheKey,
-      `Projects: planned (${projectsPlanned.value.length})`,
-    );
-  }
-  return layerLabelCache.get(cacheKey)!;
-});
+const layerLabelProjectsPlanned = computed(() =>
+  t("map.layerPlanned", { count: projectsPlanned.value.length }),
+);
 
 // Sofort mit dem Laden der Karte beginnen
 onBeforeMount(() => {
@@ -529,7 +535,9 @@ const updateMaxBounds = () => {
       // Erstelle einen Cache-Schlüssel basierend auf der Anzahl der Standorte
       // Dies ist eine Vereinfachung - in einer realen Anwendung könnte man einen
       // komplexeren Schlüssel basierend auf den tatsächlichen Daten verwenden
-      const cacheKey = `bounds-${locations.value.length}`;
+      // Nutze locationsVersion um Cache zu invalidieren wenn sich Quelle ändert
+      // (verhindert stale bounds bei Filterwechsel mit gleicher Anzahl, Codex #P2)
+      const cacheKey = `bounds-v${locationsVersion.value}-${locations.value.length}`;
 
       // Prüfe, ob wir bereits berechnete Grenzen im Cache haben
       if (boundsCache.has(cacheKey)) {
@@ -618,10 +626,12 @@ const updateMaxBounds = () => {
 </script>
 
 <style lang="scss">
+@use "@/assets/design-tokens.scss" as *;
+
 /* Leaflet CSS is lazy loaded in the script section for better performance */
 
 .leaflet-top {
-  top: calc(5rem + env(safe-area-inset-top));
+  top: calc(var(--spacing-unit) * 12.5 + env(safe-area-inset-top)); /* 5rem = 20 * 4px */
 }
 .leaflet-left {
   left: env(safe-area-inset-left);
@@ -633,8 +643,8 @@ const updateMaxBounds = () => {
   bottom: env(safe-area-inset-bottom);
 }
 .leaflet-control-attribution {
-  max-width: calc(100vw - 8.5rem);
-  font-size: 0.75rem;
+  max-width: calc(100vw - var(--spacing-unit) * 21.25); /* 8.5rem = 34 * 4px */
+  font-size: calc(var(--spacing-unit) * 1.875); /* 0.75rem = 3 * 4px */
 }
 
 /* Optimierte CSS-Transformationen für bessere Performance */
@@ -681,7 +691,7 @@ const updateMaxBounds = () => {
 .map-skeleton {
   width: 100%;
   height: 100vh;
-  background-color: #f8f9fa;
+  background-color: var(--color-background);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -689,6 +699,16 @@ const updateMaxBounds = () => {
 
 .map-skeleton-content {
   text-align: center;
+  
+  .spinner-border {
+    color: var(--color-primary);
+  }
+  
+  p {
+    margin-top: var(--spacing-unit);
+    font-size: var(--font-size-body-md);
+    color: var(--color-on-surface);
+  }
 }
 
 .pins-loading-indicator {
@@ -696,12 +716,29 @@ const updateMaxBounds = () => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: rgba(255, 255, 255, 0.8);
-  padding: 15px;
-  border-radius: 8px;
+  background-color: rgba(var(--color-surface-rgb), 0.8);
+  padding: calc(var(--spacing-unit) * 3.75); /* 15px */
+  border-radius: var(--shape-round-default);
   z-index: 1000;
   text-align: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit) * 2.5) rgba(0, 0, 0, 0.1);
+  
+  .spinner-border {
+    color: var(--color-primary);
+  }
+  
+  p {
+    margin-top: var(--spacing-unit);
+    font-size: var(--font-size-body-md);
+    color: var(--color-on-surface);
+  }
+}
+
+/* Zoom controls nur auf Desktop anzeigen */
+@media (max-width: 767.98px) {
+  .leaflet-control-zoom {
+    display: none !important;
+  }
 }
 
 /* Optimiere Leaflet-Container für bessere Performance */

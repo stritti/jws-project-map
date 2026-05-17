@@ -1,0 +1,85 @@
+{
+  "app": {
+    "title": "JWF + Humanaktiv : Projets en Afrique de l'Ouest"
+  },
+  "search": {
+    "placeholder": "Rechercher par nom, catégorie ou pays...",
+    "placeholderShort": "Rechercher des projets…",
+    "filter": "Filtrer",
+    "filterGroups": {
+      "status": "Statut",
+      "categories": "Catégories",
+      "countries": "Pays",
+      "mapType": "Type de carte"
+    },
+    "mapTypes": {
+      "satellite": "Satellite",
+      "map": "Carte"
+    },
+    "chips": {
+      "all": "Tous",
+      "planned": "Planifié",
+      "underConstruction": "En construction",
+      "finished": "Terminé"
+    },
+    "minChars": "Saisissez au moins 2 caractères",
+    "noResults": "Aucun projet trouvé pour",
+    "noResultsTitle": "Aucun projet trouvé",
+    "noResultsHint": "Ajustez votre recherche ou vos filtres.",
+    "resultsCount": "{count} projets trouvés",
+    "resetFilters": "Réinitialiser les filtres",
+    "stats": "{total} projets ({ub} en construction, {pl} planifiés)",
+    "more": "plus de projets",
+    "loadingMap": "Chargement de la carte…",
+    "resultsLabel": "Résultats de recherche",
+    "viewToggleLabel": "Vue : Carte ou Liste",
+    "viewMap": "Vue Carte",
+    "viewList": "Vue Liste"
+  },
+  "nav": {
+    "map": "Carte",
+    "list": "Liste",
+    "about": "À propos",
+    "more": "Plus",
+    "close": "Fermer"
+  },
+  "common": {
+    "close": "Fermer"
+  },
+  "project": {
+    "detail": {
+      "country": "Pays",
+      "state": "Statut du projet",
+      "since": "Depuis",
+      "location": "Emplacement",
+      "description": "Description",
+      "more": "plus …"
+    },
+    "state": {
+      "finished": "Terminé",
+      "underConstruction": "En construction",
+      "planned": "Planifié"
+    }
+  },
+  "about": {
+    "title": "À propos de cette app",
+    "description": "Tous les projets de la {foundation} sont affichés sur cette carte d'ensemble. Les projets terminés sont marqués par des épingles colorées, les projets planifiés ou en construction sont en gris.",
+    "foundation": "Fondation Jörg Wolff",
+    "development": "Développement",
+    "developer": "Stephan Strittmatter",
+    "sources": "Sources",
+    "version": "Version",
+    "reload": "Recharger l'application et vider le cache",
+    "credits": "Crédits",
+    "license": "Licence MIT",
+    "moreLibs": "et plus de bibliothèques"
+  },
+  "gallery": {
+    "title": "Galerie"
+  },
+  "map": {
+    "layerFinished": "Projets : terminés ({count})",
+    "layerUnderConstruction": "Projets : en construction ({count})",
+    "layerPlanned": "Projets : planifiés ({count})"
+  }
+}

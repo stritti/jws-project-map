@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>IFrame Test</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    .header {
+      background: #eee;
+      padding: 1rem;
+      border-bottom: 3px solid #ccc;
+    }
+    iframe {
+      flex-grow: 1;
+      border: none;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Embedded Application Test</h1>
+      <p>This is a test page that embeds the application in an IFrame.</p>
+    </div>
+    <iframe src="http://localhost:5173/"></iframe>
+  </div>
+</body>
+</html>

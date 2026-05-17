@@ -1,0 +1,85 @@
+{
+  "app": {
+    "title": "JWF + Humanaktiv: Projects in West Africa"
+  },
+  "search": {
+    "placeholder": "Search by name, category or country...",
+    "placeholderShort": "Search projects…",
+    "filter": "Filter",
+    "filterGroups": {
+      "status": "Status",
+      "categories": "Categories",
+      "countries": "Countries",
+      "mapType": "Map View"
+    },
+    "mapTypes": {
+      "satellite": "Satellite",
+      "map": "Map"
+    },
+    "chips": {
+      "all": "All",
+      "planned": "Planned",
+      "underConstruction": "Under Construction",
+      "finished": "Finished"
+    },
+    "minChars": "Enter at least 2 characters",
+    "noResults": "No projects found for",
+    "noResultsTitle": "No projects found",
+    "noResultsHint": "Adjust your search query or filters.",
+    "resultsCount": "{count} projects found",
+    "resetFilters": "Reset filters",
+    "stats": "{total} projects ({ub} under construction, {pl} planned)",
+    "more": "more projects",
+    "loadingMap": "Loading map…",
+    "resultsLabel": "Search results",
+    "viewToggleLabel": "View: Map or List",
+    "viewMap": "Map view",
+    "viewList": "List view"
+  },
+  "nav": {
+    "map": "Map",
+    "list": "List",
+    "about": "About",
+    "more": "More",
+    "close": "Close"
+  },
+  "common": {
+    "close": "Close"
+  },
+  "project": {
+    "detail": {
+      "country": "Country",
+      "state": "Project State",
+      "since": "Since",
+      "location": "Location",
+      "description": "Description",
+      "more": "more …"
+    },
+    "state": {
+      "finished": "Finished",
+      "underConstruction": "Under Construction",
+      "planned": "Planned"
+    }
+  },
+  "about": {
+    "title": "About this App",
+    "description": "All projects of the {foundation} are shown on this overview map. Completed projects are marked with colored pins, while planned or under-construction projects are marked in gray.",
+    "foundation": "Jörg Wolff Foundation",
+    "development": "Development",
+    "developer": "Stephan Strittmatter",
+    "sources": "Sources",
+    "version": "Version",
+    "reload": "Reload app and clear cache",
+    "credits": "Credits",
+    "license": "MIT License",
+    "moreLibs": "and more libraries"
+  },
+  "gallery": {
+    "title": "Gallery"
+  },
+  "map": {
+    "layerFinished": "Projects: finished ({count})",
+    "layerUnderConstruction": "Projects: under construction ({count})",
+    "layerPlanned": "Projects: planned ({count})"
+  }
+}
