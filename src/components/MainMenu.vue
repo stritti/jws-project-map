@@ -235,10 +235,7 @@ function isActive(item: NavItem): boolean {
   &.active {
     opacity: 1;
     filter: grayscale(0);
-    border-color: var(--color-secondary, #3d5e9e);
-    background: transparent;
-    box-shadow: 0 0 0 2px rgba(61, 94, 158, 0.35);
-    transform: scale(1.2);
+    background: rgba(60, 93, 157, 0.1);
   }
 
   :deep(.fi) {
