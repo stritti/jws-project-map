@@ -15,7 +15,7 @@
         ref="map"
         v-model:zoom="zoom"
         class="map"
-        crs="EPSG:4326"
+        :crs="L.CRS.EPSG3857"
         :min-zoom="4"
         :max-zoom="17"
         :bounds="bounds"
