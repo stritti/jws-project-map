@@ -15,7 +15,6 @@
         ref="map"
         v-model:zoom="zoom"
         class="map"
-        :crs="MAP_CRS"
         :min-zoom="4"
         :max-zoom="17"
         :bounds="bounds"
@@ -250,7 +249,6 @@ const locations = computed(() => {
 
 // Verwende shallowRef für nicht-reaktive Objekte für bessere Performance
 const zoom = ref(5);
-const MAP_CRS = L.CRS.EPSG3857;
 const bounds = shallowRef(
   latLngBounds([
     [-14.5981259, 5.8997233],
@@ -290,7 +288,6 @@ const mapOptions = ref({
   updateWhenIdle: true,
 });
 const map = ref<any>(null);
-let hasWarnedInvalidBaseLayer = false;
 
 // Compute project lists from the filtered locations
 const projectsFinished = computed(() =>
@@ -304,19 +301,9 @@ const projectsPlanned = computed(() =>
 );
 
 const activeBaseLayer = computed(() => {
-  const layer = props.baseLayer;
-  if (layer === "satellite" || layer === "osm") {
-    return TILE_LAYER_CONFIG[layer];
-  }
-
-  if (!hasWarnedInvalidBaseLayer) {
-    console.warn(
-      `[LocationMap] Invalid baseLayer "${String(layer)}", falling back to "osm".`,
-    );
-    hasWarnedInvalidBaseLayer = true;
-  }
-
-  return TILE_LAYER_CONFIG.osm;
+  return props.baseLayer === "satellite"
+    ? TILE_LAYER_CONFIG.satellite
+    : TILE_LAYER_CONFIG.osm;
 });
 
 const layerLabelProjectsFinished = computed(() =>
