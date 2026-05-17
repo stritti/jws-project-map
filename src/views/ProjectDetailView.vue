@@ -116,24 +116,16 @@
             <div v-if="project.latitude && project.longitude" class="location-section mb-5">
               <h2 class="section-title mb-4">{{ t("project.detail.location") }}</h2>
               <div class="mini-map rounded-4 overflow-hidden shadow-sm">
-                <l-map
-                  :zoom="13"
-                  :center="[project.latitude, project.longitude]"
-                  :options="mapOptions"
-                  :use-global-leaflet="true"
-                  style="height: 300px; width: 100%"
-                >
-                  <l-tile-layer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    layer-type="base"
-                    name="OpenStreetMap"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  />
-                  <l-marker
-                    :lat-lng="[project.latitude, project.longitude]"
-                    :icon="detailMarkerIcon"
-                  />
-                </l-map>
+                <project-mini-map
+                  v-if="showMiniMap"
+                  :lat="project.latitude"
+                  :lng="project.longitude"
+                />
+                <div
+                  v-else
+                  ref="miniMapSentinel"
+                  class="mini-map-placeholder"
+                ></div>
               </div>
             </div>
 
@@ -162,7 +154,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount } from "vue";
+import { computed, onBeforeMount, onMounted, onBeforeUnmount, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useCategoryStore } from "@/stores/category.store";
@@ -178,9 +170,6 @@ import { defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import type { Project } from "@/interfaces/Project";
 import { useGeoTags } from "@/composables/useGeoTags";
-import L from "leaflet";
-import { LMap, LTileLayer, LMarker } from "@vue-leaflet/vue-leaflet";
-import "leaflet/dist/leaflet.css";
 
 const { isIFrame } = useWebFrame();
 const { t, locale } = useI18n();
@@ -191,6 +180,10 @@ const MarkdownText = defineAsyncComponent(
 
 const ProjectGallery = defineAsyncComponent(
   () => import("@/components/project/ProjectGallery.vue"),
+);
+
+const ProjectMiniMap = defineAsyncComponent(
+  () => import("@/components/map/ProjectMiniMap.vue"),
 );
 
 const props = defineProps({
@@ -253,11 +246,6 @@ const stateLabel = computed(() => {
   return localeKey ? t(`project.state.${localeKey}`) : key;
 });
 
-const mapOptions = {
-  zoomControl: true,
-  scrollWheelZoom: false,
-};
-
 function categoryName(id: number): string {
   return categoryStore.getDisplayName(id);
 }
@@ -270,19 +258,34 @@ function categoryTileStyle(id: number): Record<string, string> {
   return { backgroundColor: "var(--jws-bg-subtle)", color: "var(--jws-text-main)" };
 }
 
-const detailMarkerIcon = computed(() => {
-  return L.divIcon({
-    className: "detail-marker-icon",
-    html: `<div style="
-      width: 28px; height: 28px;
-      background: #3d5e9e;
-      border: 3px solid white;
-      border-radius: 50%;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    "></div>`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 14],
-  }) as unknown as L.Icon;
+const showMiniMap = ref(false);
+const miniMapSentinel = ref<HTMLElement | null>(null);
+let miniMapObserver: IntersectionObserver | null = null;
+
+onMounted(() => {
+  if (!("IntersectionObserver" in window)) {
+    showMiniMap.value = true;
+    return;
+  }
+  miniMapObserver = new IntersectionObserver(
+    (entries) => {
+      const [entry] = entries;
+      if (entry?.isIntersecting) {
+        showMiniMap.value = true;
+        miniMapObserver?.disconnect();
+        miniMapObserver = null;
+      }
+    },
+    { rootMargin: "200px 0px" },
+  );
+  if (miniMapSentinel.value) {
+    miniMapObserver.observe(miniMapSentinel.value);
+  }
+});
+
+onBeforeUnmount(() => {
+  miniMapObserver?.disconnect();
+  miniMapObserver = null;
 });
 </script>
 
@@ -334,6 +337,12 @@ const detailMarkerIcon = computed(() => {
   @media (min-width: 768px) {
     padding: 0 1.5rem;
   }
+}
+
+.mini-map-placeholder {
+  width: 100%;
+  height: 300px;
+  background: linear-gradient(135deg, #eef2f7, #dfe7f3);
 }
 
 .teaser-card {

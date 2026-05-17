@@ -62,6 +62,7 @@ declare module 'vue' {
     ProjectGallery: typeof import('./src/components/project/ProjectGallery.vue')['default']
     ProjectGalleryModal: typeof import('./src/components/project/ProjectGalleryModal.vue')['default']
     ProjectListItem: typeof import('./src/components/project/ProjectListItem.vue')['default']
+    ProjectMiniMap: typeof import('./src/components/map/ProjectMiniMap.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SearchBar: typeof import('./src/components/SearchBar.vue')['default']

@@ -28,7 +28,6 @@
     "flag-icons": "^7.5.0",
     "fuse.js": "^7.3.0",
     "leaflet": "^1.9.4",
-    "leaflet.path.drag": "^0.0.6",
     "marked": "^17.0.6",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",

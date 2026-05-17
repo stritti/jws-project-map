@@ -19,58 +19,46 @@
         :min-zoom="4"
         :max-zoom="17"
         :bounds="bounds"
-        :max--bounds="maxBounds"
+        :max-bounds="maxBounds"
         :use-global-leaflet="true"
         :options="mapOptions"
         @click="addMarker"
         @ready="mapLoaded"
       >
         <l-tile-layer
-          v-if="baseLayer === 'satellite'"
-          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+          :url="activeBaseLayer.url"
           layer-type="base"
-          name="Satellite"
-          attribution="Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
-        ></l-tile-layer>
-
-        <l-tile-layer
-          v-if="baseLayer === 'osm'"
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          layer-type="base"
-          name="OpenStreetMap"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          :name="activeBaseLayer.name"
+          :attribution="activeBaseLayer.attribution"
         ></l-tile-layer>
 
         <l-layer-group
-          v-if="pinsReady && projectsFinished && projectsFinished.length > 0"
+          v-if="pinsReady && projectsFinishedPoints.length > 0"
           layer-type="overlay"
           :name="layerLabelProjectsFinished"
         >
-          <!-- Verwende v-memo für bessere Performance bei der Marker-Darstellung -->
           <l-marker
-            v-for="loc in projectsFinished"
+            v-for="point in projectsFinishedPoints"
             v-memo="[
-              loc.id,
-              loc.latitude,
-              loc.longitude,
-              selectedLocation?.id === loc.id,
+              point.id,
+              point.lat,
+              point.lng,
+              point.type,
+              selectedLocation?.id === getPointProjectId(point),
               currentZoom > 7,
             ]"
-            :id="loc.id"
-            :key="loc.id"
-            :lat-lng="[loc.latitude, loc.longitude]"
-            @click="onMarkerClick(loc)"
+            :id="String(point.id)"
+            :key="point.id"
+            :lat-lng="[point.lat, point.lng]"
+            :icon="getMarkerIcon(point)"
+            @click="onPointClick(point)"
           >
-            <l-icon
-              :icon-url="getPin(loc)"
-              :class-name="pinClass(loc)"
-              :icon-size="[28, 39]"
-              :icon-anchor="[14, 39]"
-            ></l-icon>
-            <!-- Tooltips nur bei Bedarf rendern, um DOM-Größe zu reduzieren -->
-            <l-tooltip v-if="currentZoom > 7">
-              <span>{{ loc.name }}</span>
-              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+            <l-tooltip v-if="point.type === 'project' && currentZoom > 7">
+              <span>{{ point.project.name }}</span>
+              <span v-if="point.project.state !== 'finished'"> ({{ point.project.state }})</span>
+            </l-tooltip>
+            <l-tooltip v-else-if="point.type === 'cluster'">
+              <span>{{ point.count }} projects</span>
             </l-tooltip>
           </l-marker>
         </l-layer-group>
@@ -78,67 +66,64 @@
         <l-layer-group
           v-if="
             pinsReady &&
-            projectsUnderConstruction &&
-            projectsUnderConstruction.length > 0
+            projectsUnderConstructionPoints.length > 0
           "
           layer-type="overlay"
           :name="layerLabelProjectsUnderConstruction"
         >
           <l-marker
-            v-for="loc in projectsUnderConstruction"
+            v-for="point in projectsUnderConstructionPoints"
             v-memo="[
-              loc.id,
-              loc.latitude,
-              loc.longitude,
-              selectedLocation?.id === loc.id,
+              point.id,
+              point.lat,
+              point.lng,
+              point.type,
+              selectedLocation?.id === getPointProjectId(point),
               currentZoom > 7,
             ]"
-            :id="loc.id"
-            :key="loc.id"
-            :lat-lng="[loc.latitude, loc.longitude]"
-            @click="onMarkerClick(loc)"
+            :id="String(point.id)"
+            :key="point.id"
+            :lat-lng="[point.lat, point.lng]"
+            :icon="getMarkerIcon(point)"
+            @click="onPointClick(point)"
           >
-            <l-icon
-              :icon-url="getPin(loc)"
-              :class-name="pinClass(loc)"
-              :icon-size="[28, 39]"
-              :icon-anchor="[14, 39]"
-            ></l-icon>
-            <l-tooltip v-if="currentZoom > 7">
-              <span>{{ loc.name }}</span>
-              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+            <l-tooltip v-if="point.type === 'project' && currentZoom > 7">
+              <span>{{ point.project.name }}</span>
+              <span v-if="point.project.state !== 'finished'"> ({{ point.project.state }})</span>
+            </l-tooltip>
+            <l-tooltip v-else-if="point.type === 'cluster'">
+              <span>{{ point.count }} projects</span>
             </l-tooltip>
           </l-marker>
         </l-layer-group>
 
         <l-layer-group
-          v-if="pinsReady && projectsPlanned && projectsPlanned.length > 0"
+          v-if="pinsReady && projectsPlannedPoints.length > 0"
           layer-type="overlay"
           :name="layerLabelProjectsPlanned"
         >
           <l-marker
-            v-for="loc in projectsPlanned"
+            v-for="point in projectsPlannedPoints"
             v-memo="[
-              loc.id,
-              loc.latitude,
-              loc.longitude,
-              selectedLocation?.id === loc.id,
+              point.id,
+              point.lat,
+              point.lng,
+              point.type,
+              selectedLocation?.id === getPointProjectId(point),
               currentZoom > 7,
             ]"
-            :id="loc.id"
-            :key="loc.id"
-            :lat-lng="[loc.latitude, loc.longitude]"
-            @click="onMarkerClick(loc)"
+            :id="String(point.id)"
+            :key="point.id"
+            :lat-lng="[point.lat, point.lng]"
+            :icon="getMarkerIcon(point)"
+            @click="onPointClick(point)"
           >
-            <l-icon
-              :icon-url="getPin(loc)"
-              :class-name="pinClass(loc)"
-              :icon-size="[28, 39]"
-              :icon-anchor="[14, 39]"
-            ></l-icon>
-            <l-tooltip v-if="currentZoom > 7">
-              <span>{{ loc.name }}</span>
-              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+            <l-tooltip v-if="point.type === 'project' && currentZoom > 7">
+              <span>{{ point.project.name }}</span>
+              <span v-if="point.project.state !== 'finished'"> ({{ point.project.state }})</span>
+            </l-tooltip>
+            <l-tooltip v-else-if="point.type === 'cluster'">
+              <span>{{ point.count }} projects</span>
             </l-tooltip>
           </l-marker>
         </l-layer-group>
@@ -182,7 +167,6 @@ import {
   LLayerGroup,
   LTileLayer,
   LMarker,
-  LIcon,
   LTooltip,
 } from "@vue-leaflet/vue-leaflet";
 import ProjectDetails from "../../components/project/ProjectDetails.vue";
@@ -212,6 +196,24 @@ const props = defineProps({
     default: 'osm',
   },
 });
+
+type RenderPoint =
+  | {
+      id: number;
+      type: "project";
+      project: Project;
+      lat: number;
+      lng: number;
+    }
+  | {
+      id: string;
+      type: "cluster";
+      lat: number;
+      lng: number;
+      count: number;
+      members: Project[];
+      state: string;
+    };
 
 // Version counter bumped when filteredProjects reference changes, used to
 // invalidate bounds cache so different filter results get fresh fitBounds (Codex #P2).
@@ -284,6 +286,22 @@ const projectsPlanned = computed(() =>
   locations.value.filter((p) => p.state === "planned"),
 );
 
+const activeBaseLayer = computed(() =>
+  props.baseLayer === "satellite"
+    ? {
+        name: "Satellite",
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        attribution:
+          "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+      }
+    : {
+        name: "OpenStreetMap",
+        url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      },
+);
+
 const layerLabelProjectsFinished = computed(() =>
   t("map.layerFinished", { count: projectsFinished.value.length }),
 );
@@ -327,6 +345,8 @@ const mapLoaded = () => {
 
   // Optimiere die Leaflet-Karte für bessere Performance
   if (map.value?.leafletObject) {
+    bindMapEvents(map.value.leafletObject);
+
     // Deaktiviere automatisches Zoomen während des Ladens
     map.value.leafletObject.options.trackResize = false;
 
@@ -348,6 +368,7 @@ const mapLoaded = () => {
     // Optimiere Leaflet-Events
     map.value.leafletObject.options.zoomSnap = 0.5;
     map.value.leafletObject.options.wheelPxPerZoomLevel = 60;
+    updateViewportFromMap(map.value.leafletObject);
   }
 
   // Wenn Daten bereits vorhanden sind (z.B. aus persistiertem Store), sofort anzeigen
@@ -381,6 +402,23 @@ const onMarkerClick = (location: Project) => {
   isOpened.value = true;
 };
 
+const onPointClick = (point: RenderPoint) => {
+  if (point.type === "project") {
+    onMarkerClick(point.project);
+    return;
+  }
+
+  if (!map.value?.leafletObject || point.members.length === 0) return;
+  const clusterBounds = latLngBounds(
+    point.members.map((member) => [member.latitude, member.longitude]),
+  );
+  map.value.leafletObject.fitBounds(clusterBounds, {
+    padding: [40, 40],
+    maxZoom: CLUSTER_ZOOM_THRESHOLD + 1,
+    animate: false,
+  });
+};
+
 const onSidePanelClose = () => {
   selectedLocation.value = undefined;
   isOpened.value = false;
@@ -391,28 +429,180 @@ const onSidePanelClose = () => {
 const PIN_CACHE = new Map<string, string>();
 const DEFAULT_PIN = "/pins/default.png";
 const MARKER_CLASS_CACHE = new Map<string, string>();
+const MARKER_ICON_CACHE = new Map<string, L.Icon>();
 
 // Computed-Wert für den aktuellen Zoom-Level
 const currentZoom = ref(5);
+const viewportBounds = shallowRef<L.LatLngBounds | null>(null);
+
+const CLUSTER_ZOOM_THRESHOLD = 9;
+
+const getClusterCellSize = (zoomLevel: number) => {
+  if (zoomLevel <= 5) return 1.2;
+  if (zoomLevel <= 6) return 0.8;
+  if (zoomLevel <= 7) return 0.45;
+  if (zoomLevel <= 8) return 0.25;
+  return 0.12;
+};
+
+const getVisibleProjects = (projects: Project[]) => {
+  if (!viewportBounds.value) return projects;
+  const padded = viewportBounds.value.pad(0.2);
+  return projects.filter((project) =>
+    padded.contains([project.latitude, project.longitude]),
+  );
+};
+
+const buildRenderPoints = (projects: Project[]): RenderPoint[] => {
+  const visibleProjects = getVisibleProjects(projects);
+
+  if (currentZoom.value >= CLUSTER_ZOOM_THRESHOLD) {
+    return visibleProjects.map((project) => ({
+      id: project.id,
+      type: "project",
+      project,
+      lat: project.latitude,
+      lng: project.longitude,
+    }));
+  }
+
+  const cellSize = getClusterCellSize(currentZoom.value);
+  const clusterMap = new Map<string, Project[]>();
+
+  for (const project of visibleProjects) {
+    const latBucket = Math.floor(project.latitude / cellSize);
+    const lngBucket = Math.floor(project.longitude / cellSize);
+    const key = `${latBucket}:${lngBucket}`;
+    const bucket = clusterMap.get(key);
+    if (bucket) {
+      bucket.push(project);
+    } else {
+      clusterMap.set(key, [project]);
+    }
+  }
+
+  const points: RenderPoint[] = [];
+  for (const [key, members] of clusterMap.entries()) {
+    if (members.length === 1) {
+      const [project] = members;
+      points.push({
+        id: project.id,
+        type: "project",
+        project,
+        lat: project.latitude,
+        lng: project.longitude,
+      });
+      continue;
+    }
+
+    const lat = members.reduce((sum, member) => sum + member.latitude, 0) / members.length;
+    const lng = members.reduce((sum, member) => sum + member.longitude, 0) / members.length;
+    points.push({
+      id: `cluster-${key}-${members.length}`,
+      type: "cluster",
+      lat,
+      lng,
+      count: members.length,
+      members,
+      state: members[0]?.state ?? "unknown",
+    });
+  }
+
+  return points;
+};
+
+const projectsFinishedPoints = computed(() => buildRenderPoints(projectsFinished.value));
+const projectsUnderConstructionPoints = computed(() =>
+  buildRenderPoints(projectsUnderConstruction.value),
+);
+const projectsPlannedPoints = computed(() => buildRenderPoints(projectsPlanned.value));
+
+const getPointProjectId = (point: RenderPoint) =>
+  point.type === "project" ? point.project.id : -1;
 
 // Überwache Zoom-Änderungen für bedingte Rendering-Optimierungen
 // Verwende ein debounced Zoom-Event für bessere Performance
 let zoomTimeout: number | null = null;
+let mapEventHandlersBound = false;
+let boundMap: L.Map | null = null;
+
+const getMarkerIcon = (point: RenderPoint) => {
+  if (point.type === "cluster") {
+    const clusterBucket =
+      point.count >= 50 ? "xl" : point.count >= 20 ? "lg" : point.count >= 10 ? "md" : "sm";
+    const iconKey = `cluster:${clusterBucket}:${point.state}`;
+    if (MARKER_ICON_CACHE.has(iconKey)) {
+      return MARKER_ICON_CACHE.get(iconKey)!;
+    }
+    const clusterIcon = L.divIcon({
+      className: `cluster-marker cluster-marker-${clusterBucket} marker-state-${point.state.toLowerCase().replace(" ", "-")}`,
+      html: `<span>${point.count}</span>`,
+      iconSize: [36, 36],
+      iconAnchor: [18, 18],
+    }) as unknown as L.Icon;
+    MARKER_ICON_CACHE.set(iconKey, clusterIcon);
+    return clusterIcon;
+  }
+
+  const project = point.project;
+  const iconUrl = getPin(project);
+  const className = pinClass(project);
+  const iconKey = `project:${iconUrl}:${className}`;
+
+  if (MARKER_ICON_CACHE.has(iconKey)) {
+    return MARKER_ICON_CACHE.get(iconKey)!;
+  }
+
+  const icon = L.icon({
+    iconUrl,
+    iconSize: [28, 39],
+    iconAnchor: [14, 39],
+    className,
+  });
+  MARKER_ICON_CACHE.set(iconKey, icon);
+  return icon;
+};
+
+const updateViewportFromMap = (leafletMap: L.Map) => {
+  viewportBounds.value = leafletMap.getBounds();
+};
+
+const bindMapEvents = (leafletMap: L.Map) => {
+  if (mapEventHandlersBound && boundMap === leafletMap) return;
+  if (boundMap && mapEventHandlersBound) {
+    boundMap.off("zoomend", onMapZoomEnd);
+    boundMap.off("moveend", onMapMoveEnd);
+  }
+  boundMap = leafletMap;
+  leafletMap.on("zoomend", onMapZoomEnd);
+  leafletMap.on("moveend", onMapMoveEnd);
+  mapEventHandlersBound = true;
+  currentZoom.value = leafletMap.getZoom();
+  updateViewportFromMap(leafletMap);
+};
+
+const onMapZoomEnd = () => {
+  if (!map.value?.leafletObject) return;
+  if (zoomTimeout) {
+    clearTimeout(zoomTimeout);
+  }
+  zoomTimeout = window.setTimeout(() => {
+    if (!map.value?.leafletObject) return;
+    currentZoom.value = map.value.leafletObject.getZoom();
+    updateViewportFromMap(map.value.leafletObject);
+  }, 100);
+};
+
+const onMapMoveEnd = () => {
+  if (!map.value?.leafletObject) return;
+  updateViewportFromMap(map.value.leafletObject);
+};
 
 watch(
   () => map.value?.leafletObject,
   (newMap) => {
     if (newMap) {
-      newMap.on("zoomend", () => {
-        // Debounce Zoom-Events
-        if (zoomTimeout) {
-          clearTimeout(zoomTimeout);
-        }
-
-        zoomTimeout = window.setTimeout(() => {
-          currentZoom.value = newMap.getZoom();
-        }, 100);
-      });
+      bindMapEvents(newMap);
     }
   },
   { immediate: true },
@@ -426,6 +616,11 @@ onBeforeUnmount(() => {
 
   if (updateMaxBoundsTimeout.value) {
     clearTimeout(updateMaxBoundsTimeout.value);
+  }
+
+  if (boundMap && mapEventHandlersBound) {
+    boundMap.off("zoomend", onMapZoomEnd);
+    boundMap.off("moveend", onMapMoveEnd);
   }
 });
 
@@ -678,6 +873,36 @@ const updateMaxBounds = () => {
 }
 .marker-state-finished {
   filter: opacity(1);
+}
+
+.cluster-marker {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  background-color: #3d5e9e;
+}
+
+.cluster-marker-sm {
+  transform: scale(0.95);
+}
+
+.cluster-marker-md {
+  transform: scale(1.05);
+}
+
+.cluster-marker-lg {
+  transform: scale(1.15);
+}
+
+.cluster-marker-xl {
+  transform: scale(1.25);
 }
 
 .map {
