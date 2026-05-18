@@ -14,7 +14,7 @@
       >
         <img
           :src="project.teaserImg[0].signedUrl"
-          :alt="project.name"
+          :alt="project.name + ' - Teaser'"
           loading="lazy"
           @error="onImageError"
         />

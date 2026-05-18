@@ -31,6 +31,7 @@ const isLoading = computed(() => loadingStore.showLoadingSpinner);
 // Hide main content from screen readers when search modal is open
 const isMainHidden = computed(() => (isSearchVisible.value ? "true" : undefined));
 
+
 // Watch for store changes to open the modal
 watch(isSearchVisible, (isVisible) => {
   if (isVisible) {

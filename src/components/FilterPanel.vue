@@ -182,6 +182,7 @@ const countryList = computed(() =>
   }
 }
 
+
 .filter-group-title {
   color: var(--color-secondary);
   font-weight: var(--font-weight-label-md);

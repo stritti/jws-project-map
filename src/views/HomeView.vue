@@ -146,6 +146,7 @@ function focusMap() {
   }
 }
 
+
 function onSearchFocus() {
   isSearchActive.value = true;
 }

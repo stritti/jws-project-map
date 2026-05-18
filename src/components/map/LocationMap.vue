@@ -283,6 +283,7 @@ function onMapFocus() {
   announceToScreenReader(t("a11y.mapInstructions"));
 }
 
+
 // Compute project lists from the filtered locations
 const projectsFinished = computed(() =>
   locations.value.filter((p) => p.state === "finished"),

@@ -94,7 +94,6 @@ const emit = defineEmits<{
 }>()
 
 const currentIndex = ref(0)
-
 /**
  * Store active video elements keyed by gallery index.
  * Callback ref pattern is needed for v-for — template refs on v-for
