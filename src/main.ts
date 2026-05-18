@@ -49,7 +49,7 @@ countryStore.load().catch((err) => console.error("Country load failed:", err));
 app.mount("#app");
 
 // Bind HTML lang attribute to current i18n locale
-useHtmlLang();
+useHtmlLang(i18n);
 
 // Hide app shell and show app after mount
 requestAnimationFrame(() => {

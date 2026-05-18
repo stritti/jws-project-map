@@ -56,6 +56,10 @@ export function useFocusRestore() {
 }
 
 // ── Page title updater ─────────────────────────────────────────────────
+/**
+ * Update document.title on route changes.
+ * Must be called from within a component setup (uses useI18n).
+ */
 export function usePageTitle(router: Router): void {
   const { t } = useI18n()
   const projectStore = useProjectStore()
@@ -92,18 +96,30 @@ export function usePageTitle(router: Router): void {
 }
 
 // ── HTML lang attribute binding ────────────────────────────────────────
-export function useHtmlLang(): void {
-  const { locale } = useI18n()
+/**
+ * Bind the <html> lang attribute to the current i18n locale.
+ * Accepts the i18n instance directly so it can be called from main.ts
+ * (outside a component setup context where useI18n() would fail).
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function useHtmlLang(i18nInstance: any): void {
+  function getLocale(): string {
+    const loc = i18nInstance.global.locale
+    return typeof loc === "string" ? loc : loc.value
+  }
 
   function updateLang() {
-    document.documentElement.lang = String(locale.value)
+    document.documentElement.lang = getLocale()
   }
 
   // Set on init
   updateLang()
 
   // Watch for locale changes
-  watch(locale, () => {
-    updateLang()
-  })
+  watch(
+    () => getLocale(),
+    () => {
+      updateLang()
+    },
+  )
 }
