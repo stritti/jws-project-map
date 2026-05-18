@@ -3,8 +3,9 @@
     ref="modalRef"
     id="about-modal"
     :title="t('about.title')"
-    size="lg"
+    size="md"
     centered
+    scrollable
     hide-footer
     header-class="border-0 pb-0"
     body-class="pt-2"
@@ -104,6 +105,11 @@ const reloadApp = async () => {
 <style lang="scss" scoped>
 .about-content {
   padding: 0 0.25rem;
+
+
+  @media (max-width: 575.98px) {
+    padding: 0;
+  }
 }
 
 .about-description {
@@ -111,6 +117,12 @@ const reloadApp = async () => {
   line-height: 1.6;
   color: var(--color-on-surface, #191c1d);
   margin: 0;
+
+
+  @media (max-width: 575.98px) {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
 }
 
 .section-label {
@@ -126,6 +138,12 @@ const reloadApp = async () => {
   font-size: 1rem;
   color: var(--color-on-surface, #191c1d);
   margin-bottom: 1rem;
+
+
+  @media (max-width: 575.98px) {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
 }
 
 .about-link {
@@ -157,6 +175,23 @@ const reloadApp = async () => {
   li {
     font-size: 0.95rem;
     color: var(--color-on-surface, #191c1d);
+
+
+    @media (max-width: 575.98px) {
+      font-size: 0.85rem;
+    }
+  }
+}
+
+:deep(.modal-body) {
+  @media (max-width: 575.98px) {
+    padding: 0.75rem 1rem;
+  }
+}
+
+:deep(.modal-header) {
+  @media (max-width: 575.98px) {
+    padding: 0.75rem 1rem 0;
   }
 }
 </style>

@@ -1,25 +1,28 @@
 <template>
   <div class="project-page">
-    <b-container class="mt-4 mb-3">
-      <b-placeholder-wrapper :loading="loading">
-        <template #loading>
-          <b-row class="align-items-center mb-4">
-            <b-col cols="auto">
-               <b-placeholder width="44px" height="44px" class="rounded-circle" />
-            </b-col>
-            <b-col>
-              <h2><b-placeholder width="50%" height="2rem"></b-placeholder></h2>
-            </b-col>
-          </b-row>
-        </template>
-        <div v-if="project" class="page-header d-flex flex-wrap align-items-center gap-3 mb-4">
+    <!-- Sticky header bar: back button + project title -->
+    <div class="page-header-sticky">
+      <b-container>
+        <b-placeholder-wrapper :loading="loading">
+          <template #loading>
+            <b-row class="align-items-center py-2">
+              <b-col cols="auto">
+                <b-placeholder width="44px" height="44px" class="rounded-circle" />
+              </b-col>
+              <b-col>
+                <h2><b-placeholder width="50%" height="2rem"></b-placeholder></h2>
+              </b-col>
+            </b-row>
+          </template>
+          <div v-if="project" class="page-header d-flex flex-wrap align-items-center gap-3 py-2">
             <back-button v-if="!isIFrame" class="back-btn shadow-sm" />
             <h1 class="title mb-0 flex-grow-1 fw-bold">
               {{ project.name }}
             </h1>
-        </div>
-      </b-placeholder-wrapper>
-    </b-container>
+          </div>
+        </b-placeholder-wrapper>
+      </b-container>
+    </div>
 
     <b-container fluid class="px-0 px-md-3">
       <b-placeholder-wrapper :loading="loading">
@@ -49,6 +52,7 @@
         </div>
       </b-placeholder-wrapper>
     </b-container>
+
 
     <b-container class="mt-5">
       <div class="project-details">
@@ -291,6 +295,18 @@ const detailMarkerIcon = computed(() => {
   padding-bottom: 4rem;
   background-color: var(--jws-bg-subtle);
 }
+
+
+.page-header-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--jws-bg-subtle, #f8f9fa);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
 
 .page-header {
   .title {

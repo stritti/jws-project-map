@@ -85,7 +85,7 @@
   "a11y": {
     "skipToContent": "Aller au contenu principal",
     "skipToMap": "Aller à la carte",
-    "mapInstructions": "Carte : Utilisez les flèches pour déplacer, plus et moins pour zoomer. Ou appuyez sur Tabulation pour passer à la liste des projets.",
+    "mapInstructions": "Carte : utilisez les touches fléchées pour vous déplacer, plus et moins pour zoomer. Ou appuyez sur Tab pour passer à la liste des projets.",
     "searchResultsAnnouncement": "{count} résultats trouvés",
     "noResultsAnnouncement": "Aucun résultat trouvé",
     "projectsLoaded": "Projets chargés",
@@ -102,7 +102,7 @@
     "languageSelector": "Sélecteur de langue",
     "searchResultsLabel": "Résultats de recherche",
     "searchInput": "Rechercher des projets",
-    "filterPanel": "Paramètres de filtrage",
+    "filterPanel": "Paramètres de filtre",
     "statusFilter": "Statut",
     "categoriesFilter": "Catégories",
     "countriesFilter": "Pays"

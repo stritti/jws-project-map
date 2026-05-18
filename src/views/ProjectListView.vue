@@ -3,7 +3,7 @@
     <div class="project-list">
       <h1>{{ t("app.title") }}</h1>
 
-      <b-placeholder-wrapper :loading="showLoadingSpinner">
+      <b-placeholder-wrapper :loading="isDataLoading">
         <template #loading>
           <div class="skeleton-grid">
             <b-row class="g-4">
@@ -27,9 +27,9 @@
           </div>
         </template>
 
-        <h2 class="my-3 text-muted fs-5">
+        <h3 class="my-3 text-muted fs-5">
           {{ t("search.stats", { total: projectCount, ub: projectsUnderConstructionCount, pl: projectsPlannedCount }) }}
-        </h2>
+        </h3>
 
         <!-- Filter overlay container – sticky, filter overlays the list -->
         <div class="filter-overlay-container">
@@ -63,7 +63,7 @@
           {{ t("a11y.filterResultsAnnouncement", { count: finalProjectList.length }) }}
         </div>
       </b-placeholder-wrapper>
-      <b-overlay :show="showLoadingSpinner" fixed :opacity="0.5">
+      <b-overlay :show="isDataLoading" fixed :opacity="0.5">
         <b-row class="my-3 g-4">
           <b-col
             v-for="project in finalProjectList"
@@ -83,7 +83,7 @@
           <div class="display-1 text-muted opacity-25 mb-4">
             <IBiEmojiDizzy />
           </div>
-          <h2>{{ t("search.noResultsTitle") }}</h2>
+          <h3>{{ t("search.noResultsTitle") }}</h3>
           <p class="text-muted">{{ t("search.noResultsHint") }}</p>
           <b-button @click="clearAllFilters" variant="outline-primary" class="mt-3 rounded-pill px-4">
             {{ t("search.resetFilters") }}
@@ -119,6 +119,10 @@ const filterStore = useFilterStore();
 const { showLoadingSpinner } = storeToRefs(loadingStore);
 const { filteredList: filteredProjectList, projects } =
   storeToRefs(projectStore);
+
+// Show skeleton only while no data has arrived yet; once projects are available
+// images can load asynchronously without blocking the list.
+const isDataLoading = computed(() => showLoadingSpinner.value && projects.value.length === 0);
 const { categories } = storeToRefs(categoryStore);
 const { countries } = storeToRefs(countryStore);
 
@@ -290,13 +294,15 @@ onBeforeMount(() => {
 
   .filter-overlay-container {
     position: fixed;
-    bottom: calc(3rem + env(safe-area-inset-bottom, 0px));
-    left: 0.75rem;
-    right: 0.75rem;
+    bottom: 0;
+    left: 0;
+    right: 0;
     z-index: 1000;
     display: flex;
     flex-direction: column-reverse;
     gap: 0.75rem;
+    padding: 0.75rem;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
 
     &::before {
       display: none;

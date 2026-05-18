@@ -85,7 +85,7 @@
   "a11y": {
     "skipToContent": "Zum Hauptinhalt springen",
     "skipToMap": "Zur Karte springen",
-    "mapInstructions": "Karte: Verwende die Pfeiltasten zum Verschieben, Plus und Minus zum Zoomen. Oder drücke Tab, um zur Projektliste zu wechseln.",
+    "mapInstructions": "Karte: Mit Pfeiltasten verschieben, Plus und Minus zum Zoomen. Oder Tab drücken, um zur Projektliste zu springen.",
     "searchResultsAnnouncement": "{count} Ergebnisse gefunden",
     "noResultsAnnouncement": "Keine Ergebnisse gefunden",
     "projectsLoaded": "Projekte geladen",
