@@ -20,11 +20,11 @@
   "dependencies": {
     "@popperjs/core": "^2.11.8",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
-    "axios": "^1.16.0",
+    "axios": "^1.16.1",
     "baseline-browser-mapping": "^2.10.29",
     "bootstrap": "^5.3.8",
     "bootstrap-vue-next": "^0.45.3",
-    "caniuse-lite": "^1.0.30001792",
+    "caniuse-lite": "^1.0.30001793",
     "flag-icons": "^7.5.0",
     "fuse.js": "^7.3.0",
     "leaflet": "^1.9.4",
@@ -65,6 +65,6 @@
     "vite-plugin-pwa": "^1.3.0",
     "vite-plugin-vue-devtools": "^8.1.2",
     "vite-svg-loader": "^5.1.1",
-    "vue-tsc": "^3.2.8"
+    "vue-tsc": "^3.2.9"
   }
 }
