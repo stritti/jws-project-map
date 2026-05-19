@@ -257,8 +257,8 @@ const bounds = shallowRef(
 );
 const maxBounds = shallowRef(
   latLngBounds([
-    [-85, -180],
-    [85, 180],
+    [-40, -30],
+    [40, 60],
   ]),
 );
 const isOpened = ref(false);
@@ -443,6 +443,7 @@ const CLUSTER_ZOOM_THRESHOLD = 9;
 const CLUSTER_ICON_XL = 50;
 const CLUSTER_ICON_LG = 20;
 const CLUSTER_ICON_MD = 10;
+const MAP_BOUNDS_PADDING = 0.2;
 
 const getDominantState = (members: Project[]) => {
   const stateCount = new Map<string, number>();
@@ -778,7 +779,7 @@ const updateMaxBounds = () => {
         // Verwende die gecachten Grenzen
         requestAnimationFrame(() => {
           const leafletMap = map.value.leafletObject;
-          maxBounds.value = cachedBounds.pad(0.2);
+          maxBounds.value = cachedBounds.pad(MAP_BOUNDS_PADDING);
           leafletMap.fitBounds(cachedBounds, {
             padding: [50, 50],
             animate: false,
@@ -805,6 +806,8 @@ const updateMaxBounds = () => {
       const locationsArray = locations.value;
       const len = locationsArray.length;
 
+      // Intentionally iterate all points to keep west/east extremities accurate.
+      // Sampling can miss outliers and make pins unreachable near map edges.
       for (let i = 0; i < len; i++) {
         const loc = locationsArray[i];
         const lat = loc.latitude;
@@ -837,7 +840,7 @@ const updateMaxBounds = () => {
         // Verwende requestAnimationFrame für flüssigere Animation
         requestAnimationFrame(() => {
           // Verwende eine nicht-animierte Anpassung für bessere Performance
-          maxBounds.value = calculatedBounds.pad(0.2);
+          maxBounds.value = calculatedBounds.pad(MAP_BOUNDS_PADDING);
           leafletMap.fitBounds(calculatedBounds, {
             padding: [50, 50],
             animate: false,
