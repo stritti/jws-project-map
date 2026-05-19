@@ -257,8 +257,8 @@ const bounds = shallowRef(
 );
 const maxBounds = shallowRef(
   latLngBounds([
-    [-14.6, 5.9],
-    [8.9490075, 11.322326],
+    [-85, -180],
+    [85, 180],
   ]),
 );
 const isOpened = ref(false);
@@ -778,6 +778,7 @@ const updateMaxBounds = () => {
         // Verwende die gecachten Grenzen
         requestAnimationFrame(() => {
           const leafletMap = map.value.leafletObject;
+          maxBounds.value = cachedBounds.pad(0.2);
           leafletMap.fitBounds(cachedBounds, {
             padding: [50, 50],
             animate: false,
@@ -804,11 +805,7 @@ const updateMaxBounds = () => {
       const locationsArray = locations.value;
       const len = locationsArray.length;
 
-      // Begrenze die Anzahl der zu verarbeitenden Punkte für bessere Performance
-      // Bei sehr großen Datensätzen können wir eine Stichprobe nehmen
-      const stride = len > 1000 ? Math.floor(len / 1000) : 1;
-
-      for (let i = 0; i < len; i += stride) {
+      for (let i = 0; i < len; i++) {
         const loc = locationsArray[i];
         const lat = loc.latitude;
         const lng = loc.longitude;
@@ -840,6 +837,7 @@ const updateMaxBounds = () => {
         // Verwende requestAnimationFrame für flüssigere Animation
         requestAnimationFrame(() => {
           // Verwende eine nicht-animierte Anpassung für bessere Performance
+          maxBounds.value = calculatedBounds.pad(0.2);
           leafletMap.fitBounds(calculatedBounds, {
             padding: [50, 50],
             animate: false,
