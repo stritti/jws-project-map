@@ -120,13 +120,9 @@ function handleProjectClick(projectId: number) {
 // Keep full-detail load behind map paint but still trigger within short user-perceived delay.
 const FULL_PROJECT_IDLE_TIMEOUT_MS = 1500;
 const FULL_PROJECT_FALLBACK_DELAY_MS = 300;
-type IdleDeadlineLike = {
-  didTimeout: boolean;
-  timeRemaining: () => number;
-};
 const idleWindow = window as Window & {
   requestIdleCallback?: (
-    callback: (deadline: IdleDeadlineLike) => void,
+    callback: (deadline: IdleDeadline) => void,
     options?: { timeout: number },
   ) => number;
   cancelIdleCallback?: (handle: number) => void;
@@ -158,14 +154,12 @@ function deferredFullProjectLoad() {
     fullProjectLoadIdleCallbackHandle.value = idleWindow.requestIdleCallback(() => {
       loadProjects();
       fullProjectLoadIdleCallbackHandle.value = null;
-      fullProjectLoadTimeoutHandle.value = null;
     }, { timeout: FULL_PROJECT_IDLE_TIMEOUT_MS });
     return;
   }
 
   fullProjectLoadTimeoutHandle.value = window.setTimeout(() => {
     loadProjects();
-    fullProjectLoadIdleCallbackHandle.value = null;
     fullProjectLoadTimeoutHandle.value = null;
   }, FULL_PROJECT_FALLBACK_DELAY_MS);
 }
