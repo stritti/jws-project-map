@@ -1,13 +1,13 @@
 <template>
-  <div v-if="props.isVisible" class="fullscreen-gallery">
-    <button class="gallery-close" @click="emit('update:isVisible', false)" aria-label="Close gallery">
+  <div v-if="props.isVisible" class="fullscreen-gallery" role="dialog" :aria-label="t('a11y.closeGallery')" tabindex="0" @keydown="onKeydown">
+    <button class="gallery-close" @click="closeModal" :aria-label="t('a11y.closeGallery')">
       <span aria-hidden="true">&times;</span>
     </button>
 
     <button
       class="gallery-nav gallery-nav-prev"
       :class="{ 'gallery-nav-hidden': props.galleryItems.length <= 1 }"
-      aria-label="Previous"
+      :aria-label="t('gallery.prevImage', 'Previous image')"
       @click="goPrev"
     >
       <span class="gallery-nav-icon gallery-nav-icon-prev" />
@@ -16,7 +16,7 @@
     <button
       class="gallery-nav gallery-nav-next"
       :class="{ 'gallery-nav-hidden': props.galleryItems.length <= 1 }"
-      aria-label="Next"
+      :aria-label="t('gallery.nextImage', 'Next image')"
       @click="goNext"
     >
       <span class="gallery-nav-icon gallery-nav-icon-next" />
@@ -40,7 +40,7 @@
             <template v-if="item.mimetype.startsWith('image')">
               <img
                 :src="item.signedUrl"
-                :alt="item.name"
+                :alt="item.name || t('a11y.imageNotAvailable', 'Image not available')"
                 class="gallery-image"
               />
             </template>
@@ -66,12 +66,22 @@
         </template>
       </BCarouselSlide>
     </BCarousel>
+
+    <!-- Screen reader announcement for image position -->
+    <div class="sr-only" role="status" aria-live="polite">
+      {{ props.isVisible ? t('a11y.imagePosition', { current: currentIndex + 1, total: props.galleryItems.length }) : '' }}
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Attachment } from '@/interfaces/Attachment'
+import { useFocusRestore } from '@/composables/useAccessibility'
+
+const { t } = useI18n()
+const { setTrigger, restoreFocus } = useFocusRestore()
 
 const props = defineProps<{
   isVisible: boolean
@@ -84,7 +94,6 @@ const emit = defineEmits<{
 }>()
 
 const currentIndex = ref(0)
-
 /**
  * Store active video elements keyed by gallery index.
  * Callback ref pattern is needed for v-for — template refs on v-for
@@ -128,6 +137,23 @@ function goNext() {
   }
 }
 
+function closeModal() {
+  emit('update:isVisible', false)
+}
+
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'ArrowLeft') {
+    e.preventDefault()
+    goPrev()
+  } else if (e.key === 'ArrowRight') {
+    e.preventDefault()
+    goNext()
+  } else if (e.key === 'Escape') {
+    e.preventDefault()
+    closeModal()
+  }
+}
+
 function findCurrentIndex(): number {
   if (!props.currentItem) return 0
   const index = props.galleryItems.findIndex(
@@ -143,6 +169,18 @@ watch(
     currentIndex.value = findCurrentIndex()
   },
   { immediate: true },
+)
+
+// Capture focus when modal opens, restore when it closes
+watch(
+  () => props.isVisible,
+  (visible) => {
+    if (visible) {
+      setTrigger()
+    } else {
+      restoreFocus()
+    }
+  },
 )
 </script>
 

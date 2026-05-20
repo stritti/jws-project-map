@@ -81,5 +81,30 @@
     "layerFinished": "Projekte: abgeschlossen ({count})",
     "layerUnderConstruction": "Projekte: im Bau ({count})",
     "layerPlanned": "Projekte: geplant ({count})"
+  },
+  "a11y": {
+    "skipToContent": "Zum Hauptinhalt springen",
+    "skipToMap": "Zur Karte springen",
+    "mapInstructions": "Karte: Mit Pfeiltasten verschieben, Plus und Minus zum Zoomen. Oder Tab drücken, um zur Projektliste zu springen.",
+    "searchResultsAnnouncement": "{count} Ergebnisse gefunden",
+    "noResultsAnnouncement": "Keine Ergebnisse gefunden",
+    "projectsLoaded": "Projekte geladen",
+    "close": "Schließen",
+    "closeSearch": "Suche schließen",
+    "closeGallery": "Galerie schließen",
+    "closeAbout": "Über-Dialog schließen",
+    "imageNotAvailable": "Bild nicht verfügbar",
+    "imagePosition": "Bild {current} von {total}",
+    "zoomIn": "Vergrößern",
+    "zoomOut": "Verkleinern",
+    "filterResultsAnnouncement": "{count} Ergebnisse gefunden",
+    "mainNavigation": "Hauptnavigation",
+    "languageSelector": "Sprachauswahl",
+    "searchResultsLabel": "Suchergebnisse",
+    "searchInput": "Projekte durchsuchen",
+    "filterPanel": "Filtereinstellungen",
+    "statusFilter": "Status",
+    "categoriesFilter": "Kategorien",
+    "countriesFilter": "Länder"
   }
 }

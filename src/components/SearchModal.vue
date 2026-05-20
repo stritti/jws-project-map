@@ -7,6 +7,7 @@
     hide-footer
     title-class="w-100"
     body-class="p-0"
+    :header-close-label="t('nav.close')"
     @shown="onShown"
     @hidden="onHidden"
   >
@@ -107,6 +108,7 @@ import { useProjectSearch } from "@/composables/useProjectSearch";
 import { useWebFrame } from "@/composables/useWebFrame";
 import { useSearchStore } from "@/stores/search.store";
 import SearchBar from "./SearchBar.vue";
+import { useFocusRestore } from "@/composables/useAccessibility";
 
 const router = useRouter();
 const projectStore = useProjectStore();
@@ -117,8 +119,10 @@ const { navigateToProject } = useWebFrame();
 
 const modalRef = ref<{ show: () => void; hide: () => void } | null>(null);
 const searchBarRef = ref<InstanceType<typeof SearchBar> | null>(null);
+const { setTrigger, restoreFocus } = useFocusRestore();
 
 function show() {
+  setTrigger();
   modalRef.value?.show();
 }
 
@@ -128,6 +132,7 @@ function hide() {
 
 function onHidden() {
   reset();
+  restoreFocus();
   emit("hidden");
 }
 

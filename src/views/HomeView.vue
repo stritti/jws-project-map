@@ -27,16 +27,11 @@ const { countries } = storeToRefs(countryStore);
 // Derive local refs from shared filter store for template bindings
 const { stateFilter, categoryFilter, countryFilter, filterVisible } = storeToRefs(filterStore);
 
-// Map data, categories and countries are already loading in main.ts
-// Load full project data in background for the project list
-projectStore
-  .load(false)
-  .catch((err) => console.error("Full project load failed:", err));
+// Start map chunk loading immediately so first map paint waits less.
+const locationMapLoader = import("../components/map/LocationMap.vue");
 
 // Lazy-load the map component (Leaflet stays out of the initial bundle)
-const LocationMap = defineAsyncComponent(
-  () => import("../components/map/LocationMap.vue"),
-);
+const LocationMap = defineAsyncComponent(() => locationMapLoader);
 
 // Map base layer (satellite or OSM)
 const baseLayer = ref<'satellite' | 'osm'>('osm');
@@ -120,9 +115,54 @@ function handleProjectClick(projectId: number) {
   navigateToProject(projectId);
 }
 
-// Load categories and countries
-categoryStore.load();
-countryStore.load();
+// Map data, categories and countries are already loading in main.ts.
+// De-prioritize full project data so map render keeps network priority.
+// Keep full-detail load behind map paint but still trigger within short user-perceived delay.
+const FULL_PROJECT_IDLE_TIMEOUT_MS = 1500;
+const FULL_PROJECT_FALLBACK_DELAY_MS = 300;
+const idleWindow = window as Window & {
+  requestIdleCallback?: (
+    callback: (deadline: IdleDeadline) => void,
+    options?: { timeout: number },
+  ) => number;
+  cancelIdleCallback?: (handle: number) => void;
+};
+
+const fullProjectLoadTimeoutHandle = ref<number | null>(null);
+const fullProjectLoadIdleCallbackHandle = ref<number | null>(null);
+
+function clearDeferredProjectLoad() {
+  if (fullProjectLoadTimeoutHandle.value) {
+    clearTimeout(fullProjectLoadTimeoutHandle.value);
+    fullProjectLoadTimeoutHandle.value = null;
+  }
+  if (fullProjectLoadIdleCallbackHandle.value && idleWindow.cancelIdleCallback) {
+    idleWindow.cancelIdleCallback(fullProjectLoadIdleCallbackHandle.value);
+    fullProjectLoadIdleCallbackHandle.value = null;
+  }
+}
+
+function deferredFullProjectLoad() {
+  const loadProjects = () => {
+    projectStore
+      .load(false)
+      .catch((err) => console.error("Full project load failed:", err));
+  };
+
+  clearDeferredProjectLoad();
+  if (idleWindow.requestIdleCallback) {
+    fullProjectLoadIdleCallbackHandle.value = idleWindow.requestIdleCallback(() => {
+      loadProjects();
+      fullProjectLoadIdleCallbackHandle.value = null;
+    }, { timeout: FULL_PROJECT_IDLE_TIMEOUT_MS });
+    return;
+  }
+
+  fullProjectLoadTimeoutHandle.value = window.setTimeout(() => {
+    loadProjects();
+    fullProjectLoadTimeoutHandle.value = null;
+  }, FULL_PROJECT_FALLBACK_DELAY_MS);
+}
 
 // ── Keep search bar visible on mobile when the keyboard opens ──────────
 // On mobile the .home container is position:fixed;inset:0 so the map and
@@ -136,6 +176,16 @@ countryStore.load();
 // ────────────────────────────────────────────────────────────────────────
 
 const isSearchActive = ref(false);
+const mapContainerRef = ref<HTMLElement | null>(null);
+
+function focusMap() {
+  // Find the map container and focus it
+  const mapEl = document.querySelector(".project-map .map") as HTMLElement;
+  if (mapEl) {
+    mapEl.focus();
+  }
+}
+
 
 function onSearchFocus() {
   isSearchActive.value = true;
@@ -160,6 +210,8 @@ const BODY_LOCK_CLASS = 'body-locked';
 const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
 onMounted(() => {
+  deferredFullProjectLoad();
+
   if (isMobile) {
     document.documentElement.classList.add(BODY_LOCK_CLASS);
     document.body.classList.add(BODY_LOCK_CLASS);
@@ -170,6 +222,8 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  clearDeferredProjectLoad();
+
   document.documentElement.classList.remove(BODY_LOCK_CLASS);
   document.body.classList.remove(BODY_LOCK_CLASS);
   if (window.visualViewport) {
@@ -181,6 +235,11 @@ onUnmounted(() => {
 <template>
   <div class="home">
     <h1>{{ t("app.title") }}</h1>
+    
+    <!-- Skip to map link for keyboard users -->
+    <a href="#project-map" class="skip-to-map" @click.prevent="focusMap">
+      {{ t("a11y.skipToMap") }}
+    </a>
     
     <!-- Search bar overlay with floating filter -->
     <div
@@ -238,6 +297,11 @@ onUnmounted(() => {
         </b-row>
       </FilterPanel>
       
+      <!-- Screen reader announcement for search result count -->
+      <div class="sr-only" role="status" aria-live="polite">
+        {{ searchResults.length > 0 ? t("a11y.searchResultsAnnouncement", { count: searchResults.length }) : (searchQuery.trim().length >= 2 ? t("a11y.noResultsAnnouncement") : "") }}
+      </div>
+      
       <!-- Search results dropdown -->
       <div v-if="searchResults.length > 0 && searchQuery.trim().length >= 2" class="search-results-dropdown" role="listbox" :aria-label="t('search.resultsLabel')">
         <div
@@ -262,7 +326,7 @@ onUnmounted(() => {
       </div>
     </div>
     
-    <div class="project-map">
+    <div class="project-map" id="project-map">
       <!-- Map and data load in parallel: map tiles show immediately, pins appear when data is ready -->
       <Suspense>
         <template #default>
@@ -285,6 +349,7 @@ onUnmounted(() => {
 @use "@/assets/design-tokens.scss" as *;
 
 .home {
+  // Skip-to-map link inherits from a11y.scss .skip-to-map class
   h1 {
     top: env(safe-area-inset-top);
     right: env(safe-area-inset-right);

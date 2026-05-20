@@ -14,8 +14,9 @@
       >
         <img
           :src="project.teaserImg[0].signedUrl"
-          :alt="project.name + ' Teaser Image'"
+          :alt="project.name + ' - Teaser'"
           loading="lazy"
+          @error="onImageError"
         />
         <div class="hover-overlay">
           <IBiZoomIn class="zoom-icon" />
@@ -35,8 +36,9 @@
         <template v-if="item.mimetype.startsWith('image')">
           <img
             :src="item.thumbnails?.card_cover?.signedUrl || item.signedUrl"
-            :alt="item.name"
+            :alt="item.name || project.name + ' image'"
             loading="lazy"
+            @error="onImageError"
           />
           <div class="hover-overlay">
             <IBiZoomIn class="zoom-icon" />
@@ -92,6 +94,7 @@ export default defineComponent({
   setup(props) {
     const modalVisible = ref(false);
     const currentItem = ref(null);
+    const imageError = ref(false);
 
     const galleryWithTeaserImg = computed(() => {
       const gallery = props.project.gallery || [];
@@ -102,7 +105,8 @@ export default defineComponent({
     return {
       modalVisible,
       currentItem,
-      galleryWithTeaserImg
+      galleryWithTeaserImg,
+      imageError,
     };
   },
   methods: {
@@ -113,7 +117,10 @@ export default defineComponent({
     closeModal() {
       this.modalVisible = false;
       this.currentItem = null;
-    }
+    },
+    onImageError() {
+      this.imageError = true;
+    },
   }
 });
 </script>

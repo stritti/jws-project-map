@@ -8,6 +8,10 @@ import { useSearchStore } from "@/stores/search.store";
 import { storeToRefs } from "pinia";
 import { computed, watch, ref } from "vue";
 import { useRouter } from "vue-router";
+import { usePageTitle } from "./composables/useAccessibility";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 import "./assets/iframe.scss";
 
@@ -19,7 +23,14 @@ const { isSearchVisible } = storeToRefs(searchStore);
 
 const searchModalRef = ref<InstanceType<typeof SearchModal> | null>(null);
 
+// Update page title on route changes
+usePageTitle(router);
+
 const isLoading = computed(() => loadingStore.showLoadingSpinner);
+
+// Hide main content from screen readers when search modal is open
+const isMainHidden = computed(() => (isSearchVisible.value ? "true" : undefined));
+
 
 // Watch for store changes to open the modal
 watch(isSearchVisible, (isVisible) => {
@@ -49,7 +60,7 @@ router.afterEach((to) => {
 <template>
   <!-- Skip-to-content link for keyboard users -->
   <a href="#main-content" class="skip-link">
-    Skip to main content
+    {{ t("a11y.skipToContent") }}
   </a>
 
   <!-- Global loading bar -->
@@ -58,7 +69,7 @@ router.afterEach((to) => {
   </div>
 
   <div class="app-wrapper">
-    <main id="main-content" class="content" aria-label="Main content">
+    <main id="main-content" class="content" aria-label="Main content" role="main" :aria-hidden="isMainHidden">
       <router-view />
     </main>
     <site-footer v-if="!isIFrame" />

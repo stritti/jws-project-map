@@ -13,9 +13,11 @@ import { useCategoryStore } from "./stores/category.store";
 import { useCountryStore } from "./stores/country.store";
 
 import { i18n } from "./plugins/i18n";
+import { useHtmlLang } from "./composables/useAccessibility";
 
 import "./assets/style-config.scss";
 import "flag-icons/css/flag-icons.min.css";
+import "./assets/a11y.scss";
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
@@ -45,6 +47,9 @@ countryStore.load().catch((err) => console.error("Country load failed:", err));
 // app.component('vue-picture-swipe', VuePictureSwipe)
 
 app.mount("#app");
+
+// Bind HTML lang attribute to current i18n locale
+useHtmlLang(i18n);
 
 // Hide app shell and show app after mount
 requestAnimationFrame(() => {

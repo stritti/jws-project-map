@@ -53,6 +53,7 @@
       </b-placeholder-wrapper>
     </b-container>
 
+
     <b-container class="mt-5">
       <div class="project-details">
         <b-placeholder-wrapper :loading="loading">
@@ -295,6 +296,7 @@ const detailMarkerIcon = computed(() => {
   background-color: var(--jws-bg-subtle);
 }
 
+
 .page-header-sticky {
   position: sticky;
   top: 0;
@@ -304,6 +306,7 @@ const detailMarkerIcon = computed(() => {
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
+
 
 .page-header {
   .title {

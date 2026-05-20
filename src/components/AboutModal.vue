@@ -10,6 +10,7 @@
     header-class="border-0 pb-0"
     body-class="pt-2"
     content-class="rounded-4 border-0 shadow-lg"
+    :header-close-label="t('nav.close')"
   >
     <div class="about-content">
       <!-- Description -->
@@ -105,6 +106,7 @@ const reloadApp = async () => {
 .about-content {
   padding: 0 0.25rem;
 
+
   @media (max-width: 575.98px) {
     padding: 0;
   }
@@ -115,6 +117,7 @@ const reloadApp = async () => {
   line-height: 1.6;
   color: var(--color-on-surface, #191c1d);
   margin: 0;
+
 
   @media (max-width: 575.98px) {
     font-size: 0.875rem;
@@ -135,6 +138,7 @@ const reloadApp = async () => {
   font-size: 1rem;
   color: var(--color-on-surface, #191c1d);
   margin-bottom: 1rem;
+
 
   @media (max-width: 575.98px) {
     font-size: 0.875rem;
@@ -171,6 +175,7 @@ const reloadApp = async () => {
   li {
     font-size: 0.95rem;
     color: var(--color-on-surface, #191c1d);
+
 
     @media (max-width: 575.98px) {
       font-size: 0.85rem;

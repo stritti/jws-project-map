@@ -58,6 +58,10 @@
         <div class="mb-4 text-muted small" v-if="filteredProjectList.length !== finalProjectList.length || activeFiltersCount > 0 || searchQuery">
           {{ t("search.resultsCount", { count: finalProjectList.length }) }}
         </div>
+        <!-- Screen reader announcement for filter result count -->
+        <div class="sr-only" role="status" aria-live="polite">
+          {{ t("a11y.filterResultsAnnouncement", { count: finalProjectList.length }) }}
+        </div>
       </b-placeholder-wrapper>
       <b-overlay :show="isDataLoading" fixed :opacity="0.5">
         <b-row class="my-3 g-4">
