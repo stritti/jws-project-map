@@ -27,16 +27,11 @@ const { countries } = storeToRefs(countryStore);
 // Derive local refs from shared filter store for template bindings
 const { stateFilter, categoryFilter, countryFilter, filterVisible } = storeToRefs(filterStore);
 
-// Map data, categories and countries are already loading in main.ts
-// Load full project data in background for the project list
-projectStore
-  .load(false)
-  .catch((err) => console.error("Full project load failed:", err));
+// Start map chunk loading immediately so first map paint waits less.
+const locationMapLoader = import("../components/map/LocationMap.vue");
 
 // Lazy-load the map component (Leaflet stays out of the initial bundle)
-const LocationMap = defineAsyncComponent(
-  () => import("../components/map/LocationMap.vue"),
-);
+const LocationMap = defineAsyncComponent(() => locationMapLoader);
 
 // Map base layer (satellite or OSM)
 const baseLayer = ref<'satellite' | 'osm'>('osm');
@@ -120,9 +115,53 @@ function handleProjectClick(projectId: number) {
   navigateToProject(projectId);
 }
 
-// Load categories and countries
-categoryStore.load();
-countryStore.load();
+// Map data, categories and countries are already loading in main.ts.
+// De-prioritize full project data so map render keeps network priority.
+const FULL_PROJECT_IDLE_TIMEOUT = 1500;
+const FULL_PROJECT_FALLBACK_DELAY = 300;
+const idleWindow = window as Window & {
+  requestIdleCallback?: (
+    callback: (deadline: IdleDeadline) => void,
+    options?: { timeout: number },
+  ) => number;
+  cancelIdleCallback?: (handle: number) => void;
+};
+
+let fullProjectLoadTimeout: number | null = null;
+let fullProjectLoadIdleHandle: number | null = null;
+
+function clearDeferredProjectLoad() {
+  if (fullProjectLoadTimeout) {
+    clearTimeout(fullProjectLoadTimeout);
+    fullProjectLoadTimeout = null;
+  }
+  if (fullProjectLoadIdleHandle && idleWindow.cancelIdleCallback) {
+    idleWindow.cancelIdleCallback(fullProjectLoadIdleHandle);
+    fullProjectLoadIdleHandle = null;
+  }
+}
+
+function deferredFullProjectLoad() {
+  const loadProjects = () => {
+    projectStore
+      .load(false)
+      .catch((err) => console.error("Full project load failed:", err));
+  };
+
+  clearDeferredProjectLoad();
+  if (idleWindow.requestIdleCallback) {
+    fullProjectLoadIdleHandle = idleWindow.requestIdleCallback(() => {
+      loadProjects();
+      fullProjectLoadIdleHandle = null;
+    }, { timeout: FULL_PROJECT_IDLE_TIMEOUT });
+    return;
+  }
+
+  fullProjectLoadTimeout = window.setTimeout(() => {
+    loadProjects();
+    fullProjectLoadTimeout = null;
+  }, FULL_PROJECT_FALLBACK_DELAY);
+}
 
 // ── Keep search bar visible on mobile when the keyboard opens ──────────
 // On mobile the .home container is position:fixed;inset:0 so the map and
@@ -170,6 +209,8 @@ const BODY_LOCK_CLASS = 'body-locked';
 const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
 onMounted(() => {
+  deferredFullProjectLoad();
+
   if (isMobile) {
     document.documentElement.classList.add(BODY_LOCK_CLASS);
     document.body.classList.add(BODY_LOCK_CLASS);
@@ -180,6 +221,8 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  clearDeferredProjectLoad();
+
   document.documentElement.classList.remove(BODY_LOCK_CLASS);
   document.body.classList.remove(BODY_LOCK_CLASS);
   if (window.visualViewport) {
