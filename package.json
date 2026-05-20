@@ -21,7 +21,7 @@
     "@popperjs/core": "^2.11.8",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "axios": "^1.16.1",
-    "baseline-browser-mapping": "^2.10.29",
+    "baseline-browser-mapping": "^2.10.31",
     "bootstrap": "^5.3.8",
     "bootstrap-vue-next": "^0.45.3",
     "caniuse-lite": "^1.0.30001793",
