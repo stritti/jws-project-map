@@ -254,12 +254,20 @@ const isLoadingMap = ref(true);
 const mapReady = ref(true); // Karte sofort als bereit markieren
 const mapInitialized = ref(false);
 const initialDataLoaded = ref(false);
-const pinsReady = ref(false); // Neuer Status für Pins
+const pinsReady = ref(false); // New status for pins
 const selectedLocation = shallowRef<Project | undefined>(undefined);
 const effectiveBaseLayer = ref<'satellite' | 'osm'>('osm');
-const browserWindow = window as Window & {
+// Delay values tuned to prioritize first map paint while still showing pins/layer quickly after.
+const PINS_IDLE_TIMEOUT = 250;
+const LAYER_IDLE_TIMEOUT = 400;
+// Fallback delays for browsers without requestIdleCallback.
+// Keep these short so pins/layer appear quickly after initial paint.
+const PINS_FALLBACK_DELAY = 80;
+const LAYER_FALLBACK_DELAY = 150;
+
+const windowWithIdleCallback = window as Window & {
   requestIdleCallback?: (
-    callback: (deadline: { didTimeout: boolean; timeRemaining: () => number }) => void,
+    callback: (deadline: IdleDeadline) => void,
     options?: { timeout: number },
   ) => number;
   cancelIdleCallback?: (handle: number) => void;
@@ -275,8 +283,8 @@ const clearPinsSchedule = () => {
     clearTimeout(pinsRenderTimeout);
     pinsRenderTimeout = null;
   }
-  if (pinsIdleHandle && browserWindow.cancelIdleCallback) {
-    browserWindow.cancelIdleCallback(pinsIdleHandle);
+  if (pinsIdleHandle && windowWithIdleCallback.cancelIdleCallback) {
+    windowWithIdleCallback.cancelIdleCallback(pinsIdleHandle);
     pinsIdleHandle = null;
   }
 };
@@ -286,8 +294,8 @@ const clearLayerSchedule = () => {
     clearTimeout(satelliteSwitchTimeout);
     satelliteSwitchTimeout = null;
   }
-  if (layerIdleHandle && browserWindow.cancelIdleCallback) {
-    browserWindow.cancelIdleCallback(layerIdleHandle);
+  if (layerIdleHandle && windowWithIdleCallback.cancelIdleCallback) {
+    windowWithIdleCallback.cancelIdleCallback(layerIdleHandle);
     layerIdleHandle = null;
   }
 };
@@ -305,46 +313,52 @@ const schedulePinsRendering = () => {
     return;
   }
 
-  if (browserWindow.requestIdleCallback) {
-    pinsIdleHandle = browserWindow.requestIdleCallback(() => {
+  if (windowWithIdleCallback.requestIdleCallback) {
+    const idleHandle = windowWithIdleCallback.requestIdleCallback(() => {
       pinsReady.value = true;
-      pinsIdleHandle = null;
-    }, { timeout: 250 });
+      if (pinsIdleHandle === idleHandle) {
+        pinsIdleHandle = null;
+      }
+    }, { timeout: PINS_IDLE_TIMEOUT });
+    pinsIdleHandle = idleHandle;
     return;
   }
 
   pinsRenderTimeout = window.setTimeout(() => {
     pinsReady.value = true;
     pinsRenderTimeout = null;
-  }, 80);
+  }, PINS_FALLBACK_DELAY);
 };
 
 const scheduleBaseLayerUpdate = (layer: 'satellite' | 'osm') => {
   clearLayerSchedule();
 
-  if (layer === "osm") {
-    effectiveBaseLayer.value = "osm";
+  if (layer === 'osm') {
+    effectiveBaseLayer.value = 'osm';
     return;
   }
 
-  // Satellite layer intentionally delayed so initial map paint stays fast.
-  effectiveBaseLayer.value = "osm";
+  // Satellite layer is intentionally delayed so initial map paint stays fast.
+  effectiveBaseLayer.value = 'osm';
   if (!mapInitialized.value) {
     return;
   }
 
-  if (browserWindow.requestIdleCallback) {
-    layerIdleHandle = browserWindow.requestIdleCallback(() => {
-      effectiveBaseLayer.value = "satellite";
-      layerIdleHandle = null;
-    }, { timeout: 400 });
+  if (windowWithIdleCallback.requestIdleCallback) {
+    const idleHandle = windowWithIdleCallback.requestIdleCallback(() => {
+      effectiveBaseLayer.value = 'satellite';
+      if (layerIdleHandle === idleHandle) {
+        layerIdleHandle = null;
+      }
+    }, { timeout: LAYER_IDLE_TIMEOUT });
+    layerIdleHandle = idleHandle;
     return;
   }
 
   satelliteSwitchTimeout = window.setTimeout(() => {
-    effectiveBaseLayer.value = "satellite";
+    effectiveBaseLayer.value = 'satellite';
     satelliteSwitchTimeout = null;
-  }, 150);
+  }, LAYER_FALLBACK_DELAY);
 };
 const mapOptions = ref({
   zoomSnap: 0.5,
@@ -429,7 +443,7 @@ const mapLoaded = () => {
   isLoadingMap.value = false;
   scheduleBaseLayerUpdate(props.baseLayer);
 
-  // Optimiere die Leaflet-Karte für bessere Performance
+  // Optimize the Leaflet map for better performance
   if (map.value?.leafletObject) {
     // Deaktiviere automatisches Zoomen während des Ladens
     map.value.leafletObject.options.trackResize = false;
@@ -478,7 +492,6 @@ watch(
   (newLayer) => {
     scheduleBaseLayerUpdate(newLayer);
   },
-  { immediate: true },
 );
 
 const addMarker = (event: {
