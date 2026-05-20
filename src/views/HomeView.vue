@@ -117,27 +117,32 @@ function handleProjectClick(projectId: number) {
 
 // Map data, categories and countries are already loading in main.ts.
 // De-prioritize full project data so map render keeps network priority.
-const FULL_PROJECT_IDLE_TIMEOUT = 1500;
-const FULL_PROJECT_FALLBACK_DELAY = 300;
+// Keep full-detail load behind map paint but still trigger within short user-perceived delay.
+const FULL_PROJECT_IDLE_TIMEOUT_MS = 1500;
+const FULL_PROJECT_FALLBACK_DELAY_MS = 300;
+type IdleDeadlineLike = {
+  didTimeout: boolean;
+  timeRemaining: () => number;
+};
 const idleWindow = window as Window & {
   requestIdleCallback?: (
-    callback: (deadline: IdleDeadline) => void,
+    callback: (deadline: IdleDeadlineLike) => void,
     options?: { timeout: number },
   ) => number;
   cancelIdleCallback?: (handle: number) => void;
 };
 
-let fullProjectLoadTimeout: number | null = null;
-let fullProjectLoadIdleHandle: number | null = null;
+const fullProjectLoadTimeoutHandle = ref<number | null>(null);
+const fullProjectLoadIdleCallbackHandle = ref<number | null>(null);
 
 function clearDeferredProjectLoad() {
-  if (fullProjectLoadTimeout) {
-    clearTimeout(fullProjectLoadTimeout);
-    fullProjectLoadTimeout = null;
+  if (fullProjectLoadTimeoutHandle.value) {
+    clearTimeout(fullProjectLoadTimeoutHandle.value);
+    fullProjectLoadTimeoutHandle.value = null;
   }
-  if (fullProjectLoadIdleHandle && idleWindow.cancelIdleCallback) {
-    idleWindow.cancelIdleCallback(fullProjectLoadIdleHandle);
-    fullProjectLoadIdleHandle = null;
+  if (fullProjectLoadIdleCallbackHandle.value && idleWindow.cancelIdleCallback) {
+    idleWindow.cancelIdleCallback(fullProjectLoadIdleCallbackHandle.value);
+    fullProjectLoadIdleCallbackHandle.value = null;
   }
 }
 
@@ -150,17 +155,19 @@ function deferredFullProjectLoad() {
 
   clearDeferredProjectLoad();
   if (idleWindow.requestIdleCallback) {
-    fullProjectLoadIdleHandle = idleWindow.requestIdleCallback(() => {
+    fullProjectLoadIdleCallbackHandle.value = idleWindow.requestIdleCallback(() => {
       loadProjects();
-      fullProjectLoadIdleHandle = null;
-    }, { timeout: FULL_PROJECT_IDLE_TIMEOUT });
+      fullProjectLoadIdleCallbackHandle.value = null;
+      fullProjectLoadTimeoutHandle.value = null;
+    }, { timeout: FULL_PROJECT_IDLE_TIMEOUT_MS });
     return;
   }
 
-  fullProjectLoadTimeout = window.setTimeout(() => {
+  fullProjectLoadTimeoutHandle.value = window.setTimeout(() => {
     loadProjects();
-    fullProjectLoadTimeout = null;
-  }, FULL_PROJECT_FALLBACK_DELAY);
+    fullProjectLoadIdleCallbackHandle.value = null;
+    fullProjectLoadTimeoutHandle.value = null;
+  }, FULL_PROJECT_FALLBACK_DELAY_MS);
 }
 
 // ── Keep search bar visible on mobile when the keyboard opens ──────────
