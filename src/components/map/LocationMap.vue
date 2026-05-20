@@ -26,7 +26,7 @@
         @ready="mapLoaded"
       >
         <l-tile-layer
-          v-if="baseLayer === 'satellite'"
+          v-if="effectiveBaseLayer === 'satellite'"
           url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
           layer-type="base"
           name="Satellite"
@@ -34,7 +34,7 @@
         ></l-tile-layer>
 
         <l-tile-layer
-          v-if="baseLayer === 'osm'"
+          v-if="effectiveBaseLayer === 'osm'"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           layer-type="base"
           name="OpenStreetMap"
@@ -256,6 +256,96 @@ const mapInitialized = ref(false);
 const initialDataLoaded = ref(false);
 const pinsReady = ref(false); // Neuer Status für Pins
 const selectedLocation = shallowRef<Project | undefined>(undefined);
+const effectiveBaseLayer = ref<'satellite' | 'osm'>('osm');
+const browserWindow = window as Window & {
+  requestIdleCallback?: (
+    callback: (deadline: { didTimeout: boolean; timeRemaining: () => number }) => void,
+    options?: { timeout: number },
+  ) => number;
+  cancelIdleCallback?: (handle: number) => void;
+};
+
+let pinsRenderTimeout: number | null = null;
+let satelliteSwitchTimeout: number | null = null;
+let pinsIdleHandle: number | null = null;
+let layerIdleHandle: number | null = null;
+
+const clearPinsSchedule = () => {
+  if (pinsRenderTimeout) {
+    clearTimeout(pinsRenderTimeout);
+    pinsRenderTimeout = null;
+  }
+  if (pinsIdleHandle && browserWindow.cancelIdleCallback) {
+    browserWindow.cancelIdleCallback(pinsIdleHandle);
+    pinsIdleHandle = null;
+  }
+};
+
+const clearLayerSchedule = () => {
+  if (satelliteSwitchTimeout) {
+    clearTimeout(satelliteSwitchTimeout);
+    satelliteSwitchTimeout = null;
+  }
+  if (layerIdleHandle && browserWindow.cancelIdleCallback) {
+    browserWindow.cancelIdleCallback(layerIdleHandle);
+    layerIdleHandle = null;
+  }
+};
+
+const schedulePinsRendering = () => {
+  clearPinsSchedule();
+  pinsReady.value = false;
+
+  if (!mapInitialized.value || !map.value?.leafletObject) {
+    return;
+  }
+
+  if (locations.value.length === 0) {
+    pinsReady.value = true;
+    return;
+  }
+
+  if (browserWindow.requestIdleCallback) {
+    pinsIdleHandle = browserWindow.requestIdleCallback(() => {
+      pinsReady.value = true;
+      pinsIdleHandle = null;
+    }, { timeout: 250 });
+    return;
+  }
+
+  pinsRenderTimeout = window.setTimeout(() => {
+    pinsReady.value = true;
+    pinsRenderTimeout = null;
+  }, 80);
+};
+
+const scheduleBaseLayerUpdate = (layer: 'satellite' | 'osm') => {
+  clearLayerSchedule();
+
+  if (layer === "osm") {
+    effectiveBaseLayer.value = "osm";
+    return;
+  }
+
+  // Satellite layer intentionally delayed so initial map paint stays fast.
+  effectiveBaseLayer.value = "osm";
+  if (!mapInitialized.value) {
+    return;
+  }
+
+  if (browserWindow.requestIdleCallback) {
+    layerIdleHandle = browserWindow.requestIdleCallback(() => {
+      effectiveBaseLayer.value = "satellite";
+      layerIdleHandle = null;
+    }, { timeout: 400 });
+    return;
+  }
+
+  satelliteSwitchTimeout = window.setTimeout(() => {
+    effectiveBaseLayer.value = "satellite";
+    satelliteSwitchTimeout = null;
+  }, 150);
+};
 const mapOptions = ref({
   zoomSnap: 0.5,
   scrollWheelZoom: true,
@@ -319,7 +409,9 @@ watch(
   (newLocations) => {
     if (newLocations) {
       initialDataLoaded.value = true;
-      pinsReady.value = true;
+      if (mapInitialized.value) {
+        schedulePinsRendering();
+      }
 
       if (mapInitialized.value && map.value) {
         nextTick(() => {
@@ -335,6 +427,7 @@ watch(
 const mapLoaded = () => {
   mapInitialized.value = true;
   isLoadingMap.value = false;
+  scheduleBaseLayerUpdate(props.baseLayer);
 
   // Optimiere die Leaflet-Karte für bessere Performance
   if (map.value?.leafletObject) {
@@ -372,13 +465,21 @@ const mapLoaded = () => {
   }
 
   // Wenn Daten bereits vorhanden sind (z.B. aus persistiertem Store), sofort anzeigen
+  schedulePinsRendering();
   if (locations.value.length > 0) {
-    pinsReady.value = true;
     nextTick(() => updateMaxBounds());
   }
   // Wenn keine Daten vorhanden, kümmert sich der watch(locations) darum,
   // sobald das Laden abgeschlossen ist
 };
+
+watch(
+  () => props.baseLayer,
+  (newLayer) => {
+    scheduleBaseLayerUpdate(newLayer);
+  },
+  { immediate: true },
+);
 
 const addMarker = (event: {
   latlng: any;
@@ -441,6 +542,9 @@ watch(
 
 // Bereinige Timeouts beim Unmount
 onBeforeUnmount(() => {
+  clearPinsSchedule();
+  clearLayerSchedule();
+
   if (zoomTimeout) {
     clearTimeout(zoomTimeout);
   }
