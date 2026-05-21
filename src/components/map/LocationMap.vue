@@ -41,118 +41,122 @@
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         ></l-tile-layer>
 
-        <l-layer-group
-          v-if="pinsReady && projectsFinished && projectsFinished.length > 0"
-          layer-type="overlay"
-          :name="layerLabelProjectsFinished"
-        >
-          <!-- Verwende v-memo für bessere Performance bei der Marker-Darstellung -->
-          <l-marker
-            v-for="loc in projectsFinished"
-            v-memo="[
-              loc.id,
-              loc.latitude,
-              loc.longitude,
-              selectedLocation?.id === loc.id,
-              currentZoom > 7,
-            ]"
-            :id="loc.id"
-            :key="loc.id"
-            :lat-lng="[loc.latitude, loc.longitude]"
-            :title="loc.name"
-            @click="onMarkerClick(loc)"
+        <!-- Use Suspense for markers only, not the entire map -->
+        <Suspense>
+          <l-layer-group
+            v-if="pinsReady && projectsFinished && projectsFinished.length > 0"
+            layer-type="overlay"
+            :name="layerLabelProjectsFinished"
           >
-            <l-icon
-              :icon-url="getPin(loc)"
-              :class-name="pinClass(loc)"
-              :icon-size="[28, 39]"
-              :icon-anchor="[14, 39]"
-            ></l-icon>
-            <!-- Tooltips nur bei Bedarf rendern, um DOM-Größe zu reduzieren -->
-            <l-tooltip v-if="currentZoom > 7">
-              <span>{{ loc.name }}</span>
-              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
-            </l-tooltip>
-          </l-marker>
-        </l-layer-group>
+            <!-- Verwende v-memo für bessere Performance bei der Marker-Darstellung -->
+            <l-marker
+              v-for="loc in projectsFinished"
+              v-memo="[
+                loc.id,
+                loc.latitude,
+                loc.longitude,
+                selectedLocation?.id === loc.id,
+                currentZoom > 7,
+              ]"
+              :id="loc.id"
+              :key="loc.id"
+              :lat-lng="[loc.latitude, loc.longitude]"
+              :title="loc.name"
+              @click="onMarkerClick(loc)"
+            >
+              <l-icon
+                :icon-url="getPin(loc)"
+                :class-name="pinClass(loc)"
+                :icon-size="[28, 39]"
+                :icon-anchor="[14, 39]"
+              ></l-icon>
+              <!-- Tooltips nur bei Bedarf rendern, um DOM-Größe zu reduzieren -->
+              <l-tooltip v-if="currentZoom > 7">
+                <span>{{ loc.name }}</span>
+                <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+              </l-tooltip>
+            </l-marker>
+          </l-layer-group>
 
-        <l-layer-group
-          v-if="
-            pinsReady &&
-            projectsUnderConstruction &&
-            projectsUnderConstruction.length > 0
-          "
-          layer-type="overlay"
-          :name="layerLabelProjectsUnderConstruction"
-        >
-          <l-marker
-            v-for="loc in projectsUnderConstruction"
-            v-memo="[
-              loc.id,
-              loc.latitude,
-              loc.longitude,
-              selectedLocation?.id === loc.id,
-              currentZoom > 7,
-            ]"
-            :id="loc.id"
-            :key="loc.id"
-            :lat-lng="[loc.latitude, loc.longitude]"
-            :title="loc.name"
-            @click="onMarkerClick(loc)"
+          <l-layer-group
+            v-if="
+              pinsReady &&
+              projectsUnderConstruction &&
+              projectsUnderConstruction.length > 0
+            "
+            layer-type="overlay"
+            :name="layerLabelProjectsUnderConstruction"
           >
-            <l-icon
-              :icon-url="getPin(loc)"
-              :class-name="pinClass(loc)"
-              :icon-size="[28, 39]"
-              :icon-anchor="[14, 39]"
-            ></l-icon>
-            <l-tooltip v-if="currentZoom > 7">
-              <span>{{ loc.name }}</span>
-              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
-            </l-tooltip>
-          </l-marker>
-        </l-layer-group>
+            <l-marker
+              v-for="loc in projectsUnderConstruction"
+              v-memo="[
+                loc.id,
+                loc.latitude,
+                loc.longitude,
+                selectedLocation?.id === loc.id,
+                currentZoom > 7,
+              ]"
+              :id="loc.id"
+              :key="loc.id"
+              :lat-lng="[loc.latitude, loc.longitude]"
+              :title="loc.name"
+              @click="onMarkerClick(loc)"
+            >
+              <l-icon
+                :icon-url="getPin(loc)"
+                :class-name="pinClass(loc)"
+                :icon-size="[28, 39]"
+                :icon-anchor="[14, 39]"
+              ></l-icon>
+              <l-tooltip v-if="currentZoom > 7">
+                <span>{{ loc.name }}</span>
+                <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+              </l-tooltip>
+            </l-marker>
+          </l-layer-group>
 
-        <l-layer-group
-          v-if="pinsReady && projectsPlanned && projectsPlanned.length > 0"
-          layer-type="overlay"
-          :name="layerLabelProjectsPlanned"
-        >
-          <l-marker
-            v-for="loc in projectsPlanned"
-            v-memo="[
-              loc.id,
-              loc.latitude,
-              loc.longitude,
-              selectedLocation?.id === loc.id,
-              currentZoom > 7,
-            ]"
-            :id="loc.id"
-            :key="loc.id"
-            :lat-lng="[loc.latitude, loc.longitude]"
-            :title="loc.name"
-            @click="onMarkerClick(loc)"
+          <l-layer-group
+            v-if="pinsReady && projectsPlanned && projectsPlanned.length > 0"
+            layer-type="overlay"
+            :name="layerLabelProjectsPlanned"
           >
-            <l-icon
-              :icon-url="getPin(loc)"
-              :class-name="pinClass(loc)"
-              :icon-size="[28, 39]"
-              :icon-anchor="[14, 39]"
-            ></l-icon>
-            <l-tooltip v-if="currentZoom > 7">
-              <span>{{ loc.name }}</span>
-              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
-            </l-tooltip>
-          </l-marker>
-        </l-layer-group>
+            <l-marker
+              v-for="loc in projectsPlanned"
+              v-memo="[
+                loc.id,
+                loc.latitude,
+                loc.longitude,
+                selectedLocation?.id === loc.id,
+                currentZoom > 7,
+              ]"
+              :id="loc.id"
+              :key="loc.id"
+              :lat-lng="[loc.latitude, loc.longitude]"
+              :title="loc.name"
+              @click="onMarkerClick(loc)"
+            >
+              <l-icon
+                :icon-url="getPin(loc)"
+                :class-name="pinClass(loc)"
+                :icon-size="[28, 39]"
+                :icon-anchor="[14, 39]"
+              ></l-icon>
+              <l-tooltip v-if="currentZoom > 7">
+                <span>{{ loc.name }}</span>
+                <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+              </l-tooltip>
+            </l-marker>
+          </l-layer-group>
 
-        <!-- Lade-Indikator für Pins -->
-        <div v-if="mapInitialized && !pinsReady" class="pins-loading-indicator">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading pins...</span>
-          </div>
-          <p>Loading project data...</p>
-        </div>
+          <template #fallback>
+            <div class="pins-loading-indicator">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading pins...</span>
+              </div>
+              <p>Loading project data...</p>
+            </div>
+          </template>
+        </Suspense>
       </l-map>
     </b-overlay>
     <project-details
@@ -178,7 +182,7 @@ import { storeToRefs } from "pinia";
 import { useLoadingStore } from "../../stores/loading.store";
 import { useCategoryStore } from "../../stores/category.store";
 import { useProjectStore } from "@/features/projects/stores/project.store";
-import { useFilterStore } from "@/stores/filter.store";
+import { useFilterStore } from "../../stores/filter.store";
 import L, { latLngBounds } from "leaflet";
 import {
   LMap,
