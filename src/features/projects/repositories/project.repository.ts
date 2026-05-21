@@ -7,7 +7,27 @@ const base = new NocoDBService(tableId);
 // Raw shape coming from NocoDB v2
 export interface RawProjectRecord {
   id: number;
-  fields: {
+  Id?: number;
+  Name?: string;
+  Title?: string;
+  Latitude?: number;
+  Longitude?: number;
+  State?: string;
+  Status?: string;
+  Category?: unknown;
+  Country?: unknown;
+  TeaserImage?: unknown;
+  Notes?: string;
+  Link?: string;
+  Since?: string;
+  Gallery?: unknown;
+  "Name (de)"?: string;
+  "Name (en)"?: string;
+  "Name (fr)"?: string;
+  "Notes (de)"?: string;
+  "Notes (en)"?: string;
+  "Notes (fr)"?: string;
+  fields?: {
     Name?: string;
     Title?: string;
     Latitude?: number;

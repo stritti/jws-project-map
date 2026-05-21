@@ -11,6 +11,15 @@ interface CacheData {
   mapData?: Array<Project>;
 }
 
+function resolveRecordFields(
+  record: RawProjectRecord,
+): Record<string, unknown> {
+  if (record.fields && typeof record.fields === "object") {
+    return record.fields as Record<string, unknown>;
+  }
+  return record as unknown as Record<string, unknown>;
+}
+
 // Cache-Gültigkeit (5 Minuten)
 const CACHE_VALIDITY_MS = 5 * 60 * 1000;
 
@@ -63,13 +72,8 @@ function processProjectData(
 
   // Verwende eine for-Schleife statt map/filter für bessere Performance
   for (let i = 0; i < len; i++) {
-    const record = list[i] as RawProjectRecord & {
-      Id?: number;
-      [key: string]: unknown;
-    };
-    const sourceFields =
-      (record.fields as Record<string, unknown> | undefined) ||
-      (record as unknown as Record<string, unknown>);
+    const record = list[i];
+    const sourceFields = resolveRecordFields(record);
 
     // Grundlegende Validierung - wir brauchen mindestens eine ID und Koordinaten
     const id = record.id ?? record.Id;
@@ -101,7 +105,7 @@ function processProjectData(
       name: ((sourceFields as any)?.[nameField] || sourceFields?.Name || "Unbenannt") as string,
       latitude: latNum,
       longitude: lngNum,
-      state: ((sourceFields?.State as string) || (sourceFields?.Status as string) || "finished") as string,
+      state: (sourceFields?.State || sourceFields?.Status || "finished") as string,
       category: undefined,
       country: undefined,
       notes: undefined,
