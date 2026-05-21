@@ -63,12 +63,18 @@ function processProjectData(
 
   // Verwende eine for-Schleife statt map/filter für bessere Performance
   for (let i = 0; i < len; i++) {
-    const record = list[i];
+    const record = list[i] as RawProjectRecord & {
+      Id?: number;
+      [key: string]: unknown;
+    };
+    const sourceFields =
+      (record.fields as Record<string, unknown> | undefined) ||
+      (record as unknown as Record<string, unknown>);
 
     // Grundlegende Validierung - wir brauchen mindestens eine ID und Koordinaten
-    const id = record.id;
-    const lat = record.fields?.Latitude;
-    const lng = record.fields?.Longitude;
+    const id = record.id ?? record.Id;
+    const lat = sourceFields?.Latitude;
+    const lng = sourceFields?.Longitude;
 
     if (!id) {
       console.warn(
@@ -92,10 +98,10 @@ function processProjectData(
     const project: Project = {
       id: Number(id),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      name: ((record.fields as any)?.[nameField] || record.fields?.Name || "Unbenannt") as string,
+      name: ((sourceFields as any)?.[nameField] || sourceFields?.Name || "Unbenannt") as string,
       latitude: latNum,
       longitude: lngNum,
-      state: (record.fields?.State || "finished") as string,
+      state: ((sourceFields?.State as string) || (sourceFields?.Status as string) || "finished") as string,
       category: undefined,
       country: undefined,
       notes: undefined,
@@ -103,26 +109,26 @@ function processProjectData(
     };
 
     // Nur die notwendigen Felder für die Kartenansicht
-    if (record.fields?.Category && Array.isArray(record.fields.Category)) {
-      project.category = record.fields.Category;
+    if (sourceFields?.Category && Array.isArray(sourceFields.Category)) {
+      project.category = sourceFields.Category as Project["category"];
     }
 
     if (
-      record.fields?.Country &&
-      Array.isArray(record.fields.Country) &&
-      record.fields.Country.length > 0
+      sourceFields?.Country &&
+      Array.isArray(sourceFields.Country) &&
+      sourceFields.Country.length > 0
     ) {
-      project.country = record.fields.Country[0];
+      project.country = sourceFields.Country[0] as Project["country"];
     }
 
     // Nur die zusätzlichen Felder hinzufügen, wenn nicht nur für die Karte
     if (!forMapOnly) {
-      if (record.fields?.TeaserImage) {
-        project.teaserImg = record.fields.TeaserImage as Project["teaserImg"];
+      if (sourceFields?.TeaserImage) {
+        project.teaserImg = sourceFields.TeaserImage as Project["teaserImg"];
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const rawNotes = ((record.fields as any)?.[notesField] || record.fields?.Notes) as string | undefined;
+      const rawNotes = ((sourceFields as any)?.[notesField] || sourceFields?.Notes) as string | undefined;
       if (rawNotes) {
         project.notes = rawNotes
           .replaceAll('"<http', '"http')
@@ -131,16 +137,16 @@ function processProjectData(
         project.notes = "";
       }
 
-      if (record.fields?.Link) {
-        project.link = record.fields.Link as string;
+      if (sourceFields?.Link) {
+        project.link = sourceFields.Link as string;
       }
 
-      if (record.fields?.Since) {
-        project.since = new Date(record.fields.Since as string);
+      if (sourceFields?.Since) {
+        project.since = new Date(sourceFields.Since as string);
       }
 
-      if (record.fields?.Gallery) {
-        project.gallery = record.fields.Gallery as Project["gallery"];
+      if (sourceFields?.Gallery) {
+        project.gallery = sourceFields.Gallery as Project["gallery"];
       }
     }
 
