@@ -308,7 +308,7 @@ const schedulePinsRendering = () => {
   clearPinsSchedule();
   pinsReady.value = false;
 
-  if (!mapInitialized.value || !map.value?.leafletObject) {
+  if (!mapInitialized.value) {
     return;
   }
 
