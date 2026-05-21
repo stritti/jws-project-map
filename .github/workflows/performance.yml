@@ -67,7 +67,7 @@ jobs:
           echo "| Total Byte Weight | ${{ steps.lhmetrics.outputs.BYTE }} |" >> $GITHUB_STEP_SUMMARY
 
       - name: Comment or Update PR with Lighthouse metrics
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
         uses: actions/github-script@v9
         env:
           LCP: ${{ steps.lhmetrics.outputs.LCP }}
