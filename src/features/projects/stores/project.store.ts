@@ -85,6 +85,8 @@ export const useProjectStore = defineStore("project", {
         this.mapProjects.length > 0 &&
         !this.shouldRefreshCache()
       ) {
+        // Sofort filteredList mit den vorhandenen Kartendaten füllen
+        this.filteredList = [...this.mapProjects];
         return this.mapProjects;
       }
 
@@ -106,6 +108,9 @@ export const useProjectStore = defineStore("project", {
           this.mapProjects = mapData;
           this.mapInitialized = true;
           this.lastFetched = Date.now();
+
+          // Sofort filteredList mit Kartendaten füllen für erste Rendering-Phase
+          this.filteredList = [...mapData];
 
           // Auch die Hauptprojektliste aktualisieren, wenn sie leer ist
           if (this.projects.length === 0) {
