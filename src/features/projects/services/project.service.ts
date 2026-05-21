@@ -22,6 +22,7 @@ function resolveRecordFields(
 
 function resolveProjectState(sourceFields: Record<string, unknown>): string {
   // Some datasets expose this value as "State", others as legacy "Status".
+  // Default to "finished" only when both fields are missing/empty.
   return (sourceFields.State || sourceFields.Status || "finished") as string;
 }
 

@@ -7,6 +7,7 @@ const base = new NocoDBService(tableId);
 // Raw shape coming from NocoDB v2
 export interface RawProjectRecord {
   id: number;
+  // NocoDB can return the primary key as "Id" in flat record payloads.
   Id?: number;
   Name?: string;
   Title?: string;
