@@ -25,6 +25,18 @@ function resolveProjectState(sourceFields: Record<string, unknown>): string {
   return (sourceFields.State || sourceFields.Status || "finished") as string;
 }
 
+function resolveProjectId(
+  record: RawProjectRecord,
+  sourceFields: Record<string, unknown>,
+): number | undefined {
+  if (typeof record.id === "number" && !Number.isNaN(record.id)) {
+    return record.id;
+  }
+  const altId = sourceFields.Id;
+  const altNum = Number(altId);
+  return Number.isFinite(altNum) ? altNum : undefined;
+}
+
 // Cache-Gültigkeit (5 Minuten)
 const CACHE_VALIDITY_MS = 5 * 60 * 1000;
 
@@ -81,9 +93,9 @@ function processProjectData(
     const sourceFields = resolveRecordFields(record);
 
     // Grundlegende Validierung - wir brauchen mindestens eine ID und Koordinaten
-    const id = record.id ?? Number(sourceFields.Id);
-    const lat = sourceFields?.Latitude;
-    const lng = sourceFields?.Longitude;
+    const id = resolveProjectId(record, sourceFields);
+    const lat = sourceFields.Latitude;
+    const lng = sourceFields.Longitude;
 
     if (!id) {
       console.warn(
