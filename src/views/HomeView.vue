@@ -115,54 +115,8 @@ function handleProjectClick(projectId: number) {
   navigateToProject(projectId);
 }
 
-// Map data, categories and countries are already loading in main.ts.
-// De-prioritize full project data so map render keeps network priority.
-// Keep full-detail load behind map paint but still trigger within short user-perceived delay.
-const FULL_PROJECT_IDLE_TIMEOUT_MS = 1500;
-const FULL_PROJECT_FALLBACK_DELAY_MS = 300;
-const idleWindow = window as Window & {
-  requestIdleCallback?: (
-    callback: (deadline: IdleDeadline) => void,
-    options?: { timeout: number },
-  ) => number;
-  cancelIdleCallback?: (handle: number) => void;
-};
-
-const fullProjectLoadTimeoutHandle = ref<number | null>(null);
-const fullProjectLoadIdleCallbackHandle = ref<number | null>(null);
-
-function clearDeferredProjectLoad() {
-  if (fullProjectLoadTimeoutHandle.value) {
-    clearTimeout(fullProjectLoadTimeoutHandle.value);
-    fullProjectLoadTimeoutHandle.value = null;
-  }
-  if (fullProjectLoadIdleCallbackHandle.value && idleWindow.cancelIdleCallback) {
-    idleWindow.cancelIdleCallback(fullProjectLoadIdleCallbackHandle.value);
-    fullProjectLoadIdleCallbackHandle.value = null;
-  }
-}
-
-function deferredFullProjectLoad() {
-  const loadProjects = () => {
-    projectStore
-      .load(false)
-      .catch((err) => console.error("Full project load failed:", err));
-  };
-
-  clearDeferredProjectLoad();
-  if (idleWindow.requestIdleCallback) {
-    fullProjectLoadIdleCallbackHandle.value = idleWindow.requestIdleCallback(() => {
-      loadProjects();
-      fullProjectLoadIdleCallbackHandle.value = null;
-    }, { timeout: FULL_PROJECT_IDLE_TIMEOUT_MS });
-    return;
-  }
-
-  fullProjectLoadTimeoutHandle.value = window.setTimeout(() => {
-    loadProjects();
-    fullProjectLoadTimeoutHandle.value = null;
-  }, FULL_PROJECT_FALLBACK_DELAY_MS);
-}
+// Map data, categories and countries are already loading in main.ts in parallel.
+// No need for deferred loading as filteredList is populated immediately by preloadMapData()
 
 // ── Keep search bar visible on mobile when the keyboard opens ──────────
 // On mobile the .home container is position:fixed;inset:0 so the map and
@@ -173,7 +127,7 @@ function deferredFullProjectLoad() {
 // An additional body lock (.body-locked on html+body) prevents iOS Safari
 // from scrolling the document when an input is focused — without this,
 // position:fixed elements can shift or disappear on iOS.
-// ────────────────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────────────────
 
 const isSearchActive = ref(false);
 const mapContainerRef = ref<HTMLElement | null>(null);
@@ -210,7 +164,8 @@ const BODY_LOCK_CLASS = 'body-locked';
 const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
 onMounted(() => {
-  deferredFullProjectLoad();
+  // No need for deferredFullProjectLoad() anymore as filteredList is already populated
+  // by preloadMapData() in main.ts
 
   if (isMobile) {
     document.documentElement.classList.add(BODY_LOCK_CLASS);
@@ -222,8 +177,6 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  clearDeferredProjectLoad();
-
   document.documentElement.classList.remove(BODY_LOCK_CLASS);
   document.body.classList.remove(BODY_LOCK_CLASS);
   if (window.visualViewport) {
@@ -327,20 +280,8 @@ onUnmounted(() => {
     </div>
     
     <div class="project-map" id="project-map">
-      <!-- Map and data load in parallel: map tiles show immediately, pins appear when data is ready -->
-      <Suspense>
-        <template #default>
-          <location-map :filtered-projects="filteredList" :base-layer="baseLayer" />
-        </template>
-        <template #fallback>
-          <div class="map-loading">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">{{ t("search.loadingMap") }}</span>
-            </div>
-            <p class="mt-2">{{ t("search.loadingMap") }}</p>
-          </div>
-        </template>
-      </Suspense>
+      <!-- Map loads immediately, markers load asynchronously via Suspense in LocationMap -->
+      <LocationMap :filtered-projects="filteredList" :base-layer="baseLayer" />
     </div>
   </div>
 </template>
