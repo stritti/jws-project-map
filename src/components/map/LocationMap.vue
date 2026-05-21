@@ -529,6 +529,8 @@ const onSidePanelClose = () => {
 // für bessere Performance und Speichernutzung
 const PIN_CACHE = new Map<string, string>();
 const DEFAULT_PIN = "/pins/default.png";
+// Keep this list in sync with /public/pins/*.png so missing combinations
+// can gracefully fall back to an existing icon instead of invisible markers.
 const AVAILABLE_PINS = new Set([
   "default",
   "school",
@@ -537,6 +539,7 @@ const AVAILABLE_PINS = new Set([
   "teacher",
   "school-well",
   "well-school",
+  // Legacy fallback asset name used by existing deployments.
   "undefined",
 ]);
 const MARKER_CLASS_CACHE = new Map<string, string>();
