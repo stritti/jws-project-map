@@ -115,8 +115,30 @@ function handleProjectClick(projectId: number) {
   navigateToProject(projectId);
 }
 
-// Map data, categories and countries are already loading in main.ts in parallel.
-// No need for deferred loading as filteredList is populated immediately by preloadMapData()
+// Map data, categories and countries are loaded in main.ts in parallel.
+// On HomeView we still hydrate full project records in the background so
+// search/cards get complete data without delaying first map paint.
+type IdleCallbackHandle = number;
+let hydrationHandle: IdleCallbackHandle | null = null;
+const idleScheduler = globalThis as typeof globalThis & {
+  requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
+  cancelIdleCallback?: (handle: number) => void;
+};
+
+function startBackgroundHydration() {
+  const hydrate = () => {
+    projectStore.load(false).catch((error) => {
+      console.error("Background project hydration failed:", error);
+    });
+  };
+
+  if (typeof idleScheduler.requestIdleCallback === "function") {
+    hydrationHandle = idleScheduler.requestIdleCallback(hydrate, { timeout: 1500 });
+    return;
+  }
+
+  hydrationHandle = setTimeout(hydrate, 0);
+}
 
 // ── Keep search bar visible on mobile when the keyboard opens ──────────
 // On mobile the .home container is position:fixed;inset:0 so the map and
@@ -164,8 +186,7 @@ const BODY_LOCK_CLASS = 'body-locked';
 const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
 onMounted(() => {
-  // No need for deferredFullProjectLoad() anymore as filteredList is already populated
-  // by preloadMapData() in main.ts
+  startBackgroundHydration();
 
   if (isMobile) {
     document.documentElement.classList.add(BODY_LOCK_CLASS);
@@ -177,6 +198,15 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  if (hydrationHandle !== null) {
+    if (typeof idleScheduler.cancelIdleCallback === "function") {
+      idleScheduler.cancelIdleCallback(hydrationHandle);
+    } else {
+      clearTimeout(hydrationHandle);
+    }
+    hydrationHandle = null;
+  }
+
   document.documentElement.classList.remove(BODY_LOCK_CLASS);
   document.body.classList.remove(BODY_LOCK_CLASS);
   if (window.visualViewport) {
