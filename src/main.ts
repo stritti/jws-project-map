@@ -35,14 +35,13 @@ const projectStore = useProjectStore(pinia);
 const categoryStore = useCategoryStore(pinia);
 const countryStore = useCountryStore(pinia);
 
-// Start loading map data immediately, before any route is rendered
-projectStore
-  .preloadMapData()
-  .catch((err) => console.error("Map preload failed:", err));
-categoryStore
-  .load()
-  .catch((err) => console.error("Category load failed:", err));
-countryStore.load().catch((err) => console.error("Country load failed:", err));
+// Load all stores in parallel for faster initial load
+// Map data is prioritized as it's needed for the first render
+Promise.all([
+  projectStore.preloadMapData(),
+  categoryStore.load(),
+  countryStore.load(),
+]).catch((err) => console.error("Initial data load failed:", err));
 
 // app.component('vue-picture-swipe', VuePictureSwipe)
 
