@@ -529,6 +529,16 @@ const onSidePanelClose = () => {
 // für bessere Performance und Speichernutzung
 const PIN_CACHE = new Map<string, string>();
 const DEFAULT_PIN = "/pins/default.png";
+const AVAILABLE_PINS = new Set([
+  "default",
+  "school",
+  "midwife",
+  "well",
+  "teacher",
+  "school-well",
+  "well-school",
+  "undefined",
+]);
 const MARKER_CLASS_CACHE = new Map<string, string>();
 
 // Computed-Wert für den aktuellen Zoom-Level
@@ -615,9 +625,21 @@ const getPin = (location: Project) => {
       return DEFAULT_PIN;
     }
 
-    const pinUrl = `/pins/${categoryNames}.png`;
-    PIN_CACHE.set(cacheKey, pinUrl);
-    return pinUrl;
+    if (AVAILABLE_PINS.has(categoryNames)) {
+      const pinUrl = `/pins/${categoryNames}.png`;
+      PIN_CACHE.set(cacheKey, pinUrl);
+      return pinUrl;
+    }
+
+    const primaryCategory = categoryNames.split("-")[0];
+    if (primaryCategory && AVAILABLE_PINS.has(primaryCategory)) {
+      const pinUrl = `/pins/${primaryCategory}.png`;
+      PIN_CACHE.set(cacheKey, pinUrl);
+      return pinUrl;
+    }
+
+    PIN_CACHE.set(cacheKey, DEFAULT_PIN);
+    return DEFAULT_PIN;
   } catch (error) {
     console.error("Error getting pin for location:", error);
     PIN_CACHE.set(cacheKey, DEFAULT_PIN);
