@@ -20,6 +20,11 @@ function resolveRecordFields(
   return record as unknown as Record<string, unknown>;
 }
 
+function resolveProjectState(sourceFields: Record<string, unknown>): string {
+  // Some datasets expose this value as "State", others as legacy "Status".
+  return (sourceFields.State || sourceFields.Status || "finished") as string;
+}
+
 // Cache-Gültigkeit (5 Minuten)
 const CACHE_VALIDITY_MS = 5 * 60 * 1000;
 
@@ -76,7 +81,7 @@ function processProjectData(
     const sourceFields = resolveRecordFields(record);
 
     // Grundlegende Validierung - wir brauchen mindestens eine ID und Koordinaten
-    const id = record.id ?? record.Id;
+    const id = record.id ?? Number(sourceFields.Id);
     const lat = sourceFields?.Latitude;
     const lng = sourceFields?.Longitude;
 
@@ -105,7 +110,7 @@ function processProjectData(
       name: ((sourceFields as any)?.[nameField] || sourceFields?.Name || "Unbenannt") as string,
       latitude: latNum,
       longitude: lngNum,
-      state: (sourceFields?.State || sourceFields?.Status || "finished") as string,
+      state: resolveProjectState(sourceFields),
       category: undefined,
       country: undefined,
       notes: undefined,
