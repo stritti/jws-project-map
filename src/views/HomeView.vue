@@ -118,12 +118,11 @@ function handleProjectClick(projectId: number) {
 // Map data, categories and countries are loaded in main.ts in parallel.
 // On HomeView we still hydrate full project records in the background so
 // search/cards get complete data without delaying first map paint.
-type IdleCallbackHandle = number;
-let hydrationHandle: IdleCallbackHandle | null = null;
-const idleScheduler = globalThis as typeof globalThis & {
-  requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
-  cancelIdleCallback?: (handle: number) => void;
-};
+const HYDRATION_IDLE_TIMEOUT_MS = 1500;
+const HYDRATION_FALLBACK_DELAY_MS = 150;
+
+let hydrationIdleRequestId: number | null = null;
+let hydrationTimeoutHandle: ReturnType<typeof setTimeout> | null = null;
 
 function startBackgroundHydration() {
   const hydrate = () => {
@@ -132,12 +131,14 @@ function startBackgroundHydration() {
     });
   };
 
-  if (typeof idleScheduler.requestIdleCallback === "function") {
-    hydrationHandle = idleScheduler.requestIdleCallback(hydrate, { timeout: 1500 });
+  if (typeof window !== "undefined" && typeof window.requestIdleCallback === "function") {
+    hydrationIdleRequestId = window.requestIdleCallback(hydrate, {
+      timeout: HYDRATION_IDLE_TIMEOUT_MS,
+    });
     return;
   }
 
-  hydrationHandle = setTimeout(hydrate, 0);
+  hydrationTimeoutHandle = setTimeout(hydrate, HYDRATION_FALLBACK_DELAY_MS);
 }
 
 // ── Keep search bar visible on mobile when the keyboard opens ──────────
@@ -198,13 +199,18 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  if (hydrationHandle !== null) {
-    if (typeof idleScheduler.cancelIdleCallback === "function") {
-      idleScheduler.cancelIdleCallback(hydrationHandle);
-    } else {
-      clearTimeout(hydrationHandle);
-    }
-    hydrationHandle = null;
+  if (
+    hydrationIdleRequestId !== null &&
+    typeof window !== "undefined" &&
+    typeof window.cancelIdleCallback === "function"
+  ) {
+    window.cancelIdleCallback(hydrationIdleRequestId);
+    hydrationIdleRequestId = null;
+  }
+
+  if (hydrationTimeoutHandle !== null) {
+    clearTimeout(hydrationTimeoutHandle);
+    hydrationTimeoutHandle = null;
   }
 
   document.documentElement.classList.remove(BODY_LOCK_CLASS);
