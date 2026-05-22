@@ -207,6 +207,11 @@ import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
+const leafletGlobal = globalThis as typeof globalThis & { L?: typeof L };
+if (!leafletGlobal.L) {
+  leafletGlobal.L = L;
+}
+
 const loadingStore = useLoadingStore();
 const categoryStore = useCategoryStore();
 const projectStore = useProjectStore();
