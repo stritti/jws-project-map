@@ -35,14 +35,32 @@ const projectStore = useProjectStore(pinia);
 const categoryStore = useCategoryStore(pinia);
 const countryStore = useCountryStore(pinia);
 
-// Start loading map data immediately, before any route is rendered
-projectStore
-  .preloadMapData()
-  .catch((err) => console.error("Map preload failed:", err));
-categoryStore
-  .load()
-  .catch((err) => console.error("Category load failed:", err));
-countryStore.load().catch((err) => console.error("Country load failed:", err));
+const TAXONOMY_IDLE_TIMEOUT_MS = 1200;
+const TAXONOMY_FALLBACK_DELAY_MS = 100;
+
+// Prioritize map data for first paint; defer taxonomy loading slightly so
+// markers can appear as early as possible.
+projectStore.preloadMapData().catch((err) => {
+  console.error("Initial map data load failed:", err);
+});
+
+const loadTaxonomies = () => {
+  Promise.allSettled([categoryStore.load(), countryStore.load()]).then(
+    (results) => {
+      results.forEach((result) => {
+        if (result.status === "rejected") {
+          console.error("Initial taxonomy load failed:", result.reason);
+        }
+      });
+    },
+  );
+};
+
+if (typeof window !== "undefined" && typeof window.requestIdleCallback === "function") {
+  window.requestIdleCallback(loadTaxonomies, { timeout: TAXONOMY_IDLE_TIMEOUT_MS });
+} else {
+  setTimeout(loadTaxonomies, TAXONOMY_FALLBACK_DELAY_MS);
+}
 
 // app.component('vue-picture-swipe', VuePictureSwipe)
 

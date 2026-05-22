@@ -14,7 +14,8 @@
     },
     "mapTypes": {
       "satellite": "Satellit",
-      "map": "Karte"
+      "map": "Karte",
+      "carto": "Minimal"
     },
     "chips": {
       "all": "Alle",
