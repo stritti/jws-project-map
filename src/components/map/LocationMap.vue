@@ -41,7 +41,7 @@
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         ></l-tile-layer>
 
-        <l-layer-group
+        <component :is="LayerComponent"
           v-if="pinsReady && projectsFinished && projectsFinished.length > 0"
           layer-type="overlay"
           :name="layerLabelProjectsFinished"
@@ -74,9 +74,9 @@
               <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
             </l-tooltip>
           </l-marker>
-        </l-layer-group>
+        </component>
 
-        <l-layer-group
+        <component :is="LayerComponent"
           v-if="
             pinsReady &&
             projectsUnderConstruction &&
@@ -111,9 +111,9 @@
               <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
             </l-tooltip>
           </l-marker>
-        </l-layer-group>
+        </component>
 
-        <l-layer-group
+        <component :is="LayerComponent"
           v-if="pinsReady && projectsPlanned && projectsPlanned.length > 0"
           layer-type="overlay"
           :name="layerLabelProjectsPlanned"
@@ -144,7 +144,7 @@
               <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
             </l-tooltip>
           </l-marker>
-        </l-layer-group>
+        </component>
 
         <!-- Lade-Indikator für Pins -->
         <div v-if="mapInitialized && !pinsReady" class="pins-loading-indicator">
@@ -188,6 +188,7 @@ import {
   LIcon,
   LTooltip,
 } from "@vue-leaflet/vue-leaflet";
+import { LMarkerClusterGroup } from "vue-leaflet-markercluster";
 import ProjectDetails from "../../components/project/ProjectDetails.vue";
 import projectService from "@/features/projects/services/project.service";
 import type { Project } from "@/interfaces/Project";
@@ -195,6 +196,8 @@ import { useI18n } from "vue-i18n";
 import { announceToScreenReader } from "@/composables/useAccessibility";
 
 import "leaflet/dist/leaflet.css";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
 const loadingStore = useLoadingStore();
 const categoryStore = useCategoryStore();
@@ -215,6 +218,14 @@ const props = defineProps({
     type: String as () => 'satellite' | 'osm',
     default: 'osm',
   },
+  clusterEnabled: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const LayerComponent = computed(() => {
+  return props.clusterEnabled ? LMarkerClusterGroup : LLayerGroup;
 });
 
 // Version counter bumped when filteredProjects reference changes, used to

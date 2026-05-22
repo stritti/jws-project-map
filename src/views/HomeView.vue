@@ -36,6 +36,9 @@ const LocationMap = defineAsyncComponent(() => locationMapLoader);
 // Map base layer (satellite or OSM)
 const baseLayer = ref<'satellite' | 'osm'>('osm');
 
+// Toggle for marker clustering (disabled by default because individual pins look cooler)
+const clusterEnabled = ref(false);
+
 const stateOptions = computed(() => [
   { text: t("project.state.finished"), value: "finished" },
   { text: t("project.state.underConstruction"), value: "under construction" },
@@ -295,6 +298,20 @@ onUnmounted(() => {
             </div>
           </b-col>
         </b-row>
+        
+        <b-row class="mt-3">
+          <b-col cols="12">
+            <div class="d-flex align-items-center justify-content-between">
+              <label class="form-check-label font-weight-bold" for="clusterToggle">
+                Marker-Clustering
+              </label>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" id="clusterToggle" v-model="clusterEnabled">
+              </div>
+            </div>
+            <p class="text-muted small mt-1 mb-0">Fasst Pins auf der Karte zusammen, um die Performance zu verbessern.</p>
+          </b-col>
+        </b-row>
       </FilterPanel>
       
       <!-- Screen reader announcement for search result count -->
@@ -327,20 +344,7 @@ onUnmounted(() => {
     </div>
     
     <div class="project-map" id="project-map">
-      <!-- Map and data load in parallel: map tiles show immediately, pins appear when data is ready -->
-      <Suspense>
-        <template #default>
-          <location-map :filtered-projects="filteredList" :base-layer="baseLayer" />
-        </template>
-        <template #fallback>
-          <div class="map-loading">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">{{ t("search.loadingMap") }}</span>
-            </div>
-            <p class="mt-2">{{ t("search.loadingMap") }}</p>
-          </div>
-        </template>
-      </Suspense>
+      <LocationMap :filtered-projects="filteredList" :base-layer="baseLayer" :cluster-enabled="clusterEnabled" />
     </div>
   </div>
 </template>
