@@ -35,13 +35,29 @@ const projectStore = useProjectStore(pinia);
 const categoryStore = useCategoryStore(pinia);
 const countryStore = useCountryStore(pinia);
 
-// Load all stores in parallel for faster initial load
-// Map data is prioritized as it's needed for the first render
-Promise.all([
-  projectStore.preloadMapData(),
-  categoryStore.load(),
-  countryStore.load(),
-]).catch((err) => console.error("Initial data load failed:", err));
+// Prioritize map data for first paint; defer taxonomy loading slightly so
+// markers can appear as early as possible.
+projectStore.preloadMapData().catch((err) => {
+  console.error("Initial map data load failed:", err);
+});
+
+const loadTaxonomies = () => {
+  Promise.allSettled([categoryStore.load(), countryStore.load()]).then(
+    (results) => {
+      results.forEach((result) => {
+        if (result.status === "rejected") {
+          console.error("Initial taxonomy load failed:", result.reason);
+        }
+      });
+    },
+  );
+};
+
+if (typeof window !== "undefined" && typeof window.requestIdleCallback === "function") {
+  window.requestIdleCallback(loadTaxonomies, { timeout: 1200 });
+} else {
+  setTimeout(loadTaxonomies, 100);
+}
 
 // app.component('vue-picture-swipe', VuePictureSwipe)
 

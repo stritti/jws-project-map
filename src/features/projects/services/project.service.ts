@@ -22,20 +22,52 @@ function resolveRecordFields(
 
 function resolveProjectState(sourceFields: Record<string, unknown>): string {
   // Some datasets expose this value as "State", others as legacy "Status".
-  // Default to "finished" only when both fields are missing/empty.
-  return (sourceFields.State || sourceFields.Status || "finished") as string;
+  // Normalize known variants so map grouping always receives supported values.
+  const rawState = String(sourceFields.State || sourceFields.Status || "")
+    .trim()
+    .toLowerCase();
+
+  if (
+    rawState === "under construction" ||
+    rawState === "under_construction" ||
+    rawState === "construction"
+  ) {
+    return "under construction";
+  }
+
+  if (rawState === "planned") {
+    return "planned";
+  }
+
+  // Default to "finished" when missing/unknown to keep pins visible.
+  return "finished";
+}
+
+function resolveNumericId(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const parsed = Number(value.trim());
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+
+  return undefined;
 }
 
 function resolveProjectId(
   record: RawProjectRecord,
   sourceFields: Record<string, unknown>,
 ): number | undefined {
-  if (typeof record.id === "number" && !Number.isNaN(record.id)) {
-    return record.id;
-  }
-  const altId = sourceFields.Id;
-  const altNum = Number(altId);
-  return Number.isFinite(altNum) ? altNum : undefined;
+  return (
+    resolveNumericId(record.id) ??
+    resolveNumericId(record.Id) ??
+    resolveNumericId(sourceFields.id) ??
+    resolveNumericId(sourceFields.Id)
+  );
 }
 
 // Cache-Gültigkeit (5 Minuten)
@@ -98,7 +130,7 @@ function processProjectData(
     const lat = sourceFields.Latitude;
     const lng = sourceFields.Longitude;
 
-    if (!id) {
+    if (id === undefined) {
       console.warn(
         `Skipping project due to missing ID. Record keys:`,
         Object.keys(record),
