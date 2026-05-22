@@ -541,7 +541,7 @@ const detailMarkerIcon = computed(() => {
 }
 
 .info-value {
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--jws-text-main);
   display: flex;
@@ -567,7 +567,7 @@ const detailMarkerIcon = computed(() => {
 }
 
 :deep(.notes-content) {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   line-height: 1.8;
   color: var(--jws-text-main);
   opacity: 0.9;
