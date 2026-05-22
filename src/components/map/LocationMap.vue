@@ -50,7 +50,7 @@
         ></l-tile-layer>
 
         <!-- Markers layer, loaded when pins ready -->
-        <l-layer-group
+        <component :is="LayerComponent"
           v-if="pinsReady && projectsFinished && projectsFinished.length > 0"
           layer-type="overlay"
           :name="layerLabelProjectsFinished"
@@ -83,9 +83,9 @@
               <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
             </l-tooltip>
           </l-marker>
-        </l-layer-group>
+        </component>
 
-        <l-layer-group
+        <component :is="LayerComponent"
           v-if="
             pinsReady &&
             projectsUnderConstruction &&
@@ -120,9 +120,9 @@
               <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
             </l-tooltip>
           </l-marker>
-        </l-layer-group>
+        </component>
 
-        <l-layer-group
+        <component :is="LayerComponent"
           v-if="pinsReady && projectsPlanned && projectsPlanned.length > 0"
           layer-type="overlay"
           :name="layerLabelProjectsPlanned"
@@ -153,11 +153,11 @@
               <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
             </l-tooltip>
           </l-marker>
-        </l-layer-group>
-        
-        <!-- Fallback loading indicator when map is ready but pins aren't yet -->
-        <div v-if="mapReady && !pinsReady" class="pins-loading-indicator" style="position: absolute; z-index: 1000; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,255,255,0.8); padding: 10px; border-radius: 5px;">
-          <div class="spinner-border text-primary" role="status" style="width: 1.5rem; height: 1.5rem;">
+        </component>
+
+        <!-- Lade-Indikator für Pins -->
+        <div v-if="mapInitialized && !pinsReady" class="pins-loading-indicator">
+          <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading pins...</span>
           </div>
         </div>
@@ -196,6 +196,7 @@ import {
   LIcon,
   LTooltip,
 } from "@vue-leaflet/vue-leaflet";
+import { LMarkerClusterGroup } from "vue-leaflet-markercluster";
 import ProjectDetails from "../../components/project/ProjectDetails.vue";
 import projectService from "@/features/projects/services/project.service";
 import type { Project } from "@/interfaces/Project";
@@ -203,6 +204,13 @@ import { useI18n } from "vue-i18n";
 import { announceToScreenReader } from "@/composables/useAccessibility";
 
 import "leaflet/dist/leaflet.css";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+
+const leafletGlobal = globalThis as typeof globalThis & { L?: typeof L };
+if (!leafletGlobal.L) {
+  leafletGlobal.L = L;
+}
 
 const loadingStore = useLoadingStore();
 const categoryStore = useCategoryStore();
@@ -223,6 +231,14 @@ const props = defineProps({
     type: String as () => 'satellite' | 'osm' | 'carto',
     default: 'carto',
   },
+  clusterEnabled: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const LayerComponent = computed(() => {
+  return props.clusterEnabled ? LMarkerClusterGroup : LLayerGroup;
 });
 
 // Version counter bumped when filteredProjects reference changes, used to
