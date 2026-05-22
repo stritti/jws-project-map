@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
@@ -27,16 +27,13 @@ const { countries } = storeToRefs(countryStore);
 // Derive local refs from shared filter store for template bindings
 const { stateFilter, categoryFilter, countryFilter, filterVisible } = storeToRefs(filterStore);
 
-// Start map chunk loading immediately so first map paint waits less.
-const locationMapLoader = import("../components/map/LocationMap.vue");
+// Load map synchronously to avoid delayed main thread rendering
+import LocationMap from "../components/map/LocationMap.vue";
 
-// Lazy-load the map component (Leaflet stays out of the initial bundle)
-const LocationMap = defineAsyncComponent(() => locationMapLoader);
+// Map base layer (CartoDB, satellite or OSM)
+const baseLayer = ref<'satellite' | 'osm' | 'carto'>('carto');
 
-// Map base layer (satellite or OSM)
-const baseLayer = ref<'satellite' | 'osm'>('osm');
-
-// Toggle for marker clustering (disabled by default because individual pins look cooler)
+// Marker clustering toggle
 const clusterEnabled = ref(false);
 
 const stateOptions = computed(() => [
@@ -118,53 +115,30 @@ function handleProjectClick(projectId: number) {
   navigateToProject(projectId);
 }
 
-// Map data, categories and countries are already loading in main.ts.
-// De-prioritize full project data so map render keeps network priority.
-// Keep full-detail load behind map paint but still trigger within short user-perceived delay.
-const FULL_PROJECT_IDLE_TIMEOUT_MS = 1500;
-const FULL_PROJECT_FALLBACK_DELAY_MS = 300;
-const idleWindow = window as Window & {
-  requestIdleCallback?: (
-    callback: (deadline: IdleDeadline) => void,
-    options?: { timeout: number },
-  ) => number;
-  cancelIdleCallback?: (handle: number) => void;
-};
+// Map data, categories and countries are loaded in main.ts in parallel.
+// On HomeView we still hydrate full project records in the background so
+// search/cards get complete data without delaying first map paint.
+const HYDRATION_IDLE_TIMEOUT_MS = 1500;
+const HYDRATION_FALLBACK_DELAY_MS = 150;
 
-const fullProjectLoadTimeoutHandle = ref<number | null>(null);
-const fullProjectLoadIdleCallbackHandle = ref<number | null>(null);
+let hydrationIdleRequestId: number | null = null;
+let hydrationTimeoutHandle: ReturnType<typeof setTimeout> | null = null;
 
-function clearDeferredProjectLoad() {
-  if (fullProjectLoadTimeoutHandle.value) {
-    clearTimeout(fullProjectLoadTimeoutHandle.value);
-    fullProjectLoadTimeoutHandle.value = null;
-  }
-  if (fullProjectLoadIdleCallbackHandle.value && idleWindow.cancelIdleCallback) {
-    idleWindow.cancelIdleCallback(fullProjectLoadIdleCallbackHandle.value);
-    fullProjectLoadIdleCallbackHandle.value = null;
-  }
-}
-
-function deferredFullProjectLoad() {
-  const loadProjects = () => {
-    projectStore
-      .load(false)
-      .catch((err) => console.error("Full project load failed:", err));
+function startBackgroundHydration() {
+  const hydrate = () => {
+    projectStore.load(false).catch((error) => {
+      console.error("Background project hydration failed:", error);
+    });
   };
 
-  clearDeferredProjectLoad();
-  if (idleWindow.requestIdleCallback) {
-    fullProjectLoadIdleCallbackHandle.value = idleWindow.requestIdleCallback(() => {
-      loadProjects();
-      fullProjectLoadIdleCallbackHandle.value = null;
-    }, { timeout: FULL_PROJECT_IDLE_TIMEOUT_MS });
+  if (typeof window !== "undefined" && typeof window.requestIdleCallback === "function") {
+    hydrationIdleRequestId = window.requestIdleCallback(hydrate, {
+      timeout: HYDRATION_IDLE_TIMEOUT_MS,
+    });
     return;
   }
 
-  fullProjectLoadTimeoutHandle.value = window.setTimeout(() => {
-    loadProjects();
-    fullProjectLoadTimeoutHandle.value = null;
-  }, FULL_PROJECT_FALLBACK_DELAY_MS);
+  hydrationTimeoutHandle = setTimeout(hydrate, HYDRATION_FALLBACK_DELAY_MS);
 }
 
 // ── Keep search bar visible on mobile when the keyboard opens ──────────
@@ -176,7 +150,7 @@ function deferredFullProjectLoad() {
 // An additional body lock (.body-locked on html+body) prevents iOS Safari
 // from scrolling the document when an input is focused — without this,
 // position:fixed elements can shift or disappear on iOS.
-// ────────────────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────────────────
 
 const isSearchActive = ref(false);
 const mapContainerRef = ref<HTMLElement | null>(null);
@@ -213,7 +187,7 @@ const BODY_LOCK_CLASS = 'body-locked';
 const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
 onMounted(() => {
-  deferredFullProjectLoad();
+  startBackgroundHydration();
 
   if (isMobile) {
     document.documentElement.classList.add(BODY_LOCK_CLASS);
@@ -225,7 +199,19 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  clearDeferredProjectLoad();
+  if (
+    hydrationIdleRequestId !== null &&
+    typeof window !== "undefined" &&
+    typeof window.cancelIdleCallback === "function"
+  ) {
+    window.cancelIdleCallback(hydrationIdleRequestId);
+    hydrationIdleRequestId = null;
+  }
+
+  if (hydrationTimeoutHandle !== null) {
+    clearTimeout(hydrationTimeoutHandle);
+    hydrationTimeoutHandle = null;
+  }
 
   document.documentElement.classList.remove(BODY_LOCK_CLASS);
   document.body.classList.remove(BODY_LOCK_CLASS);
@@ -277,6 +263,15 @@ onUnmounted(() => {
               <IBiMap /> {{ t("search.filterGroups.mapType") }}
             </h6>
             <div class="map-type-toggle" role="group" :aria-label="t('search.filterGroups.mapType')">
+              <button
+                class="map-type-btn"
+                :class="{ active: baseLayer === 'carto' }"
+                :aria-pressed="baseLayer === 'carto'"
+                @click="baseLayer = 'carto'"
+              >
+                <IBiMap class="me-1" aria-hidden="true" />
+                {{ t("search.mapTypes.carto") }}
+              </button>
               <button
                 class="map-type-btn"
                 :class="{ active: baseLayer === 'satellite' }"
@@ -344,6 +339,7 @@ onUnmounted(() => {
     </div>
     
     <div class="project-map" id="project-map">
+      <!-- Map loads immediately, markers load asynchronously via Suspense in LocationMap -->
       <LocationMap :filtered-projects="filteredList" :base-layer="baseLayer" :cluster-enabled="clusterEnabled" />
     </div>
   </div>

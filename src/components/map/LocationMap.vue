@@ -34,6 +34,14 @@
         ></l-tile-layer>
 
         <l-tile-layer
+          v-if="effectiveBaseLayer === 'carto'"
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+          layer-type="base"
+          name="Map Minimal"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        ></l-tile-layer>
+
+        <l-tile-layer
           v-if="effectiveBaseLayer === 'osm'"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           layer-type="base"
@@ -41,6 +49,7 @@
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         ></l-tile-layer>
 
+        <!-- Markers layer, loaded when pins ready -->
         <component :is="LayerComponent"
           v-if="pinsReady && projectsFinished && projectsFinished.length > 0"
           layer-type="overlay"
@@ -151,7 +160,6 @@
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading pins...</span>
           </div>
-          <p>Loading project data...</p>
         </div>
       </l-map>
     </b-overlay>
@@ -178,7 +186,7 @@ import { storeToRefs } from "pinia";
 import { useLoadingStore } from "../../stores/loading.store";
 import { useCategoryStore } from "../../stores/category.store";
 import { useProjectStore } from "@/features/projects/stores/project.store";
-import { useFilterStore } from "@/stores/filter.store";
+import { useFilterStore } from "../../stores/filter.store";
 import L, { latLngBounds } from "leaflet";
 import {
   LMap,
@@ -215,8 +223,8 @@ const props = defineProps({
     default: () => [],
   },
   baseLayer: {
-    type: String as () => 'satellite' | 'osm',
-    default: 'osm',
+    type: String as () => 'satellite' | 'osm' | 'carto',
+    default: 'carto',
   },
   clusterEnabled: {
     type: Boolean,
@@ -267,14 +275,12 @@ const mapInitialized = ref(false);
 const initialDataLoaded = ref(false);
 const pinsReady = ref(false); // New status for pins
 const selectedLocation = shallowRef<Project | undefined>(undefined);
-const effectiveBaseLayer = ref<'satellite' | 'osm'>('osm');
+const effectiveBaseLayer = ref<'satellite' | 'osm' | 'carto'>('carto');
 // Delay values tuned to prioritize first map paint while still showing pins/layer quickly after.
 const PINS_IDLE_TIMEOUT = 250;
-const LAYER_IDLE_TIMEOUT = 400;
 // Fallback delays for browsers without requestIdleCallback.
 // Keep these short so pins/layer appear quickly after initial paint.
 const PINS_FALLBACK_DELAY = 80;
-const LAYER_FALLBACK_DELAY = 150;
 
 const windowWithIdleCallback = window as Window & {
   requestIdleCallback?: (
@@ -285,9 +291,7 @@ const windowWithIdleCallback = window as Window & {
 };
 
 let pinsRenderTimeout: number | null = null;
-let satelliteSwitchTimeout: number | null = null;
 let pinsIdleHandle: number | null = null;
-let layerIdleHandle: number | null = null;
 
 const clearPinsSchedule = () => {
   if (pinsRenderTimeout) {
@@ -300,22 +304,11 @@ const clearPinsSchedule = () => {
   }
 };
 
-const clearLayerSchedule = () => {
-  if (satelliteSwitchTimeout) {
-    clearTimeout(satelliteSwitchTimeout);
-    satelliteSwitchTimeout = null;
-  }
-  if (layerIdleHandle && windowWithIdleCallback.cancelIdleCallback) {
-    windowWithIdleCallback.cancelIdleCallback(layerIdleHandle);
-    layerIdleHandle = null;
-  }
-};
-
 const schedulePinsRendering = () => {
   clearPinsSchedule();
   pinsReady.value = false;
 
-  if (!mapInitialized.value || !map.value?.leafletObject) {
+  if (!mapInitialized.value) {
     return;
   }
 
@@ -341,35 +334,8 @@ const schedulePinsRendering = () => {
   }, PINS_FALLBACK_DELAY);
 };
 
-const scheduleBaseLayerUpdate = (layer: 'satellite' | 'osm') => {
-  clearLayerSchedule();
-
-  if (layer === 'osm') {
-    effectiveBaseLayer.value = 'osm';
-    return;
-  }
-
-  // Satellite layer is intentionally delayed so initial map paint stays fast.
-  effectiveBaseLayer.value = 'osm';
-  if (!mapInitialized.value) {
-    return;
-  }
-
-  if (windowWithIdleCallback.requestIdleCallback) {
-    const idleHandle = windowWithIdleCallback.requestIdleCallback(() => {
-      effectiveBaseLayer.value = 'satellite';
-      if (layerIdleHandle === idleHandle) {
-        layerIdleHandle = null;
-      }
-    }, { timeout: LAYER_IDLE_TIMEOUT });
-    layerIdleHandle = idleHandle;
-    return;
-  }
-
-  satelliteSwitchTimeout = window.setTimeout(() => {
-    effectiveBaseLayer.value = 'satellite';
-    satelliteSwitchTimeout = null;
-  }, LAYER_FALLBACK_DELAY);
+const scheduleBaseLayerUpdate = (layer: 'satellite' | 'osm' | 'carto') => {
+  effectiveBaseLayer.value = layer;
 };
 const mapOptions = ref({
   zoomSnap: 0.5,
@@ -536,6 +502,19 @@ const onSidePanelClose = () => {
 // für bessere Performance und Speichernutzung
 const PIN_CACHE = new Map<string, string>();
 const DEFAULT_PIN = "/pins/default.png";
+// Keep this list in sync with /public/pins/*.png so missing combinations
+// can gracefully fall back to an existing icon instead of invisible markers.
+const AVAILABLE_PINS = new Set([
+  "default",
+  "school",
+  "midwife",
+  "well",
+  "teacher",
+  "school-well",
+  "well-school",
+  // Legacy fallback asset name used by existing deployments.
+  "undefined",
+]);
 const MARKER_CLASS_CACHE = new Map<string, string>();
 
 // Computed-Wert für den aktuellen Zoom-Level
@@ -567,7 +546,6 @@ watch(
 // Bereinige Timeouts beim Unmount
 onBeforeUnmount(() => {
   clearPinsSchedule();
-  clearLayerSchedule();
 
   if (zoomTimeout) {
     clearTimeout(zoomTimeout);
@@ -622,9 +600,21 @@ const getPin = (location: Project) => {
       return DEFAULT_PIN;
     }
 
-    const pinUrl = `/pins/${categoryNames}.png`;
-    PIN_CACHE.set(cacheKey, pinUrl);
-    return pinUrl;
+    if (AVAILABLE_PINS.has(categoryNames)) {
+      const pinUrl = `/pins/${categoryNames}.png`;
+      PIN_CACHE.set(cacheKey, pinUrl);
+      return pinUrl;
+    }
+
+    const primaryCategory = categoryNames.split("-")[0];
+    if (primaryCategory && AVAILABLE_PINS.has(primaryCategory)) {
+      const pinUrl = `/pins/${primaryCategory}.png`;
+      PIN_CACHE.set(cacheKey, pinUrl);
+      return pinUrl;
+    }
+
+    PIN_CACHE.set(cacheKey, DEFAULT_PIN);
+    return DEFAULT_PIN;
   } catch (error) {
     console.error("Error getting pin for location:", error);
     PIN_CACHE.set(cacheKey, DEFAULT_PIN);

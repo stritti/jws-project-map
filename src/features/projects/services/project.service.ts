@@ -11,6 +11,62 @@ interface CacheData {
   mapData?: Array<Project>;
 }
 
+function resolveRecordFields(
+  record: RawProjectRecord,
+): Record<string, unknown> {
+  if (record.fields && typeof record.fields === "object") {
+    return record.fields as Record<string, unknown>;
+  }
+  return record as unknown as Record<string, unknown>;
+}
+
+function resolveProjectState(sourceFields: Record<string, unknown>): string {
+  // Some datasets expose this value as "State", others as legacy "Status".
+  // Normalize known variants so map grouping always receives supported values.
+  const rawState = String(sourceFields.State || sourceFields.Status || "")
+    .trim()
+    .toLowerCase();
+
+  if (["under construction", "under_construction", "construction"].includes(rawState)) {
+    return "under construction";
+  }
+
+  if (rawState === "planned") {
+    return "planned";
+  }
+
+  // Default to "finished" when missing/unknown to keep pins visible.
+  return "finished";
+}
+
+function resolveNumericId(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const parsed = Number(value.trim());
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+
+  return undefined;
+}
+
+function resolveProjectId(
+  record: RawProjectRecord,
+  sourceFields: Record<string, unknown>,
+): number | undefined {
+  return (
+    resolveNumericId(record.id) ??
+    // Some NocoDB payloads expose the primary key as "Id" instead of "id".
+    resolveNumericId(record.Id) ??
+    resolveNumericId(sourceFields.id) ??
+    resolveNumericId(sourceFields.Id)
+  );
+}
+
 // Cache-Gültigkeit (5 Minuten)
 const CACHE_VALIDITY_MS = 5 * 60 * 1000;
 
@@ -64,13 +120,14 @@ function processProjectData(
   // Verwende eine for-Schleife statt map/filter für bessere Performance
   for (let i = 0; i < len; i++) {
     const record = list[i];
+    const sourceFields = resolveRecordFields(record);
 
     // Grundlegende Validierung - wir brauchen mindestens eine ID und Koordinaten
-    const id = record.id;
-    const lat = record.fields?.Latitude;
-    const lng = record.fields?.Longitude;
+    const id = resolveProjectId(record, sourceFields);
+    const lat = sourceFields.Latitude;
+    const lng = sourceFields.Longitude;
 
-    if (!id) {
+    if (id === undefined) {
       console.warn(
         `Skipping project due to missing ID. Record keys:`,
         Object.keys(record),
@@ -92,10 +149,10 @@ function processProjectData(
     const project: Project = {
       id: Number(id),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      name: ((record.fields as any)?.[nameField] || record.fields?.Name || "Unbenannt") as string,
+      name: ((sourceFields as any)?.[nameField] || sourceFields?.Name || "Unbenannt") as string,
       latitude: latNum,
       longitude: lngNum,
-      state: (record.fields?.State || "finished") as string,
+      state: resolveProjectState(sourceFields),
       category: undefined,
       country: undefined,
       notes: undefined,
@@ -103,26 +160,26 @@ function processProjectData(
     };
 
     // Nur die notwendigen Felder für die Kartenansicht
-    if (record.fields?.Category && Array.isArray(record.fields.Category)) {
-      project.category = record.fields.Category;
+    if (sourceFields?.Category && Array.isArray(sourceFields.Category)) {
+      project.category = sourceFields.Category as Project["category"];
     }
 
     if (
-      record.fields?.Country &&
-      Array.isArray(record.fields.Country) &&
-      record.fields.Country.length > 0
+      sourceFields?.Country &&
+      Array.isArray(sourceFields.Country) &&
+      sourceFields.Country.length > 0
     ) {
-      project.country = record.fields.Country[0];
+      project.country = sourceFields.Country[0] as Project["country"];
     }
 
     // Nur die zusätzlichen Felder hinzufügen, wenn nicht nur für die Karte
     if (!forMapOnly) {
-      if (record.fields?.TeaserImage) {
-        project.teaserImg = record.fields.TeaserImage as Project["teaserImg"];
+      if (sourceFields?.TeaserImage) {
+        project.teaserImg = sourceFields.TeaserImage as Project["teaserImg"];
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const rawNotes = ((record.fields as any)?.[notesField] || record.fields?.Notes) as string | undefined;
+      const rawNotes = ((sourceFields as any)?.[notesField] || sourceFields?.Notes) as string | undefined;
       if (rawNotes) {
         project.notes = rawNotes
           .replaceAll('"<http', '"http')
@@ -131,16 +188,16 @@ function processProjectData(
         project.notes = "";
       }
 
-      if (record.fields?.Link) {
-        project.link = record.fields.Link as string;
+      if (sourceFields?.Link) {
+        project.link = sourceFields.Link as string;
       }
 
-      if (record.fields?.Since) {
-        project.since = new Date(record.fields.Since as string);
+      if (sourceFields?.Since) {
+        project.since = new Date(sourceFields.Since as string);
       }
 
-      if (record.fields?.Gallery) {
-        project.gallery = record.fields.Gallery as Project["gallery"];
+      if (sourceFields?.Gallery) {
+        project.gallery = sourceFields.Gallery as Project["gallery"];
       }
     }
 
