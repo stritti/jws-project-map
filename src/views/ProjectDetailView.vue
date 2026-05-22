@@ -223,11 +223,7 @@ const categoryStore = useCategoryStore();
 const countryStore = useCountryStore();
 
 function goBack() {
-  if (window.history.length > 1) {
-    router.go(-1);
-  } else {
-    router.push("/");
-  }
+  router.go(-1);
 }
 
 // Load data before mount to start fetching earlier
@@ -365,6 +361,7 @@ const detailMarkerIcon = computed(() => {
 
 .floating-back-btn {
   position: fixed;
+  // Matches FloatingMeta mobile offset to align at the same vertical level
   bottom: calc(8rem + env(safe-area-inset-bottom, 0px));
   left: calc(1rem + env(safe-area-inset-left, 0px));
   z-index: 999;
