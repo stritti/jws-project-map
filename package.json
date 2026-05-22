@@ -7,7 +7,7 @@
     "start": "bun run dev",
     "build": "run-p type-check build-only",
     "budget": "node scripts/check-bundle-budget.cjs",
-    "build:prod": "npm run build && npm run budget",
+    "build:prod": "bun run build && bun run budget",
     "lint": "eslint .",
     "build-only": "vite build",
     "dev": "vite",
