@@ -365,8 +365,9 @@ const detailMarkerIcon = computed(() => {
   bottom: calc(8rem + env(safe-area-inset-bottom, 0px));
   left: calc(1rem + env(safe-area-inset-left, 0px));
   z-index: 999;
-  width: 40px;
-  height: 40px;
+  // 44px matches the iOS HIG minimum touch target size
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 1px solid rgba(0, 0, 0, 0.06);
   background: rgba(255, 255, 255, 0.88);
@@ -387,7 +388,7 @@ const detailMarkerIcon = computed(() => {
   }
 
   .floating-back-icon {
-    font-size: 1.2rem;
+    font-size: 1.35rem;
     line-height: 1;
   }
 }

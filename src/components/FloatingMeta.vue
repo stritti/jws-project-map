@@ -114,8 +114,9 @@ onUnmounted(() => {
 }
 
 .meta-trigger {
-  width: 40px;
-  height: 40px;
+  // 44px matches the iOS HIG minimum touch target size
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 1px solid rgba(0, 0, 0, 0.06);
   background: rgba(255, 255, 255, 0.88);
@@ -136,7 +137,7 @@ onUnmounted(() => {
   }
 
   .trigger-icon {
-    font-size: 1.2rem;
+    font-size: 1.35rem;
     line-height: 1;
   }
 }
