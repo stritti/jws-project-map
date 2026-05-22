@@ -361,8 +361,8 @@ const detailMarkerIcon = computed(() => {
 
 .floating-back-btn {
   position: fixed;
-  // Matches FloatingMeta mobile offset to align at the same vertical level
-  bottom: calc(8rem + env(safe-area-inset-bottom, 0px));
+  // No bottom filter bar on this view, so place near the screen edge (matching FloatingMeta .on-detail)
+  bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
   left: calc(1rem + env(safe-area-inset-left, 0px));
   z-index: 999;
   // 44px matches the iOS HIG minimum touch target size
