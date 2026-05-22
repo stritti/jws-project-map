@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
@@ -27,14 +27,11 @@ const { countries } = storeToRefs(countryStore);
 // Derive local refs from shared filter store for template bindings
 const { stateFilter, categoryFilter, countryFilter, filterVisible } = storeToRefs(filterStore);
 
-// Start map chunk loading immediately so first map paint waits less.
-const locationMapLoader = import("../components/map/LocationMap.vue");
+// Load map synchronously to avoid delayed main thread rendering
+import LocationMap from "../components/map/LocationMap.vue";
 
-// Lazy-load the map component (Leaflet stays out of the initial bundle)
-const LocationMap = defineAsyncComponent(() => locationMapLoader);
-
-// Map base layer (satellite or OSM)
-const baseLayer = ref<'satellite' | 'osm'>('osm');
+// Map base layer (CartoDB, satellite or OSM)
+const baseLayer = ref<'satellite' | 'osm' | 'carto'>('carto');
 
 const stateOptions = computed(() => [
   { text: t("project.state.finished"), value: "finished" },
@@ -263,6 +260,15 @@ onUnmounted(() => {
               <IBiMap /> {{ t("search.filterGroups.mapType") }}
             </h6>
             <div class="map-type-toggle" role="group" :aria-label="t('search.filterGroups.mapType')">
+              <button
+                class="map-type-btn"
+                :class="{ active: baseLayer === 'carto' }"
+                :aria-pressed="baseLayer === 'carto'"
+                @click="baseLayer = 'carto'"
+              >
+                <IBiMap class="me-1" aria-hidden="true" />
+                {{ t("search.mapTypes.carto") }}
+              </button>
               <button
                 class="map-type-btn"
                 :class="{ active: baseLayer === 'satellite' }"

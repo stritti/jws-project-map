@@ -34,6 +34,14 @@
         ></l-tile-layer>
 
         <l-tile-layer
+          v-if="effectiveBaseLayer === 'carto'"
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+          layer-type="base"
+          name="Map Minimal"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        ></l-tile-layer>
+
+        <l-tile-layer
           v-if="effectiveBaseLayer === 'osm'"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           layer-type="base"
@@ -41,122 +49,118 @@
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         ></l-tile-layer>
 
-        <!-- Use Suspense for markers only, not the entire map -->
-        <Suspense>
-          <l-layer-group
-            v-if="pinsReady && projectsFinished && projectsFinished.length > 0"
-            layer-type="overlay"
-            :name="layerLabelProjectsFinished"
+        <!-- Markers layer, loaded when pins ready -->
+        <l-layer-group
+          v-if="pinsReady && projectsFinished && projectsFinished.length > 0"
+          layer-type="overlay"
+          :name="layerLabelProjectsFinished"
+        >
+          <!-- Verwende v-memo für bessere Performance bei der Marker-Darstellung -->
+          <l-marker
+            v-for="loc in projectsFinished"
+            v-memo="[
+              loc.id,
+              loc.latitude,
+              loc.longitude,
+              selectedLocation?.id === loc.id,
+              currentZoom > 7,
+            ]"
+            :id="loc.id"
+            :key="loc.id"
+            :lat-lng="[loc.latitude, loc.longitude]"
+            :title="loc.name"
+            @click="onMarkerClick(loc)"
           >
-            <!-- Verwende v-memo für bessere Performance bei der Marker-Darstellung -->
-            <l-marker
-              v-for="loc in projectsFinished"
-              v-memo="[
-                loc.id,
-                loc.latitude,
-                loc.longitude,
-                selectedLocation?.id === loc.id,
-                currentZoom > 7,
-              ]"
-              :id="loc.id"
-              :key="loc.id"
-              :lat-lng="[loc.latitude, loc.longitude]"
-              :title="loc.name"
-              @click="onMarkerClick(loc)"
-            >
-              <l-icon
-                :icon-url="getPin(loc)"
-                :class-name="pinClass(loc)"
-                :icon-size="[28, 39]"
-                :icon-anchor="[14, 39]"
-              ></l-icon>
-              <!-- Tooltips nur bei Bedarf rendern, um DOM-Größe zu reduzieren -->
-              <l-tooltip v-if="currentZoom > 7">
-                <span>{{ loc.name }}</span>
-                <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
-              </l-tooltip>
-            </l-marker>
-          </l-layer-group>
+            <l-icon
+              :icon-url="getPin(loc)"
+              :class-name="pinClass(loc)"
+              :icon-size="[28, 39]"
+              :icon-anchor="[14, 39]"
+            ></l-icon>
+            <!-- Tooltips nur bei Bedarf rendern, um DOM-Größe zu reduzieren -->
+            <l-tooltip v-if="currentZoom > 7">
+              <span>{{ loc.name }}</span>
+              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+            </l-tooltip>
+          </l-marker>
+        </l-layer-group>
 
-          <l-layer-group
-            v-if="
-              pinsReady &&
-              projectsUnderConstruction &&
-              projectsUnderConstruction.length > 0
-            "
-            layer-type="overlay"
-            :name="layerLabelProjectsUnderConstruction"
+        <l-layer-group
+          v-if="
+            pinsReady &&
+            projectsUnderConstruction &&
+            projectsUnderConstruction.length > 0
+          "
+          layer-type="overlay"
+          :name="layerLabelProjectsUnderConstruction"
+        >
+          <l-marker
+            v-for="loc in projectsUnderConstruction"
+            v-memo="[
+              loc.id,
+              loc.latitude,
+              loc.longitude,
+              selectedLocation?.id === loc.id,
+              currentZoom > 7,
+            ]"
+            :id="loc.id"
+            :key="loc.id"
+            :lat-lng="[loc.latitude, loc.longitude]"
+            :title="loc.name"
+            @click="onMarkerClick(loc)"
           >
-            <l-marker
-              v-for="loc in projectsUnderConstruction"
-              v-memo="[
-                loc.id,
-                loc.latitude,
-                loc.longitude,
-                selectedLocation?.id === loc.id,
-                currentZoom > 7,
-              ]"
-              :id="loc.id"
-              :key="loc.id"
-              :lat-lng="[loc.latitude, loc.longitude]"
-              :title="loc.name"
-              @click="onMarkerClick(loc)"
-            >
-              <l-icon
-                :icon-url="getPin(loc)"
-                :class-name="pinClass(loc)"
-                :icon-size="[28, 39]"
-                :icon-anchor="[14, 39]"
-              ></l-icon>
-              <l-tooltip v-if="currentZoom > 7">
-                <span>{{ loc.name }}</span>
-                <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
-              </l-tooltip>
-            </l-marker>
-          </l-layer-group>
+            <l-icon
+              :icon-url="getPin(loc)"
+              :class-name="pinClass(loc)"
+              :icon-size="[28, 39]"
+              :icon-anchor="[14, 39]"
+            ></l-icon>
+            <l-tooltip v-if="currentZoom > 7">
+              <span>{{ loc.name }}</span>
+              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+            </l-tooltip>
+          </l-marker>
+        </l-layer-group>
 
-          <l-layer-group
-            v-if="pinsReady && projectsPlanned && projectsPlanned.length > 0"
-            layer-type="overlay"
-            :name="layerLabelProjectsPlanned"
+        <l-layer-group
+          v-if="pinsReady && projectsPlanned && projectsPlanned.length > 0"
+          layer-type="overlay"
+          :name="layerLabelProjectsPlanned"
+        >
+          <l-marker
+            v-for="loc in projectsPlanned"
+            v-memo="[
+              loc.id,
+              loc.latitude,
+              loc.longitude,
+              selectedLocation?.id === loc.id,
+              currentZoom > 7,
+            ]"
+            :id="loc.id"
+            :key="loc.id"
+            :lat-lng="[loc.latitude, loc.longitude]"
+            :title="loc.name"
+            @click="onMarkerClick(loc)"
           >
-            <l-marker
-              v-for="loc in projectsPlanned"
-              v-memo="[
-                loc.id,
-                loc.latitude,
-                loc.longitude,
-                selectedLocation?.id === loc.id,
-                currentZoom > 7,
-              ]"
-              :id="loc.id"
-              :key="loc.id"
-              :lat-lng="[loc.latitude, loc.longitude]"
-              :title="loc.name"
-              @click="onMarkerClick(loc)"
-            >
-              <l-icon
-                :icon-url="getPin(loc)"
-                :class-name="pinClass(loc)"
-                :icon-size="[28, 39]"
-                :icon-anchor="[14, 39]"
-              ></l-icon>
-              <l-tooltip v-if="currentZoom > 7">
-                <span>{{ loc.name }}</span>
-                <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
-              </l-tooltip>
-            </l-marker>
-          </l-layer-group>
-
-          <template #fallback>
-            <div class="pins-loading-indicator">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading pins...</span>
-              </div>
-              <p>Loading project data...</p>
-            </div>
-          </template>
-        </Suspense>
+            <l-icon
+              :icon-url="getPin(loc)"
+              :class-name="pinClass(loc)"
+              :icon-size="[28, 39]"
+              :icon-anchor="[14, 39]"
+            ></l-icon>
+            <l-tooltip v-if="currentZoom > 7">
+              <span>{{ loc.name }}</span>
+              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+            </l-tooltip>
+          </l-marker>
+        </l-layer-group>
+        
+        <!-- Fallback loading indicator when map is ready but pins aren't yet -->
+        <div v-if="mapReady && !pinsReady" class="pins-loading-indicator" style="position: absolute; z-index: 1000; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,255,255,0.8); padding: 10px; border-radius: 5px;">
+          <div class="spinner-border text-primary" role="status" style="width: 1.5rem; height: 1.5rem;">
+            <span class="visually-hidden">Loading pins...</span>
+          </div>
+        </div>
       </l-map>
     </b-overlay>
     <project-details
@@ -216,8 +220,8 @@ const props = defineProps({
     default: () => [],
   },
   baseLayer: {
-    type: String as () => 'satellite' | 'osm',
-    default: 'osm',
+    type: String as () => 'satellite' | 'osm' | 'carto',
+    default: 'carto',
   },
 });
 
@@ -260,14 +264,12 @@ const mapInitialized = ref(false);
 const initialDataLoaded = ref(false);
 const pinsReady = ref(false); // New status for pins
 const selectedLocation = shallowRef<Project | undefined>(undefined);
-const effectiveBaseLayer = ref<'satellite' | 'osm'>('osm');
+const effectiveBaseLayer = ref<'satellite' | 'osm' | 'carto'>('carto');
 // Delay values tuned to prioritize first map paint while still showing pins/layer quickly after.
 const PINS_IDLE_TIMEOUT = 250;
-const LAYER_IDLE_TIMEOUT = 400;
 // Fallback delays for browsers without requestIdleCallback.
 // Keep these short so pins/layer appear quickly after initial paint.
 const PINS_FALLBACK_DELAY = 80;
-const LAYER_FALLBACK_DELAY = 150;
 
 const windowWithIdleCallback = window as Window & {
   requestIdleCallback?: (
@@ -278,9 +280,7 @@ const windowWithIdleCallback = window as Window & {
 };
 
 let pinsRenderTimeout: number | null = null;
-let satelliteSwitchTimeout: number | null = null;
 let pinsIdleHandle: number | null = null;
-let layerIdleHandle: number | null = null;
 
 const clearPinsSchedule = () => {
   if (pinsRenderTimeout) {
@@ -290,17 +290,6 @@ const clearPinsSchedule = () => {
   if (pinsIdleHandle && windowWithIdleCallback.cancelIdleCallback) {
     windowWithIdleCallback.cancelIdleCallback(pinsIdleHandle);
     pinsIdleHandle = null;
-  }
-};
-
-const clearLayerSchedule = () => {
-  if (satelliteSwitchTimeout) {
-    clearTimeout(satelliteSwitchTimeout);
-    satelliteSwitchTimeout = null;
-  }
-  if (layerIdleHandle && windowWithIdleCallback.cancelIdleCallback) {
-    windowWithIdleCallback.cancelIdleCallback(layerIdleHandle);
-    layerIdleHandle = null;
   }
 };
 
@@ -334,35 +323,8 @@ const schedulePinsRendering = () => {
   }, PINS_FALLBACK_DELAY);
 };
 
-const scheduleBaseLayerUpdate = (layer: 'satellite' | 'osm') => {
-  clearLayerSchedule();
-
-  if (layer === 'osm') {
-    effectiveBaseLayer.value = 'osm';
-    return;
-  }
-
-  // Satellite layer is intentionally delayed so initial map paint stays fast.
-  effectiveBaseLayer.value = 'osm';
-  if (!mapInitialized.value) {
-    return;
-  }
-
-  if (windowWithIdleCallback.requestIdleCallback) {
-    const idleHandle = windowWithIdleCallback.requestIdleCallback(() => {
-      effectiveBaseLayer.value = 'satellite';
-      if (layerIdleHandle === idleHandle) {
-        layerIdleHandle = null;
-      }
-    }, { timeout: LAYER_IDLE_TIMEOUT });
-    layerIdleHandle = idleHandle;
-    return;
-  }
-
-  satelliteSwitchTimeout = window.setTimeout(() => {
-    effectiveBaseLayer.value = 'satellite';
-    satelliteSwitchTimeout = null;
-  }, LAYER_FALLBACK_DELAY);
+const scheduleBaseLayerUpdate = (layer: 'satellite' | 'osm' | 'carto') => {
+  effectiveBaseLayer.value = layer;
 };
 const mapOptions = ref({
   zoomSnap: 0.5,
@@ -573,7 +535,6 @@ watch(
 // Bereinige Timeouts beim Unmount
 onBeforeUnmount(() => {
   clearPinsSchedule();
-  clearLayerSchedule();
 
   if (zoomTimeout) {
     clearTimeout(zoomTimeout);
