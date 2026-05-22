@@ -32,7 +32,7 @@
         </h3>
 
         <!-- Filter overlay container – sticky, filter overlays the list -->
-        <div class="filter-overlay-container">
+        <div class="filter-overlay-container" :class="{ 'search-active': isSearchActive }">
           <div class="toolbar-section">
             <SearchBar
               v-model="searchQuery"
@@ -46,6 +46,8 @@
               @filter-click="filterVisible = !filterVisible"
               @state-change="handleStateFilterChange"
               @view-change="() => $router.push('/')"
+              @focus="onSearchFocus"
+              @blur="onSearchBlur"
             />
           </div>
 
@@ -95,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onBeforeMount } from "vue";
+import { ref, computed, onBeforeMount, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import { useLoadingStore } from "../stores/loading.store";
@@ -148,6 +150,37 @@ const stateOptions = computed(() => [
 
 // SearchBar state filter (local – for SearchBar's internal state binding)
 const stateFilterSearch = ref<ProjectState>("all");
+
+// Search-active: move the filter bar to the top when the keyboard opens (like HomeView)
+const isSearchActive = ref(false);
+
+function onSearchFocus() {
+  isSearchActive.value = true;
+}
+
+function onSearchBlur() {
+  isSearchActive.value = false;
+}
+
+// Detect keyboard dismissal via visualViewport (e.g. iOS "Done" button)
+function onViewportResize() {
+  if (!window.visualViewport) return;
+  if (window.visualViewport.height >= window.innerHeight - 5) {
+    isSearchActive.value = false;
+  }
+}
+
+onMounted(() => {
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", onViewportResize);
+  }
+});
+
+onUnmounted(() => {
+  if (window.visualViewport) {
+    window.visualViewport.removeEventListener("resize", onViewportResize);
+  }
+});
 
 function handleStateFilterChange(state: ProjectState) {
   stateFilterSearch.value = state;
@@ -306,6 +339,16 @@ onBeforeMount(() => {
 
     &::before {
       display: none;
+    }
+
+    // When the search input is focused, pop the bar to the top (above the virtual keyboard)
+    &.search-active {
+      bottom: auto;
+      top: 0;
+      flex-direction: column;
+      max-height: 50dvh;
+      padding: 0.75rem;
+      padding-top: calc(env(safe-area-inset-top) + 0.75rem);
     }
   }
 
