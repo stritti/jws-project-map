@@ -27,11 +27,7 @@ function resolveProjectState(sourceFields: Record<string, unknown>): string {
     .trim()
     .toLowerCase();
 
-  if (
-    rawState === "under construction" ||
-    rawState === "under_construction" ||
-    rawState === "construction"
-  ) {
+  if (["under construction", "under_construction", "construction"].includes(rawState)) {
     return "under construction";
   }
 
@@ -64,6 +60,7 @@ function resolveProjectId(
 ): number | undefined {
   return (
     resolveNumericId(record.id) ??
+    // Some NocoDB payloads expose the primary key as "Id" instead of "id".
     resolveNumericId(record.Id) ??
     resolveNumericId(sourceFields.id) ??
     resolveNumericId(sourceFields.Id)

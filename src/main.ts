@@ -35,6 +35,9 @@ const projectStore = useProjectStore(pinia);
 const categoryStore = useCategoryStore(pinia);
 const countryStore = useCountryStore(pinia);
 
+const TAXONOMY_IDLE_TIMEOUT_MS = 1200;
+const TAXONOMY_FALLBACK_DELAY_MS = 100;
+
 // Prioritize map data for first paint; defer taxonomy loading slightly so
 // markers can appear as early as possible.
 projectStore.preloadMapData().catch((err) => {
@@ -54,9 +57,9 @@ const loadTaxonomies = () => {
 };
 
 if (typeof window !== "undefined" && typeof window.requestIdleCallback === "function") {
-  window.requestIdleCallback(loadTaxonomies, { timeout: 1200 });
+  window.requestIdleCallback(loadTaxonomies, { timeout: TAXONOMY_IDLE_TIMEOUT_MS });
 } else {
-  setTimeout(loadTaxonomies, 100);
+  setTimeout(loadTaxonomies, TAXONOMY_FALLBACK_DELAY_MS);
 }
 
 // app.component('vue-picture-swipe', VuePictureSwipe)
