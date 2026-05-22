@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRoute } from "vue-router";
 import { i18n, setLocale, type Locale } from "@/plugins/i18n";
 
 const { t } = useI18n();
+const route = useRoute();
 
 import IBiThreeDots from "~icons/bi/three-dots";
 import IBiInfoCircle from "~icons/bi/info-circle";
@@ -11,6 +13,13 @@ import AboutModal from "./AboutModal.vue";
 
 const isOpen = ref(false);
 const aboutModalRef = ref<InstanceType<typeof AboutModal> | null>(null);
+
+// Route-based CSS class to adjust bottom offset on mobile
+const routeClass = computed(() => {
+  if (route.name === "ProjectDetail") return "on-detail";
+  if (route.name === "home" || route.name === "ProjectList") return "on-filter-view";
+  return "";
+});
 
 const languages: { code: Locale; flag: string }[] = [
   { code: "de", flag: "de" },
@@ -53,7 +62,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="floating-meta" :class="{ open: isOpen }">
+  <div class="floating-meta" :class="[{ open: isOpen }, routeClass]">
     <!-- Expand/collapse trigger -->
     <button
       class="meta-trigger"
@@ -110,12 +119,23 @@ onUnmounted(() => {
   // On mobile, raise above search bar + map controls.
   @media (max-width: 767.98px) {
     bottom: calc(8rem + env(safe-area-inset-bottom, 0px));
+
+    // On HomeView / ProjectListView: sit just above the bottom filter/search bar (~4rem tall)
+    &.on-filter-view {
+      bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    // On ProjectDetailView: no bottom bar, so place near the screen edge
+    &.on-detail {
+      bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    }
   }
 }
 
 .meta-trigger {
-  width: 40px;
-  height: 40px;
+  // 44px matches the iOS HIG minimum touch target size
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 1px solid rgba(0, 0, 0, 0.06);
   background: rgba(255, 255, 255, 0.88);
@@ -136,7 +156,7 @@ onUnmounted(() => {
   }
 
   .trigger-icon {
-    font-size: 1.2rem;
+    font-size: 1.35rem;
     line-height: 1;
   }
 }

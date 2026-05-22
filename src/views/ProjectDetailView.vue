@@ -15,7 +15,7 @@
             </b-row>
           </template>
           <div v-if="project" class="page-header d-flex flex-wrap align-items-center gap-3 py-2">
-            <back-button v-if="!isIFrame" class="back-btn shadow-sm" />
+            <back-button v-if="!isIFrame" class="back-btn shadow-sm d-none d-md-flex" />
             <h1 class="title mb-0 flex-grow-1 fw-bold">
               {{ project.name }}
             </h1>
@@ -23,6 +23,17 @@
         </b-placeholder-wrapper>
       </b-container>
     </div>
+
+    <!-- Floating back button for mobile -->
+    <button
+      v-if="!isIFrame && project"
+      class="floating-back-btn d-md-none"
+      :aria-label="t('nav.back')"
+      :title="t('nav.back')"
+      @click="goBack"
+    >
+      <IBiArrowLeft class="floating-back-icon" aria-hidden="true" />
+    </button>
 
     <b-container fluid class="px-0 px-md-3">
       <b-placeholder-wrapper :loading="loading">
@@ -167,7 +178,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeMount } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useCategoryStore } from "@/stores/category.store";
 import { useCountryStore } from "@/stores/country.store";
@@ -188,6 +199,7 @@ import "leaflet/dist/leaflet.css";
 
 const { isIFrame } = useWebFrame();
 const { t, locale } = useI18n();
+const router = useRouter();
 
 const MarkdownText = defineAsyncComponent(
   () => import("@/components/MarkdownText.vue"),
@@ -209,6 +221,10 @@ const loadingStore = useLoadingStore();
 const projectStore = useProjectStore();
 const categoryStore = useCategoryStore();
 const countryStore = useCountryStore();
+
+function goBack() {
+  router.go(-1);
+}
 
 // Load data before mount to start fetching earlier
 onBeforeMount(() => {
@@ -340,6 +356,40 @@ const detailMarkerIcon = computed(() => {
     background: var(--bs-primary) !important;
     color: #fff !important;
     box-shadow: 0 4px 15px rgba(61, 94, 158, 0.2) !important;
+  }
+}
+
+.floating-back-btn {
+  position: fixed;
+  // No bottom filter bar on this view, so place near the screen edge (matching FloatingMeta .on-detail)
+  bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  left: calc(1rem + env(safe-area-inset-left, 0px));
+  z-index: 999;
+  // 44px matches the iOS HIG minimum touch target size
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-on-surface, #1e293b);
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    color: var(--color-secondary, #3d5e9e);
+  }
+
+  .floating-back-icon {
+    font-size: 1.35rem;
+    line-height: 1;
   }
 }
 
@@ -491,7 +541,7 @@ const detailMarkerIcon = computed(() => {
 }
 
 .info-value {
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--jws-text-main);
   display: flex;
@@ -517,7 +567,7 @@ const detailMarkerIcon = computed(() => {
 }
 
 :deep(.notes-content) {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   line-height: 1.8;
   color: var(--jws-text-main);
   opacity: 0.9;
