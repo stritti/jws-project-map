@@ -153,13 +153,13 @@ function getTeaserImage(project: Project) {
     // Use small thumbnail for the search list to save bandwidth, fallback to card_cover or original signedUrl
     return img.thumbnails?.small?.signedUrl || img.thumbnails?.card_cover?.signedUrl || img.signedUrl || "/img/placeholder.png";
   }
-
-  function onResultImageError(event: Event) {
-    const target = event.target as HTMLImageElement | null;
-    if (!target || target.src.endsWith("/img/placeholder.png")) return;
-    target.src = "/img/placeholder.png";
-  }
   return "/img/placeholder.png";
+}
+
+function onResultImageError(event: Event) {
+  const target = event.target as HTMLImageElement | null;
+  if (!target || target.src.endsWith("/img/placeholder.png")) return;
+  target.src = "/img/placeholder.png";
 }
 
 function stateBadgeVariant(state: string) {

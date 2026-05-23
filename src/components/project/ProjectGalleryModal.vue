@@ -153,12 +153,12 @@ function onKeydown(e: KeyboardEvent) {
     e.preventDefault()
     closeModal()
   }
+}
 
-  function onImageError(event: Event) {
-    const target = event.target as HTMLImageElement | null
-    if (!target || target.src.endsWith("/img/placeholder.png")) return
-    target.src = "/img/placeholder.png"
-  }
+function onImageError(event: Event) {
+  const target = event.target as HTMLImageElement | null
+  if (!target || target.src.endsWith("/img/placeholder.png")) return
+  target.src = "/img/placeholder.png"
 }
 
 function findCurrentIndex(): number {
