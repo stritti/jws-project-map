@@ -110,6 +110,7 @@ import { useWebFrame } from "@/composables/useWebFrame";
 import { useSearchStore } from "@/stores/search.store";
 import SearchBar from "./SearchBar.vue";
 import { useFocusRestore } from "@/composables/useAccessibility";
+import { PLACEHOLDER_IMAGE } from "@/constants/media";
 
 const router = useRouter();
 const projectStore = useProjectStore();
@@ -151,15 +152,20 @@ function getTeaserImage(project: Project) {
   if (project.teaserImg && project.teaserImg.length > 0) {
     const img = project.teaserImg[0];
     // Use small thumbnail for the search list to save bandwidth, fallback to card_cover or original signedUrl
-    return img.thumbnails?.small?.signedUrl || img.thumbnails?.card_cover?.signedUrl || img.signedUrl || "/img/placeholder.png";
+    return (
+      img.thumbnails?.small?.signedUrl ||
+      img.thumbnails?.card_cover?.signedUrl ||
+      img.signedUrl ||
+      PLACEHOLDER_IMAGE
+    );
   }
-  return "/img/placeholder.png";
+  return PLACEHOLDER_IMAGE;
 }
 
 function onResultImageError(event: Event) {
   const target = event.target as HTMLImageElement | null;
-  if (!target || target.src.endsWith("/img/placeholder.png")) return;
-  target.src = "/img/placeholder.png";
+  if (!target || target.src.endsWith(PLACEHOLDER_IMAGE)) return;
+  target.src = PLACEHOLDER_IMAGE;
 }
 
 function stateBadgeVariant(state: string) {

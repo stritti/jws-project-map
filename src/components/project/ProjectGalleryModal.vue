@@ -80,6 +80,7 @@ import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Attachment } from '@/interfaces/Attachment'
 import { useFocusRestore } from '@/composables/useAccessibility'
+import { PLACEHOLDER_IMAGE } from '@/constants/media'
 
 const { t } = useI18n()
 const { setTrigger, restoreFocus } = useFocusRestore()
@@ -157,8 +158,8 @@ function onKeydown(e: KeyboardEvent) {
 
 function onImageError(event: Event) {
   const target = event.target as HTMLImageElement | null
-  if (!target || target.src.endsWith("/img/placeholder.png")) return
-  target.src = "/img/placeholder.png"
+  if (!target || target.src.endsWith(PLACEHOLDER_IMAGE)) return
+  target.src = PLACEHOLDER_IMAGE
 }
 
 function findCurrentIndex(): number {

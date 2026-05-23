@@ -198,6 +198,7 @@ import { defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import type { Project } from "@/interfaces/Project";
 import { useGeoTags } from "@/composables/useGeoTags";
+import { PLACEHOLDER_IMAGE } from "@/constants/media";
 import L from "leaflet";
 import { LMap, LTileLayer, LMarker } from "@vue-leaflet/vue-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -226,7 +227,6 @@ const loadingStore = useLoadingStore();
 const projectStore = useProjectStore();
 const categoryStore = useCategoryStore();
 const countryStore = useCountryStore();
-const PLACEHOLDER_IMAGE = "/img/placeholder.png";
 
 function goBack() {
   router.go(-1);

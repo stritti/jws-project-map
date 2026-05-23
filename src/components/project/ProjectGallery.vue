@@ -75,6 +75,7 @@
 import { defineComponent, PropType, ref, computed } from 'vue';
 import type { Project } from '@/interfaces/Project';
 import ProjectGalleryModal from './ProjectGalleryModal.vue';
+import { PLACEHOLDER_IMAGE } from "@/constants/media";
 
 export default defineComponent({
   name: 'ProjectGallery',
@@ -121,8 +122,8 @@ export default defineComponent({
     onImageError(event: Event) {
       this.imageError = true;
       const target = event.target as HTMLImageElement | null;
-      if (!target || target.src.endsWith("/img/placeholder.png")) return;
-      target.src = "/img/placeholder.png";
+      if (!target || target.src.endsWith(PLACEHOLDER_IMAGE)) return;
+      target.src = PLACEHOLDER_IMAGE;
     },
   }
 });
