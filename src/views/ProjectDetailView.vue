@@ -43,7 +43,7 @@
         <div v-if="project" class="teaser-wrapper">
           <div
             class="teaser-card"
-            :style="{ backgroundImage: `url(${teaserImage})` }"
+            :style="{ backgroundImage: teaserBackgroundImage }"
           >
             <div class="action-bar d-flex gap-2">
               <share-button
@@ -258,6 +258,13 @@ const teaserImage = computed(() => {
     return project.value.teaserImg[0].signedUrl;
   }
   return "/img/placeholder.png";
+});
+
+const teaserBackgroundImage = computed(() => {
+  if (teaserImage.value) {
+    return `url("${teaserImage.value}"), url("/img/placeholder.png")`;
+  }
+  return 'url("/img/placeholder.png")';
 });
 
 const stateKeyMap: Record<string, string> = {

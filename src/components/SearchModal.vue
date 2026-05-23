@@ -55,6 +55,7 @@
             :src="getTeaserImage(project)"
             :alt="project.name"
             class="result-thumb rounded"
+            @error="onResultImageError"
           />
           <div v-else class="result-thumb-placeholder rounded d-flex align-items-center justify-content-center">
             <IBiGlobe2 class="text-muted" aria-hidden="true" />
@@ -151,6 +152,12 @@ function getTeaserImage(project: Project) {
     const img = project.teaserImg[0];
     // Use small thumbnail for the search list to save bandwidth, fallback to card_cover or original signedUrl
     return img.thumbnails?.small?.signedUrl || img.thumbnails?.card_cover?.signedUrl || img.signedUrl || "/img/placeholder.png";
+  }
+
+  function onResultImageError(event: Event) {
+    const target = event.target as HTMLImageElement | null;
+    if (!target || target.src.endsWith("/img/placeholder.png")) return;
+    target.src = "/img/placeholder.png";
   }
   return "/img/placeholder.png";
 }
@@ -368,4 +375,3 @@ kbd {
   }
 }
 </style>
-

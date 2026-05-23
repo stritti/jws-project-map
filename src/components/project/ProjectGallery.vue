@@ -118,8 +118,11 @@ export default defineComponent({
       this.modalVisible = false;
       this.currentItem = null;
     },
-    onImageError() {
+    onImageError(event: Event) {
       this.imageError = true;
+      const target = event.target as HTMLImageElement | null;
+      if (!target || target.src.endsWith("/img/placeholder.png")) return;
+      target.src = "/img/placeholder.png";
     },
   }
 });
@@ -278,4 +281,3 @@ export default defineComponent({
   }
 }
 </style>
-

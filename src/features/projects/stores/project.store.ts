@@ -15,11 +15,11 @@ interface State {
   lastRefreshAttempted: number | null; // Verhindert mehrfache Refresh-Versuche
 }
 
-// Konstante für Cache-Gültigkeit (ca. 6 Stunden)
-const CACHE_VALIDITY_MS = 6 * 60 * 60 * 1000;
+// Konstante für Cache-Gültigkeit (1 Stunde)
+const CACHE_VALIDITY_MS = 60 * 60 * 1000;
 
-// Daten gelten als "stale" wenn älter als 6 Stunden – dann wird Background-Refresh erzwungen
-const STALE_DATA_MS = 6 * 60 * 60 * 1000;
+// Daten gelten als "stale" wenn älter als 1 Stunde – dann wird Background-Refresh erzwungen
+const STALE_DATA_MS = 60 * 60 * 1000;
 
 export const useProjectStore = defineStore("project", {
   state: (): State => {

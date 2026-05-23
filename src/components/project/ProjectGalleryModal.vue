@@ -42,6 +42,7 @@
                 :src="item.signedUrl"
                 :alt="item.name || t('a11y.imageNotAvailable', 'Image not available')"
                 class="gallery-image"
+                @error="onImageError"
               />
             </template>
             <template v-else-if="item.mimetype.startsWith('video')">
@@ -151,6 +152,12 @@ function onKeydown(e: KeyboardEvent) {
   } else if (e.key === 'Escape') {
     e.preventDefault()
     closeModal()
+  }
+
+  function onImageError(event: Event) {
+    const target = event.target as HTMLImageElement | null
+    if (!target || target.src.endsWith("/img/placeholder.png")) return
+    target.src = "/img/placeholder.png"
   }
 }
 
