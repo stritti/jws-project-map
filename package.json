@@ -3,6 +3,7 @@
   "version": "2.5.0",
   "private": true,
   "type": "module",
+  "packageManager": "bun@1.3.14",
   "scripts": {
     "start": "bun run dev",
     "build": "run-p type-check build-only",
@@ -13,7 +14,7 @@
     "dev": "vite",
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit",
-    "update:browserlist": "npx browserslist@latest --update-db",
+    "update:browserlist": "bunx browserslist@latest --update-db",
     "generate-pwa-assets": "pwa-assets-generator --preset minimal-2023 public/img/cropped-joerg-wolff-stiftung.png",
     "mcp": "bun run scripts/mcp-server.ts"
   },
@@ -60,7 +61,7 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^3.8.3",
     "sass": "^1.99.0",
-    "typescript": "~5.9.3",
+    "typescript": "~6.0.3",
     "typescript-eslint": "^8.59.4",
     "unplugin-icons": "^23.0.1",
     "unplugin-vue-components": "^32.1.0",
