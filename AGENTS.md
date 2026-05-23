@@ -37,7 +37,7 @@ bun run mcp              # run the stdio MCP server (for AI tooling)
 
 **Build order matters:** CI runs `bun run lint` → `bun run build` → `bun test`. No test infrastructure exists today — `bun test` is a no-op unless tests are added.
 
-**Performance CI** (`.github/workflows/performance.yml`) uses `npm ci` (not Bun) because `@lhci/cli` is Node-native. Always runs `npm run build:prod` (build + bundle budget).
+**Performance CI** (`.github/workflows/performance.yml`) uses Bun throughout (`bun install`, `bun run build:prod`, `bunx lhci autorun`).
 
 ## Architecture
 
@@ -94,7 +94,7 @@ These are required at build time. No defaults.
 ## Deployment
 
 - **Netlify** — SPA with `/* → /index.html 200` redirect (both `public/_redirects` and `netlify.toml`).
-- Build command: `npm run build:prod` (build + bundle budget check).
+- Build command: `bun run build:prod` (build + bundle budget check).
 - Bundle budget thresholds (in `scripts/check-bundle-budget.cjs`): initial JS ≤ 300 kB gzipped, async chunks ≤ 150 kB, total CSS ≤ 150 kB.
 - Lighthouse CI runs on every PR via `@netlify/plugin-lighthouse` and GitHub Actions (`performance.yml`), with metrics posted as PR comments.
 

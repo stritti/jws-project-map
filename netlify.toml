@@ -1,6 +1,6 @@
 [build]
   publish = "dist"
-  command = "npm run build:prod"
+  command = "bun run build:prod"
 
 [[plugins]]
 package = "@netlify/plugin-lighthouse"
