@@ -43,8 +43,13 @@
         <div v-if="project" class="teaser-wrapper">
           <div
             class="teaser-card"
-            :style="{ backgroundImage: teaserBackgroundImage }"
           >
+            <img
+              :src="teaserSrc"
+              :alt="project.name"
+              class="teaser-image"
+              @error="onTeaserImageError"
+            />
             <div class="action-bar d-flex gap-2">
               <share-button
                 class="action-btn share glass-btn"
@@ -177,7 +182,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount } from "vue";
+import { computed, onBeforeMount, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useCategoryStore } from "@/stores/category.store";
@@ -221,6 +226,7 @@ const loadingStore = useLoadingStore();
 const projectStore = useProjectStore();
 const categoryStore = useCategoryStore();
 const countryStore = useCountryStore();
+const PLACEHOLDER_IMAGE = "/img/placeholder.png";
 
 function goBack() {
   router.go(-1);
@@ -253,19 +259,21 @@ const formattedSince = computed(() => {
   });
 });
 
-const teaserImage = computed(() => {
-  if (project.value?.teaserImg && project.value.teaserImg.length > 0) {
-    return project.value.teaserImg[0].signedUrl;
-  }
-  return "/img/placeholder.png";
-});
+const teaserSrc = ref(PLACEHOLDER_IMAGE);
 
-const teaserBackgroundImage = computed(() => {
-  if (teaserImage.value) {
-    return `url("${teaserImage.value}"), url("/img/placeholder.png")`;
+watch(
+  project,
+  (currentProject) => {
+    teaserSrc.value = currentProject?.teaserImg?.[0]?.signedUrl || PLACEHOLDER_IMAGE;
+  },
+  { immediate: true },
+);
+
+function onTeaserImageError() {
+  if (teaserSrc.value !== PLACEHOLDER_IMAGE) {
+    teaserSrc.value = PLACEHOLDER_IMAGE;
   }
-  return 'url("/img/placeholder.png")';
-});
+}
 
 const stateKeyMap: Record<string, string> = {
   finished: "finished",
@@ -416,9 +424,6 @@ const detailMarkerIcon = computed(() => {
   max-height: 700px;
   width: 100%;
   border-radius: 0;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
   box-shadow: var(--jws-shadow-lg);
   overflow: hidden;
   
@@ -433,8 +438,18 @@ const detailMarkerIcon = computed(() => {
     position: absolute;
     inset: 0;
     background: linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,0.4) 100%);
+    z-index: 1;
     pointer-events: none;
   }
+}
+
+.teaser-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
 }
 
 @keyframes revealImage {

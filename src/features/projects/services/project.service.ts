@@ -227,8 +227,8 @@ const projectService = {
       const response = await projectRepository.fetchMinimal();
 
       const loc = currentLocale();
-      // Neue API-Antworten immer neu verarbeiten, damit erneuerte signed URLs
-      // nicht durch einen veralteten processDataCache überschrieben werden.
+      // Always reprocess fresh API responses so renewed signed URLs are not
+      // overridden by stale processDataCache entries.
       processDataCache.clear();
       const mapData = processProjectData(response, true, loc);
 
@@ -267,8 +267,8 @@ const projectService = {
       const response = await projectRepository.fetchFull();
 
       const loc = currentLocale();
-      // Neue API-Antworten immer neu verarbeiten, damit erneuerte signed URLs
-      // nicht durch einen veralteten processDataCache überschrieben werden.
+      // Always reprocess fresh API responses so renewed signed URLs are not
+      // overridden by stale processDataCache entries.
       processDataCache.clear();
       const projects = processProjectData(response, false, loc);
 
