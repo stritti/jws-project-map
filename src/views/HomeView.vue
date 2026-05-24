@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
@@ -27,8 +27,10 @@ const { countries } = storeToRefs(countryStore);
 // Derive local refs from shared filter store for template bindings
 const { stateFilter, categoryFilter, countryFilter, filterVisible } = storeToRefs(filterStore);
 
-// Load map synchronously to avoid delayed main thread rendering
-import LocationMap from "../components/map/LocationMap.vue";
+// Load map automatically after HomeView renders, but keep Leaflet out of the initial chunk
+const LocationMap = defineAsyncComponent(
+  () => import("../components/map/LocationMap.vue"),
+);
 
 // Map base layer (CartoDB, satellite or OSM)
 const baseLayer = ref<'satellite' | 'osm' | 'carto'>('carto');
@@ -339,7 +341,7 @@ onUnmounted(() => {
     </div>
     
     <div class="project-map" id="project-map">
-      <!-- Map loads immediately, markers load asynchronously via Suspense in LocationMap -->
+      <!-- Map loads automatically without user interaction; Leaflet stays split into its own chunk -->
       <LocationMap :filtered-projects="filteredList" :base-layer="baseLayer" :cluster-enabled="clusterEnabled" />
     </div>
   </div>
