@@ -1,16 +1,14 @@
 <template>
   <div class="map" tabindex="0" ref="mapContainerRef" role="region" :aria-label="t('a11y.skipToMap')" @focus="onMapFocus">
-    <b-overlay :show="isLoadingMap" fixed style="height: 100vh" :opacity="0.5">
-      <!-- Skeleton loader for map -->
-      <div v-if="!mapReady" class="map-skeleton">
+    <b-overlay :show="!mapReady" fixed style="height: 100vh" :opacity="0.5">
+      <template #overlay>
         <div class="map-skeleton-content">
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">{{ t("search.loadingMap") }}</span>
           </div>
           <p class="mt-2">{{ t("search.loadingMap") }}</p>
         </div>
-      </div>
-
+      </template>
       <l-map
         ref="map"
         v-model:zoom="zoom"
@@ -175,10 +173,8 @@
 import {
   ref,
   computed,
-  onMounted,
   watch,
   nextTick,
-  onBeforeMount,
   shallowRef,
   onBeforeUnmount,
 } from "vue";
@@ -274,8 +270,7 @@ const maxBounds = shallowRef(
   ]),
 );
 const isOpened = ref(false);
-const isLoadingMap = ref(true);
-const mapReady = ref(true); // Karte sofort als bereit markieren
+const mapReady = ref(false);
 const mapInitialized = ref(false);
 const initialDataLoaded = ref(false);
 const pinsReady = ref(false); // New status for pins
@@ -393,12 +388,6 @@ const layerLabelProjectsPlanned = computed(() =>
   t("map.layerPlanned", { count: projectsPlanned.value.length }),
 );
 
-// Sofort mit dem Laden der Karte beginnen
-onBeforeMount(() => {
-  // Karte ist sofort bereit (mapReady ist bereits true)
-  isLoadingMap.value = false;
-});
-
 // Überwache die Projektdaten – immediate:true damit bereits persistierte Daten sofort greifen
 watch(
   locations,
@@ -421,8 +410,8 @@ watch(
 
 // Wird aufgerufen, wenn die Leaflet-Karte bereit ist
 const mapLoaded = () => {
+  mapReady.value = true;
   mapInitialized.value = true;
-  isLoadingMap.value = false;
   scheduleBaseLayerUpdate(props.baseLayer);
 
   // Optimize the Leaflet map for better performance

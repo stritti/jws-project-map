@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, defineAsyncComponent } from "vue";
+import { ref, computed, onMounted, onUnmounted, defineAsyncComponent, defineComponent, h } from "vue";
 import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
@@ -27,10 +27,27 @@ const { countries } = storeToRefs(countryStore);
 // Derive local refs from shared filter store for template bindings
 const { stateFilter, categoryFilter, countryFilter, filterVisible } = storeToRefs(filterStore);
 
+const MapLoadingIndicator = defineComponent({
+  name: "MapLoadingIndicator",
+  setup() {
+    return () =>
+      h("div", { class: "map-loading-indicator" }, [
+        h("div", { class: "map-loading-indicator__content" }, [
+          h("div", { class: "spinner-border text-primary", role: "status" }, [
+            h("span", { class: "visually-hidden" }, t("search.loadingMap")),
+          ]),
+          h("p", { class: "mt-2" }, t("search.loadingMap")),
+        ]),
+      ]);
+  },
+});
+
 // Load map automatically after HomeView renders, but keep Leaflet out of the initial chunk
-const LocationMap = defineAsyncComponent(
-  () => import("../components/map/LocationMap.vue"),
-);
+const LocationMap = defineAsyncComponent({
+  loader: () => import("../components/map/LocationMap.vue"),
+  loadingComponent: MapLoadingIndicator,
+  delay: 0,
+});
 
 // Map base layer (CartoDB, satellite or OSM)
 const baseLayer = ref<'satellite' | 'osm' | 'carto'>('carto');
@@ -565,6 +582,30 @@ onUnmounted(() => {
     width: 100%;
     position: absolute;
     z-index: 1;
+  }
+
+  .map-loading-indicator {
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-background);
+  }
+
+  .map-loading-indicator__content {
+    text-align: center;
+
+    .spinner-border {
+      color: var(--color-primary);
+    }
+
+    p {
+      margin-top: var(--spacing-unit);
+      font-size: var(--font-size-body-md);
+      color: var(--color-on-surface);
+    }
   }
 
   .map-loading {
