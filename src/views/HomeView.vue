@@ -30,6 +30,8 @@ const { stateFilter, categoryFilter, countryFilter, filterVisible } = storeToRef
 const MapLoadingIndicator = defineComponent({
   name: "MapLoadingIndicator",
   setup() {
+    const { t } = useI18n();
+
     return () =>
       h("div", { class: "map-loading-indicator" }, [
         h("div", { class: "map-loading-indicator__content" }, [

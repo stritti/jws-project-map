@@ -1,6 +1,6 @@
 <template>
   <div class="map" tabindex="0" ref="mapContainerRef" role="region" :aria-label="t('a11y.skipToMap')" @focus="onMapFocus">
-    <b-overlay :show="!mapReady" fixed style="height: 100vh" :opacity="0.5">
+    <b-overlay :show="!mapReady" fixed class="map-loading-overlay" :opacity="0.5">
       <template #overlay>
         <div class="map-skeleton-content">
           <div class="spinner-border text-primary" role="status">
@@ -825,6 +825,10 @@ const updateMaxBounds = () => {
   outline: 3px solid #3d5e9e;
   outline-offset: -3px;
   z-index: 5;
+}
+
+.map-loading-overlay {
+  height: 100vh;
 }
 
 .map-skeleton {
