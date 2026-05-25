@@ -819,6 +819,8 @@ const updateMaxBounds = () => {
 .map-root {
   position: relative;
   overflow: hidden;
+  --map-loading-overlay-opacity: 0.82;
+  --map-loading-overlay-z-index: 1200;
 }
 
 .map:focus-visible {
@@ -833,8 +835,8 @@ const updateMaxBounds = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(var(--color-surface-rgb), 0.82);
-  z-index: 1200;
+  background-color: rgba(var(--color-surface-rgb), var(--map-loading-overlay-opacity));
+  z-index: var(--map-loading-overlay-z-index);
   text-align: center;
   pointer-events: none;
 
