@@ -1,5 +1,5 @@
 <template>
-  <div class="map map-root" tabindex="0" ref="mapContainerRef" role="region" :aria-label="t('a11y.skipToMap')" @focus="onMapFocus">
+  <div class="map-container" tabindex="0" ref="mapContainerRef" role="region" :aria-label="t('a11y.skipToMap')" @focus="onMapFocus">
     <div v-if="showMapLoadingIndicator" class="map-loading-overlay" role="status" :aria-label="t('search.loadingMap')">
       <div class="map-skeleton-content">
         <div class="spinner-border text-primary" role="status">
@@ -367,6 +367,8 @@ const projectsUnderConstruction = computed(() =>
 const projectsPlanned = computed(() =>
   locations.value.filter((p) => p.state === "planned"),
 );
+// Keep a single overlay visible until both the Leaflet instance and the
+// marker/pin layer are ready, so the map never swaps between multiple loaders.
 const showMapLoadingIndicator = computed(
   () => !mapReady.value || !pinsReady.value,
 );
@@ -816,10 +818,10 @@ const updateMaxBounds = () => {
   backface-visibility: hidden;
 }
 
-.map-root {
+.map-container {
   position: relative;
   overflow: hidden;
-  --map-loading-overlay-opacity: 0.82;
+  --map-loading-overlay-opacity-high: 0.82;
   --map-loading-overlay-z-index: 1200;
 }
 
@@ -835,7 +837,7 @@ const updateMaxBounds = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(var(--color-surface-rgb), var(--map-loading-overlay-opacity));
+  background-color: rgba(var(--color-surface-rgb), var(--map-loading-overlay-opacity-high));
   z-index: var(--map-loading-overlay-z-index);
   text-align: center;
   pointer-events: none;
