@@ -1,28 +1,27 @@
 <template>
-  <div class="map" tabindex="0" ref="mapContainerRef" role="region" :aria-label="t('a11y.skipToMap')" @focus="onMapFocus">
-    <b-overlay :show="!mapReady" fixed class="map-loading-overlay" :opacity="0.5">
-      <template #overlay>
-        <div class="map-skeleton-content">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">{{ t("search.loadingMap") }}</span>
-          </div>
-          <p class="mt-2">{{ t("search.loadingMap") }}</p>
+  <div class="map map-root" tabindex="0" ref="mapContainerRef" role="region" :aria-label="t('a11y.skipToMap')" @focus="onMapFocus">
+    <div v-if="showMapLoadingIndicator" class="map-loading-overlay" role="status" :aria-label="t('search.loadingMap')">
+      <div class="map-skeleton-content">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">{{ t("search.loadingMap") }}</span>
         </div>
-      </template>
-      <l-map
-        ref="map"
-        v-model:zoom="zoom"
-        class="map"
-        crs="EPSG:4326"
-        :min-zoom="4"
-        :max-zoom="17"
-        :bounds="bounds"
-        :max--bounds="maxBounds"
-        :use-global-leaflet="true"
-        :options="mapOptions"
-        @click="addMarker"
-        @ready="mapLoaded"
-      >
+        <p class="mt-2">{{ t("search.loadingMap") }}</p>
+      </div>
+    </div>
+    <l-map
+      ref="map"
+      v-model:zoom="zoom"
+      class="map"
+      crs="EPSG:4326"
+      :min-zoom="4"
+      :max-zoom="17"
+      :bounds="bounds"
+      :max--bounds="maxBounds"
+      :use-global-leaflet="true"
+      :options="mapOptions"
+      @click="addMarker"
+      @ready="mapLoaded"
+    >
         <l-tile-layer
           v-if="effectiveBaseLayer === 'satellite'"
           url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
@@ -153,14 +152,7 @@
           </l-marker>
         </component>
 
-        <!-- Lade-Indikator für Pins -->
-        <div v-if="mapInitialized && !pinsReady" class="pins-loading-indicator">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading pins...</span>
-          </div>
-        </div>
       </l-map>
-    </b-overlay>
     <project-details
       :project="selectedLocation"
       :is-opened="isOpened"
@@ -374,6 +366,9 @@ const projectsUnderConstruction = computed(() =>
 );
 const projectsPlanned = computed(() =>
   locations.value.filter((p) => p.state === "planned"),
+);
+const showMapLoadingIndicator = computed(
+  () => !mapReady.value || !pinsReady.value,
 );
 
 const layerLabelProjectsFinished = computed(() =>
@@ -821,6 +816,11 @@ const updateMaxBounds = () => {
   backface-visibility: hidden;
 }
 
+.map-root {
+  position: relative;
+  overflow: hidden;
+}
+
 .map:focus-visible {
   outline: 3px solid #3d5e9e;
   outline-offset: -3px;
@@ -828,48 +828,27 @@ const updateMaxBounds = () => {
 }
 
 .map-loading-overlay {
-  height: 100vh;
-}
-
-.map-skeleton {
-  width: 100%;
-  height: 100vh;
-  background-color: var(--color-background);
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.map-skeleton-content {
+  background-color: rgba(var(--color-surface-rgb), 0.82);
+  z-index: 1200;
   text-align: center;
-  
+  pointer-events: none;
+
+  .map-skeleton-content {
+    padding: calc(var(--spacing-unit) * 3.75);
+    border-radius: var(--shape-round-default);
+    box-shadow: 0 calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit) * 2.5) rgba(0, 0, 0, 0.1);
+    background-color: var(--color-surface);
+  }
+
   .spinner-border {
     color: var(--color-primary);
   }
-  
-  p {
-    margin-top: var(--spacing-unit);
-    font-size: var(--font-size-body-md);
-    color: var(--color-on-surface);
-  }
-}
 
-.pins-loading-indicator {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: rgba(var(--color-surface-rgb), 0.8);
-  padding: calc(var(--spacing-unit) * 3.75); /* 15px */
-  border-radius: var(--shape-round-default);
-  z-index: 1000;
-  text-align: center;
-  box-shadow: 0 calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit) * 2.5) rgba(0, 0, 0, 0.1);
-  
-  .spinner-border {
-    color: var(--color-primary);
-  }
-  
   p {
     margin-top: var(--spacing-unit);
     font-size: var(--font-size-body-md);
