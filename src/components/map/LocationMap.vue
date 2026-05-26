@@ -821,6 +821,8 @@ const updateMaxBounds = () => {
 .map-container {
   position: relative;
   overflow: hidden;
+  height: 100%;
+  width: 100%;
 }
 
 .map:focus-visible {
