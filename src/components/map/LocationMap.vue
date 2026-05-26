@@ -366,10 +366,10 @@ const projectsUnderConstruction = computed(() =>
 const projectsPlanned = computed(() =>
   locations.value.filter((p) => p.state === "planned"),
 );
-// Keep a single overlay visible until both the Leaflet instance and the
-// marker/pin layer are ready, so the map never swaps between multiple loaders.
+// Show the loading overlay only after Leaflet has initialized.
+// This prevents an opaque overlay from getting stuck if @ready is delayed or missed.
 const showMapLoadingIndicator = computed(
-  () => !mapReady.value || !pinsReady.value,
+  () => mapInitialized.value && !pinsReady.value,
 );
 
 const layerLabelProjectsFinished = computed(() =>
