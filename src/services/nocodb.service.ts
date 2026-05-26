@@ -4,17 +4,24 @@ export type SortEntry = { direction: "asc" | "desc"; field: string };
 
 export class NocoDBService {
   private tableId: string;
-  private baseId: string;
+  private baseId: string | null;
 
   constructor(tableId: string, baseId?: string) {
     this.tableId = tableId;
     const resolvedBaseId = baseId ?? import.meta.env.VITE_APP_NOCODB_BASE_ID;
     if (!resolvedBaseId) {
-      throw new Error(
+      console.error(
         "NocoDBService: baseId is required. Set the VITE_APP_NOCODB_BASE_ID environment variable or pass baseId to the constructor.",
       );
     }
-    this.baseId = resolvedBaseId;
+    this.baseId = resolvedBaseId ?? null;
+  }
+
+  private recordsPath(): string | null {
+    if (!this.baseId) {
+      return null;
+    }
+    return `/api/v3/data/${this.baseId}/${this.tableId}/records`;
   }
 
   list<T = Record<string, unknown>>(params?: {
@@ -25,6 +32,11 @@ export class NocoDBService {
     sort?: SortEntry[];
     fields?: string[];
   }): Promise<{ list: T[] }> {
+    const recordsPath = this.recordsPath();
+    if (!recordsPath) {
+      return Promise.resolve({ list: [] as T[] });
+    }
+
     const pageSize = params?.limit;
     let page: number | undefined;
     if (pageSize && params?.offset !== undefined) {
@@ -39,7 +51,7 @@ export class NocoDBService {
     }
 
     return httpClient
-      .get(`/api/v3/data/${this.baseId}/${this.tableId}/records`, {
+      .get(recordsPath, {
         params: {
           where: params?.where,
           page,
@@ -71,32 +83,48 @@ export class NocoDBService {
   }
 
   async create(data: Record<string, unknown>[]) {
+    const recordsPath = this.recordsPath();
+    if (!recordsPath) {
+      throw new Error("NocoDBService.create: baseId is required.");
+    }
     const response = await httpClient.post(
-      `/api/v3/data/${this.baseId}/${this.tableId}/records`,
+      recordsPath,
       data,
     );
     return response.data;
   }
 
   async update(data: Array<{ Id: number } & Record<string, unknown>>) {
+    const recordsPath = this.recordsPath();
+    if (!recordsPath) {
+      throw new Error("NocoDBService.update: baseId is required.");
+    }
     const response = await httpClient.patch(
-      `/api/v3/data/${this.baseId}/${this.tableId}/records`,
+      recordsPath,
       data,
     );
     return response.data;
   }
 
   async delete(ids: Array<{ Id: number }>) {
+    const recordsPath = this.recordsPath();
+    if (!recordsPath) {
+      throw new Error("NocoDBService.delete: baseId is required.");
+    }
     const response = await httpClient.delete(
-      `/api/v3/data/${this.baseId}/${this.tableId}/records`,
+      recordsPath,
       { data: ids },
     );
     return response.data;
   }
 
   async read(recordId: number, params?: { fields?: string[] }) {
+    const recordsPath = this.recordsPath();
+    if (!recordsPath) {
+      throw new Error("NocoDBService.read: baseId is required.");
+    }
     const response = await httpClient.get(
-      `/api/v3/data/${this.baseId}/${this.tableId}/records/${recordId}`,
+      `${recordsPath}/${recordId}`,
       {
         params: {
           fields: params?.fields?.join(","),
@@ -107,6 +135,9 @@ export class NocoDBService {
   }
 
   async count(params?: { where?: string }) {
+    if (!this.baseId) {
+      throw new Error("NocoDBService.count: baseId is required.");
+    }
     const response = await httpClient.get(
       `/api/v3/data/${this.baseId}/${this.tableId}/count`,
       {

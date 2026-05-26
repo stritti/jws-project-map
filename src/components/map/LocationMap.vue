@@ -186,7 +186,6 @@ import {
 } from "@vue-leaflet/vue-leaflet";
 import { LMarkerClusterGroup } from "vue-leaflet-markercluster";
 import ProjectDetails from "../../components/project/ProjectDetails.vue";
-import projectService from "@/features/projects/services/project.service";
 import type { Project } from "@/interfaces/Project";
 import { useI18n } from "vue-i18n";
 import { announceToScreenReader } from "@/composables/useAccessibility";
@@ -462,7 +461,7 @@ watch(
   },
 );
 
-const addMarker = (event: {
+const addMarker = async (event: {
   latlng: any;
   originalEvent: { ctrlKey: any; altKey: any };
 }) => {
@@ -474,7 +473,14 @@ const addMarker = (event: {
   ) {
     const name = prompt("Enter name:", "__TBD__");
     if (name) {
-      projectService.add(event.latlng, name);
+      try {
+        const { default: projectService } = await import(
+          "@/features/projects/services/project.service"
+        );
+        await projectService.add(event.latlng, name);
+      } catch (error) {
+        console.error("Unable to add marker:", error);
+      }
     }
   }
 };
