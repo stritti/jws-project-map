@@ -11,7 +11,7 @@ export class NocoDBService {
     const resolvedBaseId = baseId ?? import.meta.env.VITE_APP_NOCODB_BASE_ID;
     if (!resolvedBaseId) {
       console.error(
-        "NocoDBService: baseId is required. Set the VITE_APP_NOCODB_BASE_ID environment variable or pass baseId to the constructor.",
+        "NocoDBService: baseId is required. Set VITE_APP_NOCODB_BASE_ID (or pass baseId) to enable API requests. Service runs in degraded mode: read operations return empty data, write operations fail.",
       );
     }
     this.baseId = resolvedBaseId ?? null;
@@ -85,7 +85,9 @@ export class NocoDBService {
   async create(data: Record<string, unknown>[]) {
     const recordsPath = this.recordsPath();
     if (!recordsPath) {
-      throw new Error("NocoDBService.create: baseId is required.");
+      throw new Error(
+        "NocoDBService.create: baseId is required. Set VITE_APP_NOCODB_BASE_ID.",
+      );
     }
     const response = await httpClient.post(
       recordsPath,
@@ -97,7 +99,9 @@ export class NocoDBService {
   async update(data: Array<{ Id: number } & Record<string, unknown>>) {
     const recordsPath = this.recordsPath();
     if (!recordsPath) {
-      throw new Error("NocoDBService.update: baseId is required.");
+      throw new Error(
+        "NocoDBService.update: baseId is required. Set VITE_APP_NOCODB_BASE_ID.",
+      );
     }
     const response = await httpClient.patch(
       recordsPath,
@@ -109,7 +113,9 @@ export class NocoDBService {
   async delete(ids: Array<{ Id: number }>) {
     const recordsPath = this.recordsPath();
     if (!recordsPath) {
-      throw new Error("NocoDBService.delete: baseId is required.");
+      throw new Error(
+        "NocoDBService.delete: baseId is required. Set VITE_APP_NOCODB_BASE_ID.",
+      );
     }
     const response = await httpClient.delete(
       recordsPath,
@@ -121,7 +127,9 @@ export class NocoDBService {
   async read(recordId: number, params?: { fields?: string[] }) {
     const recordsPath = this.recordsPath();
     if (!recordsPath) {
-      throw new Error("NocoDBService.read: baseId is required.");
+      throw new Error(
+        "NocoDBService.read: baseId is required. Set VITE_APP_NOCODB_BASE_ID.",
+      );
     }
     const response = await httpClient.get(
       `${recordsPath}/${recordId}`,
@@ -136,7 +144,9 @@ export class NocoDBService {
 
   async count(params?: { where?: string }) {
     if (!this.baseId) {
-      throw new Error("NocoDBService.count: baseId is required.");
+      throw new Error(
+        "NocoDBService.count: baseId is required. Set VITE_APP_NOCODB_BASE_ID.",
+      );
     }
     const response = await httpClient.get(
       `/api/v3/data/${this.baseId}/${this.tableId}/count`,
