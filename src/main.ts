@@ -9,8 +9,6 @@ import router from "./router";
 
 // Import stores
 import { useProjectStore } from "@/features/projects/stores/project.store";
-import { useCategoryStore } from "./stores/category.store";
-import { useCountryStore } from "./stores/country.store";
 
 import { i18n } from "./plugins/i18n";
 import { useHtmlLang } from "./composables/useAccessibility";
@@ -32,35 +30,10 @@ app.use(i18n);
 // Initialize stores after Pinia is attached to the app
 // This ensures they can access the Pinia instance
 const projectStore = useProjectStore(pinia);
-const categoryStore = useCategoryStore(pinia);
-const countryStore = useCountryStore(pinia);
-
-const TAXONOMY_IDLE_TIMEOUT_MS = 1200;
-const TAXONOMY_FALLBACK_DELAY_MS = 100;
-
-// Prioritize map data for first paint; defer taxonomy loading slightly so
-// markers can appear as early as possible.
+// Prioritize map data for first paint and defer non-critical data to route-level loading.
 projectStore.preloadMapData().catch((err) => {
   console.error("Initial map data load failed:", err);
 });
-
-const loadTaxonomies = () => {
-  Promise.allSettled([categoryStore.load(), countryStore.load()]).then(
-    (results) => {
-      results.forEach((result) => {
-        if (result.status === "rejected") {
-          console.error("Initial taxonomy load failed:", result.reason);
-        }
-      });
-    },
-  );
-};
-
-if (typeof window !== "undefined" && typeof window.requestIdleCallback === "function") {
-  window.requestIdleCallback(loadTaxonomies, { timeout: TAXONOMY_IDLE_TIMEOUT_MS });
-} else {
-  setTimeout(loadTaxonomies, TAXONOMY_FALLBACK_DELAY_MS);
-}
 
 // app.component('vue-picture-swipe', VuePictureSwipe)
 

@@ -118,32 +118,6 @@ function handleProjectClick(projectId: number) {
   navigateToProject(projectId);
 }
 
-// Map data, categories and countries are loaded in main.ts in parallel.
-// On HomeView we still hydrate full project records in the background so
-// search/cards get complete data without delaying first map paint.
-const HYDRATION_IDLE_TIMEOUT_MS = 1500;
-const HYDRATION_FALLBACK_DELAY_MS = 150;
-
-let hydrationIdleRequestId: number | null = null;
-let hydrationTimeoutHandle: ReturnType<typeof setTimeout> | null = null;
-
-function startBackgroundHydration() {
-  const hydrate = () => {
-    projectStore.load(false).catch((error) => {
-      console.error("Background project hydration failed:", error);
-    });
-  };
-
-  if (typeof window !== "undefined" && typeof window.requestIdleCallback === "function") {
-    hydrationIdleRequestId = window.requestIdleCallback(hydrate, {
-      timeout: HYDRATION_IDLE_TIMEOUT_MS,
-    });
-    return;
-  }
-
-  hydrationTimeoutHandle = setTimeout(hydrate, HYDRATION_FALLBACK_DELAY_MS);
-}
-
 // ── Keep search bar visible on mobile when the keyboard opens ──────────
 // On mobile the .home container is position:fixed;inset:0 so the map and
 // heading NEVER move.  The search overlay normally floats at bottom:0 but
@@ -190,8 +164,6 @@ const BODY_LOCK_CLASS = 'body-locked';
 const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
 onMounted(() => {
-  startBackgroundHydration();
-
   if (isMobile) {
     document.documentElement.classList.add(BODY_LOCK_CLASS);
     document.body.classList.add(BODY_LOCK_CLASS);
@@ -202,20 +174,6 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  if (
-    hydrationIdleRequestId !== null &&
-    typeof window !== "undefined" &&
-    typeof window.cancelIdleCallback === "function"
-  ) {
-    window.cancelIdleCallback(hydrationIdleRequestId);
-    hydrationIdleRequestId = null;
-  }
-
-  if (hydrationTimeoutHandle !== null) {
-    clearTimeout(hydrationTimeoutHandle);
-    hydrationTimeoutHandle = null;
-  }
-
   document.documentElement.classList.remove(BODY_LOCK_CLASS);
   document.body.classList.remove(BODY_LOCK_CLASS);
   if (window.visualViewport) {
