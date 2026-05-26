@@ -16,7 +16,7 @@
       :min-zoom="4"
       :max-zoom="17"
       :bounds="bounds"
-      :max--bounds="maxBounds"
+      :max-bounds="maxBounds"
       :use-global-leaflet="true"
       :options="mapOptions"
       @click="addMarker"
