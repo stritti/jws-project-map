@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { markRaw } from "vue";
 import projectService from "@/features/projects/services/project.service";
 import { useLoadingStore } from "@/stores/loading.store";
 import type { Project } from "@/interfaces/Project";
@@ -37,8 +38,9 @@ export const useProjectStore = defineStore("project", {
   },
   persist: {
     // Transient state (loading, filteredList) must not be persisted
-    // to avoid a stuck "loading" flag across page reloads
-    pick: ["projects", "mapProjects", "initialized", "lastFetched", "lastRefreshAttempted"],
+    // to avoid a stuck "loading" flag across page reloads.
+    // 'projects' is also removed to prevent heavy JSON-serialization/deserialization lag on start.
+    pick: ["mapProjects", "initialized", "lastFetched", "lastRefreshAttempted"],
   },
   getters: {
     getAll: (state) => state.projects as Array<Project>,
@@ -86,7 +88,7 @@ export const useProjectStore = defineStore("project", {
         !this.shouldRefreshCache()
       ) {
         // Sofort filteredList mit den vorhandenen Kartendaten füllen
-        this.filteredList = [...this.mapProjects];
+        this.filteredList = markRaw([...this.mapProjects]);
         return this.mapProjects;
       }
 
@@ -105,16 +107,17 @@ export const useProjectStore = defineStore("project", {
         const mapData = await projectService.getMapData();
 
         if (mapData && Array.isArray(mapData) && mapData.length > 0) {
-          this.mapProjects = mapData;
+          const rawMapData = markRaw(mapData);
+          this.mapProjects = rawMapData;
           this.mapInitialized = true;
           this.lastFetched = Date.now();
 
           // Sofort filteredList mit Kartendaten füllen für erste Rendering-Phase
-          this.filteredList = [...mapData];
+          this.filteredList = rawMapData;
 
           // Auch die Hauptprojektliste aktualisieren, wenn sie leer ist
           if (this.projects.length === 0) {
-            this.projects = [...mapData];
+            this.projects = rawMapData;
           }
 
           return mapData;
@@ -152,7 +155,7 @@ export const useProjectStore = defineStore("project", {
         // Zuerst prüfen, ob wir Kartendaten haben, die wir sofort anzeigen können
         if (!this.projects.length && this.mapProjects.length > 0) {
           // Temporär die Kartendaten verwenden, während die vollständigen Daten geladen werden
-          this.projects = [...this.mapProjects];
+          this.projects = markRaw([...this.mapProjects]);
           console.log("Using map data while loading full details");
         }
 
@@ -160,7 +163,7 @@ export const useProjectStore = defineStore("project", {
         const result = await projectService.getAll();
 
         if (result && Array.isArray(result) && result.length > 0) {
-          this.projects = result;
+          this.projects = markRaw(result);
           this.lastFetched = Date.now();
           console.log(`Loaded ${result.length} complete projects`);
         }
