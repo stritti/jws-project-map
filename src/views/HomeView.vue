@@ -27,8 +27,10 @@ const { countries } = storeToRefs(countryStore);
 // Derive local refs from shared filter store for template bindings
 const { stateFilter, categoryFilter, countryFilter, filterVisible } = storeToRefs(filterStore);
 
-// Load map synchronously to avoid delayed main thread rendering
-import LocationMap from "../components/map/LocationMap.vue";
+import { defineAsyncComponent } from "vue";
+
+// Asynchrones Laden zur Auslagerung von Leaflet aus dem Hauptbundle
+const LocationMap = defineAsyncComponent(() => import("../components/map/LocationMap.vue"));
 
 // Map base layer (CartoDB, satellite or OSM)
 const baseLayer = ref<'satellite' | 'osm' | 'carto'>('carto');
@@ -339,8 +341,20 @@ onUnmounted(() => {
     </div>
     
     <div class="project-map" id="project-map">
-      <!-- Map loads immediately, markers load asynchronously via Suspense in LocationMap -->
-      <LocationMap :filtered-projects="filteredList" :base-layer="baseLayer" :cluster-enabled="clusterEnabled" />
+      <!-- Karte lädt im Hintergrund, Ladeindikator wird über Suspense gesteuert -->
+      <Suspense>
+        <template #default>
+          <LocationMap :filtered-projects="filteredList" :base-layer="baseLayer" :cluster-enabled="clusterEnabled" />
+        </template>
+        <template #fallback>
+          <div class="map-loading">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">{{ t("search.loadingMap") }}</span>
+            </div>
+            <p class="mt-2 text-muted">{{ t("search.loadingMap") }}</p>
+          </div>
+        </template>
+      </Suspense>
     </div>
   </div>
 </template>
