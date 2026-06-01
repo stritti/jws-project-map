@@ -31,42 +31,44 @@
         <h3 class="my-3 text-muted fs-5">
           {{ t("search.stats", { total: projectCount, ub: projectsUnderConstructionCount, pl: projectsPlannedCount }) }}
         </h3>
-
-        <!-- Filter overlay container – sticky, filter overlays the list -->
-        <div class="filter-overlay-container" :class="{ 'search-active': isSearchActive }" :style="{ '--header-h': searchHeaderHeight + 'px' }">
-          <div class="toolbar-section">
-            <SearchBar
-              v-model="searchQuery"
-              v-model:state-filter="stateFilterSearch"
-              :placeholder="t('search.placeholder')"
-              :filter-label="t('search.filter')"
-              :show-filter-chips="false"
-              :filter-count="activeFiltersCount"
-              :filter-visible="filterVisible"
-              view-mode="list"
-              @filter-click="filterVisible = !filterVisible"
-              @state-change="handleStateFilterChange"
-              @view-change="() => $router.push('/')"
-              @focus="onSearchFocus"
-              @blur="onSearchBlur"
-            />
-          </div>
-
-          <!-- Filter backdrop (mobile only) -->
-          <div v-if="filterVisible" class="filter-backdrop" @click="filterVisible = false" />
-
-          <!-- Filter panel overlays the list via absolute positioning -->
-          <FilterPanel v-if="filterVisible" @close="filterVisible = false" />
-        </div>
-        <div class="mb-4 text-muted small" v-if="filteredProjectList.length !== finalProjectList.length || activeFiltersCount > 0 || searchQuery">
-          {{ t("search.resultsCount", { count: finalProjectList.length }) }}
-        </div>
-        <!-- Screen reader announcement for filter result count -->
-        <div class="sr-only" role="status" aria-live="polite">
-          {{ t("a11y.filterResultsAnnouncement", { count: finalProjectList.length }) }}
-        </div>
       </b-placeholder-wrapper>
       </div><!-- /.list-header -->
+
+      <!-- Filter overlay – position:fixed on mobile (bottom) so it must NOT be
+           inside .list-header (which has backdrop-filter that breaks fixed
+           positioning in Chrome).  On desktop it flows in normal document order. -->
+      <div class="filter-overlay-container" :class="{ 'search-active': isSearchActive }">
+        <div class="toolbar-section">
+          <SearchBar
+            v-model="searchQuery"
+            v-model:state-filter="stateFilterSearch"
+            :placeholder="t('search.placeholder')"
+            :filter-label="t('search.filter')"
+            :show-filter-chips="false"
+            :filter-count="activeFiltersCount"
+            :filter-visible="filterVisible"
+            view-mode="list"
+            @filter-click="filterVisible = !filterVisible"
+            @state-change="handleStateFilterChange"
+            @view-change="() => $router.push('/')"
+            @focus="onSearchFocus"
+            @blur="onSearchBlur"
+          />
+        </div>
+
+        <!-- Filter backdrop (mobile only) -->
+        <div v-if="filterVisible" class="filter-backdrop" @click="filterVisible = false" />
+
+        <!-- Filter panel overlays the list via absolute positioning -->
+        <FilterPanel v-if="filterVisible" @close="filterVisible = false" />
+      </div>
+      <div class="mb-4 text-muted small" v-if="filteredProjectList.length !== finalProjectList.length || activeFiltersCount > 0 || searchQuery">
+        {{ t("search.resultsCount", { count: finalProjectList.length }) }}
+      </div>
+      <!-- Screen reader announcement for filter result count -->
+      <div class="sr-only" role="status" aria-live="polite">
+        {{ t("a11y.filterResultsAnnouncement", { count: finalProjectList.length }) }}
+      </div>
       <b-overlay :show="isDataLoading" fixed :opacity="0.5">
         <b-row class="my-3 g-4">
           <b-col
@@ -99,7 +101,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, onBeforeMount, onMounted, onUnmounted } from "vue";
+import { ref, computed, onBeforeMount, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import { useLoadingStore } from "../stores/loading.store";
@@ -155,18 +157,9 @@ const stateFilterSearch = ref<ProjectState>("all");
 
 // Search-active: move the filter bar to the top when the keyboard opens (like HomeView)
 const isSearchActive = ref(false);
-const searchHeaderHeight = ref(72);
 
 function onSearchFocus() {
   isSearchActive.value = true;
-  // Measure the sticky header's bottom so the filter overlay
-  // slides to just below it (not covering the heading).
-  nextTick(() => {
-    const header = document.querySelector<HTMLElement>('.list-header');
-    if (header) {
-      searchHeaderHeight.value = Math.round(header.getBoundingClientRect().bottom);
-    }
-  });
 }
 
 function onSearchBlur() {
@@ -397,14 +390,15 @@ onBeforeMount(() => {
     padding: 0.75rem;
     padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
 
-    // When the search input is focused, pop the bar to the top,
-    // positioned just below the sticky header.
+    // When the search input is focused, pop the overlay to the top
+    // so it stays above the virtual keyboard.
     &.search-active {
       bottom: auto;
-      top: calc(var(--header-h, 72px));
+      top: 0;
       flex-direction: column;
-      max-height: calc(100dvh - var(--header-h, 72px));
+      max-height: 50dvh;
       padding: 0.75rem;
+      padding-top: calc(env(safe-area-inset-top) + 0.75rem);
     }
   }
 
