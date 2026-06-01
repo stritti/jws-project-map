@@ -1,5 +1,6 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { projectRoute } from '@/utils/slug';
 
 export type IFrameMessage =
   | { type: 'navigate'; path: string }
@@ -110,14 +111,27 @@ export function useWebFrame() {
   /**
    * Navigate to a project detail page.
    *
+   * Accepts a project object (preferred) or a numeric/string id (fallback).
+   * Uses the project name to build a descriptive slug in the URL.
+   *
    * Inside an iframe the detail opens in a new browser tab (window.open)
    * so the parent page stays in place. Outside an iframe the app navigates
    * in-place via the router as before.
    */
-  function navigateToProject(projectId: number | string): void {
-    const path = `/project/${projectId}`;
+  function navigateToProject(project: { id: number; name: string } | number | string): void {
+    let id: number;
+    let path: string;
+
+    if (typeof project === 'object' && project !== null) {
+      id = project.id;
+      path = projectRoute(project);
+    } else {
+      id = typeof project === 'string' ? parseInt(project, 10) : project;
+      path = `/project/${id}`;
+    }
+
     if (isIFrame.value) {
-      notifyNavigate(path, Number(projectId));
+      notifyNavigate(path, id);
       const url = router.resolve(path).href;
       window.open(url, '_blank');
     } else {

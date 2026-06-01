@@ -58,12 +58,12 @@ export default defineComponent({
     },
     onCardClick() {
       if (this.project) {
-        this.navigateToProject(this.project.id);
+        this.navigateToProject(this.project);
       }
     },
     goToDetail() {
       if (this.project) {
-        this.navigateToProject(this.project.id);
+        this.navigateToProject(this.project);
       }
     },
   },

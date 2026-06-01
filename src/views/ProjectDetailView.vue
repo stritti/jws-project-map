@@ -193,6 +193,7 @@ import { defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import type { Project } from "@/interfaces/Project";
 import { useGeoTags } from "@/composables/useGeoTags";
+import { parseProjectId } from "@/utils/slug";
 import L from "leaflet";
 import { LMap, LTileLayer, LMarker } from "@vue-leaflet/vue-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -237,7 +238,7 @@ const loading = computed(() => {
 });
 
 const project = computed((): Project | undefined => {
-  const id = parseInt(route.params.projectId as string);
+  const id = parseProjectId(route.params.projectId as string);
   return projectStore.projects.find((p) => p.id === id);
 });
 

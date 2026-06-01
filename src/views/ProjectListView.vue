@@ -80,7 +80,7 @@
           >
             <project-list-item
               :project="project"
-              :to="`/project/${project.id}`"
+              :to="projectRoute(project)"
               class="h-100"
             />
           </b-col>
@@ -114,6 +114,7 @@ import ProjectListItem from "../components/project/ProjectListItem.vue";
 import { useProjectSearch, type ProjectState } from "@/composables/useProjectSearch";
 import FilterPanel from "@/components/FilterPanel.vue";
 import SearchBar from "../components/SearchBar.vue";
+import { projectRoute } from "@/utils/slug";
 
 const { t } = useI18n();
 const loadingStore = useLoadingStore();

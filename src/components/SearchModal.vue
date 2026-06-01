@@ -47,7 +47,7 @@
           button
           role="option"
           class="result-item d-flex align-items-start gap-3 py-3 px-4"
-          @click="navigate(project.id)"
+          @click="navigate(project)"
         >
           <!-- Thumbnail -->
           <img
@@ -141,9 +141,9 @@ async function onShown() {
   searchBarRef.value?.focus();
 }
 
-function navigate(id: number) {
+function navigate(project: { id: number; name: string }) {
   hide();
-  navigateToProject(id);
+  navigateToProject(project);
 }
 
 function getTeaserImage(project: Project) {
