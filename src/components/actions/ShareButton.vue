@@ -1,56 +1,37 @@
 <template>
   <b-button
     v-if="isShareable"
-    title="Share this Page"
-    aria-label="Share this Page"
+    :title="t('nav.share')"
+    :aria-label="t('nav.share')"
     @click="shareDetails"
     class="share-button d-flex align-items-center justify-content-center"
   >
     <IBiShareFill /> Share &hellip;
   </b-button>
 </template>
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 
-export default defineComponent({
-  name: "ShareButton",
-  props: {
-    title: {
-      type: String,
-      required: true,
-    },
-    text: {
-      type: String,
-      required: true,
-    },
-    url: {
-      type: String,
-      required: true,
-    },
-    fixed: {
-      type: Boolean,
-      default: true,
-    },
-  },
-  computed: {
-    isShareable() {
-      return "share" in navigator;
-    },
-  },
-  methods: {
-    shareDetails() {
-      if (!this.isShareable) {
-        return;
-      }
-      const data = {
-        title: this.title,
-        text: this.text,
-        url: this.url,
-      };
-      navigator.share(data);
-    },
-  },
-});
+const { t } = useI18n();
+
+const props = defineProps<{
+  title: string;
+  text: string;
+  url: string;
+  fixed?: boolean;
+}>();
+
+const isShareable = computed(() => "share" in navigator);
+
+function shareDetails() {
+  if (!isShareable.value) return;
+  navigator.share({
+    title: props.title,
+    text: props.text,
+    url: props.url,
+  });
+}
 </script>
 <style lang="scss" scoped>
 @use "@/assets/design-tokens.scss" as *;
