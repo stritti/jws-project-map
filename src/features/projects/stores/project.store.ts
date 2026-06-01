@@ -133,8 +133,10 @@ export const useProjectStore = defineStore("project", {
     },
 
     async load(showLoading = true): Promise<void> {
-      // Wenn bereits geladen und nicht zu alt, nicht erneut laden
-      if (this.initialized && !this.shouldRefreshCache()) {
+      // Wenn bereits geladen, Daten vorhanden und nicht zu alt, nicht erneut laden.
+      // `projects` wird nicht persistiert, daher kann `initialized` nach einem Reload
+      // zwar true sein, während `projects` leer ist – dann wird trotzdem neu geladen.
+      if (this.initialized && this.projects.length > 0 && !this.shouldRefreshCache()) {
         return;
       }
 

@@ -7,7 +7,7 @@
         class="gallery-item teaser-item"
         role="button"
         tabindex="0"
-        :aria-label="'Open ' + (project.teaserImg[0].name || 'teaser image')"
+        :aria-label="t('a11y.openImage', { name: project.teaserImg[0].name || t('a11y.imageNotAvailable') })"
         @click="openModal(project.teaserImg[0])"
         @keydown.enter="openModal(project.teaserImg[0])"
         @keydown.space.prevent="openModal(project.teaserImg[0])"
@@ -28,7 +28,7 @@
         class="gallery-item"
         role="button"
         tabindex="0"
-        :aria-label="'Open ' + (item.name || 'gallery item')"
+        :aria-label="t('a11y.openImage', { name: item.name || t('a11y.imageNotAvailable') })"
         @click="openModal(item)"
         @keydown.enter="openModal(item)"
         @keydown.space.prevent="openModal(item)"
@@ -71,58 +71,43 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType, ref, computed } from 'vue';
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import type { Project } from '@/interfaces/Project';
+import type { Attachment } from '@/interfaces/Attachment';
 import ProjectGalleryModal from './ProjectGalleryModal.vue';
 
-export default defineComponent({
-  name: 'ProjectGallery',
-  components: {
-    ProjectGalleryModal
-  },
-  props: {
-    project: {
-      type: Object as PropType<Project>,
-      required: true
-    },
-    title: {
-      type: String,
-      default: "Gallery"
-    }
-  },
-  setup(props) {
-    const modalVisible = ref(false);
-    const currentItem = ref(null);
-    const imageError = ref(false);
+const { t } = useI18n();
 
-    const galleryWithTeaserImg = computed(() => {
-      const gallery = props.project.gallery || [];
-      const teaserImg = props.project.teaserImg ? [props.project.teaserImg[0]] : [];
-      return [...teaserImg, ...gallery];
-    });
+const props = defineProps<{
+  project: Project;
+  title?: string;
+}>();
 
-    return {
-      modalVisible,
-      currentItem,
-      galleryWithTeaserImg,
-      imageError,
-    };
-  },
-  methods: {
-    openModal(item: any) {
-      this.currentItem = item;
-      this.modalVisible = true;
-    },
-    closeModal() {
-      this.modalVisible = false;
-      this.currentItem = null;
-    },
-    onImageError() {
-      this.imageError = true;
-    },
-  }
+const modalVisible = ref(false);
+const currentItem = ref<Attachment | null>(null);
+const imageError = ref(false);
+
+const galleryWithTeaserImg = computed(() => {
+  const gallery = props.project.gallery || [];
+  const teaserImg = props.project.teaserImg ? [props.project.teaserImg[0]] : [];
+  return [...teaserImg, ...gallery];
 });
+
+function openModal(item: Attachment) {
+  currentItem.value = item;
+  modalVisible.value = true;
+}
+
+function closeModal() {
+  modalVisible.value = false;
+  currentItem.value = null;
+}
+
+function onImageError() {
+  imageError.value = true;
+}
 </script>
 
 <style lang="scss" scoped>

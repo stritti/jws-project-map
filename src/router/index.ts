@@ -35,10 +35,4 @@ const router = createRouter({
   routes,
 });
 
-// Update document title on route changes
-const BASE_TITLE = "Jörg Wolff Foundation — Projects in West Africa";
-router.afterEach(() => {
-  document.title = BASE_TITLE;
-});
-
 export default router;
