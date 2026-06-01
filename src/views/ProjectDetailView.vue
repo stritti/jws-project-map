@@ -193,6 +193,7 @@ import { defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import type { Project } from "@/interfaces/Project";
 import { useGeoTags } from "@/composables/useGeoTags";
+import { useStructuredData } from "@/composables/useStructuredData";
 import { parseProjectId } from "@/utils/slug";
 import L from "leaflet";
 import { LMap, LTileLayer, LMarker } from "@vue-leaflet/vue-leaflet";
@@ -244,6 +245,9 @@ const project = computed((): Project | undefined => {
 
 // Implement GEO-tags for SEO
 useGeoTags(project);
+
+// JSON-LD structured data for search engines
+useStructuredData(project);
 
 const formattedSince = computed(() => {
   if (!project.value?.since) return "";

@@ -9,6 +9,7 @@ import { storeToRefs } from "pinia";
 import { computed, watch, ref } from "vue";
 import { useRouter } from "vue-router";
 import { usePageTitle } from "./composables/useAccessibility";
+import { useCanonicalUrl } from "./composables/useCanonicalUrl";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -25,6 +26,9 @@ const searchModalRef = ref<InstanceType<typeof SearchModal> | null>(null);
 
 // Update page title on route changes
 usePageTitle(router);
+
+// Canonical URL to prevent duplicate content
+useCanonicalUrl(router);
 
 const isLoading = computed(() => loadingStore.showLoadingSpinner);
 

@@ -2,6 +2,7 @@ import { ref, watch } from "vue"
 import type { Router, RouteLocationNormalizedLoaded } from "vue-router"
 import { useI18n } from "vue-i18n"
 import { useProjectStore } from "@/features/projects/stores/project.store"
+import { parseProjectId } from "@/utils/slug"
 
 // ── Singleton live region for screen reader announcements ──────────────
 let liveRegion: HTMLElement | null = null
@@ -67,7 +68,7 @@ export function usePageTitle(router: Router): void {
   function updateTitle(route: RouteLocationNormalizedLoaded) {
     const projectId = route.params.projectId
     if (projectId) {
-      const id = Number(projectId)
+      const id = parseProjectId(String(projectId))
       const project = projectStore.projects.find((p) => p.id === id)
       const name = project?.name ?? String(projectId)
       document.title = `${name} — JWS Project Map`
