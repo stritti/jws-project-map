@@ -28,7 +28,7 @@
     "bootstrap-vue-next": "^0.45.4",
     "caniuse-lite": "^1.0.30001793",
     "flag-icons": "^7.5.0",
-    "fuse.js": "^7.3.0",
+    "fuse.js": "^7.4.0",
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
     "leaflet.path.drag": "^0.0.6",
