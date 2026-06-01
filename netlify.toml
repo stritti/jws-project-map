@@ -11,6 +11,11 @@ package = "@netlify/plugin-lighthouse"
   fail_deploy_on_score_thresholds = false
 
 [[redirects]]
+  from = "/sitemap.xml"
+  to = "/.netlify/functions/sitemap"
+  status = 200
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200

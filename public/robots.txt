@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://jws-projects-map.netlify.app/sitemap.xml
