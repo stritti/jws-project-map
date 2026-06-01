@@ -73,12 +73,13 @@ export default defineComponent({
 <style lang="scss">
 @use "@/assets/design-tokens.scss" as *;
 
-// Bottom navigation height
-$bottom-nav-height: 56px;
+// Bottom navigation height (MainMenu content + padding)
+// Must account for safe-area-inset-bottom on notched devices.
+$bottom-nav-height: 64px;
 
 .project-card-overlay {
   position: fixed;
-  bottom: calc($bottom-nav-height + calc(var(--spacing-unit) * 3));
+  bottom: calc($bottom-nav-height + var(--spacing-unit) * 3 + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
