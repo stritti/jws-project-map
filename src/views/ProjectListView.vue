@@ -33,7 +33,7 @@
         </h3>
 
         <!-- Filter overlay container – sticky, filter overlays the list -->
-        <div class="filter-overlay-container" :class="{ 'search-active': isSearchActive }">
+        <div class="filter-overlay-container" :class="{ 'search-active': isSearchActive }" :style="{ '--header-h': searchHeaderHeight + 'px' }">
           <div class="toolbar-section">
             <SearchBar
               v-model="searchQuery"
@@ -99,7 +99,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onBeforeMount, onMounted, onUnmounted } from "vue";
+import { ref, computed, nextTick, onBeforeMount, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import { useLoadingStore } from "../stores/loading.store";
@@ -155,9 +155,18 @@ const stateFilterSearch = ref<ProjectState>("all");
 
 // Search-active: move the filter bar to the top when the keyboard opens (like HomeView)
 const isSearchActive = ref(false);
+const searchHeaderHeight = ref(72);
 
 function onSearchFocus() {
   isSearchActive.value = true;
+  // Measure the sticky header's bottom so the filter overlay
+  // slides to just below it (not covering the heading).
+  nextTick(() => {
+    const header = document.querySelector<HTMLElement>('.list-header');
+    if (header) {
+      searchHeaderHeight.value = Math.round(header.getBoundingClientRect().bottom);
+    }
+  });
 }
 
 function onSearchBlur() {
@@ -340,12 +349,40 @@ onBeforeMount(() => {
   }
 
   .list-header {
-    // On mobile the heading scrolls normally — no sticky.
-    // The filter/search overlay is fixed at the bottom (Apple-style),
-    // matching the HomeView behaviour exactly.
+    position: sticky;
+    top: 0;
+    z-index: 50;
     margin: calc(-1 * var(--spacing-gutter-md));
     padding: var(--spacing-gutter-md);
     padding-bottom: 0;
+
+    // Glassmorphism
+    background: rgba(248, 249, 250, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    // Subtle bottom border
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 1px;
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    // Smaller heading on mobile
+    h1 {
+      font-size: 1.25rem;
+      padding: 0.375rem 0;
+      margin: 0;
+    }
+
+    h3 {
+      margin: 0.375rem 0;
+      font-size: 0.8rem;
+    }
   }
 
   .filter-overlay-container {
@@ -360,14 +397,14 @@ onBeforeMount(() => {
     padding: 0.75rem;
     padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
 
-    // When the search input is focused, pop the bar to the top (above the virtual keyboard)
+    // When the search input is focused, pop the bar to the top,
+    // positioned just below the sticky header.
     &.search-active {
       bottom: auto;
-      top: 0;
+      top: calc(var(--header-h, 72px));
       flex-direction: column;
-      max-height: 50dvh;
+      max-height: calc(100dvh - var(--header-h, 72px));
       padding: 0.75rem;
-      padding-top: calc(env(safe-area-inset-top) + 0.75rem);
     }
   }
 
