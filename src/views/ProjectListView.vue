@@ -1,7 +1,7 @@
 <template>
   <b-container>
     <div class="project-list">
-      <div class="list-header">
+      <div class="list-header" :class="{ 'header-scrolled': headerScrolled }">
         <h1>{{ t("app.title") }}</h1>
 
         <b-placeholder-wrapper :loading="isDataLoading">
@@ -158,6 +158,14 @@ const stateFilterSearch = ref<ProjectState>("all");
 // Search-active: move the filter bar to the top when the keyboard opens (like HomeView)
 const isSearchActive = ref(false);
 
+// Collapse the sticky header when scrolled past the heading
+const SCROLL_THRESHOLD = 20;
+const headerScrolled = ref(false);
+
+function onScroll() {
+  headerScrolled.value = window.scrollY > SCROLL_THRESHOLD;
+}
+
 function onSearchFocus() {
   isSearchActive.value = true;
 }
@@ -178,12 +186,14 @@ onMounted(() => {
   if (window.visualViewport) {
     window.visualViewport.addEventListener("resize", onViewportResize);
   }
+  window.addEventListener("scroll", onScroll, { passive: true });
 });
 
 onUnmounted(() => {
   if (window.visualViewport) {
     window.visualViewport.removeEventListener("resize", onViewportResize);
   }
+  window.removeEventListener("scroll", onScroll);
 });
 
 function handleStateFilterChange(state: ProjectState) {
@@ -284,6 +294,39 @@ onBeforeMount(() => {
 <style lang="scss" scoped>
 @use "@/assets/design-tokens.scss" as *;
 
+// ── Shared (base styles outside breakpoints) ──────
+.list-header {
+  // Soft bottom separation — no sharp line, just a whisper of depth
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
+  // Smooth animations for collapse/expand on scroll
+  transition: padding 0.3s ease, box-shadow 0.3s ease;
+
+  h1, h3 {
+    transition: all 0.3s ease;
+  }
+
+  // Collapsed state: scrolled past the heading
+  &.header-scrolled {
+    padding-top: 0.5rem;
+    padding-bottom: 0.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    h1 {
+      font-size: 1rem;
+      padding: 0.125rem 0;
+    }
+
+    h3 {
+      opacity: 0;
+      margin: 0;
+      max-height: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+  }
+}
+
 // ── Desktop ──────────────────────────────────────────
 @media (min-width: 768px) {
   .project-list {
@@ -302,17 +345,6 @@ onBeforeMount(() => {
     background: rgba(248, 249, 250, 0.85);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-
-    // Subtle bottom border for definition
-    &::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 1px;
-      background: rgba(0, 0, 0, 0.06);
-    }
   }
 
   .filter-overlay-container {
@@ -353,17 +385,6 @@ onBeforeMount(() => {
     background: rgba(248, 249, 250, 0.85);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-
-    // Subtle bottom border
-    &::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 1px;
-      background: rgba(0, 0, 0, 0.06);
-    }
 
     // Smaller heading on mobile
     h1 {
