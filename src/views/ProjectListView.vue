@@ -1,9 +1,10 @@
 <template>
   <b-container>
     <div class="project-list">
-      <h1>{{ t("app.title") }}</h1>
+      <div class="list-header">
+        <h1>{{ t("app.title") }}</h1>
 
-      <b-placeholder-wrapper :loading="isDataLoading">
+        <b-placeholder-wrapper :loading="isDataLoading">
         <template #loading>
           <div class="skeleton-grid">
             <b-row class="g-4">
@@ -65,6 +66,7 @@
           {{ t("a11y.filterResultsAnnouncement", { count: finalProjectList.length }) }}
         </div>
       </b-placeholder-wrapper>
+      </div><!-- /.list-header -->
       <b-overlay :show="isDataLoading" fixed :opacity="0.5">
         <b-row class="my-3 g-4">
           <b-col
@@ -286,20 +288,32 @@ onBeforeMount(() => {
     padding: var(--spacing-gutter-md);
   }
 
-  .filter-overlay-container {
+  .list-header {
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 50;
+    margin: calc(-1 * var(--spacing-gutter-md));
+    padding: var(--spacing-gutter-md);
+    padding-bottom: 0;
 
-    &::before {
+    // Glassmorphism
+    background: rgba(248, 249, 250, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    // Subtle bottom border for definition
+    &::after {
       content: '';
       position: absolute;
-      inset: 0;
-      background: rgba(var(--color-surface-rgb, 248, 249, 250), 0.95);
-      backdrop-filter: blur(10px);
-      pointer-events: none;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 1px;
+      background: rgba(0, 0, 0, 0.06);
     }
+  }
 
+  .filter-overlay-container {
     > * {
       position: relative;
     }
@@ -325,6 +339,31 @@ onBeforeMount(() => {
     padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px) + 4rem);
   }
 
+  .list-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    margin: calc(-1 * var(--spacing-gutter-md));
+    padding: var(--spacing-gutter-md);
+    padding-bottom: 0;
+
+    // Glassmorphism
+    background: rgba(248, 249, 250, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    // Subtle bottom border
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 1px;
+      background: rgba(0, 0, 0, 0.06);
+    }
+  }
+
   .filter-overlay-container {
     position: fixed;
     bottom: 0;
@@ -336,10 +375,6 @@ onBeforeMount(() => {
     gap: 0.75rem;
     padding: 0.75rem;
     padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
-
-    &::before {
-      display: none;
-    }
 
     // When the search input is focused, pop the bar to the top (above the virtual keyboard)
     &.search-active {
