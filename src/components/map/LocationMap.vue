@@ -654,6 +654,15 @@ const pinClass = (current: Project) => {
   return cssClass;
 };
 
+// Ermittelt die Höhe der h1-Überschrift (inkl. Padding), damit Marker
+// nicht dahinter verschwinden. Fallback auf 80px wenn kein Heading existiert.
+function getHeadingOffset(): number {
+  const heading = document.querySelector<HTMLElement>('.home h1');
+  if (!heading) return 80;
+  // bottom = Abstand vom Viewport-Top bis zur Unterkante der Überschrift
+  return Math.round(heading.getBoundingClientRect().bottom) + 8;
+}
+
 // Optimierte Funktion zum Aktualisieren der Kartengrenzen mit Debouncing
 const updateMaxBoundsTimeout = ref<number | null>(null);
 
@@ -688,10 +697,12 @@ const updateMaxBounds = () => {
         const cachedBounds = boundsCache.get(cacheKey);
 
         // Verwende die gecachten Grenzen
+        const topPad = getHeadingOffset();
         requestAnimationFrame(() => {
           const leafletMap = map.value.leafletObject;
           leafletMap.fitBounds(cachedBounds, {
-            padding: [50, 50],
+            paddingTopLeft: [50, topPad],
+            paddingBottomRight: [50, 50],
             animate: false,
             duration: 0,
           });
@@ -750,10 +761,12 @@ const updateMaxBounds = () => {
         boundsCache.set(cacheKey, calculatedBounds);
 
         // Verwende requestAnimationFrame für flüssigere Animation
+        const topPad = getHeadingOffset();
         requestAnimationFrame(() => {
           // Verwende eine nicht-animierte Anpassung für bessere Performance
           leafletMap.fitBounds(calculatedBounds, {
-            padding: [50, 50],
+            paddingTopLeft: [50, topPad],
+            paddingBottomRight: [50, 50],
             animate: false,
             duration: 0,
           });
