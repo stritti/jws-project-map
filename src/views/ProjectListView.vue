@@ -308,13 +308,14 @@ onBeforeMount(() => {
 
   // Collapsed state: scrolled past the heading
   &.header-scrolled {
-    padding-top: 0.5rem;
-    padding-bottom: 0.25rem;
+    padding-top: 0.2rem;
+    padding-bottom: 0.1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
     h1 {
       font-size: 1rem;
-      padding: 0.125rem 0;
+      padding: 0;
+      line-height: 1.3;
     }
 
     h3 {
