@@ -23,7 +23,7 @@ export default [
       "vue/require-default-prop": "off",
       "vue/no-multiple-template-root": "off",
       "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
     },
   },
   ...tseslint.configs.recommended,

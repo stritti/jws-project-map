@@ -1,5 +1,5 @@
 <template>
-  <div v-if="props.isVisible" class="fullscreen-gallery" role="dialog" :aria-label="t('a11y.closeGallery')" tabindex="0" @keydown="onKeydown">
+  <div v-if="props.isVisible" ref="galleryRef" class="fullscreen-gallery" role="dialog" :aria-label="t('a11y.closeGallery')" tabindex="0" @keydown="onKeydown">
     <button class="gallery-close" @click="closeModal" :aria-label="t('a11y.closeGallery')">
       <span aria-hidden="true">&times;</span>
     </button>
@@ -75,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Attachment } from '@/interfaces/Attachment'
 import { useFocusRestore } from '@/composables/useAccessibility'
@@ -141,7 +141,27 @@ function closeModal() {
   emit('update:isVisible', false)
 }
 
+const galleryRef = ref<HTMLElement | null>(null)
+
+function trapFocus(e: KeyboardEvent) {
+  if (e.key !== 'Tab' || !galleryRef.value) return
+  const focusable = galleryRef.value.querySelectorAll<HTMLElement>(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+  )
+  if (focusable.length === 0) return
+  const first = focusable[0]
+  const last = focusable[focusable.length - 1]
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault()
+    last.focus()
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault()
+    first.focus()
+  }
+}
+
 function onKeydown(e: KeyboardEvent) {
+  trapFocus(e)
   if (e.key === 'ArrowLeft') {
     e.preventDefault()
     goPrev()
@@ -174,9 +194,15 @@ watch(
 // Capture focus when modal opens, restore when it closes
 watch(
   () => props.isVisible,
-  (visible) => {
+  async (visible) => {
     if (visible) {
       setTrigger()
+      await nextTick()
+      // Focus first focusable element inside the modal (close button)
+      const firstFocusable = galleryRef.value?.querySelector<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      )
+      firstFocusable?.focus()
     } else {
       restoreFocus()
     }
