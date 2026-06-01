@@ -101,7 +101,7 @@ ${urlElements}
 
 // ── Handler ─────────────────────────────────────────────────────────
 
-export default async (req, context) => {
+export default async (_req, _context) => {
   // CORS headers for direct access
   const headers = {
     "Content-Type": "application/xml; charset=utf-8",
