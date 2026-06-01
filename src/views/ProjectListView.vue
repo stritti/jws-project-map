@@ -340,28 +340,12 @@ onBeforeMount(() => {
   }
 
   .list-header {
-    position: sticky;
-    top: 0;
-    z-index: 50;
+    // On mobile the heading scrolls normally — no sticky.
+    // The filter/search overlay is fixed at the bottom (Apple-style),
+    // matching the HomeView behaviour exactly.
     margin: calc(-1 * var(--spacing-gutter-md));
     padding: var(--spacing-gutter-md);
     padding-bottom: 0;
-
-    // Glassmorphism
-    background: rgba(248, 249, 250, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-
-    // Subtle bottom border
-    &::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 1px;
-      background: rgba(0, 0, 0, 0.06);
-    }
   }
 
   .filter-overlay-container {
