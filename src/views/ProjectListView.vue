@@ -365,6 +365,8 @@ onBeforeMount(() => {
     left: 0;
     right: 0;
     z-index: 50;
+    max-height: 60vh;
+    overflow-y: auto;
   }
 }
 
@@ -435,6 +437,7 @@ onBeforeMount(() => {
     position: relative;
     z-index: 1000;
     max-height: min(50vh, 24rem);
+    overflow-y: auto;
   }
 }
 
