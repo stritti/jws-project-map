@@ -42,7 +42,9 @@
     "list": "List",
     "about": "About",
     "more": "More",
-    "close": "Close"
+    "close": "Close",
+    "navigate": "Navigate",
+    "share": "Share"
   },
   "common": {
     "close": "Close"
@@ -95,6 +97,7 @@
     "closeGallery": "Close gallery",
     "closeAbout": "Close about dialog",
     "imageNotAvailable": "Image not available",
+    "openImage": "Open {name}",
     "imagePosition": "Image {current} of {total}",
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",

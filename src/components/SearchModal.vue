@@ -47,7 +47,7 @@
           button
           role="option"
           class="result-item d-flex align-items-start gap-3 py-3 px-4"
-          @click="navigate(project.id)"
+          @click="navigate(project)"
         >
           <!-- Thumbnail -->
           <img
@@ -82,10 +82,10 @@
     <div v-if="results.length > 0" class="search-footer px-4 py-2 d-flex align-items-center gap-3 text-muted small border-top">
       <span aria-hidden="true"><kbd>↵</kbd> öffnen</span>
       <span aria-hidden="true"><kbd>Esc</kbd> schließen</span>
-      <span class="ms-auto" aria-live="polite">{{ results.length }} Ergebnis(se)</span>
+      <span class="ms-auto" aria-live="polite">{{ t("a11y.searchResultsAnnouncement", { count: results.length }) }}</span>
     </div>
     <div class="sr-only" role="status" aria-live="polite">
-      {{ results.length > 0 ? `${results.length} Ergebnisse gefunden` : (query.length >= 2 ? 'Keine Ergebnisse gefunden' : '') }}
+      {{ results.length > 0 ? t("a11y.searchResultsAnnouncement", { count: results.length }) : (query.length >= 2 ? t("a11y.noResultsAnnouncement") : '') }}
     </div>
   </b-modal>
 </template>
@@ -141,9 +141,9 @@ async function onShown() {
   searchBarRef.value?.focus();
 }
 
-function navigate(id: number) {
+function navigate(project: { id: number; name: string }) {
   hide();
-  navigateToProject(id);
+  navigateToProject(project);
 }
 
 function getTeaserImage(project: Project) {

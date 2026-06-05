@@ -27,7 +27,7 @@ const { countries } = storeToRefs(countryStore);
 // Derive local refs from shared filter store for template bindings
 const { stateFilter, categoryFilter, countryFilter, filterVisible } = storeToRefs(filterStore);
 
-// Load map automatically after HomeView renders, but keep Leaflet out of the initial chunk
+// Load map asynchronously to keep Leaflet out of the initial bundle
 const LocationMap = defineAsyncComponent({
   loader: () => import("../components/map/LocationMap.vue"),
   delay: 0,
@@ -114,8 +114,8 @@ const countryList = computed(() =>
   })),
 );
 
-function handleProjectClick(projectId: number) {
-  navigateToProject(projectId);
+function handleProjectClick(project: { id: number; name: string }) {
+  navigateToProject(project);
 }
 
 // ── Keep search bar visible on mobile when the keyboard opens ──────────
@@ -283,9 +283,9 @@ onUnmounted(() => {
           class="search-result-item"
           role="option"
           tabindex="0"
-          @click="handleProjectClick(project.id)"
-          @keydown.enter="handleProjectClick(project.id)"
-          @keydown.space.prevent="handleProjectClick(project.id)"
+          @click="handleProjectClick(project)"
+          @keydown.enter="handleProjectClick(project)"
+          @keydown.space.prevent="handleProjectClick(project)"
         >
           <div class="result-name">{{ project.name }}</div>
           <div class="result-meta">
@@ -300,8 +300,20 @@ onUnmounted(() => {
     </div>
     
     <div class="project-map" id="project-map">
-      <!-- Map loads automatically without user interaction; Leaflet stays split into its own chunk -->
-      <LocationMap :filtered-projects="filteredList" :base-layer="baseLayer" :cluster-enabled="clusterEnabled" />
+      <!-- Karte lädt im Hintergrund, Ladeindikator wird über Suspense gesteuert -->
+      <Suspense>
+        <template #default>
+          <LocationMap :filtered-projects="filteredList" :base-layer="baseLayer" :cluster-enabled="clusterEnabled" />
+        </template>
+        <template #fallback>
+          <div class="map-loading">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">{{ t("search.loadingMap") }}</span>
+            </div>
+            <p class="mt-2 text-muted">{{ t("search.loadingMap") }}</p>
+          </div>
+        </template>
+      </Suspense>
     </div>
   </div>
 </template>

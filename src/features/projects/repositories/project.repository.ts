@@ -14,7 +14,6 @@ export interface RawProjectRecord {
   Latitude?: number;
   Longitude?: number;
   State?: string;
-  Status?: string;
   Category?: unknown;
   Country?: unknown;
   TeaserImage?: unknown;
@@ -34,7 +33,6 @@ export interface RawProjectRecord {
     Latitude?: number;
     Longitude?: number;
     State?: string;
-    Status?: string;
     Category?: unknown;
     Country?: unknown;
     TeaserImage?: unknown;
@@ -58,6 +56,7 @@ export const projectRepository = {
       offset: 0,
       viewId: "vwlnl4t095iifqc9",
       fields: [
+        "id",
         "Id",
         "Name",
         "Name (de)",
@@ -66,7 +65,6 @@ export const projectRepository = {
         "Latitude",
         "Longitude",
         "State",
-        "Status",
         "Category",
         "Country",
       ],

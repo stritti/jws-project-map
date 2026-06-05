@@ -109,3 +109,14 @@ These are required at build time. No defaults.
 ## MCP Server
 
 `scripts/mcp-server.ts` provides an stdio MCP server with tools for project structure introspection, env key listing, NocoDB queries, and Vue component scaffolding. Run with `bun run mcp`. Intended for AI tooling contexts, not normal development.
+
+## Repository Map
+
+A full codemap is available at `codemap.md` in the project root.
+
+Before working on any task, read `codemap.md` to understand:
+- Project architecture and entry points
+- Directory responsibilities and design patterns
+- Data flow and integration points between modules
+
+For deep work on a specific folder, also read that folder's `codemap.md`.

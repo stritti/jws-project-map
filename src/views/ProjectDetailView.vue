@@ -1,7 +1,7 @@
 <template>
   <div class="project-page">
     <!-- Sticky header bar: back button + project title -->
-    <div class="page-header-sticky">
+    <div class="page-header-sticky" :class="{ 'header-scrolled': headerScrolled }">
       <b-container>
         <b-placeholder-wrapper :loading="loading">
           <template #loading>
@@ -177,7 +177,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount } from "vue";
+import { computed, onBeforeMount, onMounted, onUnmounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useCategoryStore } from "@/stores/category.store";
@@ -193,6 +193,8 @@ import { defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import type { Project } from "@/interfaces/Project";
 import { useGeoTags } from "@/composables/useGeoTags";
+import { useStructuredData } from "@/composables/useStructuredData";
+import { parseProjectId } from "@/utils/slug";
 import L from "leaflet";
 import { LMap, LTileLayer, LMarker } from "@vue-leaflet/vue-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -200,6 +202,22 @@ import "leaflet/dist/leaflet.css";
 const { isIFrame } = useWebFrame();
 const { t, locale } = useI18n();
 const router = useRouter();
+
+// Collapse the sticky header when scrolled past the heading
+const SCROLL_THRESHOLD = 20;
+const headerScrolled = ref(false);
+
+function onScroll() {
+  headerScrolled.value = window.scrollY > SCROLL_THRESHOLD;
+}
+
+onMounted(() => {
+  window.addEventListener("scroll", onScroll, { passive: true });
+});
+
+onUnmounted(() => {
+  window.removeEventListener("scroll", onScroll);
+});
 
 const MarkdownText = defineAsyncComponent(
   () => import("@/components/MarkdownText.vue"),
@@ -237,12 +255,15 @@ const loading = computed(() => {
 });
 
 const project = computed((): Project | undefined => {
-  const id = parseInt(route.params.projectId as string);
+  const id = parseProjectId(route.params.projectId as string);
   return projectStore.projects.find((p) => p.id === id);
 });
 
 // Implement GEO-tags for SEO
 useGeoTags(project);
+
+// JSON-LD structured data for search engines
+useStructuredData(project);
 
 const formattedSince = computed(() => {
   if (!project.value?.since) return "";
@@ -316,24 +337,38 @@ const detailMarkerIcon = computed(() => {
 .page-header-sticky {
   position: sticky;
   top: 0;
-  z-index: 100;
-  background-color: var(--jws-bg-subtle, #f8f9fa);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-}
+  z-index: 50;
+  background: rgba(248, 249, 250, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: padding 0.3s ease, box-shadow 0.3s ease;
 
+  &.header-scrolled {
+    padding-top: 0.2rem;
+    padding-bottom: 0.1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    .title {
+      font-size: 1rem;
+      padding: 0;
+      line-height: 1.3;
+    }
+  }
+}
 
 .page-header {
   .title {
-    font-size: 2.75rem;
-    font-weight: 800;
+    font-size: 1.5rem;
+    font-weight: 700;
     color: var(--jws-primary);
-    letter-spacing: -0.03em;
-    line-height: 1.1;
-    
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    transition: all 0.3s ease;
+
     @media (max-width: 768px) {
-      font-size: 1.75rem;
+      font-size: 1.25rem;
+      padding: 0.375rem 0;
     }
   }
 }

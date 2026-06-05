@@ -42,7 +42,9 @@
     "list": "Liste",
     "about": "À propos",
     "more": "Plus",
-    "close": "Fermer"
+    "close": "Fermer",
+    "navigate": "Naviguer",
+    "share": "Partager"
   },
   "common": {
     "close": "Fermer"
@@ -95,6 +97,7 @@
     "closeGallery": "Fermer la galerie",
     "closeAbout": "Fermer la boîte de dialogue À propos",
     "imageNotAvailable": "Image non disponible",
+    "openImage": "Ouvrir {name}",
     "imagePosition": "Image {current} sur {total}",
     "zoomIn": "Zoom avant",
     "zoomOut": "Zoom arrière",
