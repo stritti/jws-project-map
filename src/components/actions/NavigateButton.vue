@@ -1,36 +1,28 @@
 <template>
   <b-button
-    title="Navigate"
-    aria-label="Navigate"
+    :title="t('nav.navigate')"
+    :aria-label="t('nav.navigate')"
     @click="navigate"
     class="navigate-button d-flex align-items-center justify-content-center"
   >
     <IBiPinMapFill /> Navigate &hellip;
   </b-button>
 </template>
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { useI18n } from "vue-i18n";
 
-export default defineComponent({
-  name: "NavigateButton",
-  props: {
-    lat: {
-      type: Number,
-      required: true,
-    },
-    lng: {
-      type: Number,
-      required: true,
-    },
-  },
-  methods: {
-    navigate() {
-      window.open(
-        `https://www.google.com/maps/search/?api=1&query=${this.lat},${this.lng}`,
-      );
-    },
-  },
-});
+const { t } = useI18n();
+
+const props = defineProps<{
+  lat: number;
+  lng: number;
+}>();
+
+function navigate() {
+  window.open(
+    `https://www.google.com/maps/search/?api=1&query=${props.lat},${props.lng}`,
+  );
+}
 </script>
 <style lang="scss" scoped>
 @use "@/assets/design-tokens.scss" as *;

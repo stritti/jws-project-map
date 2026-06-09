@@ -113,8 +113,8 @@ const countryList = computed(() =>
   })),
 );
 
-function handleProjectClick(projectId: number) {
-  navigateToProject(projectId);
+function handleProjectClick(project: { id: number; name: string }) {
+  navigateToProject(project);
 }
 
 // Map data, categories and countries are loaded in main.ts in parallel.
@@ -324,9 +324,9 @@ onUnmounted(() => {
           class="search-result-item"
           role="option"
           tabindex="0"
-          @click="handleProjectClick(project.id)"
-          @keydown.enter="handleProjectClick(project.id)"
-          @keydown.space.prevent="handleProjectClick(project.id)"
+          @click="handleProjectClick(project)"
+          @keydown.enter="handleProjectClick(project)"
+          @keydown.space.prevent="handleProjectClick(project)"
         >
           <div class="result-name">{{ project.name }}</div>
           <div class="result-meta">

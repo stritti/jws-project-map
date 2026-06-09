@@ -1,9 +1,10 @@
 <template>
   <b-container>
     <div class="project-list">
-      <h1>{{ t("app.title") }}</h1>
+      <div class="list-header" :class="{ 'header-scrolled': headerScrolled }">
+        <h1>{{ t("app.title") }}</h1>
 
-      <b-placeholder-wrapper :loading="isDataLoading">
+        <b-placeholder-wrapper :loading="isDataLoading">
         <template #loading>
           <div class="skeleton-grid">
             <b-row class="g-4">
@@ -30,41 +31,44 @@
         <h3 class="my-3 text-muted fs-5">
           {{ t("search.stats", { total: projectCount, ub: projectsUnderConstructionCount, pl: projectsPlannedCount }) }}
         </h3>
-
-        <!-- Filter overlay container – sticky, filter overlays the list -->
-        <div class="filter-overlay-container" :class="{ 'search-active': isSearchActive }">
-          <div class="toolbar-section">
-            <SearchBar
-              v-model="searchQuery"
-              v-model:state-filter="stateFilterSearch"
-              :placeholder="t('search.placeholder')"
-              :filter-label="t('search.filter')"
-              :show-filter-chips="false"
-              :filter-count="activeFiltersCount"
-              :filter-visible="filterVisible"
-              view-mode="list"
-              @filter-click="filterVisible = !filterVisible"
-              @state-change="handleStateFilterChange"
-              @view-change="() => $router.push('/')"
-              @focus="onSearchFocus"
-              @blur="onSearchBlur"
-            />
-          </div>
-
-          <!-- Filter backdrop (mobile only) -->
-          <div v-if="filterVisible" class="filter-backdrop" @click="filterVisible = false" />
-
-          <!-- Filter panel overlays the list via absolute positioning -->
-          <FilterPanel v-if="filterVisible" @close="filterVisible = false" />
-        </div>
-        <div class="mb-4 text-muted small" v-if="filteredProjectList.length !== finalProjectList.length || activeFiltersCount > 0 || searchQuery">
-          {{ t("search.resultsCount", { count: finalProjectList.length }) }}
-        </div>
-        <!-- Screen reader announcement for filter result count -->
-        <div class="sr-only" role="status" aria-live="polite">
-          {{ t("a11y.filterResultsAnnouncement", { count: finalProjectList.length }) }}
-        </div>
       </b-placeholder-wrapper>
+      </div><!-- /.list-header -->
+
+      <!-- Filter overlay – position:fixed on mobile (bottom) so it must NOT be
+           inside .list-header (which has backdrop-filter that breaks fixed
+           positioning in Chrome).  On desktop it flows in normal document order. -->
+      <div class="filter-overlay-container" :class="{ 'search-active': isSearchActive }">
+        <div class="toolbar-section">
+          <SearchBar
+            v-model="searchQuery"
+            v-model:state-filter="stateFilterSearch"
+            :placeholder="t('search.placeholder')"
+            :filter-label="t('search.filter')"
+            :show-filter-chips="false"
+            :filter-count="activeFiltersCount"
+            :filter-visible="filterVisible"
+            view-mode="list"
+            @filter-click="filterVisible = !filterVisible"
+            @state-change="handleStateFilterChange"
+            @view-change="() => $router.push('/')"
+            @focus="onSearchFocus"
+            @blur="onSearchBlur"
+          />
+        </div>
+
+        <!-- Filter backdrop (mobile only) -->
+        <div v-if="filterVisible" class="filter-backdrop" @click="filterVisible = false" />
+
+        <!-- Filter panel overlays the list via absolute positioning -->
+        <FilterPanel v-if="filterVisible" @close="filterVisible = false" />
+      </div>
+      <div class="mb-4 text-muted small" v-if="filteredProjectList.length !== finalProjectList.length || activeFiltersCount > 0 || searchQuery">
+        {{ t("search.resultsCount", { count: finalProjectList.length }) }}
+      </div>
+      <!-- Screen reader announcement for filter result count -->
+      <div class="sr-only" role="status" aria-live="polite">
+        {{ t("a11y.filterResultsAnnouncement", { count: finalProjectList.length }) }}
+      </div>
       <b-overlay :show="isDataLoading" fixed :opacity="0.5">
         <b-row class="my-3 g-4">
           <b-col
@@ -76,7 +80,7 @@
           >
             <project-list-item
               :project="project"
-              :to="`/project/${project.id}`"
+              :to="projectRoute(project)"
               class="h-100"
             />
           </b-col>
@@ -110,6 +114,7 @@ import ProjectListItem from "../components/project/ProjectListItem.vue";
 import { useProjectSearch, type ProjectState } from "@/composables/useProjectSearch";
 import FilterPanel from "@/components/FilterPanel.vue";
 import SearchBar from "../components/SearchBar.vue";
+import { projectRoute } from "@/utils/slug";
 
 const { t } = useI18n();
 const loadingStore = useLoadingStore();
@@ -154,6 +159,14 @@ const stateFilterSearch = ref<ProjectState>("all");
 // Search-active: move the filter bar to the top when the keyboard opens (like HomeView)
 const isSearchActive = ref(false);
 
+// Collapse the sticky header when scrolled past the heading
+const SCROLL_THRESHOLD = 20;
+const headerScrolled = ref(false);
+
+function onScroll() {
+  headerScrolled.value = window.scrollY > SCROLL_THRESHOLD;
+}
+
 function onSearchFocus() {
   isSearchActive.value = true;
 }
@@ -174,12 +187,14 @@ onMounted(() => {
   if (window.visualViewport) {
     window.visualViewport.addEventListener("resize", onViewportResize);
   }
+  window.addEventListener("scroll", onScroll, { passive: true });
 });
 
 onUnmounted(() => {
   if (window.visualViewport) {
     window.visualViewport.removeEventListener("resize", onViewportResize);
   }
+  window.removeEventListener("scroll", onScroll);
 });
 
 function handleStateFilterChange(state: ProjectState) {
@@ -280,26 +295,61 @@ onBeforeMount(() => {
 <style lang="scss" scoped>
 @use "@/assets/design-tokens.scss" as *;
 
+// ── Shared (base styles outside breakpoints) ──────
+.list-header {
+  // Soft bottom separation — no sharp line, just a whisper of depth
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
+  // Smooth animations for collapse/expand on scroll
+  transition: padding 0.3s ease, box-shadow 0.3s ease;
+
+  h1, h3 {
+    transition: all 0.3s ease;
+  }
+
+  // Collapsed state: scrolled past the heading
+  &.header-scrolled {
+    padding-top: 0.2rem;
+    padding-bottom: 0.1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    h1 {
+      font-size: 1rem;
+      padding: 0;
+      line-height: 1.3;
+    }
+
+    h3 {
+      opacity: 0;
+      margin: 0;
+      max-height: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+  }
+}
+
 // ── Desktop ──────────────────────────────────────────
 @media (min-width: 768px) {
   .project-list {
     padding: var(--spacing-gutter-md);
   }
 
-  .filter-overlay-container {
+  .list-header {
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 50;
+    margin: calc(-1 * var(--spacing-gutter-md));
+    padding: var(--spacing-gutter-md);
+    padding-bottom: 0;
 
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(var(--color-surface-rgb, 248, 249, 250), 0.95);
-      backdrop-filter: blur(10px);
-      pointer-events: none;
-    }
+    // Glassmorphism
+    background: rgba(248, 249, 250, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
 
+  .filter-overlay-container {
     > * {
       position: relative;
     }
@@ -325,6 +375,32 @@ onBeforeMount(() => {
     padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px) + 4rem);
   }
 
+  .list-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    margin: calc(-1 * var(--spacing-gutter-md));
+    padding: var(--spacing-gutter-md);
+    padding-bottom: 0;
+
+    // Glassmorphism
+    background: rgba(248, 249, 250, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    // Smaller heading on mobile
+    h1 {
+      font-size: 1.25rem;
+      padding: 0.375rem 0;
+      margin: 0;
+    }
+
+    h3 {
+      margin: 0.375rem 0;
+      font-size: 0.8rem;
+    }
+  }
+
   .filter-overlay-container {
     position: fixed;
     bottom: 0;
@@ -337,11 +413,8 @@ onBeforeMount(() => {
     padding: 0.75rem;
     padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
 
-    &::before {
-      display: none;
-    }
-
-    // When the search input is focused, pop the bar to the top (above the virtual keyboard)
+    // When the search input is focused, pop the overlay to the top
+    // so it stays above the virtual keyboard.
     &.search-active {
       bottom: auto;
       top: 0;
