@@ -69,6 +69,15 @@ app.mount("#app");
 // Bind HTML lang attribute to current i18n locale
 useHtmlLang(i18n);
 
+// Vite preload errors occur when a dynamic import's dependency chunk cannot be
+// fetched — typically because the PWA service worker is serving stale cached
+// chunks after a new deployment (new file hashes, old SW cache). Reloading the
+// page forces the new SW to serve the freshly cached files.
+window.addEventListener("vite:preloadError", (event) => {
+  console.warn("Vite preload error — reloading to pick up fresh assets:", (event as VitePreloadErrorEvent).payload);
+  window.location.reload();
+});
+
 // Hide app shell and show app after mount
 requestAnimationFrame(() => {
   const appElement = document.getElementById("app");

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, onErrorCaptured } from "vue";
 import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
@@ -29,14 +29,42 @@ const { stateFilter, categoryFilter, countryFilter, filterVisible } = storeToRef
 
 import { defineAsyncComponent } from "vue";
 
-// Asynchrones Laden zur Auslagerung von Leaflet aus dem Hauptbundle
-const LocationMap = defineAsyncComponent(() => import("../components/map/LocationMap.vue"));
+// Asynchrones Laden zur Auslagerung von Leaflet aus dem Hauptbundle.
+// onError: retry up to 3 times to handle transient network issues. After 3
+// failures the component gives up (fail()) so Suspense is not stuck forever.
+const LocationMap = defineAsyncComponent({
+  loader: () => import("../components/map/LocationMap.vue"),
+  timeout: 30000,
+  onError(error, retry, fail, attempts) {
+    if (attempts <= 3) {
+      retry();
+    } else {
+      console.error("LocationMap failed to load after 3 attempts:", error);
+      fail();
+    }
+  },
+});
 
 // Map base layer (CartoDB, satellite or OSM)
 const baseLayer = ref<'satellite' | 'osm' | 'carto'>('carto');
 
 // Marker clustering toggle
 const clusterEnabled = ref(false);
+
+// Track whether the map component failed to load after all retries
+const mapLoadFailed = ref(false);
+
+// Catch errors thrown by the async LocationMap component (e.g. after exhausting
+// retries) so Suspense falls back to an error state instead of hanging forever.
+onErrorCaptured((err) => {
+  console.error("Map component error captured:", err);
+  mapLoadFailed.value = true;
+  return false; // do not propagate further
+});
+
+function reloadPage() {
+  window.location.reload();
+}
 
 const stateOptions = computed(() => [
   { text: t("project.state.finished"), value: "finished" },
@@ -342,7 +370,13 @@ onUnmounted(() => {
     
     <div class="project-map" id="project-map">
       <!-- Karte lädt im Hintergrund, Ladeindikator wird über Suspense gesteuert -->
-      <Suspense>
+      <div v-if="mapLoadFailed" class="map-loading">
+        <p class="text-muted">{{ t("map.loadError") }}</p>
+        <button class="btn btn-primary btn-sm mt-2" @click="reloadPage">
+          {{ t("common.reload") }}
+        </button>
+      </div>
+      <Suspense v-else>
         <template #default>
           <LocationMap :filtered-projects="filteredList" :base-layer="baseLayer" :cluster-enabled="clusterEnabled" />
         </template>
