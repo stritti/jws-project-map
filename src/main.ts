@@ -57,11 +57,11 @@ useHtmlLang(i18n);
 // fetched — typically because the PWA service worker is serving stale cached
 // chunks after a new deployment (new file hashes, old SW cache). Reloading the
 // page forces the new SW to serve the freshly cached files.
-let reloadOnPreloadError = false;
+let hasReloadedOnPreloadError = false;
 window.addEventListener("vite:preloadError", (event) => {
   console.warn("Vite preload error — reloading to pick up fresh assets:", (event as VitePreloadErrorEvent).payload);
-  if (!reloadOnPreloadError) {
-    reloadOnPreloadError = true;
+  if (!hasReloadedOnPreloadError) {
+    hasReloadedOnPreloadError = true;
     window.location.reload();
   }
 });
@@ -71,10 +71,10 @@ window.addEventListener("vite:preloadError", (event) => {
 // chunk hashes. A controllerchange reload ensures we immediately get the new
 // SW's fresh assets instead of running a stale bundle under a new SW.
 if ("serviceWorker" in navigator) {
-  let reloadOnController = false;
+  let hasReloadedOnController = false;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (!reloadOnController) {
-      reloadOnController = true;
+    if (!hasReloadedOnController) {
+      hasReloadedOnController = true;
       window.location.reload();
     }
   });
