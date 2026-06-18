@@ -17,6 +17,10 @@ import "./assets/style-config.scss";
 import "flag-icons/css/flag-icons.min.css";
 import "./assets/a11y.scss";
 
+interface VitePreloadErrorEvent extends Event {
+  payload: Error;
+}
+
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
 
