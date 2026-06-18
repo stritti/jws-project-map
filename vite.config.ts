@@ -28,7 +28,7 @@ export default defineConfig({
     {
       name: "leaflet-markercluster-global-fix",
       transform(code: string, id: string) {
-        if (id.includes("vue-leaflet-markercluster") && id.endsWith(".js")) {
+        if (/node_modules\/vue-leaflet-markercluster\/.*\.js$/.test(id)) {
           return {
             code:
               `import _leafletLib from 'leaflet';\n` +
