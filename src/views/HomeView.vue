@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
@@ -11,6 +11,7 @@ import { useFilterStore } from "../stores/filter.store";
 import { useProjectSearch, type ProjectState } from "@/composables/useProjectSearch";
 import FilterPanel from "@/components/FilterPanel.vue";
 import SearchBar from "../components/SearchBar.vue";
+const LocationMap = defineAsyncComponent(() => import("../components/map/LocationMap.vue"));
 
 const { t } = useI18n();
 const router = useRouter();
@@ -27,11 +28,6 @@ const { countries } = storeToRefs(countryStore);
 // Derive local refs from shared filter store for template bindings
 const { stateFilter, categoryFilter, countryFilter, filterVisible } = storeToRefs(filterStore);
 
-import { defineAsyncComponent } from "vue";
-
-// Asynchrones Laden zur Auslagerung von Leaflet aus dem Hauptbundle
-const LocationMap = defineAsyncComponent(() => import("../components/map/LocationMap.vue"));
-
 // Map base layer (CartoDB, satellite or OSM)
 const baseLayer = ref<'satellite' | 'osm' | 'carto'>('carto');
 
@@ -45,8 +41,6 @@ const stateOptions = computed(() => [
 ]);
 
 // Fuzzy search on the store's filtered list
-// NOTE: destructure `query` as `searchQuery` so the SearchBar v-model
-// binds to the Fuse query directly (Codex #P2).
 const { results: searchResults, query: searchQuery } = useProjectSearch(filteredList, { limit: 50 });
 
 const activeFilters = computed(() => {
@@ -117,54 +111,15 @@ function handleProjectClick(project: { id: number; name: string }) {
   navigateToProject(project);
 }
 
-// Map data, categories and countries are loaded in main.ts in parallel.
-// On HomeView we still hydrate full project records in the background so
-// search/cards get complete data without delaying first map paint.
-const HYDRATION_IDLE_TIMEOUT_MS = 1500;
-const HYDRATION_FALLBACK_DELAY_MS = 150;
-
-let hydrationIdleRequestId: number | null = null;
-let hydrationTimeoutHandle: ReturnType<typeof setTimeout> | null = null;
-
-function startBackgroundHydration() {
-  const hydrate = () => {
-    projectStore.load(false).catch((error) => {
-      console.error("Background project hydration failed:", error);
-    });
-  };
-
-  if (typeof window !== "undefined" && typeof window.requestIdleCallback === "function") {
-    hydrationIdleRequestId = window.requestIdleCallback(hydrate, {
-      timeout: HYDRATION_IDLE_TIMEOUT_MS,
-    });
-    return;
-  }
-
-  hydrationTimeoutHandle = setTimeout(hydrate, HYDRATION_FALLBACK_DELAY_MS);
-}
-
 // ── Keep search bar visible on mobile when the keyboard opens ──────────
-// On mobile the .home container is position:fixed;inset:0 so the map and
-// heading NEVER move.  The search overlay normally floats at bottom:0 but
-// when the user taps the search input it snaps to top:0 (above the
-// keyboard).  On blur it returns to bottom:0.
-//
-// An additional body lock (.body-locked on html+body) prevents iOS Safari
-// from scrolling the document when an input is focused — without this,
-// position:fixed elements can shift or disappear on iOS.
-// ──────────────────────────────────────────────────────────────────────
-
 const isSearchActive = ref(false);
-const mapContainerRef = ref<HTMLElement | null>(null);
 
 function focusMap() {
-  // Find the map container and focus it
   const mapEl = document.querySelector(".project-map .map") as HTMLElement;
   if (mapEl) {
     mapEl.focus();
   }
 }
-
 
 function onSearchFocus() {
   isSearchActive.value = true;
@@ -174,8 +129,7 @@ function onSearchBlur() {
   isSearchActive.value = false;
 }
 
-// Backup: detect keyboard dismissal via visualViewport.resize (e.g. iOS
-// "Done" button which can hide the keyboard without blurring the input).
+// Backup: detect keyboard dismissal via visualViewport.resize
 function onViewportResize() {
   if (!window.visualViewport) return;
   if (window.visualViewport.height >= window.innerHeight - 5) {
@@ -189,8 +143,6 @@ const BODY_LOCK_CLASS = 'body-locked';
 const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
 onMounted(() => {
-  startBackgroundHydration();
-
   if (isMobile) {
     document.documentElement.classList.add(BODY_LOCK_CLASS);
     document.body.classList.add(BODY_LOCK_CLASS);
@@ -201,20 +153,6 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  if (
-    hydrationIdleRequestId !== null &&
-    typeof window !== "undefined" &&
-    typeof window.cancelIdleCallback === "function"
-  ) {
-    window.cancelIdleCallback(hydrationIdleRequestId);
-    hydrationIdleRequestId = null;
-  }
-
-  if (hydrationTimeoutHandle !== null) {
-    clearTimeout(hydrationTimeoutHandle);
-    hydrationTimeoutHandle = null;
-  }
-
   document.documentElement.classList.remove(BODY_LOCK_CLASS);
   document.body.classList.remove(BODY_LOCK_CLASS);
   if (window.visualViewport) {
@@ -341,20 +279,7 @@ onUnmounted(() => {
     </div>
     
     <div class="project-map" id="project-map">
-      <!-- Karte lädt im Hintergrund, Ladeindikator wird über Suspense gesteuert -->
-      <Suspense>
-        <template #default>
-          <LocationMap :filtered-projects="filteredList" :base-layer="baseLayer" :cluster-enabled="clusterEnabled" />
-        </template>
-        <template #fallback>
-          <div class="map-loading">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">{{ t("search.loadingMap") }}</span>
-            </div>
-            <p class="mt-2 text-muted">{{ t("search.loadingMap") }}</p>
-          </div>
-        </template>
-      </Suspense>
+      <LocationMap :filtered-projects="filteredList" :base-layer="baseLayer" :cluster-enabled="clusterEnabled" />
     </div>
   </div>
 </template>
@@ -396,13 +321,7 @@ onUnmounted(() => {
   }
 
   // Mobile: search floats at the bottom (Apple-style)
-  // The filter panel fills the space between search bar and viewport top,
-  // adapting dynamically when the keyboard opens (via 100dvh).
   @media (max-width: 767.98px) {
-    // Pin the home container to the layout viewport so the map and heading
-    // are never resized or repositioned when the virtual keyboard appears.
-    // The .search-overlay uses position:fixed and its `bottom` is updated
-    // via JavaScript (visualViewport API) to stay above the keyboard.
     & {
       position: fixed;
       inset: 0;
@@ -424,9 +343,6 @@ onUnmounted(() => {
       padding: 0.75rem;
       padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
 
-      // When the search input is focused, pop the overlay to the top so
-      // it stays above the virtual keyboard.  flex-direction flips so the
-      // search bar sits at the top edge and results extend downward.
       &.search-active {
         bottom: auto;
         top: 0;

@@ -1,5 +1,4 @@
 import { ref, watch, type Ref } from "vue";
-import { useProjectStore } from "@/features/projects/stores/project.store";
 import type { Attachment } from "@/interfaces/Attachment";
 
 const PLACEHOLDER = "/img/placeholder.png";
@@ -43,15 +42,6 @@ export function useAttachmentUrl(
     if (url.value !== PLACEHOLDER) {
       console.warn("[useAttachment] Image load failed, using placeholder");
       url.value = PLACEHOLDER;
-
-      // Trigger background refresh if data is likely stale
-      const store = useProjectStore();
-      if (store.lastFetched) {
-        const age = Date.now() - store.lastFetched;
-        if (age > 15 * 60 * 1000) {
-          store.refreshIfStale();
-        }
-      }
     }
   }
 

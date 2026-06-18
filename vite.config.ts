@@ -13,6 +13,32 @@ import VueDevTools from "vite-plugin-vue-devtools";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    // vue-leaflet-markercluster's ESM wraps the leaflet.markercluster UMD in an
+    // IIFE that reads `window.L` (the Leaflet global) at module-evaluation time.
+    // Vite/Rolldown wraps Leaflet in a lazy CJS getter (`xu`) so `window.L` is
+    // only populated when that getter is first called — which happens inside
+    // LMap.onMounted, well after the vendor chunk is evaluated.  The result is a
+    // TypeError that prevents the whole bundle from loading and leaves the app
+    // stuck on the loading spinner forever.
+    //
+    // Fix: prepend a synchronous `import L from 'leaflet'` to the markercluster
+    // module source.  Rolldown sees a real ESM dependency edge from markercluster
+    // → leaflet and will call the Leaflet CJS getter (`Tu()`) to resolve the
+    // binding, which runs the factory and sets `window.L` before the IIFE fires.
+    {
+      name: "leaflet-markercluster-global-fix",
+      transform(code: string, id: string) {
+        if (/node_modules\/vue-leaflet-markercluster\/.*\.js$/.test(id)) {
+          return {
+            code:
+              `import _leafletLib from 'leaflet';\n` +
+              `if (typeof globalThis !== 'undefined' && !globalThis.L) globalThis.L = _leafletLib;\n` +
+              code,
+            map: null,
+          };
+        }
+      },
+    },
     vue(),
     VueDevTools(),
     Components({

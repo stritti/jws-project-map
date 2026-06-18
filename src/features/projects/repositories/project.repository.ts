@@ -50,28 +50,6 @@ export interface RawProjectRecord {
 }
 
 export const projectRepository = {
-  async fetchMinimal(): Promise<RawProjectRecord[]> {
-    const result = await base.list<RawProjectRecord>({
-      limit: 1000,
-      offset: 0,
-      viewId: "vwlnl4t095iifqc9",
-      fields: [
-        "id",
-        "Id",
-        "Name",
-        "Name (de)",
-        "Name (en)",
-        "Name (fr)",
-        "Latitude",
-        "Longitude",
-        "State",
-        "Category",
-        "Country",
-      ],
-    });
-    return result?.list || [];
-  },
-
   async fetchFull(): Promise<RawProjectRecord[]> {
     const result = await base.list<RawProjectRecord>({
       limit: 1000,

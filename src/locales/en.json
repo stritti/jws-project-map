@@ -47,7 +47,8 @@
     "share": "Share"
   },
   "common": {
-    "close": "Close"
+    "close": "Close",
+    "reload": "Reload"
   },
   "project": {
     "detail": {
@@ -83,7 +84,8 @@
   "map": {
     "layerFinished": "Projects: finished ({count})",
     "layerUnderConstruction": "Projects: under construction ({count})",
-    "layerPlanned": "Projects: planned ({count})"
+    "layerPlanned": "Projects: planned ({count})",
+    "loadError": "Map could not be loaded. Please reload the page."
   },
   "a11y": {
     "skipToContent": "Skip to main content",

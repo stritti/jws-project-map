@@ -47,7 +47,8 @@
     "share": "Teilen"
   },
   "common": {
-    "close": "Schließen"
+    "close": "Schließen",
+    "reload": "Neu laden"
   },
   "project": {
     "detail": {
@@ -83,7 +84,8 @@
   "map": {
     "layerFinished": "Projekte: abgeschlossen ({count})",
     "layerUnderConstruction": "Projekte: im Bau ({count})",
-    "layerPlanned": "Projekte: geplant ({count})"
+    "layerPlanned": "Projekte: geplant ({count})",
+    "loadError": "Karte konnte nicht geladen werden. Bitte die Seite neu laden."
   },
   "a11y": {
     "skipToContent": "Zum Hauptinhalt springen",
