@@ -132,7 +132,6 @@ import {
   nextTick,
 } from "vue";
 import { storeToRefs } from "pinia";
-import { useCategoryStore } from "../../stores/category.store";
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useFilterStore } from "../../stores/filter.store";
 import L, { latLngBounds } from "leaflet";
@@ -160,7 +159,6 @@ if (!leafletGlobal.L) {
   leafletGlobal.L = L;
 }
 
-const categoryStore = useCategoryStore();
 const projectStore = useProjectStore();
 const { t } = useI18n();
 
@@ -258,13 +256,6 @@ const mapLoaded = () => {
     nextTick(() => updateBounds());
   }
 };
-
-watch(
-  () => props.baseLayer,
-  () => {
-    // baseLayer is bound directly in template via props
-  },
-);
 
 watch(locations, (newLocations) => {
   if (newLocations.length > 0 && map.value?.leafletObject) {

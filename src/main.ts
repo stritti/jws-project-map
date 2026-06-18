@@ -53,9 +53,13 @@ useHtmlLang(i18n);
 // fetched — typically because the PWA service worker is serving stale cached
 // chunks after a new deployment (new file hashes, old SW cache). Reloading the
 // page forces the new SW to serve the freshly cached files.
+let reloadOnPreloadError = false;
 window.addEventListener("vite:preloadError", (event) => {
   console.warn("Vite preload error — reloading to pick up fresh assets:", (event as VitePreloadErrorEvent).payload);
-  window.location.reload();
+  if (!reloadOnPreloadError) {
+    reloadOnPreloadError = true;
+    window.location.reload();
+  }
 });
 
 // When a new service worker activates and claims this page (skipWaiting +

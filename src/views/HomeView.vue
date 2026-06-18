@@ -113,7 +113,6 @@ function handleProjectClick(project: { id: number; name: string }) {
 
 // ── Keep search bar visible on mobile when the keyboard opens ──────────
 const isSearchActive = ref(false);
-const mapContainerRef = ref<HTMLElement | null>(null);
 
 function focusMap() {
   const mapEl = document.querySelector(".project-map .map") as HTMLElement;

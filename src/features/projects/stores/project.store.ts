@@ -61,7 +61,7 @@ export const useProjectStore = defineStore("project", {
 
       try {
         const result = await projectService.getAll();
-        if (result && Array.isArray(result) && result.length > 0) {
+        if (result && Array.isArray(result)) {
           this.projects = result;
           this.filteredList = result;
           this.initialized = true;
