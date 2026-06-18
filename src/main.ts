@@ -1,13 +1,11 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
-// Removed global bootstrap registration for better code splitting
 
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 
 import App from "./App.vue";
 import router from "./router";
 
-// Import stores
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useCategoryStore } from "./stores/category.store";
 import { useCountryStore } from "./stores/country.store";
@@ -27,42 +25,24 @@ const app = createApp(App);
 app.use(pinia);
 app.use(router);
 app.use(i18n);
-// Bootstrap components should be imported locally per view
 
 // Initialize stores after Pinia is attached to the app
-// This ensures they can access the Pinia instance
 const projectStore = useProjectStore(pinia);
 const categoryStore = useCategoryStore(pinia);
 const countryStore = useCountryStore(pinia);
 
-const TAXONOMY_IDLE_TIMEOUT_MS = 1200;
-const TAXONOMY_FALLBACK_DELAY_MS = 100;
-
-// Prioritize map data for first paint; defer taxonomy loading slightly so
-// markers can appear as early as possible.
-projectStore.preloadMapData().catch((err) => {
-  console.error("Initial map data load failed:", err);
+// Load all data on startup
+Promise.allSettled([
+  projectStore.load(),
+  categoryStore.load(),
+  countryStore.load(),
+]).then((results) => {
+  results.forEach((result) => {
+    if (result.status === "rejected") {
+      console.error("Initial data load failed:", result.reason);
+    }
+  });
 });
-
-const loadTaxonomies = () => {
-  Promise.allSettled([categoryStore.load(), countryStore.load()]).then(
-    (results) => {
-      results.forEach((result) => {
-        if (result.status === "rejected") {
-          console.error("Initial taxonomy load failed:", result.reason);
-        }
-      });
-    },
-  );
-};
-
-if (typeof window !== "undefined" && typeof window.requestIdleCallback === "function") {
-  window.requestIdleCallback(loadTaxonomies, { timeout: TAXONOMY_IDLE_TIMEOUT_MS });
-} else {
-  setTimeout(loadTaxonomies, TAXONOMY_FALLBACK_DELAY_MS);
-}
-
-// app.component('vue-picture-swipe', VuePictureSwipe)
 
 app.mount("#app");
 
@@ -109,7 +89,4 @@ requestAnimationFrame(() => {
       }
     }, 300);
   }
-
-  // Stale-data check: Bild-URLs könnten abgelaufen sein wenn die Daten älter als 1h sind
-  projectStore.refreshIfStale();
 });
