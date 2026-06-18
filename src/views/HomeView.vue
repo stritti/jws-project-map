@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
@@ -11,7 +11,7 @@ import { useFilterStore } from "../stores/filter.store";
 import { useProjectSearch, type ProjectState } from "@/composables/useProjectSearch";
 import FilterPanel from "@/components/FilterPanel.vue";
 import SearchBar from "../components/SearchBar.vue";
-import LocationMap from "../components/map/LocationMap.vue";
+const LocationMap = defineAsyncComponent(() => import("../components/map/LocationMap.vue"));
 
 const { t } = useI18n();
 const router = useRouter();

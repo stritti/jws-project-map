@@ -50,6 +50,10 @@ export const useProjectStore = defineStore("project", {
   },
   actions: {
     async load(): Promise<void> {
+      if (this.initialized && this.projects.length > 0) {
+        return;
+      }
+
       if (this.loading) {
         return;
       }
