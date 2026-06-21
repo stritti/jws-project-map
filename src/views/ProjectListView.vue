@@ -283,7 +283,8 @@ const projectsUnderConstructionCount = computed(
 
 onBeforeMount(() => {
   // Load data asynchronously before mount to start fetching earlier
-  Promise.all([projectStore.load(), categoryStore.load(), countryStore.load()]);
+  // Use lazy loading for projects to improve initial load performance
+  Promise.all([projectStore.loadWithLazyLoading(), categoryStore.load(), countryStore.load()]);
 
   // Set default state filters if none are active
   if (filterStore.stateFilter.length === 0) {

@@ -245,8 +245,9 @@ function goBack() {
 }
 
 // Load data before mount to start fetching earlier
+// Use lazy loading for projects to improve initial load performance
 onBeforeMount(() => {
-  Promise.all([projectStore.load(), categoryStore.load(), countryStore.load()]);
+  Promise.all([projectStore.loadWithLazyLoading(), categoryStore.load(), countryStore.load()]);
 });
 
 const loading = computed(() => {

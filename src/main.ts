@@ -35,9 +35,9 @@ const projectStore = useProjectStore(pinia);
 const categoryStore = useCategoryStore(pinia);
 const countryStore = useCountryStore(pinia);
 
-// Load all data on startup
+// Load all data on startup with lazy loading for projects
 Promise.allSettled([
-  projectStore.load(),
+  projectStore.loadWithLazyLoading(), // Use lazy loading for better initial performance
   categoryStore.load(),
   countryStore.load(),
 ]).then((results) => {

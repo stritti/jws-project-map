@@ -158,6 +158,11 @@ const projectService = {
     return processProjectData(response);
   },
 
+  async fetchPaginated(limit: number, offset: number): Promise<Array<Project>> {
+    const response = await projectRepository.fetchPaginated(limit, offset);
+    return processProjectData(response);
+  },
+
   add(latLng: LatLng, name: string): Promise<unknown> {
     console.warn("add() not yet migrated to repository layer");
     return Promise.resolve({ latLng, name });
