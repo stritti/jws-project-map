@@ -1,0 +1,40 @@
+/* Accessibility utilities - Tailwind version */
+
+/* Screen-reader-only: visually hidden but announced by assistive tech */
+.sr-only {
+  @apply absolute w-px h-px p-0 m-[-1px] overflow-hidden clip whitespace-nowrap border-0;
+}
+
+/* Focus-visible: keyboard-only focus indicator */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  @apply outline-2 outline-primary outline-offset-2;
+}
+
+/* Remove default focus outline for mouse users */
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+select:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible),
+[tabindex]:focus:not(:focus-visible) {
+  @apply outline-none;
+}
+
+/* High-contrast text helper */
+.high-contrast-text {
+  @apply text-gray-900 text-shadow-[0_0_1px_rgba(0,0,0,0.1)];
+}
+
+/* Skip-to-map link (used in HomeView) */
+.skip-to-map {
+  @apply absolute -top-full left-0 z-[10000] px-6 py-3 bg-primary text-white font-semibold rounded-b-round-default transition-all duration-100;
+}
+
+.skip-to-map:focus {
+  @apply top-0 outline-3 outline-white outline-offset-2;
+}

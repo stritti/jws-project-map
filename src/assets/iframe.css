@@ -1,0 +1,115 @@
+/* Iframe Design Overrides */
+/* Applied automatically when .is-iframe is present on */
+/* <html> (set by useWebFrame composable). */
+/* */
+/* Purpose: make the app look like a native part of the */
+/* parent page, without excess whitespace, floating UI */
+/* elements, or scroll issues. */
+
+/* 1. Reset full-viewport assumptions */
+.is-iframe {
+  /* Cancel safe-area insets (handled by parent page) */
+  --safe-area-inset-top: 0px;
+  --safe-area-inset-bottom: 0px;
+
+  /* Remove body scroll (iframe handles its own height) */
+  body {
+    @apply overflow-hidden;
+  }
+
+  /* Prevent overscroll/bounce on body */
+  @apply overscroll-none;
+}
+
+/* 2. Remove standalone chrome */
+.is-iframe {
+  /* App wrapper should not force min-height 100vh */
+  .app-wrapper {
+    @apply min-h-auto;
+  }
+
+  /* Hide PWA-related elements */
+  .skip-link {
+    @apply hidden;
+  }
+
+  /* Content doesn't need flex-grow (no footer to push down) */
+  .content {
+    @apply grow-0;
+  }
+}
+
+/* 3. HomeView / Map overrides */
+.is-iframe .home {
+  h1 {
+    /* Smaller, more compact title */
+    @apply text-sm font-semibold m-0 p-[0.5rem_0.75rem] top-0 left-0 right-auto absolute bg-white/85 backdrop-blur-[8px] rounded-b-[8px] z-[1000] max-w-[50vw] whitespace-nowrap overflow-hidden overflow-ellipsis;
+  }
+
+  /* Map should fill the iframe */
+  .project-map {
+    @apply fixed inset-0 h-full w-full;
+  }
+
+  /* Search overlay: compact top position */
+  .search-overlay {
+    @media (min-width: 768px) {
+      @apply top-[0.5rem] w-[95%] max-w-[500px];
+    }
+    @media (max-width: 767.98px) {
+      /* On mobile in iframe, there's no main menu, so search sits at bottom */
+      @apply bottom-[0.5rem] left-[0.5rem] right-[0.5rem];
+    }
+  }
+}
+
+/* 4. ProjectDetailView overrides */
+.is-iframe .project-page {
+  @apply pb-[1rem];
+
+  .teaser-card {
+    @apply h-[40vh] min-h-[200px] max-h-[400px] rounded-none;
+
+    @media (min-width: 768px) {
+      @apply rounded-none;
+    }
+  }
+
+  .page-header .title {
+    @apply text-[1.5rem];
+  }
+
+  .info-grid {
+    @apply gap-[1rem] grid-cols-[repeat(auto-fit,minmax(180px,1fr))];
+  }
+
+  .info-card {
+    @apply p-[1rem];
+  }
+
+  .section-title {
+    @apply text-[1.25rem];
+  }
+
+  .mini-map {
+    @apply max-h-[200px];
+
+    .leaflet-container {
+      @apply max-h-[200px];
+    }
+  }
+}
+
+/* 5. ProjectListView overrides */
+.is-iframe .project-list {
+  @apply pt-[0.5rem];
+
+  h1 {
+    @apply text-[1.25rem] mt-0;
+  }
+
+  /* Less bottom padding (no main menu in iframe) */
+  @media (max-width: 767.98px) {
+    @apply pb-[1rem];
+  }
+}
