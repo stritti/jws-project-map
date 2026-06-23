@@ -47,12 +47,13 @@ const compiled = computed(() => {
   
   /* Links */
   a {
-    @apply text-primary no-underline;
+    color: #3d5e9e;
+    text-decoration: none;
   }
 
   a:hover,
   a:focus {
-    @apply underline;
+    text-decoration: underline;
   }
   
   /* Lists */

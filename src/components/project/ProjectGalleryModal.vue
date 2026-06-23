@@ -272,7 +272,7 @@ watch(
 }
 
 .gallery-video {
-  @apply max-w-[calc(100vw-var(--spacing-unit)*4)] max-h-[calc(100vh-var(--spacing-unit)*4)] w-full h-full flex items-center justify-center relative z-1;
+  @apply max-w-[calc(100vw-var(--spacing-unit)*4)] max-h-[calc(100vh-var(--spacing-unit)*4)] w-full h-full flex items-center justify-center relative z-0;
 }
 
 .native-video-player {
