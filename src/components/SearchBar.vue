@@ -206,7 +206,7 @@ defineExpose({
 }
 
 .view-btn:hover {
-  @apply text-secondary bg-secondary/6;
+  @apply text-secondary bg-secondary/10;
 }
 
 .view-btn.active {
@@ -230,7 +230,7 @@ defineExpose({
 }
 
 .filter-btn.active {
-  @apply bg-secondary text-on-secondary;
+  @apply bg-secondary text-white;
 }
 
 .filter-btn .ibi-filter-right {
@@ -242,7 +242,7 @@ defineExpose({
 }
 
 .filter-badge {
-  @apply absolute -top-1 -right-1 bg-secondary text-on-secondary text-[0.625rem] font-bold min-w-[16px] h-[16px] rounded-full flex items-center justify-center px-1;
+  @apply absolute -top-1 -right-1 bg-secondary text-white text-[0.625rem] font-bold min-w-[16px] h-[16px] rounded-full flex items-center justify-center px-1;
 }
 
 .filter-btn.active .filter-badge {
@@ -263,6 +263,6 @@ defineExpose({
 }
 
 .filter-chip.active {
-  @apply bg-secondary border-secondary text-on-secondary;
+  @apply bg-secondary border-secondary text-white;
 }
 </style>

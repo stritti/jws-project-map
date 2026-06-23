@@ -125,7 +125,7 @@ function isActive(item: NavItem): boolean {
   @apply flex flex-col items-center justify-center gap-[3px] no-underline text-onSurface-variant px-[0.375rem] py-[0.375rem] rounded-full transition-all duration-200 min-w-[64px];
 
   &:hover {
-    @apply text-primary bg-secondary/6;
+    @apply text-primary bg-secondary/10;
   }
 
   &.active {

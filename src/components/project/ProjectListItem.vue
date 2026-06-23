@@ -199,11 +199,11 @@ export default defineComponent({
   @apply absolute top-[calc(var(--spacing-unit)*1.5)] right-[calc(var(--spacing-unit)*1.5)] px-[calc(var(--spacing-unit)*1)] py-[calc(var(--spacing-unit)*0.5)] rounded-full text-label-sm  uppercase tracking-[0.02em] z-0;
 
   &.finished {
-    @apply bg-tertiary text-on-tertiary;
+    @apply bg-surface-variant text-on-tertiary;
   }
 
   &.under-construction {
-    @apply bg-secondary text-on-secondary;
+    @apply bg-secondary text-white;
   }
 
   &.planned {

@@ -434,7 +434,7 @@ const updateBounds = () => {
 }
 
 .map:focus-visible {
-  @apply outline-3 outline-primary outline-offset-[-3px] z-5;
+  @apply outline-3 outline-primary outline-offset-[-3px] z-10;
 }
 
 /* Zoom controls nur auf Desktop anzeigen */
