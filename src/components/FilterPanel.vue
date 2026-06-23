@@ -121,7 +121,7 @@ const countryList = computed(() =>
 }
 
 .filter-close {
-  @apply absolute top-2 right-2 z-10 w-8 h-8 rounded-full border-none bg-black/8 text-onSurface flex items-center justify-center text-[22px] cursor-pointer leading-none transition-all duration-200 hover:bg-black/15 hover:scale-110;
+  @apply absolute top-2 right-2 z-10 w-8 h-8 rounded-full border-none bg-black/10 text-onSurface flex items-center justify-center text-[22px] cursor-pointer leading-none transition-all duration-200 hover:bg-black/15 hover:scale-110;
 }
 
 .filter-scroll {
@@ -142,11 +142,11 @@ const countryList = computed(() =>
 }
 
 .filter-fieldset legend {
-  @apply float-none w-auto p-0 text-secondary font-label-md uppercase tracking-[0.5px] text-label-sm mb-[0.75rem];
+  @apply float-none w-auto p-0 text-secondary text-label-md uppercase tracking-[0.5px] text-label-sm mb-[0.75rem];
 }
 
 .filter-group-title {
-  @apply text-secondary font-label-md uppercase tracking-[0.5px] text-label-sm;
+  @apply text-secondary text-label-md uppercase tracking-[0.5px] text-label-sm;
 }
 
 .filter-grid {
@@ -193,6 +193,6 @@ const countryList = computed(() =>
 /* Non-scoped: same class also reaches slot content (map type toggle heading) */
 <style lang="postcss">
 .filter-group-title {
-  @apply text-secondary font-label-md uppercase tracking-[0.5px] text-label-sm;
+  @apply text-secondary text-label-md uppercase tracking-[0.5px] text-label-sm;
 }
 </style>

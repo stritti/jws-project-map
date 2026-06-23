@@ -139,7 +139,7 @@ function onImageError() {
   @apply relative rounded-round-xl overflow-hidden cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.06)] transition-all duration-300 bg-surface;
 
   &:hover {
-    @apply -translate-y-[6px] shadow-[0_12px_28px_rgba(0,0,0,0.12)] z-2;
+    @apply -translate-y-[6px] shadow-[0_12px_28px_rgba(0,0,0,0.12)] z-10;
 
     .hover-overlay {
       @apply opacity-100;
