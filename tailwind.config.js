@@ -109,16 +109,6 @@ export default {
         'headline-lg': '-0.02em',
         'headline-md': '-0.01em',
       },
-      backgroundColor: {
-        'secondary-container': '#3c5d9d',
-        'primary-container': '#3d5e9e',
-      },
-      backgroundOpacity: {
-        '88': '0.88',
-        '86': '0.86',
-        '92': '0.92',
-        '96': '0.96',
-      },
       animation: {
         'loader-slide': 'loader-slide 1.4s ease-in-out infinite',
         'reveal-image': 'revealImage 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards',

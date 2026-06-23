@@ -57,7 +57,7 @@
     <div class="container mx-auto mt-5 px-4">
       <div class="project-details">
         <div v-if="loading" class="info-grid mb-5">
-          <div v-for="i in 3" :key="i" class="h-20 rounded-round-lg animate-pulse bg-outline-variant/20"></div>
+          <div v-for="i in 3" :key="i" class="h-20 rounded-round-large animate-pulse bg-outline-variant/20"></div>
         </div>
         <div v-if="loading" class="space-y-2">
           <div class="w-4/5 h-6 animate-pulse bg-outline-variant/20 rounded mb-2"></div>
@@ -116,7 +116,7 @@
           <!-- Mini location map -->
           <div v-if="project.latitude && project.longitude" class="location-section mb-5">
             <h2 class="section-title mb-4">{{ t("project.detail.location") }}</h2>
-            <div class="mini-map rounded-round-lg overflow-hidden shadow-sm">
+            <div class="mini-map rounded-round-large overflow-hidden shadow-sm">
               <l-map
                 :zoom="13"
                 :center="[project.latitude, project.longitude]"
@@ -412,7 +412,7 @@ const detailMarkerIcon = computed(() => {
 }
 
 .info-card {
-  @apply flex items-center gap-[1.25rem] p-[1.5rem] bg-white rounded-round-lg border border-black/3 shadow-jws-sm transition-all duration-300 ease-in-out;
+  @apply flex items-center gap-[1.25rem] p-[1.5rem] bg-white rounded-round-large border border-black/3 shadow-jws-sm transition-all duration-300 ease-in-out;
 
   &:hover {
     @apply -translate-y-[5px] shadow-jws-md border-primary-light;

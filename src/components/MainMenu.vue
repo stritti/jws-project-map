@@ -109,7 +109,7 @@ function isActive(item: NavItem): boolean {
 
 <style lang="postcss" scoped>
 .main-menu {
-  @apply fixed bottom-0 left-0 right-0 z-[999] flex items-center justify-evenly px-[0.75rem] pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] pt-[0.5rem] bg-white/92 backdrop-blur-xl rounded-t-[1rem] shadow-[0_-4px_16px_rgba(0,0,0,0.06)];
+  @apply fixed bottom-0 left-0 right-0 z-[999] flex items-center justify-evenly px-[0.75rem] pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] pt-[0.5rem] bg-white/95 backdrop-blur-xl rounded-t-[1rem] shadow-[0_-4px_16px_rgba(0,0,0,0.06)];
 
   /* Thin top border for definition on light backgrounds */
   &::before {

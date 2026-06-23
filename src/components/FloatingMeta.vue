@@ -147,7 +147,7 @@ onUnmounted(() => {
 }
 
 .meta-panel {
-  @apply bg-white/92 backdrop-blur-xl border border-black/10 rounded-[12px] shadow-[0_8px_32px_rgba(0,0,0,0.1)] p-[0.5rem] flex flex-col gap-[0.25rem] min-w-[100px];
+  @apply bg-white/95 backdrop-blur-xl border border-black/10 rounded-[12px] shadow-[0_8px_32px_rgba(0,0,0,0.1)] p-[0.5rem] flex flex-col gap-[0.25rem] min-w-[100px];
 }
 
 .meta-langs {
