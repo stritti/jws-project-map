@@ -388,62 +388,53 @@ const updateBounds = () => {
 };
 </script>
 
-<style lang="scss">
-@use "@/assets/design-tokens.scss" as *;
-
+<style lang="postcss">
 .leaflet-top {
-  top: calc(var(--spacing-unit) * 12.5 + env(safe-area-inset-top));
+  @apply top-[calc(var(--spacing-unit)*12.5+env(safe-area-inset-top))];
 }
 .leaflet-left {
-  left: env(safe-area-inset-left);
+  @apply left-[env(safe-area-inset-left)];
 }
 .leaflet-right {
-  right: env(safe-area-inset-right);
+  @apply right-[env(safe-area-inset-right)];
 }
 .leaflet-bottom {
-  bottom: env(safe-area-inset-bottom);
+  @apply bottom-[env(safe-area-inset-bottom)];
 }
 .leaflet-control-attribution {
-  max-width: calc(100vw - var(--spacing-unit) * 21.25);
-  font-size: calc(var(--spacing-unit) * 1.875);
+  @apply max-w-[calc(100vw-var(--spacing-unit)*21.25)] text-[calc(var(--spacing-unit)*1.875)];
 }
 
 .leaflet-marker-icon {
   &:hover {
-    transform: scale(1.5);
-    filter: drop-shadow(0px 0px 10px rgba(210, 28, 28, 0.75));
+    @apply scale-150 drop-shadow-[0px_0px_10px_rgba(210,28,28,0.75)];
   }
 }
 
 .marker-selected {
-  transform: scale(1.25);
-  filter: drop-shadow(0px 0px 4px rgb(178, 14, 14));
+  @apply scale-125 drop-shadow-[0px_0px_4px_rgb(178,14,14)];
 }
 
 .marker-selected:hover {
-  transform: scale(1.5);
-  filter: drop-shadow(0px 0px 10px rgba(210, 28, 28, 0.75));
+  @apply scale-150 drop-shadow-[0px_0px_10px_rgba(210,28,28,0.75)];
 }
 
 .marker-state-planned {
-  filter: grayscale(90%) opacity(0.5);
+  @apply grayscale-[90%] opacity-50;
 }
 .marker-state-under-construction {
-  filter: grayscale(80%) opacity(0.9);
+  @apply grayscale-[80%] opacity-90;
 }
 .marker-state-finished {
-  filter: opacity(1);
+  @apply opacity-100;
 }
 
 .map {
-  width: 100%;
-  height: 100%;
+  @apply w-full h-full;
 }
 
 .map:focus-visible {
-  outline: 3px solid #3d5e9e;
-  outline-offset: -3px;
-  z-index: 5;
+  @apply outline-3 outline-primary outline-offset-[-3px] z-5;
 }
 
 /* Zoom controls nur auf Desktop anzeigen */

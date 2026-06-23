@@ -14,7 +14,7 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
-import "./assets/iframe.scss";
+import "./assets/iframe.css";
 
 const { isIFrame, notifyNavigate } = useWebFrame();
 const loadingStore = useLoadingStore();
@@ -82,88 +82,39 @@ router.afterEach((to) => {
   </div>
 </template>
 
-<style lang="scss">
+<style lang="postcss">
 body {
-  font-family: Roboto, sans-serif !important;
-  overflow-x: hidden;
-}
-h1 {
-  color: rgb(61, 94, 158);
-  font-size: 48px;
-  font-weight: 300;
-
-  @media screen and (max-width: 768px) {
-    font-size: 24px;
-  }
-}
-p {
-  font-size: 16px;
-  font-weight: 300;
-
-  @media screen and (max-width: 768px) {
-    font-size: 12px;
-  }
+  @apply overflow-x-hidden;
 }
 
 .container {
-  margin-top: env(safe-area-inset-top);
-  margin-bottom: env(safe-area-inset-bottom);
+  @apply safe-area-top safe-area-bottom;
 }
 
 .app-wrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  @apply flex flex-col min-h-screen;
 }
 
 .content {
-  flex-grow: 1;
+  @apply flex-grow;
 }
 
 /* Global loading bar — thin animated bar at the very top of the viewport */
 .global-loader {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 10001;
-  height: 3px;
-  overflow: hidden;
-  background: transparent;
+  @apply fixed top-0 left-0 right-0 z-[10001] h-0.5 overflow-hidden bg-transparent;
 }
 
 .loader-bar {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, #3d5e9e, #6a8fd4, #3d5e9e);
-  background-size: 200% 100%;
-  animation: loader-slide 1.4s ease-in-out infinite;
-}
-
-@keyframes loader-slide {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  @apply w-full h-full bg-gradient-to-r from-primary via-secondary to-primary bg-[200%_100%] animate-loader-slide;
 }
 
 /* Skip-to-content link — visible only when focused via keyboard */
 .skip-link {
-  position: absolute;
-  top: -100%;
-  left: 0;
-  z-index: 10000;
-  padding: 0.75rem 1.5rem;
-  background: var(--color-secondary, #3d5e9e);
-  color: #fff;
-  font-weight: 600;
-  text-decoration: none;
-  border-radius: 0 0 0.5rem 0;
-  transition: top 0.1s ease;
+  @apply absolute -top-full left-0 z-[10000] px-6 py-3 bg-primary text-white font-semibold rounded-b-round-default transition-all duration-100;
+}
 
-  &:focus {
-    top: 0;
-    outline: 3px solid #fff;
-    outline-offset: 2px;
-  }
+.skip-link:focus {
+  @apply top-0 outline-3 outline-white outline-offset-2;
 }
 
 /* Respect user motion preferences */
@@ -171,10 +122,7 @@ p {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+    @apply transition-none animation-none scroll-auto;
   }
 }
 
@@ -183,9 +131,6 @@ p {
    such as the map and the search overlay.  Toggled via JS on mount/unmount. */
 html.body-locked,
 body.body-locked {
-  height: 100% !important;
-  overflow: hidden !important;
-  position: fixed !important;
-  width: 100% !important;
+  @apply h-full overflow-hidden fixed w-full;
 }
 </style>

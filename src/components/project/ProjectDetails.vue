@@ -10,11 +10,10 @@
         <!-- Use ProjectListItem with actions slot — entire card links to detail page -->
         <project-list-item :project="project">
           <template #actions>
-            <b-button variant="primary" size="sm" class="details-btn" @click.stop="goToDetail">
+            <button variant="primary" size="sm" class="details-btn" @click.stop="goToDetail">
               <IBiBoxArrowUpRight />
-            </b-button>
+            </button>
             <navigate-button
-              size="sm"
               :lat="project.latitude"
               :lng="project.longitude"
             />
@@ -70,76 +69,43 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss">
-@use "@/assets/design-tokens.scss" as *;
-
-// Bottom navigation height (MainMenu content + padding)
-// Must account for safe-area-inset-bottom on notched devices.
-$bottom-nav-height: 64px;
-
+<style lang="postcss">
+/* Bottom navigation height (MainMenu content + padding) */
+/* Must account for safe-area-inset-bottom on notched devices. */
 .project-card-overlay {
-  position: fixed;
-  bottom: calc($bottom-nav-height + var(--spacing-unit) * 3 + env(safe-area-inset-bottom, 0px));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  width: 90%;
-  max-width: 600px;
+  @apply fixed bottom-[calc(64px+var(--spacing-unit)*3+env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 z-[1000] w-[90%] max-w-[600px];
 }
 
 .project-card-container {
-  position: relative;
+  @apply relative;
 }
 
 .close-btn {
-  position: absolute;
-  top: calc(var(--spacing-unit) * -1.5);
-  right: calc(var(--spacing-unit) * -1.5);
-  z-index: 10;
-  width: 32px;
-  height: 32px;
-  border-radius: var(--shape-round-full);
-  border: none;
-  background: var(--color-surface);
-  color: var(--color-on-surface);
-  box-shadow: 0 var(--spacing-unit) calc(var(--spacing-unit) * 3) rgba(9, 20, 38, 0.12);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
+  @apply absolute -top-[calc(var(--spacing-unit)*1.5)] -right-[calc(var(--spacing-unit)*1.5)] z-10 w-8 h-8 rounded-full border-none bg-surface text-onSurface shadow-[0_var(--spacing-unit)_calc(var(--spacing-unit)*3)_rgba(9,20,38,0.12)] cursor-pointer flex items-center justify-center transition-all duration-200;
   
   &:hover {
-    background: var(--color-surface-variant);
-    transform: scale(1.1);
+    @apply bg-surface-variant scale-110;
   }
 }
 
 .details-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: calc(var(--spacing-unit) * 1);
-  width: 36px;
-  height: 36px;
+  @apply flex items-center justify-center p-[var(--spacing-unit)] w-[36px] h-[36px] bg-primary text-white rounded-round-default hover:bg-primary-dark transition-colors duration-200;
 }
 
-// Transition
+/* Transition */
 .slide-up-enter-active,
 .slide-up-leave-active {
-  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  @apply transition-all duration-300 ease-[cubic-bezier(0.165,0.84,0.44,1)];
 }
 
 .slide-up-enter-from,
 .slide-up-leave-to {
-  opacity: 0;
-  transform: translateX(-50%) translateY(20px);
+  @apply opacity-0 -translate-x-1/2 translate-y-[20px];
 }
 
 .slide-up-enter-to,
 .slide-up-leave-from {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  @apply opacity-1 -translate-x-1/2 translate-y-0;
 }
 </style>
 

@@ -197,56 +197,52 @@ onUnmounted(() => {
       <!-- Filter Panel -->
       <FilterPanel v-if="filterVisible" @close="filterVisible = false">
         <!-- Map type toggle (nur auf der Karten-Ansicht) -->
-        <b-row class="mt-3">
-          <b-col cols="12">
-            <h6 class="filter-group-title mb-3 d-flex align-items-center gap-2">
-              <IBiMap /> {{ t("search.filterGroups.mapType") }}
-            </h6>
-            <div class="map-type-toggle" role="group" :aria-label="t('search.filterGroups.mapType')">
-              <button
-                class="map-type-btn"
-                :class="{ active: baseLayer === 'carto' }"
-                :aria-pressed="baseLayer === 'carto'"
-                @click="baseLayer = 'carto'"
-              >
-                <IBiMap class="me-1" aria-hidden="true" />
-                {{ t("search.mapTypes.carto") }}
-              </button>
-              <button
-                class="map-type-btn"
-                :class="{ active: baseLayer === 'satellite' }"
-                :aria-pressed="baseLayer === 'satellite'"
-                @click="baseLayer = 'satellite'"
-              >
-                <IBiGlobe2 class="me-1" aria-hidden="true" />
-                {{ t("search.mapTypes.satellite") }}
-              </button>
-              <button
-                class="map-type-btn"
-                :class="{ active: baseLayer === 'osm' }"
-                :aria-pressed="baseLayer === 'osm'"
-                @click="baseLayer = 'osm'"
-              >
-                <IBiMap class="me-1" aria-hidden="true" />
-                {{ t("search.mapTypes.map") }}
-              </button>
-            </div>
-          </b-col>
-        </b-row>
+        <div class="mt-3">
+          <h6 class="filter-group-title mb-3 flex items-center gap-2">
+            <IBiMap /> {{ t("search.filterGroups.mapType") }}
+          </h6>
+          <div class="map-type-toggle" role="group" :aria-label="t('search.filterGroups.mapType')">
+            <button
+              class="map-type-btn"
+              :class="{ active: baseLayer === 'carto' }"
+              :aria-pressed="baseLayer === 'carto'"
+              @click="baseLayer = 'carto'"
+            >
+              <IBiMap class="mr-1" aria-hidden="true" />
+              {{ t("search.mapTypes.carto") }}
+            </button>
+            <button
+              class="map-type-btn"
+              :class="{ active: baseLayer === 'satellite' }"
+              :aria-pressed="baseLayer === 'satellite'"
+              @click="baseLayer = 'satellite'"
+            >
+              <IBiGlobe2 class="mr-1" aria-hidden="true" />
+              {{ t("search.mapTypes.satellite") }}
+            </button>
+            <button
+              class="map-type-btn"
+              :class="{ active: baseLayer === 'osm' }"
+              :aria-pressed="baseLayer === 'osm'"
+              @click="baseLayer = 'osm'"
+            >
+              <IBiMap class="mr-1" aria-hidden="true" />
+              {{ t("search.mapTypes.map") }}
+            </button>
+          </div>
+        </div>
         
-        <b-row class="mt-3">
-          <b-col cols="12">
-            <div class="d-flex align-items-center justify-content-between">
-              <label class="form-check-label font-weight-bold" for="clusterToggle">
-                Marker-Clustering
-              </label>
-              <div class="form-check form-switch mb-0">
-                <input class="form-check-input" type="checkbox" id="clusterToggle" v-model="clusterEnabled">
-              </div>
-            </div>
-            <p class="text-muted small mt-1 mb-0">Fasst Pins auf der Karte zusammen, um die Performance zu verbessern.</p>
-          </b-col>
-        </b-row>
+        <div class="mt-3">
+          <div class="flex items-center justify-between">
+            <label class="font-label-md" for="clusterToggle">
+              Marker-Clustering
+            </label>
+            <label class="form-switch mb-0">
+              <input class="form-check-input" type="checkbox" id="clusterToggle" v-model="clusterEnabled">
+            </label>
+          </div>
+          <p class="text-onSurface-variant text-label-sm mt-1 mb-0">Fasst Pins auf der Karte zusammen, um die Performance zu verbessern.</p>
+        </div>
       </FilterPanel>
       
       <!-- Screen reader announcement for search result count -->
@@ -284,258 +280,132 @@ onUnmounted(() => {
   </div>
 </template>
 
-<style lang="scss" scoped>
-@use "@/assets/design-tokens.scss" as *;
-
+<style lang="postcss" scoped>
 .home {
-  // Skip-to-map link inherits from a11y.scss .skip-to-map class
+  /* Skip-to-map link inherits from a11y.css .skip-to-map class */
   h1 {
-    top: env(safe-area-inset-top);
-    right: env(safe-area-inset-right);
-    padding: 1rem;
-    margin-left: 60px;
-    position: absolute;
-    z-index: 10;
-    background-color: rgba($color: #ffffff, $alpha: 0.5);
+    @apply fixed top-[env(safe-area-inset-top)] right-[env(safe-area-inset-right)] p-4 ml-[60px] z-10 bg-white/50;
   }
 
-  // Desktop: search overlay at the top
+  /* Desktop: search overlay at the top */
   @media (min-width: 768px) {
     .search-overlay {
-      position: absolute;
-      top: 5rem;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1000;
-      width: 90%;
-      max-width: 600px;
+      @apply absolute top-[5rem] left-1/2 -translate-x-1/2 z-[1000] w-[90%] max-w-[600px];
     }
 
     .filter-dropdown {
-      position: absolute;
-      top: calc(100% + 0.5rem);
-      left: 0;
-      right: 0;
-      z-index: 100;
+      @apply absolute top-[calc(100%+0.5rem)] left-0 right-0 z-10;
     }
   }
 
-  // Mobile: search floats at the bottom (Apple-style)
+  /* Mobile: search floats at the bottom (Apple-style) */
   @media (max-width: 767.98px) {
-    & {
-      position: fixed;
-      inset: 0;
-      overflow: hidden;
-      overscroll-behavior: none;
+    .home {
+      @apply fixed inset-0 overflow-hidden overscroll-none;
     }
 
     .search-overlay {
-      position: fixed;
-      bottom: 0;
-      top: auto;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      display: flex;
-      flex-direction: column-reverse;
-      overflow: hidden;
-      max-height: 100dvh;
-      padding: 0.75rem;
-      padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+      @apply fixed bottom-0 top-auto left-0 right-0 z-[1000] flex flex-col-reverse overflow-hidden max-h-[100dvh] p-[0.75rem] pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))];
 
       &.search-active {
-        bottom: auto;
-        top: 0;
-        flex-direction: column;
-        max-height: 50dvh;
-        padding: 0.75rem;
-        padding-top: calc(env(safe-area-inset-top) + 0.75rem);
+        @apply bottom-auto top-0 flex-col max-h-[50dvh] p-[0.75rem] pt-[calc(env(safe-area-inset-top)+0.75rem)];
       }
     }
 
     .toolbar-section {
-      position: relative;
-      z-index: 1001;
-      flex-shrink: 0;
+      @apply relative z-[1001] flex-shrink-0;
     }
 
     .filter-dropdown {
-      position: relative;
-      z-index: 1000;
-      flex: 1;
-      overflow: hidden;
-      min-height: 0;
+      @apply relative z-[1000] flex-1 overflow-hidden min-h-0;
     }
 
     .filter-scroll {
-      max-height: 100%;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+      @apply max-h-full overflow-y-auto touch-pan-y;
     }
   }
 
   .filter-backdrop {
-    display: none;
+    @apply hidden;
 
     @media (max-width: 767.98px) {
-      display: block;
-      position: fixed;
-      inset: 0;
-      z-index: 999;
-      background: rgba(0, 0, 0, 0.3);
+      @apply block fixed inset-0 z-[999] bg-black/30;
     }
   }
 
   .search-results-dropdown {
-    background: var(--color-surface);
-    border: 1px solid var(--color-outline-variant);
-    border-radius: 0.5rem;
-    margin-top: 0.5rem;
-    max-height: 300px;
-    overflow-y: auto;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    @apply bg-surface border border-outline-variant rounded-round-default mt-[0.5rem] max-h-[300px] overflow-y-auto shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)];
   }
 
   .search-result-item {
-    padding: 0.75rem 1rem;
-    cursor: pointer;
-    border-bottom: 1px solid var(--color-outline-variant);
-    transition: background-color 0.15s ease;
-    
-    &:last-child {
-      border-bottom: none;
-    }
-    
-    &:hover {
-      background-color: var(--color-surface-variant);
-    }
+    @apply p-[0.75rem_1rem] cursor-pointer border-b border-outline-variant transition-colors duration-150 last:border-b-0 hover:bg-surface-variant;
 
     &:focus-visible {
-      outline: 2px solid var(--color-secondary);
-      outline-offset: -2px;
-      background-color: var(--color-surface-variant);
+      @apply outline-2 outline-secondary outline-offset-[-2px] bg-surface-variant;
     }
   }
 
   .result-name {
-    font-weight: 500;
-    color: var(--color-on-surface);
-    font-size: var(--font-size-body-md);
+    @apply font-medium text-onSurface text-body-md;
   }
 
   .result-meta {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.25rem;
-    font-size: var(--font-size-label-sm);
+    @apply flex gap-[0.5rem] mt-[0.25rem] text-label-sm;
   }
 
   .result-state {
-    color: var(--color-on-surface-variant);
-    text-transform: capitalize;
+    @apply text-onSurface-variant capitalize;
   }
 
   .result-country {
-    color: var(--color-on-surface-variant);
-  }
-
-  .active-filters-pills {
-    min-height: calc(var(--spacing-unit) * 10);
-  }
-
-  .filter-pill {
-    background: var(--color-surface) !important;
-    color: var(--color-on-surface) !important;
-    font-weight: var(--font-weight-label-md);
-    box-shadow: 0 calc(var(--spacing-unit) * 1) calc(var(--spacing-unit) * 2) rgba(0, 0, 0, 0.02);
-    transition: all 0.2s ease;
-    border-radius: var(--shape-round-full);
-    font-size: var(--font-size-label-sm);
-    
-    &:hover {
-      border-color: var(--color-secondary) !important;
-    }
-  }
-
-  .pill-close-icon {
-    cursor: pointer;
-    font-size: var(--font-size-body-md);
-    color: var(--color-error);
-    border-radius: 50%;
-    padding: 2px;
-    
-    &:hover {
-      background: rgba(var(--color-error-rgb, 186, 26, 26), 0.1);
-    }
-  }
-
-  .shortcut-hint {
-    font-size: var(--font-size-label-sm);
-    background: var(--color-surface-variant);
-    border: 1px solid var(--color-outline-variant);
-    border-radius: var(--shape-round-default);
-    padding: 1px 6px;
-    color: var(--color-on-surface-variant);
+    @apply text-onSurface-variant;
   }
 
   .search-result-more {
-    text-align: center;
-    padding: 0.75rem;
-    color: var(--color-on-surface-variant);
-    font-style: italic;
-    font-size: var(--font-size-label-sm);
+    @apply text-center p-[0.75rem] text-onSurface-variant italic text-label-sm;
   }
 
   .project-map {
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    position: absolute;
-    z-index: 1;
+    @apply absolute inset-0 z-1;
   }
 
   .map-loading {
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: #f8f9fa;
+    @apply w-full h-screen flex flex-col items-center justify-center bg-surface;
   }
 
-  // Map type toggle — segmented control
+  /* Map type toggle — segmented control */
   .map-type-toggle {
-    display: flex;
-    gap: 0.5rem;
+    @apply flex gap-[0.5rem];
   }
 
   .map-type-btn {
-    display: flex;
-    align-items: center;
-    padding: 0.5rem 1rem;
-    border-radius: 9999px;
-    font-size: var(--font-size-label-md);
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    border: 1px solid var(--color-outline, #c5c6cd);
-    background: var(--color-surface, #fff);
-    color: var(--color-on-surface, #1e293b);
-
-    &:hover {
-      border-color: var(--color-secondary, #3d5e9e);
-      background: rgba(61, 94, 158, 0.04);
-    }
+    @apply flex items-center px-4 py-2 rounded-full text-label-md font-semibold cursor-pointer transition-all duration-150 border border-outline bg-surface text-onSurface hover:border-secondary hover:bg-secondary/4;
 
     &.active {
-      background: var(--color-secondary, #3d5e9e);
-      border-color: var(--color-secondary, #3d5e9e);
-      color: #fff;
-      box-shadow: 0 2px 8px rgba(61, 94, 158, 0.25);
+      @apply bg-secondary border-secondary text-white shadow-[0_2px_8px_rgba(61,94,158,0.25)];
     }
   }
+}
+
+/* Form switch for cluster toggle */
+.form-switch {
+  @apply inline-block relative;
+}
+
+.form-switch .form-check-input {
+  @apply w-[2.25rem] h-[1.25rem] rounded-full appearance-none bg-outline-variant transition-all duration-200 cursor-pointer;
+}
+
+.form-switch .form-check-input:checked {
+  @apply bg-secondary;
+}
+
+.form-switch .form-check-input::before {
+  @apply content-[''] absolute top-[0.125rem] left-[0.125rem] w-[1rem] h-[1rem] bg-white rounded-full transition-transform duration-200;
+}
+
+.form-switch .form-check-input:checked::before {
+  @apply translate-x-[1rem];
 }
 
 </style>

@@ -1,7 +1,7 @@
 <template>
   <span
     v-if="categoryId"
-    class="category-badge d-flex align-items-center"
+    class="category-badge flex items-center"
     :style="categoryStyle"
     >{{ displayName }}</span
   >
@@ -34,7 +34,7 @@ export default defineComponent({
         // Active state: use category color for background, On Secondary for text
         return `
           background-color: ${category.color};
-          color: var(--color-on-secondary);
+          color: #ffffff;
           border-radius: var(--shape-round-full);
           padding: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit));
           font-size: var(--font-size-label-sm);
@@ -66,9 +66,7 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss">
-@use "@/assets/design-tokens.scss" as *;
-
+<style lang="postcss">
 /* Note: The styling is now handled inline via the categoryStyle computed property */
 /* This allows us to use dynamic values from the category store while falling back to design tokens */
 </style>

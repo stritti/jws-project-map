@@ -22,34 +22,23 @@
       <span class="gallery-nav-icon gallery-nav-icon-next" />
     </button>
 
-    <BCarousel
-      v-model="currentIndex"
-      :interval="0"
-      no-hover-pause
-      no-animation
-      background="rgba(0, 0, 0, 0.3)"
-      class="gallery-carousel"
-      @slid="onSlid"
-    >
-      <BCarouselSlide
-        v-for="(item, index) in props.galleryItems"
-        :key="index"
-      >
-        <template #img>
+    <div class="gallery-carousel">
+      <Transition name="slide-fade" mode="out-in">
+        <div :key="currentIndex" class="gallery-slide">
           <div class="gallery-content">
-            <template v-if="item.mimetype.startsWith('image')">
+            <template v-if="currentItem.mimetype.startsWith('image')">
               <img
-                :src="item.signedUrl"
-                :alt="item.name || t('a11y.imageNotAvailable', 'Image not available')"
+                :src="currentItem.signedUrl"
+                :alt="currentItem.name || t('a11y.imageNotAvailable', 'Image not available')"
                 class="gallery-image"
               />
             </template>
-            <template v-else-if="item.mimetype.startsWith('video')">
+            <template v-else-if="currentItem.mimetype.startsWith('video')">
               <div class="gallery-video">
                 <video
-                  :ref="(el) => setVideoRef(index, el)"
-                  :src="item.signedUrl"
-                  :type="item.mimetype"
+                  ref="videoRef"
+                  :src="currentItem.signedUrl"
+                  :type="currentItem.mimetype"
                   controls
                   preload="metadata"
                   class="native-video-player"
@@ -60,12 +49,12 @@
               </div>
             </template>
           </div>
-        </template>
-        <template #caption>
-          {{ item.name }}
-        </template>
-      </BCarouselSlide>
-    </BCarousel>
+          <div class="gallery-caption">
+            {{ currentItem.name }}
+          </div>
+        </div>
+      </Transition>
+    </div>
 
     <!-- Screen reader announcement for image position -->
     <div class="sr-only" role="status" aria-live="polite">
@@ -75,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Attachment } from '@/interfaces/Attachment'
 import { useFocusRestore } from '@/composables/useAccessibility'
@@ -94,30 +83,11 @@ const emit = defineEmits<{
 }>()
 
 const currentIndex = ref(0)
-/**
- * Store active video elements keyed by gallery index.
- * Callback ref pattern is needed for v-for — template refs on v-for
- * produce an array only via Options API `$refs`. In <script setup>
- * we manage them explicitly.
- */
-const videoElements = ref<Map<number, HTMLVideoElement>>(new Map())
+const videoRef = ref<HTMLVideoElement | null>(null)
 
-function setVideoRef(index: number, el: unknown) {
-  if (el instanceof HTMLVideoElement) {
-    videoElements.value.set(index, el)
-  }
-}
-
-function onSlid() {
-  // Pause all videos after a slide transition completes
-  for (const video of videoElements.value.values()) {
-    try {
-      video.pause()
-    } catch {
-      // Silently ignore — video may already be paused / detached
-    }
-  }
-}
+const currentItem = computed(() => {
+  return props.galleryItems[currentIndex.value] || props.galleryItems[0]
+})
 
 function goPrev() {
   if (props.galleryItems.length <= 1) return
@@ -138,6 +108,14 @@ function goNext() {
 }
 
 function closeModal() {
+  // Pause video before closing
+  if (videoRef.value) {
+    try {
+      videoRef.value.pause()
+    } catch {
+      // Silently ignore
+    }
+  }
   emit('update:isVisible', false)
 }
 
@@ -210,114 +188,57 @@ watch(
 )
 </script>
 
-<style scoped>
-@use "@/assets/design-tokens.scss" as *;
-
+<style scoped lang="postcss">
 .fullscreen-gallery {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.88);
-  z-index: 9999;
+  @apply fixed inset-0 w-screen h-screen bg-black/88 z-[9999];
 }
 
-/* ── Close Button ── */
+/* Close Button */
 .gallery-close {
-  position: fixed;
-  top: 24px;
-  right: 24px;
-  left: auto;
-  width: 48px;
-  height: 48px;
-  background-color: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  font-size: 28px;
-  cursor: pointer;
-  z-index: 10010;
-  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
-  line-height: 1;
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-  flex-shrink: 0;
-  outline: none;
+  @apply fixed top-[24px] right-[24px] left-auto w-[48px] h-[48px] bg-black/55 backdrop-blur-[4px] border-2 border-white/70 rounded-full flex items-center justify-center text-white text-[28px] cursor-pointer z-[10010] transition-[background-color,border-color,transform] duration-300 leading-none p-0 m-0 box-border flex-shrink-0 outline-none;
 }
 
 .gallery-close:hover {
-  background-color: rgba(0, 0, 0, 0.85);
-  border-color: #ffffff;
-  transform: scale(1.1);
+  @apply bg-black/85 border-white scale-110;
 }
 
 .gallery-close:focus-visible {
-  outline: 3px solid var(--color-secondary);
-  outline-offset: 2px;
+  @apply outline-3 outline-secondary outline-offset-2;
 }
 
-/* ── Custom Navigation Buttons ── */
+/* Custom Navigation Buttons */
 .gallery-nav {
-  position: absolute;
-  top: 75px;
-  bottom: 75px;
-  width: 48px;
-  z-index: 10005;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  cursor: pointer;
-  opacity: 0.4;
-  transition: opacity 0.3s ease, background-color 0.3s ease;
-  padding: 0;
-  margin: 0;
+  @apply absolute top-[75px] bottom-[75px] w-[48px] z-[10005] flex items-center justify-center bg-none border-none cursor-pointer opacity-40 transition-[opacity,background-color] duration-300 p-0 m-0;
 }
 
 .gallery-nav-prev {
-  left: 0;
+  @apply left-0;
 }
 
 .gallery-nav-next {
-  right: 0;
+  @apply right-0;
 }
 
 .gallery-nav-hidden {
-  display: none;
+  @apply hidden;
 }
 
 .gallery-nav:hover,
 .gallery-nav:focus-visible {
-  opacity: 1;
-  background-color: rgba(0, 0, 0, 0.15);
+  @apply opacity-100 bg-black/15;
 }
 
 /* Slightly brighter on any hover inside the gallery */
 .fullscreen-gallery:hover .gallery-nav {
-  opacity: 0.6;
+  @apply opacity-60;
 }
 
 .gallery-nav:hover {
-  opacity: 1;
+  @apply opacity-100;
 }
 
 .gallery-nav-icon {
-  display: block;
-  width: 36px;
-  height: 36px;
-  background-size: 36px 36px;
-  background-repeat: no-repeat;
-  background-position: 50%;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
-  transition: transform 0.2s ease;
+  @apply block w-[36px] h-[36px] bg-[length:36px_36px] bg-no-repeat bg-center filter-drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] transition-transform duration-200;
 }
 
 .gallery-nav-icon-prev {
@@ -329,66 +250,54 @@ watch(
 }
 
 .gallery-nav:hover .gallery-nav-icon {
-  transform: scale(1.2);
+  @apply scale-125;
 }
 
-/* ── Carousel ── */
+/* Carousel */
 .gallery-carousel {
-  width: 100%;
-  height: 100%;
+  @apply w-full h-full;
+}
+
+.gallery-slide {
+  @apply w-full h-full;
 }
 
 .gallery-content {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: calc(var(--spacing-unit) * 5); /* 20px */
-  box-sizing: border-box;
-  overflow: hidden;
+  @apply w-screen h-screen flex justify-center items-center p-[calc(var(--spacing-unit)*5)] box-border overflow-hidden;
 }
 
 .gallery-image {
-  max-width: calc(100vw - var(--spacing-unit) * 4); /* 90vw - 16px */
-  max-height: calc(100vh - var(--spacing-unit) * 4); /* 80vh - 16px */
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  border-radius: var(--shape-round-lg);
-  box-shadow: 0 calc(var(--spacing-unit) * 5) calc(var(--spacing-unit) * 15) rgba(0,0,0,0.5);
+  @apply max-w-[calc(100vw-var(--spacing-unit)*4)] max-h-[calc(100vh-var(--spacing-unit)*4)] w-auto h-auto object-contain rounded-round-lg shadow-[0_calc(var(--spacing-unit)*5)_calc(var(--spacing-unit)*15)_rgba(0,0,0,0.5)];
 }
 
 .gallery-video {
-  max-width: calc(100vw - var(--spacing-unit) * 4); /* 90vw - 16px */
-  max-height: calc(100vh - var(--spacing-unit) * 4); /* 80vh - 16px */
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  z-index: 1;
+  @apply max-w-[calc(100vw-var(--spacing-unit)*4)] max-h-[calc(100vh-var(--spacing-unit)*4)] w-full h-full flex items-center justify-center relative z-1;
 }
 
 .native-video-player {
-  max-width: 100%;
-  max-height: 100%;
-  border-radius: var(--shape-round-lg);
-  box-shadow: 0 calc(var(--spacing-unit) * 5) calc(var(--spacing-unit) * 15) rgba(0,0,0,0.5);
+  @apply max-w-full max-h-full rounded-round-lg shadow-[0_calc(var(--spacing-unit)*5)_calc(var(--spacing-unit)*15)_rgba(0,0,0,0.5)];
 }
 
-/* ── Caption ── */
-:deep(.carousel-caption) {
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-  width: 100%;
-  padding: calc(var(--spacing-unit) * 10) calc(var(--spacing-unit) * 5) calc(var(--spacing-unit) * 5); /* 40px 20px 20px */
-  bottom: 0;
-  left: 0;
-  right: 0;
-  color: #ffffff;
-  text-align: center;
-  font-size: calc(var(--spacing-unit) * 5); /* 20px */
-  font-weight: var(--font-weight-label-md);
+/* Caption */
+.gallery-caption {
+  @apply absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-[calc(var(--spacing-unit)*5)] pb-[calc(var(--spacing-unit)*5)] pt-[calc(var(--spacing-unit)*5)] text-center text-white text-[calc(var(--spacing-unit)*5)] font-label-md;
+}
+
+/* Transition */
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  @apply transition-all duration-300 ease;
+}
+
+.slide-fade-enter-from {
+  @apply opacity-0 translate-x-[20px];
+}
+
+.slide-fade-leave-to {
+  @apply opacity-0 translate-x-[-20px];
+}
+
+.sr-only {
+  @apply absolute w-px h-px p-0 m-[-1px] overflow-hidden clip whitespace-nowrap border-0;
 }
 </style>

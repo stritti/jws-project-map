@@ -105,170 +105,99 @@ onUnmounted(() => {
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="postcss" scoped>
 .floating-meta {
-  position: fixed;
-  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
-  right: calc(1rem + env(safe-area-inset-right, 0px));
-  z-index: 999;
-  display: flex;
-  flex-direction: column-reverse;
-  align-items: flex-end;
-  gap: 0.5rem;
+  @apply fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] right-[calc(1rem+env(safe-area-inset-right,0px))] z-[999] flex flex-col-reverse items-end gap-[0.5rem];
 
-  // On mobile, raise above search bar + map controls.
+  /* On mobile, raise above search bar + map controls. */
   @media (max-width: 767.98px) {
-    bottom: calc(8rem + env(safe-area-inset-bottom, 0px));
+    @apply bottom-[calc(8rem+env(safe-area-inset-bottom,0px))];
 
-    // On HomeView / ProjectListView: sit just above the bottom filter/search bar (~4rem tall)
+    /* On HomeView / ProjectListView: sit just above the bottom filter/search bar (~4rem tall) */
     &.on-filter-view {
-      bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+      @apply bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))];
     }
 
-    // On ProjectDetailView: no bottom bar, so place near the screen edge
+    /* On ProjectDetailView: no bottom bar, so place near the screen edge */
     &.on-detail {
-      bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+      @apply bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))];
     }
   }
 }
 
 .meta-trigger {
-  // 44px matches the iOS HIG minimum touch target size
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-on-surface, #1e293b);
-  transition: all 0.2s ease;
+  /* 44px matches the iOS HIG minimum touch target size */
+  @apply w-[44px] h-[44px] rounded-full border border-black/6 bg-white/88 backdrop-blur-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] cursor-pointer flex items-center justify-center text-onSurface transition-all duration-200;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.96);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-    color: var(--color-secondary, #3d5e9e);
+    @apply bg-white/96 shadow-[0_4px_20px_rgba(0,0,0,0.12)] text-secondary;
   }
 
   .trigger-icon {
-    font-size: 1.35rem;
-    line-height: 1;
+    @apply text-[1.35rem] leading-none;
   }
 }
 
 .open .meta-trigger {
-  background: var(--color-secondary, #3d5e9e);
-  border-color: var(--color-secondary, #3d5e9e);
-  color: #fff;
-  box-shadow: 0 4px 16px rgba(61, 94, 158, 0.25);
+  @apply bg-secondary border-secondary text-white shadow-[0_4px_16px_rgba(61,94,158,0.25)];
 
   &:hover {
-    background: var(--color-secondary, #3d5e9e);
-    color: #fff;
+    @apply bg-secondary text-white;
   }
 }
 
 .meta-panel {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  padding: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  min-width: 100px;
+  @apply bg-white/92 backdrop-blur-xl border border-black/6 rounded-[12px] shadow-[0_8px_32px_rgba(0,0,0,0.1)] p-[0.5rem] flex flex-col gap-[0.25rem] min-w-[100px];
 }
 
 .meta-langs {
-  display: flex;
-  gap: 0.25rem;
-  padding: 0.25rem;
+  @apply flex gap-[0.25rem] p-[0.25rem];
 }
 
 .meta-lang-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  padding: 0;
-  transition: all 0.15s ease;
-  opacity: 0.4;
-  filter: grayscale(0.6);
+  @apply flex items-center justify-center w-[32px] h-[32px] rounded-[8px] border-none bg-transparent cursor-pointer p-0 transition-all duration-150 opacity-40 grayscale-[0.6];
 
   &:hover {
-    opacity: 0.8;
-    filter: grayscale(0);
-    background: rgba(60, 93, 157, 0.08);
+    @apply opacity-80 grayscale-0 bg-secondary/8;
   }
 
   &.active {
-    opacity: 1;
-    filter: grayscale(0);
-    background: var(--color-secondary, #3d5e9e);
+    @apply opacity-100 grayscale-0 bg-secondary;
 
     :deep(.fi) {
-      box-shadow: 0 0 0 1.5px #fff;
+      @apply shadow-[0_0_0_1.5px_#fff];
     }
   }
 
   :deep(.fi) {
-    font-size: 1rem;
-    border-radius: 2px;
+    @apply text-base rounded-[2px];
   }
 }
 
 .meta-divider {
-  height: 1px;
-  background: rgba(0, 0, 0, 0.06);
-  margin: 0.15rem 0.25rem;
+  @apply h-px bg-black/6 my-[0.15rem] mx-[0.25rem];
 }
 
 .meta-about-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.75rem;
-  border-radius: 8px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-size: 0.8rem;
-  color: var(--color-on-surface, #1e293b);
-  transition: all 0.15s ease;
-  white-space: nowrap;
+  @apply flex items-center gap-[0.5rem] px-[0.75rem] py-[0.4rem] rounded-[8px] border-none bg-transparent cursor-pointer text-[0.8rem] text-onSurface transition-all duration-150 whitespace-nowrap;
 
   &:hover {
-    background: rgba(60, 93, 157, 0.08);
-    color: var(--color-secondary, #3d5e9e);
+    @apply bg-secondary/8 text-secondary;
   }
 
   :deep(svg) {
-    font-size: 1rem;
+    @apply text-base;
   }
 }
 
-// Transition
+/* Transition */
 .meta-fade-enter-active,
 .meta-fade-leave-active {
-  transition: all 0.2s ease;
+  @apply transition-all duration-200 ease;
 }
 
 .meta-fade-enter-from,
 .meta-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-8px) scale(0.96);
+  @apply opacity-0 -translate-y-2 scale-95;
 }
 </style>

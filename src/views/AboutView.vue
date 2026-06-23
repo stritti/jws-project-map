@@ -23,41 +23,41 @@ const reloadApp = async () => {
 };
 </script>
 <template>
-  <b-container class="about">
+  <div class="container mx-auto px-4 about">
     <h1>About this App</h1>
-    <p>
+    <p class="text-body-lg leading-relaxed">
       All projects of the
-      <a href="https://www.joerg-wolff-stiftung.de/" target="_blank" rel="noopener noreferrer">Jörg Wolff Foundation</a>
+      <a href="https://www.joerg-wolff-stiftung.de/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Jörg Wolff Foundation</a>
       are shown on this overview map.
       Completed projects are marked with colored pins, while planned or
       under-construction projects are marked in gray.
     </p>
-    <h3>Development</h3>
-    <p>Stephan Strittmatter</p>
-    <p>
+    <h3 class="text-headline-md font-bold mt-6 mb-3">Development</h3>
+    <p class="text-body-lg">Stephan Strittmatter</p>
+    <p class="text-body-lg">
       Sources:
-      <a href="https://github.com/stritti/jws-project-map" target="_blank" rel="noopener noreferrer">
+      <a href="https://github.com/stritti/jws-project-map" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">
         GitHub
       </a>
     </p>
-    <p>Version: {{ version }}</p>
+    <p class="text-body-lg">Version: {{ version }}</p>
 
-    <!-- Neuer Reload-Button -->
-    <b-button @click="reloadApp" variant="primary" class="mt-3">
+    <!-- Reload Button -->
+    <button @click="reloadApp" class="btn btn-primary mt-3">
       App neu laden und Cache leeren
-    </b-button>
+    </button>
 
-    <h3>Credits</h3>
+    <h3 class="text-headline-md font-bold mt-6 mb-3">Credits</h3>
 
-    <ul>
+    <ul class="list-disc list-inside space-y-2">
       <li>
-        <a href="https://nocodb.com/" target="_blank" rel="noopener noreferrer">NocoDB</a>
+        <a href="https://nocodb.com/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">NocoDB</a>
       </li>
       <li>
-        <a href="https://vuejs.org" target="_blank" rel="noopener noreferrer">vue.js</a>, MIT License
+        <a href="https://vuejs.org" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">vue.js</a>, MIT License
       </li>
       <li>
-        <a href="https://leafletjs.com/" target="_blank" rel="noopener noreferrer">Leaflet</a>,
+        <a href="https://leafletjs.com/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Leaflet</a>,
         OpenStreetMap
       </li>
       <li>
@@ -66,10 +66,11 @@ const reloadApp = async () => {
           href="https://github.com/stritti/jws-project-map/blob/main/package.json"
           target="_blank"
           rel="noopener noreferrer"
+          class="text-primary hover:underline font-semibold"
         >
           awesome libs &hellip;
         </a>
       </li>
     </ul>
-  </b-container>
+  </div>
 </template>

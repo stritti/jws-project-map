@@ -1,12 +1,12 @@
 <template>
-  <b-button
+  <button
     title="go back"
     :aria-label="t('nav.back')"
-    class="back-button-inner d-flex align-items-center justify-content-center"
+    class="back-button-inner flex items-center justify-center"
     @click="goBack"
   >
-    <IBiArrowLeft class="fs-5" />
-  </b-button>
+    <IBiArrowLeft />
+  </button>
 </template>
 
 <script lang="ts">
@@ -35,33 +35,17 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss" scoped>
-@use "@/assets/design-tokens.scss" as *;
-
+<style lang="postcss" scoped>
 .back-button-inner {
-  background-color: transparent;
-  color: var(--color-primary);
-  border: none;
-  border-radius: var(--shape-round-default);
-  padding: var(--spacing-unit);
-  font-size: var(--font-size-label-md);
-  font-weight: var(--font-weight-label-md);
-  line-height: var(--line-height-label-md);
-  letter-spacing: var(--letter-spacing-label-md);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s, color 0.2s;
+  @apply bg-transparent text-primary border-none rounded-round-default p-[var(--spacing-unit)] text-label-md font-label-md leading-label-md tracking-label-md inline-flex items-center justify-center transition-[background-color,color] duration-200;
   
   &:hover {
-    background-color: var(--color-primary-container);
-    color: var(--color-on-primary);
+    @apply bg-primary-container text-on-primary;
   }
   
   /* Ensure icon inherits color */
   .ibi-arrow-left {
-    color: inherit;
-    font-size: 1.25rem; /* 20px, matches fs-5 approx */
+    @apply text-inherit text-[1.25rem];
   }
 }
 </style>

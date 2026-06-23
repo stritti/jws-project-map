@@ -2,32 +2,26 @@
   <div class="project-page">
     <!-- Sticky header bar: back button + project title -->
     <div class="page-header-sticky" :class="{ 'header-scrolled': headerScrolled }">
-      <b-container>
-        <b-placeholder-wrapper :loading="loading">
-          <template #loading>
-            <b-row class="align-items-center py-2">
-              <b-col cols="auto">
-                <b-placeholder width="44px" height="44px" class="rounded-circle" />
-              </b-col>
-              <b-col>
-                <h2><b-placeholder width="50%" height="2rem"></b-placeholder></h2>
-              </b-col>
-            </b-row>
-          </template>
-          <div v-if="project" class="page-header d-flex flex-wrap align-items-center gap-3 py-2">
-            <back-button v-if="!isIFrame" class="back-btn shadow-sm d-none d-md-flex" />
-            <h1 class="title mb-0 flex-grow-1 fw-bold">
-              {{ project.name }}
-            </h1>
+      <div class="container mx-auto px-4">
+        <div v-if="loading" class="flex items-center py-2">
+          <div class="w-11 h-11 rounded-full animate-pulse bg-outline-variant/20"></div>
+          <div class="ml-4 flex-1">
+            <h2 class="w-1/2 h-8 animate-pulse bg-outline-variant/20 rounded"></h2>
           </div>
-        </b-placeholder-wrapper>
-      </b-container>
+        </div>
+        <div v-if="project" class="page-header flex flex-wrap items-center gap-3 py-2">
+          <back-button v-if="!isIFrame" class="back-btn shadow-sm hidden md:flex" />
+          <h1 class="title mb-0 flex-grow-1 font-bold">
+            {{ project.name }}
+          </h1>
+        </div>
+      </div>
     </div>
 
     <!-- Floating back button for mobile -->
     <button
       v-if="!isIFrame && project"
-      class="floating-back-btn d-md-none"
+      class="floating-back-btn md:hidden"
       :aria-label="t('nav.back')"
       :title="t('nav.back')"
       @click="goBack"
@@ -35,144 +29,135 @@
       <IBiArrowLeft class="floating-back-icon" aria-hidden="true" />
     </button>
 
-    <b-container fluid class="px-0 px-md-3">
-      <b-placeholder-wrapper :loading="loading">
-         <template #loading>
-             <b-placeholder width="100%" height="40vh" class="rounded-4 mb-4"></b-placeholder>
-         </template>
-        <div v-if="project" class="teaser-wrapper">
-          <div
-            class="teaser-card"
-            :style="{ backgroundImage: `url(${teaserImage})` }"
-          >
-            <div class="action-bar d-flex gap-2">
-              <share-button
-                class="action-btn share glass-btn"
-                :title="project.name"
-                :text="project.name"
-                :url="$route.path"
-                :fixed="false"
-              />
-              <navigate-button
-                class="action-btn navigate glass-btn"
-                :lat="project.latitude"
-                :lng="project.longitude"
-              />
-            </div>
+    <div class="container mx-auto px-0 md:px-3">
+      <div v-if="loading" class="w-full h-[40vh] rounded-round-xl mb-4 animate-pulse bg-outline-variant/20"></div>
+      <div v-if="project" class="teaser-wrapper">
+        <div
+          class="teaser-card"
+          :style="{ backgroundImage: `url(${teaserImage})` }"
+        >
+          <div class="action-bar flex gap-2">
+            <share-button
+              class="action-btn share glass-btn"
+              :title="project.name"
+              :text="project.name"
+              :url="$route.path"
+              :fixed="false"
+            />
+            <navigate-button
+              class="action-btn navigate glass-btn"
+              :lat="project.latitude"
+              :lng="project.longitude"
+            />
           </div>
         </div>
-      </b-placeholder-wrapper>
-    </b-container>
-
-
-    <b-container class="mt-5">
-      <div class="project-details">
-        <b-placeholder-wrapper :loading="loading">
-          <template #loading>
-            <div class="info-grid mb-5">
-               <b-placeholder v-for="i in 3" :key="i" width="100%" height="80px" class="rounded-3" />
-            </div>
-            <p>
-              <b-placeholder width="85%" class="mb-2"></b-placeholder>
-              <b-placeholder width="55%" class="mb-2"></b-placeholder>
-              <b-placeholder width="70%"></b-placeholder>
-            </p>
-          </template>
-
-          <div v-if="project">
-            
-            <!-- Category tiles -->
-            <div v-if="project.category?.length" class="category-tiles mb-4">
-              <div
-                v-for="category in project.category"
-                :key="category.id"
-                class="category-tile"
-                :style="categoryTileStyle(category.id)"
-              >
-                {{ categoryName(category.id) }}
-              </div>
-            </div>
-
-            <div class="info-grid mb-5">
-               <div class="info-card" v-if="project.country">
-                  <div class="info-icon">
-                    <IBiGlobe2 />
-                  </div>
-                  <div class="info-content">
-                    <span class="info-label">{{ t("project.detail.country") }}</span>
-                    <strong class="info-value"><country-label :country-id="project.country.id" /></strong>
-                  </div>
-               </div>
-               
-               <div class="info-card" v-if="project.state">
-                  <div class="info-icon">
-                    <IBiCheck2Circle />
-                  </div>
-                  <div class="info-content">
-                    <span class="info-label">{{ t("project.detail.state") }}</span>
-                    <span class="state-badge" :class="project.state.replace(' ', '-')">
-                      {{ stateLabel }}
-                    </span>
-                  </div>
-               </div>
-
-               <div class="info-card" v-if="project.since">
-                  <div class="info-icon">
-                    <IBiCalendar3 />
-                  </div>
-                  <div class="info-content">
-                    <span class="info-label">{{ t("project.detail.since") }}</span>
-                    <strong class="info-value">{{ formattedSince }}</strong>
-                  </div>
-               </div>
-            </div>
-
-            <!-- Mini location map -->
-            <div v-if="project.latitude && project.longitude" class="location-section mb-5">
-              <h2 class="section-title mb-4">{{ t("project.detail.location") }}</h2>
-              <div class="mini-map rounded-4 overflow-hidden shadow-sm">
-                <l-map
-                  :zoom="13"
-                  :center="[project.latitude, project.longitude]"
-                  :options="mapOptions"
-                  :use-global-leaflet="true"
-                  style="height: 300px; width: 100%"
-                >
-                  <l-tile-layer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    layer-type="base"
-                    name="OpenStreetMap"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  />
-                  <l-marker
-                    :lat-lng="[project.latitude, project.longitude]"
-                    :icon="detailMarkerIcon"
-                  />
-                </l-map>
-              </div>
-            </div>
-
-            <div v-if="project.notes" class="project-details__description mb-5">
-              <h2 class="section-title mb-4">{{ t("project.detail.description") }}</h2>
-              <div class="notes-content">
-                <markdown-text
-                   class="project-details__notes"
-                   :text="project.notes"
-                />
-              </div>
-            </div>
-
-            <div v-if="project.link" class="mb-5">
-              <b-button :href="project.link" variant="primary" class="rounded-pill px-4 py-2 shadow-sm fw-bold border-0" target="_blank" rel="noopener noreferrer">
-                {{ t("project.detail.more") }}
-              </b-button>
-            </div>
-
-            <project-gallery v-if="project.gallery || project.teaserImg" :project="project" :title="t('gallery.title')" />
-          </div>
-        </b-placeholder-wrapper>
       </div>
-    </b-container>
+    </div>
+
+    <div class="container mx-auto mt-5 px-4">
+      <div class="project-details">
+        <div v-if="loading" class="info-grid mb-5">
+          <div v-for="i in 3" :key="i" class="h-20 rounded-round-lg animate-pulse bg-outline-variant/20"></div>
+        </div>
+        <div v-if="loading" class="space-y-2">
+          <div class="w-4/5 h-6 animate-pulse bg-outline-variant/20 rounded mb-2"></div>
+          <div class="w-2/3 h-6 animate-pulse bg-outline-variant/20 rounded mb-2"></div>
+          <div class="w-3/4 h-6 animate-pulse bg-outline-variant/20 rounded"></div>
+        </div>
+
+        <div v-if="project">
+          
+          <!-- Category tiles -->
+          <div v-if="project.category?.length" class="category-tiles mb-4">
+            <div
+              v-for="category in project.category"
+              :key="category.id"
+              class="category-tile"
+              :style="categoryTileStyle(category.id)"
+            >
+              {{ categoryName(category.id) }}
+            </div>
+          </div>
+
+          <div class="info-grid mb-5">
+            <div class="info-card" v-if="project.country">
+              <div class="info-icon">
+                <IBiGlobe2 />
+              </div>
+              <div class="info-content">
+                <span class="info-label">{{ t("project.detail.country") }}</span>
+                <strong class="info-value"><country-label :country-id="project.country.id" /></strong>
+              </div>
+            </div>
+            
+            <div class="info-card" v-if="project.state">
+              <div class="info-icon">
+                <IBiCheck2Circle />
+              </div>
+              <div class="info-content">
+                <span class="info-label">{{ t("project.detail.state") }}</span>
+                <span class="state-badge" :class="project.state.replace(' ', '-')">
+                  {{ stateLabel }}
+                </span>
+              </div>
+            </div>
+
+            <div class="info-card" v-if="project.since">
+              <div class="info-icon">
+                <IBiCalendar3 />
+              </div>
+              <div class="info-content">
+                <span class="info-label">{{ t("project.detail.since") }}</span>
+                <strong class="info-value">{{ formattedSince }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mini location map -->
+          <div v-if="project.latitude && project.longitude" class="location-section mb-5">
+            <h2 class="section-title mb-4">{{ t("project.detail.location") }}</h2>
+            <div class="mini-map rounded-round-lg overflow-hidden shadow-sm">
+              <l-map
+                :zoom="13"
+                :center="[project.latitude, project.longitude]"
+                :options="mapOptions"
+                :use-global-leaflet="true"
+                style="height: 300px; width: 100%"
+              >
+                <l-tile-layer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  layer-type="base"
+                  name="OpenStreetMap"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                <l-marker
+                  :lat-lng="[project.latitude, project.longitude]"
+                  :icon="detailMarkerIcon"
+                />
+              </l-map>
+            </div>
+          </div>
+
+          <div v-if="project.notes" class="project-details__description mb-5">
+            <h2 class="section-title mb-4">{{ t("project.detail.description") }}</h2>
+            <div class="notes-content">
+              <markdown-text
+                 class="project-details__notes"
+                 :text="project.notes"
+              />
+            </div>
+          </div>
+
+          <div v-if="project.link" class="mb-5">
+            <a :href="project.link" class="btn btn-primary shadow-sm font-bold border-0" target="_blank" rel="noopener noreferrer">
+              {{ t("project.detail.more") }}
+            </a>
+          </div>
+
+          <project-gallery v-if="project.gallery || project.teaserImg" :project="project" :title="t('gallery.title')" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -327,321 +312,185 @@ const detailMarkerIcon = computed(() => {
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="postcss" scoped>
 .project-page {
-  padding-bottom: 4rem;
-  background-color: var(--jws-bg-subtle);
+  @apply pb-[4rem] bg-surface;
 }
 
-
 .page-header-sticky {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: rgba(248, 249, 250, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-  transition: padding 0.3s ease, box-shadow 0.3s ease;
+  @apply sticky top-0 z-50 bg-white/85 backdrop-blur-xl shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition-[padding,box-shadow] duration-300 ease;
 
   &.header-scrolled {
-    padding-top: 0.2rem;
-    padding-bottom: 0.1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    @apply pt-[0.2rem] pb-[0.1rem] shadow-[0_2px_8px_rgba(0,0,0,0.05)];
 
     .title {
-      font-size: 1rem;
-      padding: 0;
-      line-height: 1.3;
+      @apply text-base p-0 leading-[1.3];
     }
   }
 }
 
 .page-header {
   .title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--jws-primary);
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-    transition: all 0.3s ease;
+    @apply text-[1.5rem] font-bold text-primary tracking-[-0.02em] leading-[1.2] transition-all duration-300 ease;
 
     @media (max-width: 768px) {
-      font-size: 1.25rem;
-      padding: 0.375rem 0;
+      @apply text-[1.25rem] py-[0.375rem];
     }
   }
 }
 
 :deep(.back-btn) {
-  border-radius: 50% !important;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-  background: #fff !important;
-  border: 1px solid var(--bs-primary) !important;
-  color: var(--bs-primary) !important;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
-  
+  @apply rounded-full w-11 h-11 flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(0.165,0.84,0.44,1)] bg-white border border-primary text-primary shadow-[0_2px_10px_rgba(0,0,0,0.05)];
+
   &:hover {
-    transform: translateX(-4px);
-    background: var(--bs-primary) !important;
-    color: #fff !important;
-    box-shadow: 0 4px 15px rgba(61, 94, 158, 0.2) !important;
+    @apply -translate-x-1 bg-primary text-white shadow-[0_4px_15px_rgba(61,94,158,0.2)];
   }
 }
 
 .floating-back-btn {
-  position: fixed;
-  // No bottom filter bar on this view, so place near the screen edge (matching FloatingMeta .on-detail)
-  bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
-  left: calc(1rem + env(safe-area-inset-left, 0px));
-  z-index: 999;
-  // 44px matches the iOS HIG minimum touch target size
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-on-surface, #1e293b);
-  transition: all 0.2s ease;
+  @apply fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-[calc(1rem+env(safe-area-inset-left,0px))] z-[999] w-11 h-11 rounded-full border border-black/6 bg-white/88 backdrop-blur-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] cursor-pointer flex items-center justify-center text-onSurface transition-all duration-200 ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.96);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-    color: var(--color-secondary, #3d5e9e);
+    @apply bg-white/96 shadow-[0_4px_20px_rgba(0,0,0,0.12)] text-secondary;
   }
 
   .floating-back-icon {
-    font-size: 1.35rem;
-    line-height: 1;
+    @apply text-[1.35rem] leading-none;
   }
 }
 
 .teaser-wrapper {
-  padding: 0;
-  margin-top: 1rem;
-  
+  @apply p-0 mt-1;
+
   @media (min-width: 768px) {
-    padding: 0 1.5rem;
+    @apply px-[1.5rem];
   }
 }
 
 .teaser-card {
-  position: relative;
-  height: 60vh;
-  min-height: 400px;
-  max-height: 700px;
-  width: 100%;
-  border-radius: 0;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  box-shadow: var(--jws-shadow-lg);
-  overflow: hidden;
-  
-  animation: revealImage 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  @apply relative h-[60vh] min-h-[400px] max-h-[700px] w-full rounded-none bg-center bg-no-repeat bg-cover shadow-jws-lg overflow-hidden;
+
+  @apply animate-reveal-image;
 
   @media (min-width: 768px) {
-    border-radius: var(--jws-radius-xl);
+    @apply rounded-round-xl;
   }
 
   &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,0.4) 100%);
-    pointer-events: none;
+    @apply content-[''] absolute inset-0 bg-gradient-to-b from-transparent to-black/40 pointer-events-none;
   }
 }
 
-@keyframes revealImage {
-  from { transform: scale(1.1); opacity: 0; filter: blur(10px); }
-  to { transform: scale(1); opacity: 1; filter: blur(0); }
-}
-
 .action-bar {
-  position: absolute;
-  bottom: 2rem;
-  right: 2rem;
-  z-index: 10;
-  display: flex;
-  gap: 1rem;
+  @apply absolute bottom-[2rem] right-[2rem] z-10 flex gap-[1rem];
 }
 
 :deep(.glass-btn) {
-  background: rgba(255, 255, 255, 0.15) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  color: #fff !important;
-  border-radius: 50px !important;
-  padding: 0.75rem 1.5rem !important;
-  font-weight: 600;
-  transition: var(--jws-transition);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  @apply bg-white/15 backdrop-blur-xl border border-white/30 text-white rounded-full px-6 py-3 font-semibold transition-all duration-300 shadow-lg;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.25) !important;
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    @apply bg-white/25 -translate-y-1 shadow-xl;
   }
 }
 
 .info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 2rem;
+  @apply grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-[2rem];
 }
 
 .info-card {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  padding: 1.5rem;
-  background: #fff;
-  border-radius: var(--jws-radius-lg);
-  border: 1px solid rgba(0,0,0,0.03);
-  box-shadow: var(--jws-shadow-sm);
-  transition: var(--jws-transition);
+  @apply flex items-center gap-[1.25rem] p-[1.5rem] bg-white rounded-round-lg border border-black/3 shadow-jws-sm transition-all duration-300 ease;
 
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--jws-shadow-md);
-    border-color: var(--jws-primary-light);
+    @apply -translate-y-[5px] shadow-jws-md border-primary-light;
   }
 }
 
 .info-icon {
-  font-size: 1.5rem;
-  background: var(--jws-bg-subtle);
-  width: 56px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 1rem;
-  color: var(--jws-primary);
-  flex-shrink: 0;
+  @apply text-[1.5rem] bg-surface w-[56px] h-[56px] flex items-center justify-center rounded-round-xl text-primary flex-shrink-0;
 }
 
 .state-badge {
-  display: inline-block;
-  position: static;
-  padding: 0.35rem 1rem;
-  border-radius: 2rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  @apply inline-block px-[1rem] py-[0.35rem] rounded-full text-[0.85rem] font-bold uppercase tracking-[0.03em];
 
   &.finished {
-    background: #198754;
-    color: #fff;
+    @apply bg-finished text-white;
   }
 
   &.under-construction {
-    background: #ffc107;
-    color: #212529;
+    @apply bg-under-construction text-black;
   }
 
   &.planned {
-    background: #3d5e9e;
-    color: #fff;
+    @apply bg-planned text-white;
   }
 }
 
 .info-content {
-  display: flex;
-  flex-direction: column;
+  @apply flex flex-col;
 }
 
 .info-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--jws-text-muted);
-  margin-bottom: 0.25rem;
+  @apply text-[0.75rem] font-bold uppercase tracking-[0.1em] text-onSurface-variant mb-[0.25rem];
 }
 
 .info-value {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--jws-text-main);
-  display: flex;
-  align-items: center;
+  @apply text-[1.2rem] font-bold text-onSurface flex items-center;
 }
 
 .section-title {
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--jws-text-main);
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  
+  @apply text-[2rem] font-extrabold text-onSurface mb-[2rem] flex items-center gap-[0.75rem];
+
   &::before {
-    content: "";
-    width: 6px;
-    height: 1.5em;
-    background: var(--jws-primary);
-    border-radius: 3px;
+    @apply content-[''] w-[6px] h-[1.5em] bg-primary rounded-[3px];
   }
 }
 
 :deep(.notes-content) {
-  font-size: 1.5rem;
-  line-height: 1.8;
-  color: var(--jws-text-main);
-  opacity: 0.9;
-  
+  @apply text-[1.5rem] leading-[1.8] text-onSurface opacity-90;
+
   p {
-    margin-bottom: 2rem;
+    @apply mb-[2rem];
   }
 }
 
 .category-tiles {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+  @apply flex flex-wrap gap-[0.75rem];
 }
 
 .category-tile {
-  padding: 0.5rem 1.25rem;
-  border-radius: 2rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  @apply px-[1.25rem] py-[0.5rem] rounded-full text-[0.85rem] font-bold uppercase tracking-[0.03em] shadow-[0_2px_6px_rgba(0,0,0,0.1)];
 }
 
 .mini-map {
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  line-height: 0;
+  @apply border border-black/5 line-height-0;
 
   :deep(.leaflet-control-attribution) {
-    font-size: 9px;
+    @apply text-[9px];
   }
 }
 </style>
 
-<!-- Unscoped: Leaflet renders its DOM outside Vue's scope -->
-<style lang="scss">
+/* Unscoped: Leaflet renders its DOM outside Vue's scope */
+<style lang="postcss">
 .detail-marker-icon {
-  background: none !important;
-  border: none !important;
+  @apply bg-transparent border-none;
 }
 </style>
+
+/* Custom animations */
+@keyframes revealImage {
+  from {
+    transform: scale(1.1);
+    opacity: 0;
+    filter: blur(10px);
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.animate-reveal-image {
+  animation: revealImage 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}

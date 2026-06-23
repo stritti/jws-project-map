@@ -3,7 +3,7 @@
     <!-- Search bar with icons -->
     <div class="search-bar">
       <IBiSearch class="search-icon" aria-hidden="true" />
-      <b-form-input
+      <input
         ref="inputRef"
         v-model="query"
         type="search"
@@ -164,198 +164,105 @@ defineExpose({
 });
 </script>
 
-<style scoped lang="scss">
-@use "@/assets/design-tokens.scss" as *;
-
+<style scoped lang="postcss">
 .search-bar-container {
-  width: 100%;
+  @apply w-full;
 }
 
-// Search bar — Apple-style glassmorphism
+/* Search bar — Apple-style glassmorphism */
 .search-bar {
-  display: flex;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-  border-radius: 0.75rem;
-  padding: 0.6rem 0.85rem;
-  gap: 0.5rem;
+  @apply flex items-center bg-white/70 backdrop-blur-xl border border-white/25 shadow-lg rounded-round-large px-[0.85rem] py-[0.6rem] gap-[0.5rem];
 }
 
 .search-icon {
-  font-size: 1.25rem;
-  color: var(--color-on-surface-variant);
-  flex-shrink: 0;
+  @apply text-[1.25rem] text-onSurface-variant flex-shrink-0;
 }
 
 .search-input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  padding: 0.25rem 0.5rem;
-  font-size: var(--font-size-body-md);
-  // iOS Safari auto-zooms any input with font-size < 16px; force 16px on mobile
-  @media (max-width: 767.98px) {
-    font-size: 1rem;
-  }
-  color: var(--color-on-surface);
-  
-  &:focus {
-    outline: 2px solid var(--color-secondary);
-    outline-offset: 2px;
-    box-shadow: none;
-  }
-  
-  &::placeholder {
-    color: var(--color-on-surface-variant);
+  @apply flex-1 bg-transparent border-none px-[0.5rem] py-[0.25rem] text-body-md text-onSurface placeholder:text-onSurface-variant focus:outline-2 focus:outline-secondary focus:outline-offset-2;
+}
+
+/* iOS Safari auto-zooms any input with font-size < 16px; force 16px on mobile */
+@media (max-width: 767.98px) {
+  .search-input {
+    @apply text-base;
   }
 }
 
-// View toggle — segmented control style
+/* View toggle — segmented control style */
 .view-toggle {
-  display: flex;
-  gap: 1px;
-  background: rgba(0, 0, 0, 0.04);
-  border-radius: 8px;
-  padding: 2px;
-  flex-shrink: 0;
+  @apply flex gap-px bg-black/4 rounded-lg p-px flex-shrink-0;
 }
 
 .view-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--color-on-surface-variant, #64748b);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  font-size: 1rem;
-  line-height: 1;
+  @apply flex items-center justify-center w-[30px] h-[30px] border-none rounded-lg bg-transparent text-onSurface-variant cursor-pointer transition-all duration-150 text-base leading-none;
+}
 
-  // Touch-friendly minimum 44×44 px on mobile
-  @media (max-width: 767.98px) {
-    width: 44px;
-    height: 44px;
-    font-size: 1.25rem;
-  }
-
-  &:hover {
-    color: var(--color-secondary, #3d5e9e);
-    background: rgba(60, 93, 157, 0.06);
-  }
-
-  &.active {
-    color: #fff;
-    background: var(--color-secondary, #3d5e9e);
-    box-shadow: 0 1px 4px rgba(60, 93, 157, 0.3);
+/* Touch-friendly minimum 44×44 px on mobile */
+@media (max-width: 767.98px) {
+  .view-btn {
+    @apply w-[44px] h-[44px] text-[1.25rem];
   }
 }
 
-// Filter button
+.view-btn:hover {
+  @apply text-secondary bg-secondary/6;
+}
+
+.view-btn.active {
+  @apply text-white bg-secondary shadow-[0_1px_4px_rgba(60,93,157,0.3)];
+}
+
+.view-btn:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+/* Filter button */
 .filter-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  background: transparent;
-  border: none;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  color: var(--color-on-surface);
-  cursor: pointer;
-  font-size: var(--font-size-body-md);
-  position: relative;
-  flex-shrink: 0;
+  @apply flex items-center gap-[0.25rem] bg-transparent border-none rounded-[0.25rem] px-[0.5rem] py-[0.25rem] text-onSurface cursor-pointer text-body-md relative flex-shrink-0 hover:bg-surface-variant;
+}
 
-  // Touch-friendly minimum on mobile (same as .view-btn)
-  @media (max-width: 767.98px) {
-    padding: 0.6rem 0.75rem;
-    font-size: 1rem;
-  }
-  
-  &:hover {
-    background: var(--color-surface-variant);
-  }
-  
-  &.active {
-    background: var(--color-secondary);
-    color: var(--color-on-secondary);
-  }
-  
-  .ibi-filter-right {
-    font-size: 1.25rem;
-  }
-  
-  .filter-label {
-    font-size: var(--font-size-label-md);
-  }
-  
-  .filter-badge {
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    background: var(--color-secondary);
-    color: var(--color-on-secondary);
-    font-size: 0.625rem;
-    font-weight: 600;
-    min-width: 16px;
-    height: 16px;
-    border-radius: 9999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 4px;
-  }
-  
-  &.active .filter-badge {
-    background: var(--color-on-secondary);
-    color: var(--color-secondary);
+/* Touch-friendly minimum on mobile (same as .view-btn) */
+@media (max-width: 767.98px) {
+  .filter-btn {
+    @apply px-[0.75rem] py-[0.6rem] text-base;
   }
 }
 
-// Filter chips
+.filter-btn.active {
+  @apply bg-secondary text-on-secondary;
+}
+
+.filter-btn .ibi-filter-right {
+  @apply text-[1.25rem];
+}
+
+.filter-label {
+  @apply text-label-md;
+}
+
+.filter-badge {
+  @apply absolute -top-1 -right-1 bg-secondary text-on-secondary text-[0.625rem] font-bold min-w-[16px] h-[16px] rounded-full flex items-center justify-center px-1;
+}
+
+.filter-btn.active .filter-badge {
+  @apply bg-on-secondary text-secondary;
+}
+
+/* Filter chips */
 .filter-chips {
-  display: flex;
-  gap: 0.5rem;
-  padding: 0.75rem 0;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  @apply flex gap-[0.5rem] py-[0.75rem] overflow-x-auto touch-pan-x scrollbar-hide;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  @apply hidden;
 }
 
 .filter-chip {
-  flex-shrink: 0;
-  padding: 0.375rem 0.75rem;
-  border-radius: 9999px;
-  font-size: var(--font-size-label-md);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
-  
-  // Unselected state - neutral with 1px border
-  background: var(--color-surface);
-  border: 1px solid var(--color-outline);
-  color: var(--color-on-surface);
-  
-  &:hover {
-    background: var(--color-surface-variant);
-  }
-  
-  // Selected state - secondary color
-  &.active {
-    background: var(--color-secondary);
-    border-color: var(--color-secondary);
-    color: var(--color-on-secondary);
-  }
+  @apply flex-shrink-0 px-[0.75rem] py-[0.375rem] rounded-full text-label-md font-medium cursor-pointer transition-all duration-150 whitespace-nowrap bg-surface border border-outline text-onSurface hover:bg-surface-variant;
+}
+
+.filter-chip.active {
+  @apply bg-secondary border-secondary text-on-secondary;
 }
 </style>

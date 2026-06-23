@@ -107,149 +107,75 @@ function isActive(item: NavItem): boolean {
   </nav>
 </template>
 
-<style lang="scss" scoped>
-@use "@/assets/design-tokens.scss" as *;
-
+<style lang="postcss" scoped>
 .main-menu {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
-  padding: 0.5rem 0.75rem calc(0.5rem + env(safe-area-inset-bottom, 0px)) 0.75rem;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-radius: 1rem 1rem 0 0;
-  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+  @apply fixed bottom-0 left-0 right-0 z-[999] flex items-center justify-evenly px-[0.75rem] pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] pt-[0.5rem] bg-white/92 backdrop-blur-xl rounded-t-[1rem] shadow-[0_-4px_16px_rgba(0,0,0,0.06)];
 
-  // Thin top border for definition on light backgrounds
+  /* Thin top border for definition on light backgrounds */
   &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 1rem;
-    right: 1rem;
-    height: 1px;
-    background: rgba(0, 0, 0, 0.06);
+    @apply content-[''] absolute top-0 left-[1rem] right-[1rem] h-px bg-black/6;
   }
 }
 
 .nav-items {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
+  @apply flex items-center gap-[0.25rem];
 }
 
 .nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  text-decoration: none;
-  color: var(--color-on-surface-variant, #45474c);
-  padding: 0.375rem 1rem;
-  border-radius: 9999px;
-  transition: all 0.2s ease;
-  min-width: 64px;
+  @apply flex flex-col items-center justify-center gap-[3px] no-underline text-onSurface-variant px-[0.375rem] py-[0.375rem] rounded-full transition-all duration-200 min-w-[64px];
 
   &:hover {
-    color: var(--color-primary, #3d5e9e);
-    background: rgba(60, 93, 157, 0.06);
+    @apply text-primary bg-secondary/6;
   }
 
   &.active {
-    color: var(--color-secondary, #3d5e9e);
-    background: rgba(60, 93, 157, 0.12);
-    font-weight: 700;
+    @apply text-secondary bg-secondary/12 font-bold;
 
     .nav-label {
-      font-weight: 700;
+      @apply font-bold;
     }
   }
 }
 
 .nav-icon {
-  font-size: 1.35rem;
-  line-height: 1;
-  transition: all 0.2s ease;
+  @apply text-[1.35rem] leading-none transition-all duration-200;
 }
 
 .nav-label {
-  font-size: 0.7rem;
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: 0.02em;
-  transition: all 0.2s ease;
+  @apply text-[0.7rem] font-medium leading-none tracking-[0.02em] transition-all duration-200;
 }
 
 /* About button */
 .about-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  padding: 0;
-  transition: all 0.2s ease;
-  color: var(--color-on-surface-variant, #45474c);
+  @apply flex items-center justify-center w-[32px] h-[32px] rounded-full border-none bg-transparent cursor-pointer p-0 transition-all duration-200 text-onSurface-variant;
 
   &:hover {
-    color: var(--color-primary, #3d5e9e);
-    background: rgba(60, 93, 157, 0.08);
+    @apply text-primary bg-secondary/8;
   }
 
   :deep(svg) {
-    font-size: 1.25rem;
+    @apply text-[1.25rem];
   }
 }
 
 /* Language switcher */
 .lang-section {
-  display: flex;
-  align-items: center;
-  gap: 0.15rem;
+  @apply flex items-center gap-[0.15rem];
 }
 
 .lang-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  background: transparent;
-  cursor: pointer;
-  padding: 0;
-  transition: all 0.2s ease;
-  opacity: 0.4;
-  filter: grayscale(0.6);
+  @apply flex items-center justify-center w-[28px] h-[28px] rounded-full border-2 border-transparent bg-transparent cursor-pointer p-0 transition-all duration-200 opacity-40 grayscale-[0.6];
 
   &:hover {
-    opacity: 0.85;
-    filter: grayscale(0);
-    background: rgba(60, 93, 157, 0.1);
+    @apply opacity-85 grayscale-0 bg-secondary/10;
   }
 
   &.active {
-    opacity: 1;
-    filter: grayscale(0);
-    background: var(--color-secondary, #3d5e9e);
-    box-shadow: 0 0 0 2px #fff;
+    @apply opacity-100 grayscale-0 bg-secondary shadow-[0_0_0_2px_#fff];
   }
 
   :deep(.fi) {
-    font-size: 0.95rem;
-    border-radius: 2px;
+    @apply text-[0.95rem] rounded-[2px];
   }
 }
 </style>

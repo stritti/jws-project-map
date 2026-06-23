@@ -13,9 +13,10 @@ import { useCountryStore } from "./stores/country.store";
 import { i18n } from "./plugins/i18n";
 import { useHtmlLang } from "./composables/useAccessibility";
 
-import "./assets/style-config.scss";
+import "./assets/main.css";
 import "flag-icons/css/flag-icons.min.css";
-import "./assets/a11y.scss";
+import "./assets/a11y.css";
+import "./assets/iframe.css";
 
 interface VitePreloadErrorEvent extends Event {
   payload: Error;
