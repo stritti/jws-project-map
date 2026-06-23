@@ -154,7 +154,7 @@
 
   /* Skip link for accessibility */
   .skip-link {
-    @apply absolute -top-full left-0 z-100 px-6 py-3 bg-primary text-white font-bold rounded-b-round-default transition-all duration-100;
+    @apply absolute -top-full left-0 z-[100] px-6 py-3 bg-primary text-white font-bold rounded-b-round-default transition-all duration-100;
   }
 
   .skip-link:focus {

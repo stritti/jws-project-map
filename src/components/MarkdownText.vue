@@ -37,7 +37,7 @@ const compiled = computed(() => {
   }
   
   h3, h4, h5, h6 {
-    @apply text-body-lg font-body-lg leading-body-lg mt-[calc(var(--spacing-unit)*3)] mb-[calc(var(--spacing-unit)*1.5)];
+    @apply text-body-lg  leading-body-lg mt-[calc(var(--spacing-unit)*3)] mb-[calc(var(--spacing-unit)*1.5)];
   }
   
   /* Paragraphs */
@@ -96,7 +96,7 @@ const compiled = computed(() => {
     }
     
     th {
-      @apply bg-surface-variant font-body-lg;
+      @apply bg-surface-variant ;
     }
     
     tr:nth-child(even) {

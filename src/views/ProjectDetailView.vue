@@ -318,7 +318,7 @@ const detailMarkerIcon = computed(() => {
 }
 
 .page-header-sticky {
-  @apply sticky top-0 z-100 bg-white/85 backdrop-blur-xl shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition-[padding,box-shadow] duration-300 ease-in-out;
+  @apply sticky top-0 z-[100] bg-white/85 backdrop-blur-xl shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition-[padding,box-shadow] duration-300 ease-in-out;
 
   &.header-scrolled {
     @apply pt-[0.2rem] pb-[0.1rem] shadow-[0_2px_8px_rgba(0,0,0,0.05)];
