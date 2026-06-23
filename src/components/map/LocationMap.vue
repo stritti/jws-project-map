@@ -426,7 +426,7 @@ const updateBounds = () => {
   @apply grayscale-[80%] opacity-90;
 }
 .marker-state-finished {
-  @apply opacity-1000;
+  @apply opacity-100;
 }
 
 .map {

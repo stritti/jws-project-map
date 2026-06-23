@@ -129,11 +129,12 @@ const countryList = computed(() =>
 }
 
 .filter-scroll::-webkit-scrollbar {
-  @apply w-1;
+  width: 1px;
 }
 
 .filter-scroll::-webkit-scrollbar-thumb {
-  @apply bg-outline-variant rounded-[2px];
+  background-color: #c5c6cd;
+  border-radius: 2px;
 }
 
 /* Fieldset/legend styling */
@@ -178,15 +179,20 @@ const countryList = computed(() =>
 }
 
 .scrollable-group::-webkit-scrollbar {
-  @apply w-[10px];
+  width: 10px;
 }
 
 .scrollable-group::-webkit-scrollbar-track {
-  @apply bg-transparent;
+  background-color: transparent;
 }
 
 .scrollable-group::-webkit-scrollbar-thumb {
-  @apply bg-outline-variant rounded-[5px] hover:bg-outline;
+  background-color: #c5c6cd;
+  border-radius: 5px;
+}
+
+.scrollable-group::-webkit-scrollbar-thumb:hover {
+  background-color: #75777d;
 }
 </style>
 

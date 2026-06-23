@@ -225,7 +225,7 @@ watch(
 
 .gallery-nav:hover,
 .gallery-nav:focus-visible {
-  @apply opacity-1000 bg-black/15;
+  @apply opacity-100 bg-black/15;
 }
 
 /* Slightly brighter on any hover inside the gallery */
@@ -234,7 +234,7 @@ watch(
 }
 
 .gallery-nav:hover {
-  @apply opacity-1000;
+  @apply opacity-100;
 }
 
 .gallery-nav-icon {
@@ -298,6 +298,7 @@ watch(
 }
 
 .sr-only {
-  @apply absolute w-px h-px p-0 m-[-1px] overflow-hidden clip whitespace-nowrap border-0;
+  @apply absolute w-px h-px p-0 m-[-1px] overflow-hidden whitespace-nowrap border-0;
+  clip: rect(0, 0, 0, 0);
 }
 </style>

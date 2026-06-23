@@ -342,11 +342,26 @@ const detailMarkerIcon = computed(() => {
 }
 
 :deep(.back-btn) {
-  @apply rounded-full w-11 h-11 flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(0.165,0.84,0.44,1)] bg-white border border-primary text-primary shadow-[0_2px_10px_rgba(0,0,0,0.05)];
+  border-radius: 9999px;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition-property: all;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+  background-color: white;
+  border: 1px solid #3d5e9e;
+  color: #3d5e9e;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
 
-  &:hover {
-    @apply -translate-x-1 bg-primary text-white shadow-[0_4px_15px_rgba(61,94,158,0.2)];
-  }
+:deep(.back-btn:hover) {
+  transform: translateX(-0.25rem);
+  background-color: #3d5e9e;
+  color: white;
+  box-shadow: 0 4px 15px rgba(61, 94, 158, 0.2);
 }
 
 .floating-back-btn {
@@ -391,7 +406,11 @@ const detailMarkerIcon = computed(() => {
   }
 
   &::before {
-    @apply content-[''] absolute inset-0 bg-gradient-to-b from-transparent to-black/40 pointer-events-none;
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.4));
+    pointer-events: none;
   }
 }
 
@@ -400,11 +419,25 @@ const detailMarkerIcon = computed(() => {
 }
 
 :deep(.glass-btn) {
-  @apply bg-white/15 backdrop-blur-xl border border-white/30 text-white rounded-full px-6 py-3 font-semibold transition-all duration-300 shadow-lg;
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  border-radius: 9999px;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font-weight: 600;
+  transition-property: all;
+  transition-duration: 300ms;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+}
 
-  &:hover {
-    @apply bg-white/25 -translate-y-1 shadow-xl;
-  }
+:deep(.glass-btn:hover) {
+  background-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
 }
 
 .info-grid {
@@ -412,11 +445,23 @@ const detailMarkerIcon = computed(() => {
 }
 
 .info-card {
-  @apply flex items-center gap-[1.25rem] p-[1.5rem] bg-white rounded-round-large border border-black/10 shadow-jws-sm transition-all duration-300 ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background-color: white;
+  border-radius: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition-property: all;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-  &:hover {
-    @apply -translate-y-[5px] shadow-jws-md border-primary-light;
-  }
+.info-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  border-color: #6a8fd4;
 }
 
 .info-icon {
@@ -431,7 +476,7 @@ const detailMarkerIcon = computed(() => {
   }
 
   &.under-construction {
-    @apply bg-under-construction text-black;
+    @apply bg-underConstruction text-black;
   }
 
   &.planned {
@@ -455,32 +500,51 @@ const detailMarkerIcon = computed(() => {
   @apply text-[2rem] font-extrabold text-onSurface mb-[2rem] flex items-center gap-[0.75rem];
 
   &::before {
-    @apply content-[''] w-[6px] h-[1.5em] bg-primary rounded-[3px];
+    content: '';
+    width: 6px;
+    height: 1.5em;
+    background-color: #3d5e9e;
+    border-radius: 3px;
   }
 }
 
 :deep(.notes-content) {
-  @apply text-[1.5rem] leading-[1.8] text-onSurface opacity-90;
+  font-size: 1.5rem;
+  line-height: 1.8;
+  color: #191c1d;
+  opacity: 0.9;
+}
 
-  p {
-    @apply mb-[2rem];
-  }
+:deep(.notes-content p) {
+  margin-bottom: 2rem;
 }
 
 .category-tiles {
-  @apply flex flex-wrap gap-[0.75rem];
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .category-tile {
-  @apply px-[1.25rem] py-[0.5rem] rounded-full text-[0.85rem] font-bold uppercase tracking-[0.03em] shadow-[0_2px_6px_rgba(0,0,0,0.1)];
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .mini-map {
-  @apply border border-black/5 leading-none;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  line-height: 1;
+}
 
-  :deep(.leaflet-control-attribution) {
-    @apply text-[9px];
-  }
+.mini-map :deep(.leaflet-control-attribution) {
+  font-size: 9px;
 }
 </style>
 

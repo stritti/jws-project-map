@@ -51,7 +51,7 @@ export default {
         },
         // State colors
         finished: '#198754',
-        'under-construction': '#ffc107',
+        underConstruction: '#ffc107',
         planned: '#3d5e9e',
       },
       fontFamily: {
@@ -98,9 +98,10 @@ export default {
         'jws': 'cubic-bezier(0.4, 0, 0.2, 1)',
       },
       outlineWidth: {
-        '3': '3px',
+        3: '3px',
       },
       outlineColor: {
+        'primary': '#3d5e9e',
         'secondary': '#3c5d9d',
       },
       letterSpacing: {
@@ -108,6 +109,12 @@ export default {
         'label-sm': '0.03em',
         'headline-lg': '-0.02em',
         'headline-md': '-0.01em',
+      },
+      opacity: {
+        '12': '0.12',
+        '15': '0.15',
+        '55': '0.55',
+        '85': '0.85',
       },
       animation: {
         'loader-slide': 'loader-slide 1.4s ease-in-out infinite',

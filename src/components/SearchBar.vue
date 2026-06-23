@@ -185,7 +185,8 @@ defineExpose({
 /* iOS Safari auto-zooms any input with font-size < 16px; force 16px on mobile */
 @media (max-width: 767.98px) {
   .search-input {
-    @apply text-base;
+    font-size: 1rem;
+    line-height: 1.5;
   }
 }
 
@@ -201,7 +202,9 @@ defineExpose({
 /* Touch-friendly minimum 44×44 px on mobile */
 @media (max-width: 767.98px) {
   .view-btn {
-    @apply w-[44px] h-[44px] text-[1.25rem];
+    width: 44px;
+    height: 44px;
+    font-size: 1.25rem;
   }
 }
 
@@ -225,7 +228,12 @@ defineExpose({
 /* Touch-friendly minimum on mobile (same as .view-btn) */
 @media (max-width: 767.98px) {
   .filter-btn {
-    @apply px-[0.75rem] py-[0.6rem] text-base;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    font-size: 1rem;
+    line-height: 1.5;
   }
 }
 
@@ -255,7 +263,7 @@ defineExpose({
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  @apply hidden;
+  display: none;
 }
 
 .filter-chip {

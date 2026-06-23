@@ -113,7 +113,13 @@ function isActive(item: NavItem): boolean {
 
   /* Thin top border for definition on light backgrounds */
   &::before {
-    @apply content-[''] absolute top-0 left-[1rem] right-[1rem] h-px bg-black/10;
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 1rem;
+    right: 1rem;
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -154,7 +160,7 @@ function isActive(item: NavItem): boolean {
   }
 
   :deep(svg) {
-    @apply text-[1.25rem];
+    font-size: 1.25rem;
   }
 }
 
@@ -171,11 +177,12 @@ function isActive(item: NavItem): boolean {
   }
 
   &.active {
-    @apply opacity-1000 grayscale-0 bg-secondary shadow-[0_0_0_2px_#fff];
+    @apply opacity-100 grayscale-0 bg-secondary shadow-[0_0_0_2px_#fff];
   }
 
   :deep(.fi) {
-    @apply text-[0.95rem] rounded-[2px];
+    font-size: 0.95rem;
+    border-radius: 2px;
   }
 }
 </style>

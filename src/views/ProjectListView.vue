@@ -82,7 +82,7 @@
           </div>
           <h3>{{ t("search.noResultsTitle") }}</h3>
           <p class="text-onSurface-variant">{{ t("search.noResultsHint") }}</p>
-          <button @click="clearAllFilters" class="mt-3 btn btn-outline-primary">
+          <button @click="clearAllFilters" class="mt-3 rounded-full px-4 py-2 bg-transparent text-primary border border-primary hover:bg-primary hover:text-white transition-colors">
             {{ t("search.resetFilters") }}
           </button>
         </div>

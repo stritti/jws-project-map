@@ -53,6 +53,9 @@ export default defineComponent({
 
 /* Ensure proper aspect ratio for flags (typically 3:2 or 2:1) */
 .country-label [class^="fi-"]::before {
-  @apply block w-[1.5rem] h-[1rem] content-[''];
+  display: block;
+  width: 1.5rem;
+  height: 1rem;
+  content: '';
 }
 </style>

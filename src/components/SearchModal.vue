@@ -159,7 +159,7 @@ function getTeaserImage(project: Project) {
 
 function stateBadgeClass(state: string) {
   if (state === "finished") return "bg-finished text-white";
-  if (state === "under construction") return "bg-under-construction text-black";
+  if (state === "under construction") return "bg-underConstruction text-black";
   if (state === "planned") return "bg-planned text-white";
   return "bg-secondary text-white";
 }

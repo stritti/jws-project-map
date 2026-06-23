@@ -162,15 +162,17 @@ onUnmounted(() => {
   }
 
   &.active {
-    @apply opacity-1000 grayscale-0 bg-secondary;
+    @apply opacity-100 grayscale-0 bg-secondary;
 
     :deep(.fi) {
-      @apply shadow-[0_0_0_1.5px_#fff];
+      box-shadow: 0 0 0 1.5px #fff;
     }
   }
 
   :deep(.fi) {
-    @apply text-base rounded-[2px];
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 2px;
   }
 }
 
@@ -186,7 +188,8 @@ onUnmounted(() => {
   }
 
   :deep(svg) {
-    @apply text-base;
+    font-size: 1rem;
+    line-height: 1.5;
   }
 }
 

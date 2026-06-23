@@ -444,11 +444,20 @@ onUnmounted(() => {
 }
 
 .form-switch .form-check-input::before {
-  @apply content-[''] absolute top-[0.125rem] left-[0.125rem] w-[1rem] h-[1rem] bg-white rounded-full transition-transform duration-200;
+  content: '';
+  position: absolute;
+  top: 0.125rem;
+  left: 0.125rem;
+  width: 1rem;
+  height: 1rem;
+  background-color: white;
+  border-radius: 9999px;
+  transition-property: transform;
+  transition-duration: 200ms;
 }
 
 .form-switch .form-check-input:checked::before {
-  @apply translate-x-[1rem];
+  transform: translateX(1rem);
 }
 
 </style>

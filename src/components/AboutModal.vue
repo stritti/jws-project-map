@@ -34,7 +34,7 @@
           <div class="version-row">
             <span class="about-value">{{ t("about.version") }}: {{ version }}</span>
             <button
-              class="btn btn-outline-primary rounded-full px-3 border-0 font-semibold text-sm"
+              class="rounded-full px-3 border-0 font-semibold text-sm bg-transparent text-primary border border-primary hover:bg-primary hover:text-white transition-colors"
               @click="reloadApp"
             >
               <IBiArrowRepeat class="mr-1" />
