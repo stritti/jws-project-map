@@ -290,46 +290,89 @@ onUnmounted(() => {
   /* Desktop: search overlay at the top */
   @media (min-width: 768px) {
     .search-overlay {
-      @apply absolute top-[5rem] left-1/2 -translate-x-1/2 z-[1000] w-[90%] max-w-[600px];
+      position: absolute;
+      top: 5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      width: 90%;
+      max-width: 600px;
     }
 
     .filter-dropdown {
-      @apply absolute top-[calc(100%+0.5rem)] left-0 right-0 z-10;
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      left: 0;
+      right: 0;
+      z-index: 10;
     }
   }
 
   /* Mobile: search floats at the bottom (Apple-style) */
   @media (max-width: 767.98px) {
     .home {
-      @apply fixed inset-0 overflow-hidden overscroll-none;
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      overscroll-behavior: none;
     }
 
     .search-overlay {
-      @apply fixed bottom-0 top-auto left-0 right-0 z-[1000] flex flex-col-reverse overflow-hidden max-h-[100dvh] p-[0.75rem] pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))];
+      position: fixed;
+      bottom: 0;
+      top: auto;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column-reverse;
+      overflow: hidden;
+      max-height: 100dvh;
+      padding: 0.75rem;
+      padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    }
 
-      &.search-active {
-        @apply bottom-auto top-0 flex-col max-h-[50dvh] p-[0.75rem] pt-[calc(env(safe-area-inset-top)+0.75rem)];
-      }
+    .search-overlay.search-active {
+      bottom: auto;
+      top: 0;
+      flex-direction: column;
+      max-height: 50dvh;
+      padding: 0.75rem;
+      padding-top: calc(env(safe-area-inset-top) + 0.75rem);
     }
 
     .toolbar-section {
-      @apply relative z-[1001] flex-shrink-0;
+      position: relative;
+      z-index: 1001;
+      flex-shrink: 0;
     }
 
     .filter-dropdown {
-      @apply relative z-[1000] flex-1 overflow-hidden min-h-0;
+      position: relative;
+      z-index: 1000;
+      flex: 1;
+      overflow: hidden;
+      min-height: 0;
     }
 
     .filter-scroll {
-      @apply max-h-full overflow-y-auto touch-pan-y;
+      max-height: 100%;
+      overflow-y: auto;
+      touch-action: pan-y;
     }
   }
 
   .filter-backdrop {
-    @apply hidden;
+    display: none;
+  }
 
-    @media (max-width: 767.98px) {
-      @apply block fixed inset-0 z-[999] bg-black/30;
+  @media (max-width: 767.98px) {
+    .filter-backdrop {
+      display: block;
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background-color: rgba(0, 0, 0, 0.3);
     }
   }
 

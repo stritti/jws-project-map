@@ -105,15 +105,19 @@ const reloadApp = async () => {
   @apply px-[0.25rem];
 
   @media (max-width: 575.98px) {
-    @apply p-0;
+    padding: 0;
   }
 }
 
 .about-description {
-  @apply text-base leading-[1.6] text-onSurface m-0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #191c1d;
+  margin: 0;
 
   @media (max-width: 575.98px) {
-    @apply text-[0.875rem] leading-[1.5];
+    font-size: 0.875rem;
+    line-height: 1.5;
   }
 }
 
@@ -122,10 +126,13 @@ const reloadApp = async () => {
 }
 
 .about-value {
-  @apply text-base text-onSurface mb-[1rem];
+  font-size: 1rem;
+  color: #191c1d;
+  margin-bottom: 1rem;
 
   @media (max-width: 575.98px) {
-    @apply text-[0.875rem] mb-[0.5rem];
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
   }
 }
 
@@ -142,13 +149,19 @@ const reloadApp = async () => {
 }
 
 .about-credits {
-  @apply list-none p-0 m-0 flex flex-col gap-[0.5rem];
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 
   li {
-    @apply text-[0.95rem] text-onSurface;
+    font-size: 0.95rem;
+    color: #191c1d;
 
     @media (max-width: 575.98px) {
-      @apply text-[0.85rem];
+      font-size: 0.85rem;
     }
   }
 }
@@ -162,18 +175,28 @@ const reloadApp = async () => {
 }
 
 .modal-header {
-  @apply border-0 pb-0 flex items-center justify-between p-4;
+  border: none;
+  padding-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
 
   @media (max-width: 575.98px) {
-    @apply p-[0.75rem_1rem_0];
+    padding: 0.75rem 1rem 0;
   }
 }
 
 .modal-body {
-  @apply pt-2 px-4 pb-4 max-h-[80vh] overflow-y-auto;
+  padding-top: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 1rem;
+  max-height: 80vh;
+  overflow-y: auto;
 
   @media (max-width: 575.98px) {
-    @apply p-[0.75rem_1rem];
+    padding: 0.75rem 1rem;
   }
 }
 

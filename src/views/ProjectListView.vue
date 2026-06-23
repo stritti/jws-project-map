@@ -313,76 +313,125 @@ onBeforeMount(() => {
 /* Desktop */
 @media (min-width: 768px) {
   .project-list {
-    @apply p-[var(--spacing-gutter-md)];
+    padding: var(--spacing-gutter-md);
   }
 
   .list-header {
-    @apply sticky top-0 z-50 -m-[var(--spacing-gutter-md)] p-[var(--spacing-gutter-md)] pb-0;
-
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    margin: calc(-1 * var(--spacing-gutter-md));
+    padding: var(--spacing-gutter-md);
+    padding-bottom: 0;
     /* Glassmorphism */
-    @apply bg-white/85 backdrop-blur-xl;
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
   }
 
   .filter-overlay-container {
-    @apply [&>*]:relative;
+    display: contents;
+  }
+
+  .filter-overlay-container > * {
+    position: relative;
   }
 
   .toolbar-section {
-    @apply py-[calc(var(--spacing-unit)*2)];
+    padding-top: calc(var(--spacing-unit) * 2);
+    padding-bottom: calc(var(--spacing-unit) * 2);
   }
 
   .filter-dropdown {
-    @apply absolute top-full left-0 right-0 z-50;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 50;
   }
 }
 
 /* Mobile */
 @media (max-width: 767.98px) {
   .project-list {
-    @apply p-[var(--spacing-gutter-md)] pb-[calc(3rem+env(safe-area-inset-bottom,0px)+4rem)];
+    padding: var(--spacing-gutter-md);
+    padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px) + 4rem);
   }
 
   .list-header {
-    @apply sticky top-0 z-50 -m-[var(--spacing-gutter-md)] p-[var(--spacing-gutter-md)] pb-0;
-
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    margin: calc(-1 * var(--spacing-gutter-md));
+    padding: var(--spacing-gutter-md);
+    padding-bottom: 0;
     /* Glassmorphism */
-    @apply bg-white/85 backdrop-blur-xl;
-
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
     /* Smaller heading on mobile */
-    h1 {
-      @apply text-[1.25rem] py-[0.375rem] m-0;
-    }
+  }
 
-    h3 {
-      @apply my-[0.375rem] text-[0.8rem];
-    }
+  .list-header h1 {
+    font-size: 1.25rem;
+    padding-top: 0.375rem;
+    padding-bottom: 0.375rem;
+    margin: 0;
+  }
+
+  .list-header h3 {
+    margin-top: 0.375rem;
+    margin-bottom: 0.375rem;
+    font-size: 0.8rem;
   }
 
   .filter-overlay-container {
-    @apply fixed bottom-0 left-0 right-0 z-[1000] flex flex-col-reverse gap-[0.75rem] p-[0.75rem] pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))];
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  }
 
-    /* When the search input is focused, pop the overlay to the top
-       so it stays above the virtual keyboard. */
-    &.search-active {
-      @apply bottom-auto top-0 flex-col max-h-[50dvh] p-[0.75rem] pt-[calc(env(safe-area-inset-top)+0.75rem)];
-    }
+  /* When the search input is focused, pop the overlay to the top
+     so it stays above the virtual keyboard. */
+  .filter-overlay-container.search-active {
+    bottom: auto;
+    top: 0;
+    flex-direction: column;
+    max-height: 50dvh;
+    padding: 0.75rem;
+    padding-top: calc(env(safe-area-inset-top) + 0.75rem);
   }
 
   .toolbar-section {
-    @apply p-0 relative z-[1001];
+    padding: 0;
+    position: relative;
+    z-index: 1001;
   }
 
   .filter-dropdown {
-    @apply relative z-[1000] max-h-[min(50vh,24rem)];
+    position: relative;
+    z-index: 1000;
+    max-height: min(50vh, 24rem);
   }
 }
 
 /* Shared */
 .filter-backdrop {
-  @apply hidden;
+  display: none;
+}
 
-  @media (max-width: 767.98px) {
-    @apply block fixed inset-0 z-[999] bg-black/30;
+@media (max-width: 767.98px) {
+  .filter-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background-color: rgba(0, 0, 0, 0.3);
   }
 }
 

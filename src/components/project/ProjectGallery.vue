@@ -124,10 +124,14 @@ function onImageError() {
 }
 
 .gallery-grid {
-  @apply grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] auto-rows-[280px] gap-[1.5rem];
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  auto-rows: 280px;
+  gap: 1.5rem;
 
   @media (max-width: 576px) {
-    @apply grid-cols-1 auto-rows-[240px];
+    grid-template-columns: 1;
+    auto-rows: 240px;
   }
 }
 

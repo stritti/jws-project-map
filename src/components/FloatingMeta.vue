@@ -111,16 +111,16 @@ onUnmounted(() => {
 
   /* On mobile, raise above search bar + map controls. */
   @media (max-width: 767.98px) {
-    @apply bottom-[calc(8rem+env(safe-area-inset-bottom,0px))];
+    bottom: calc(8rem + env(safe-area-inset-bottom, 0px));
 
     /* On HomeView / ProjectListView: sit just above the bottom filter/search bar (~4rem tall) */
     &.on-filter-view {
-      @apply bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))];
+      bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
     }
 
     /* On ProjectDetailView: no bottom bar, so place near the screen edge */
     &.on-detail {
-      @apply bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))];
+      bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
     }
   }
 }

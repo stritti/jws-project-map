@@ -122,7 +122,9 @@ body {
   *,
   *::before,
   *::after {
-    @apply transition-none animation-none scroll-auto;
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
   }
 }
 

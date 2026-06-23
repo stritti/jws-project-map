@@ -334,7 +334,9 @@ const detailMarkerIcon = computed(() => {
     @apply text-[1.5rem] font-bold text-primary tracking-[-0.02em] leading-[1.2] transition-all duration-300 ease-in-out;
 
     @media (max-width: 768px) {
-      @apply text-[1.25rem] py-[0.375rem];
+      font-size: 1.25rem;
+      padding-top: 0.375rem;
+      padding-bottom: 0.375rem;
     }
   }
 }
@@ -360,20 +362,32 @@ const detailMarkerIcon = computed(() => {
 }
 
 .teaser-wrapper {
-  @apply p-0 mt-1;
+  padding: 0;
+  margin-top: 0.25rem;
 
   @media (min-width: 768px) {
-    @apply px-[1.5rem];
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 }
 
 .teaser-card {
-  @apply relative h-[60vh] min-h-[400px] max-h-[700px] w-full rounded-none bg-center bg-no-repeat bg-cover shadow-jws-lg overflow-hidden;
+  position: relative;
+  height: 60vh;
+  min-height: 400px;
+  max-height: 700px;
+  width: 100%;
+  border-radius: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
 
-  @apply animate-reveal-image;
+  animation: revealImage 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 
   @media (min-width: 768px) {
-    @apply rounded-round-xl;
+    border-radius: 1rem;
   }
 
   &::before {
