@@ -25,83 +25,133 @@ const compiled = computed(() => {
 
 <style scoped lang="postcss">
 .markdown-text {
-  @apply text-onSurface text-body-md leading-body-md;
-  
-  /* Headings - inherit from design system heading scales */
-  h1 {
-    @apply text-headline-lg  leading-headline-lg tracking-headline-lg mt-[calc(var(--spacing-unit)*4)] mb-[calc(var(--spacing-unit)*2)];
-  }
-  
-  h2 {
-    @apply text-headline-md  leading-headline-md tracking-headline-md mt-[calc(var(--spacing-unit)*4)] mb-[calc(var(--spacing-unit)*2)];
-  }
-  
-  h3, h4, h5, h6 {
-    @apply text-body-lg  leading-body-lg mt-[calc(var(--spacing-unit)*3)] mb-[calc(var(--spacing-unit)*1.5)];
-  }
-  
-  /* Paragraphs */
-  p {
-    @apply mb-[calc(var(--spacing-unit)*3)];
-  }
-  
-  /* Links */
-  a {
-    color: #3d5e9e;
-    text-decoration: none;
-  }
+  color: #191c1d;
+  font-size: 14px;
+  line-height: 20px;
+}
 
-  a:hover,
-  a:focus {
-    text-decoration: underline;
-  }
-  
-  /* Lists */
-  ul, ol {
-    @apply mb-[calc(var(--spacing-unit)*3)] pl-[calc(var(--spacing-unit)*4)];
-    
-    li {
-      @apply mb-[calc(var(--spacing-unit)*1)];
-    }
-  }
-  
-  /* Blockquotes */
-  blockquote {
-    @apply border-l-[calc(var(--spacing-unit)*2)] border-l-primary pl-[calc(var(--spacing-unit)*3)] mb-[calc(var(--spacing-unit)*3)] text-onSurface-variant italic;
-  }
-  
-  /* Code */
-  code {
-    @apply bg-surface-variant text-onSurface px-[calc(var(--spacing-unit)*0.5)] py-[calc(var(--spacing-unit)*1)] rounded-round-default  text-body-md;
-  }
-  
-  pre {
-    @apply bg-surface-variant p-[calc(var(--spacing-unit)*2)] rounded-round-default overflow-x-auto mb-[calc(var(--spacing-unit)*3)];
-    
-    code {
-      @apply bg-transparent p-0;
-    }
-  }
-  
-  /* Horizontal rules */
-  hr {
-    @apply border-0 h-px bg-outline-variant my-[calc(var(--spacing-unit)*4)];
-  }
-  
-  /* Tables */
-  table {
-    @apply border-collapse w-full mb-[calc(var(--spacing-unit)*3)];
-    
-    th, td {
-      @apply border border-outline px-[calc(var(--spacing-unit)*1)] py-[calc(var(--spacing-unit)*1.5)] text-left;
-    }
-    
-    th {
-      @apply bg-surface-variant ;
-    }
-    
-    tr:nth-child(even) {
-      @apply bg-surface;
-    }
-  }
+/* Headings - inherit from design system heading scales */
+.markdown-text h1 {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-top: calc(var(--spacing-unit) * 4);
+  margin-bottom: calc(var(--spacing-unit) * 2);
+}
+
+.markdown-text h2 {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-top: calc(var(--spacing-unit) * 4);
+  margin-bottom: calc(var(--spacing-unit) * 2);
+}
+
+.markdown-text h3,
+.markdown-text h4,
+.markdown-text h5,
+.markdown-text h6 {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  margin-top: calc(var(--spacing-unit) * 3);
+  margin-bottom: calc(var(--spacing-unit) * 1.5);
+}
+
+/* Paragraphs */
+.markdown-text p {
+  margin-bottom: calc(var(--spacing-unit) * 3);
+}
+
+/* Links */
+.markdown-text a {
+  color: #3d5e9e;
+  text-decoration: none;
+}
+
+.markdown-text a:hover,
+.markdown-text a:focus {
+  text-decoration: underline;
+}
+
+/* Lists */
+.markdown-text ul,
+.markdown-text ol {
+  margin-bottom: calc(var(--spacing-unit) * 3);
+  padding-left: calc(var(--spacing-unit) * 4);
+}
+
+.markdown-text li {
+  margin-bottom: calc(var(--spacing-unit) * 1);
+}
+
+/* Blockquotes */
+.markdown-text blockquote {
+  border-left: calc(var(--spacing-unit) * 2) solid #3d5e9e;
+  padding-left: calc(var(--spacing-unit) * 3);
+  margin-bottom: calc(var(--spacing-unit) * 3);
+  color: #64748b;
+  font-style: italic;
+}
+
+/* Code */
+.markdown-text code {
+  background-color: #e1e3e4;
+  color: #191c1d;
+  padding-left: calc(var(--spacing-unit) * 0.5);
+  padding-right: calc(var(--spacing-unit) * 0.5);
+  padding-top: calc(var(--spacing-unit) * 1);
+  padding-bottom: calc(var(--spacing-unit) * 1);
+  border-radius: 0.5rem;
+  font-size: 14px;
+}
+
+.markdown-text pre {
+  background-color: #e1e3e4;
+  padding: calc(var(--spacing-unit) * 2);
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin-bottom: calc(var(--spacing-unit) * 3);
+}
+
+.markdown-text pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+/* Horizontal rules */
+.markdown-text hr {
+  border: 0;
+  height: 1px;
+  background-color: #c5c6cd;
+  margin-top: calc(var(--spacing-unit) * 4);
+  margin-bottom: calc(var(--spacing-unit) * 4);
+}
+
+/* Tables */
+.markdown-text table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: calc(var(--spacing-unit) * 3);
+}
+
+.markdown-text th,
+.markdown-text td {
+  border: 1px solid #75777d;
+  padding-left: calc(var(--spacing-unit) * 1);
+  padding-right: calc(var(--spacing-unit) * 1);
+  padding-top: calc(var(--spacing-unit) * 1.5);
+  padding-bottom: calc(var(--spacing-unit) * 1.5);
+  text-align: left;
+}
+
+.markdown-text th {
+  background-color: #e1e3e4;
+}
+
+.markdown-text tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
 </style>
