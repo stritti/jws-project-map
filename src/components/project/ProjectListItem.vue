@@ -207,7 +207,7 @@ export default defineComponent({
   }
 
   &.planned {
-    @apply bg-surface-variant text-on-surface-variant;
+    @apply bg-surface-variant text-onSurface-variant;
   }
 }
 

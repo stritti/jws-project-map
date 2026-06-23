@@ -142,7 +142,7 @@ function onImageError() {
     @apply -translate-y-[6px] shadow-[0_12px_28px_rgba(0,0,0,0.12)] z-10;
 
     .hover-overlay {
-      @apply opacity-100;
+      @apply opacity-1000;
     }
 
     .video-overlay {

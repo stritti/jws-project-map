@@ -71,7 +71,7 @@ const compiled = computed(() => {
   
   /* Code */
   code {
-    @apply bg-surface-variant text-onSurface px-[calc(var(--spacing-unit)*0.5)] py-[calc(var(--spacing-unit)*1)] rounded-round-default font-inter text-body-md;
+    @apply bg-surface-variant text-onSurface px-[calc(var(--spacing-unit)*0.5)] py-[calc(var(--spacing-unit)*1)] rounded-round-default  text-body-md;
   }
   
   pre {

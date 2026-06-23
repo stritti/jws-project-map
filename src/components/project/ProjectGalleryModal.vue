@@ -190,7 +190,7 @@ watch(
 
 <style scoped lang="postcss">
 .fullscreen-gallery {
-  @apply fixed inset-0 w-screen h-screen bg-black/88 z-[9999];
+  @apply fixed inset-0 w-screen h-screen bg-black/90 z-[9999];
 }
 
 /* Close Button */
@@ -225,7 +225,7 @@ watch(
 
 .gallery-nav:hover,
 .gallery-nav:focus-visible {
-  @apply opacity-100 bg-black/15;
+  @apply opacity-1000 bg-black/15;
 }
 
 /* Slightly brighter on any hover inside the gallery */
@@ -234,7 +234,7 @@ watch(
 }
 
 .gallery-nav:hover {
-  @apply opacity-100;
+  @apply opacity-1000;
 }
 
 .gallery-nav-icon {

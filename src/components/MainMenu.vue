@@ -171,7 +171,7 @@ function isActive(item: NavItem): boolean {
   }
 
   &.active {
-    @apply opacity-100 grayscale-0 bg-secondary shadow-[0_0_0_2px_#fff];
+    @apply opacity-1000 grayscale-0 bg-secondary shadow-[0_0_0_2px_#fff];
   }
 
   :deep(.fi) {

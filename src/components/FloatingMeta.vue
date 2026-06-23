@@ -162,7 +162,7 @@ onUnmounted(() => {
   }
 
   &.active {
-    @apply opacity-100 grayscale-0 bg-secondary;
+    @apply opacity-1000 grayscale-0 bg-secondary;
 
     :deep(.fi) {
       @apply shadow-[0_0_0_1.5px_#fff];

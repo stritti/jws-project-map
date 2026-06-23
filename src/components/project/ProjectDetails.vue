@@ -105,7 +105,7 @@ export default defineComponent({
 
 .slide-up-enter-to,
 .slide-up-leave-from {
-  @apply opacity-1 -translate-x-1/2 translate-y-0;
+  @apply opacity-10 -translate-x-1/2 translate-y-0;
 }
 </style>
 
