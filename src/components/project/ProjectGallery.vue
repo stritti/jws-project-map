@@ -149,7 +149,7 @@ function onImageError() {
       @apply bg-black/40 backdrop-blur-[4px];
 
       .play-button {
-        @apply scale-115 bg-white;
+        @apply scale-[1.15] bg-white;
       }
     }
 
