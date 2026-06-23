@@ -238,7 +238,8 @@ watch(
 }
 
 .gallery-nav-icon {
-  @apply block w-[36px] h-[36px] bg-[length:36px_36px] bg-no-repeat bg-center filter-drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] transition-transform duration-200;
+  @apply block w-[36px] h-[36px] bg-[length:36px_36px] bg-no-repeat bg-center transition-transform duration-200;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
 }
 
 .gallery-nav-icon-prev {

@@ -48,11 +48,11 @@ const compiled = computed(() => {
   /* Links */
   a {
     @apply text-primary no-underline;
-    
-    &:hover,
-    &:focus {
-      @apply underline;
-    }
+  }
+
+  a:hover,
+  a:focus {
+    @apply underline;
   }
   
   /* Lists */
@@ -100,7 +100,7 @@ const compiled = computed(() => {
     }
     
     tr:nth-child(even) {
-      @apply bg-background;
+      @apply bg-surface;
     }
   }
 </style>
