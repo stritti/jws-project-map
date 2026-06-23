@@ -175,7 +175,9 @@
     *,
     *::before,
     *::after {
-      @apply transition-none animation-none scroll-auto;
+      transition: none !important;
+      animation: none !important;
+      scroll-behavior: auto !important;
     }
   }
 
@@ -210,10 +212,7 @@
     @apply truncate;
   }
 
-  /* Hide from screen readers but keep accessible */
-  .sr-only {
-    @apply absolute w-px h-px p-0 m-[-1px] overflow-hidden clip whitespace-nowrap border-0;
-  }
+
 
   /* Aspect ratio utilities */
   .aspect-square {

@@ -290,10 +290,10 @@ onBeforeMount(() => {
   @apply shadow-[0_1px_2px_rgba(0,0,0,0.03)];
 
   /* Smooth animations for collapse/expand on scroll */
-  @apply transition-[padding,box-shadow] duration-300 ease;
+  @apply transition-[padding,box-shadow] duration-300 ease-in-out;
 
   h1, h3 {
-    @apply transition-all duration-300 ease;
+    @apply transition-all duration-300 ease-in-out;
   }
 
   /* Collapsed state: scrolled past the heading */

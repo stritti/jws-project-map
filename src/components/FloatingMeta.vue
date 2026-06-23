@@ -193,7 +193,7 @@ onUnmounted(() => {
 /* Transition */
 .meta-fade-enter-active,
 .meta-fade-leave-active {
-  @apply transition-all duration-200 ease;
+  @apply transition-all duration-200 ease-in-out;
 }
 
 .meta-fade-enter-from,

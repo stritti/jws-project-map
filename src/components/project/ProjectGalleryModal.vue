@@ -286,7 +286,7 @@ watch(
 /* Transition */
 .slide-fade-enter-active,
 .slide-fade-leave-active {
-  @apply transition-all duration-300 ease;
+  @apply transition-all duration-300 ease-in-out;
 }
 
 .slide-fade-enter-from {

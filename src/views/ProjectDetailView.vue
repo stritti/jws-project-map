@@ -318,7 +318,7 @@ const detailMarkerIcon = computed(() => {
 }
 
 .page-header-sticky {
-  @apply sticky top-0 z-50 bg-white/85 backdrop-blur-xl shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition-[padding,box-shadow] duration-300 ease;
+  @apply sticky top-0 z-50 bg-white/85 backdrop-blur-xl shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition-[padding,box-shadow] duration-300 ease-in-out;
 
   &.header-scrolled {
     @apply pt-[0.2rem] pb-[0.1rem] shadow-[0_2px_8px_rgba(0,0,0,0.05)];
@@ -331,7 +331,7 @@ const detailMarkerIcon = computed(() => {
 
 .page-header {
   .title {
-    @apply text-[1.5rem] font-bold text-primary tracking-[-0.02em] leading-[1.2] transition-all duration-300 ease;
+    @apply text-[1.5rem] font-bold text-primary tracking-[-0.02em] leading-[1.2] transition-all duration-300 ease-in-out;
 
     @media (max-width: 768px) {
       @apply text-[1.25rem] py-[0.375rem];
@@ -348,7 +348,7 @@ const detailMarkerIcon = computed(() => {
 }
 
 .floating-back-btn {
-  @apply fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-[calc(1rem+env(safe-area-inset-left,0px))] z-[999] w-11 h-11 rounded-full border border-black/6 bg-white/88 backdrop-blur-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] cursor-pointer flex items-center justify-center text-onSurface transition-all duration-200 ease;
+  @apply fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-[calc(1rem+env(safe-area-inset-left,0px))] z-[999] w-11 h-11 rounded-full border border-black/6 bg-white/88 backdrop-blur-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] cursor-pointer flex items-center justify-center text-onSurface transition-all duration-200 ease-in-out;
 
   &:hover {
     @apply bg-white/96 shadow-[0_4px_20px_rgba(0,0,0,0.12)] text-secondary;
@@ -398,7 +398,7 @@ const detailMarkerIcon = computed(() => {
 }
 
 .info-card {
-  @apply flex items-center gap-[1.25rem] p-[1.5rem] bg-white rounded-round-lg border border-black/3 shadow-jws-sm transition-all duration-300 ease;
+  @apply flex items-center gap-[1.25rem] p-[1.5rem] bg-white rounded-round-lg border border-black/3 shadow-jws-sm transition-all duration-300 ease-in-out;
 
   &:hover {
     @apply -translate-y-[5px] shadow-jws-md border-primary-light;

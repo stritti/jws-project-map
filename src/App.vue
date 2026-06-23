@@ -114,7 +114,7 @@ body {
 }
 
 .skip-link:focus {
-  @apply top-0 outline-3 outline-white outline-offset-2;
+  @apply top-0 outline-[3px] outline-white outline-offset-2;
 }
 
 /* Respect user motion preferences */
