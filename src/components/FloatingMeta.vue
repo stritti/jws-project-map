@@ -158,7 +158,7 @@ onUnmounted(() => {
   @apply flex items-center justify-center w-[32px] h-[32px] rounded-[8px] border-none bg-transparent cursor-pointer p-0 transition-all duration-150 opacity-40 grayscale-[0.6];
 
   &:hover {
-    @apply opacity-80 grayscale-0 bg-secondary/8;
+    @apply opacity-80 grayscale-0 bg-secondary/10;
   }
 
   &.active {
@@ -182,7 +182,7 @@ onUnmounted(() => {
   @apply flex items-center gap-[0.5rem] px-[0.75rem] py-[0.4rem] rounded-[8px] border-none bg-transparent cursor-pointer text-[0.8rem] text-onSurface transition-all duration-150 whitespace-nowrap;
 
   &:hover {
-    @apply bg-secondary/8 text-secondary;
+    @apply bg-secondary/10 text-secondary;
   }
 
   :deep(svg) {

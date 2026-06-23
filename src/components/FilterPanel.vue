@@ -125,7 +125,7 @@ const countryList = computed(() =>
 }
 
 .filter-scroll {
-  @apply max-h-inherit overflow-hidden;
+  @apply max-h-full overflow-hidden;
 }
 
 .filter-scroll::-webkit-scrollbar {

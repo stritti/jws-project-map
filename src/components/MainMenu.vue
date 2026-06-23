@@ -150,7 +150,7 @@ function isActive(item: NavItem): boolean {
   @apply flex items-center justify-center w-[32px] h-[32px] rounded-full border-none bg-transparent cursor-pointer p-0 transition-all duration-200 text-onSurface-variant;
 
   &:hover {
-    @apply text-primary bg-secondary/8;
+    @apply text-primary bg-secondary/10;
   }
 
   :deep(svg) {

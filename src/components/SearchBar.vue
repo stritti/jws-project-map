@@ -191,7 +191,7 @@ defineExpose({
 
 /* View toggle — segmented control style */
 .view-toggle {
-  @apply flex gap-px bg-black/4 rounded-lg p-px flex-shrink-0;
+  @apply flex gap-px bg-black/10 rounded-lg p-px flex-shrink-0;
 }
 
 .view-btn {

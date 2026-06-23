@@ -412,7 +412,7 @@ const detailMarkerIcon = computed(() => {
 }
 
 .info-card {
-  @apply flex items-center gap-[1.25rem] p-[1.5rem] bg-white rounded-round-large border border-black/3 shadow-jws-sm transition-all duration-300 ease-in-out;
+  @apply flex items-center gap-[1.25rem] p-[1.5rem] bg-white rounded-round-large border border-black/10 shadow-jws-sm transition-all duration-300 ease-in-out;
 
   &:hover {
     @apply -translate-y-[5px] shadow-jws-md border-primary-light;

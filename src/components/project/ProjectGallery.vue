@@ -146,7 +146,7 @@ function onImageError() {
     }
 
     .video-overlay {
-      @apply bg-black/40 backdrop-blur-[4px];
+      @apply bg-black/100 backdrop-blur-[4px];
 
       .play-button {
         @apply scale-[1.15] bg-white;
@@ -154,7 +154,7 @@ function onImageError() {
     }
 
     img {
-      @apply scale-108;
+      @apply scale-[1.08];
     }
   }
 
