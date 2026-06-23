@@ -195,9 +195,9 @@ defineExpose({
   @apply flex gap-px bg-black/10 rounded-lg p-px flex-shrink-0;
 }
 
-/* Hide view toggle on mobile to save space for filter button */
+/* On mobile, hide view toggle when search input is focused to save space */
 @media (max-width: 767.98px) {
-  .view-toggle {
+  .search-bar:focus-within .view-toggle {
     display: none;
   }
 }
