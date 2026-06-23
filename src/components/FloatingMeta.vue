@@ -127,7 +127,7 @@ onUnmounted(() => {
 
 .meta-trigger {
   /* 44px matches the iOS HIG minimum touch target size */
-  @apply w-[44px] h-[44px] rounded-full border border-black/6 bg-white/88 backdrop-blur-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] cursor-pointer flex items-center justify-center text-onSurface transition-all duration-200;
+  @apply w-[44px] h-[44px] rounded-full border border-black/10 bg-white/90 backdrop-blur-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] cursor-pointer flex items-center justify-center text-onSurface transition-all duration-200;
 
   &:hover {
     @apply bg-white/96 shadow-[0_4px_20px_rgba(0,0,0,0.12)] text-secondary;
@@ -147,7 +147,7 @@ onUnmounted(() => {
 }
 
 .meta-panel {
-  @apply bg-white/92 backdrop-blur-xl border border-black/6 rounded-[12px] shadow-[0_8px_32px_rgba(0,0,0,0.1)] p-[0.5rem] flex flex-col gap-[0.25rem] min-w-[100px];
+  @apply bg-white/92 backdrop-blur-xl border border-black/10 rounded-[12px] shadow-[0_8px_32px_rgba(0,0,0,0.1)] p-[0.5rem] flex flex-col gap-[0.25rem] min-w-[100px];
 }
 
 .meta-langs {

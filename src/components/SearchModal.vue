@@ -241,6 +241,14 @@ kbd {
 }
 
 .sr-only {
-  @apply absolute w-px h-px p-0 m-[-1px] overflow-hidden clip whitespace-nowrap border-0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 </style>

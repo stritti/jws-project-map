@@ -409,7 +409,7 @@ onUnmounted(() => {
   }
 
   .project-map {
-    @apply absolute inset-0 z-1;
+    @apply absolute inset-0 z-0;
   }
 
   .map-loading {
