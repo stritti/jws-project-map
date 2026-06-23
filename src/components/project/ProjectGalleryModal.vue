@@ -280,7 +280,7 @@ watch(
 
 /* Caption */
 .gallery-caption {
-  @apply absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-[calc(var(--spacing-unit)*5)] pb-[calc(var(--spacing-unit)*5)] pt-[calc(var(--spacing-unit)*5)] text-center text-white text-[calc(var(--spacing-unit)*5)] font-label-md;
+  @apply absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-[calc(var(--spacing-unit)*5)] pb-[calc(var(--spacing-unit)*5)] pt-[calc(var(--spacing-unit)*5)] text-center text-white text-[calc(var(--spacing-unit)*5)] ;
 }
 
 /* Transition */

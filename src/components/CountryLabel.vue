@@ -43,7 +43,7 @@ export default defineComponent({
 
 <style lang="postcss" scoped>
 .country-label {
-  @apply inline-flex items-center text-onSurface text-body-md font-body-md leading-body-md gap-[var(--spacing-unit)];
+  @apply inline-flex items-center text-onSurface text-body-md leading-body-md gap-[var(--spacing-unit)];
 }
 
 /* Flag icon styling */

@@ -196,7 +196,7 @@ export default defineComponent({
 }
 
 .state-badge {
-  @apply absolute top-[calc(var(--spacing-unit)*1.5)] right-[calc(var(--spacing-unit)*1.5)] px-[calc(var(--spacing-unit)*1)] py-[calc(var(--spacing-unit)*0.5)] rounded-full text-label-sm font-label-md uppercase tracking-[0.02em] z-1;
+  @apply absolute top-[calc(var(--spacing-unit)*1.5)] right-[calc(var(--spacing-unit)*1.5)] px-[calc(var(--spacing-unit)*1)] py-[calc(var(--spacing-unit)*0.5)] rounded-full text-label-sm  uppercase tracking-[0.02em] z-1;
 
   &.finished {
     @apply bg-tertiary text-on-tertiary;
@@ -220,7 +220,7 @@ export default defineComponent({
 }
 
 .project-title {
-  @apply text-headline-md font-headline-md text-onSurface m-0 leading-headline-md tracking-headline-md;
+  @apply text-headline-md  text-onSurface m-0 leading-headline-md tracking-headline-md;
 }
 
 .project-meta {

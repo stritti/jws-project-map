@@ -37,7 +37,7 @@ export default defineComponent({
 
 <style lang="postcss" scoped>
 .back-button-inner {
-  @apply bg-transparent text-primary border-none rounded-round-default p-[var(--spacing-unit)] text-label-md font-label-md leading-label-md tracking-label-md inline-flex items-center justify-center transition-[background-color,color] duration-200;
+  @apply bg-transparent text-primary border-none rounded-round-default p-[var(--spacing-unit)] text-label-md leading-label-md tracking-label-md inline-flex items-center justify-center transition-[background-color,color] duration-200;
   
   &:hover {
     @apply bg-primary-container text-on-primary;

@@ -234,7 +234,7 @@ onUnmounted(() => {
         
         <div class="mt-3">
           <div class="flex items-center justify-between">
-            <label class="font-label-md" for="clusterToggle">
+            <label class="" for="clusterToggle">
               Marker-Clustering
             </label>
             <label class="form-switch mb-0">

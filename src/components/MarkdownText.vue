@@ -29,11 +29,11 @@ const compiled = computed(() => {
   
   /* Headings - inherit from design system heading scales */
   h1 {
-    @apply text-headline-lg font-headline-lg leading-headline-lg tracking-headline-lg mt-[calc(var(--spacing-unit)*4)] mb-[calc(var(--spacing-unit)*2)];
+    @apply text-headline-lg  leading-headline-lg tracking-headline-lg mt-[calc(var(--spacing-unit)*4)] mb-[calc(var(--spacing-unit)*2)];
   }
   
   h2 {
-    @apply text-headline-md font-headline-md leading-headline-md tracking-headline-md mt-[calc(var(--spacing-unit)*4)] mb-[calc(var(--spacing-unit)*2)];
+    @apply text-headline-md  leading-headline-md tracking-headline-md mt-[calc(var(--spacing-unit)*4)] mb-[calc(var(--spacing-unit)*2)];
   }
   
   h3, h4, h5, h6 {

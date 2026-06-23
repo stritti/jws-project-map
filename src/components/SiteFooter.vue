@@ -3,7 +3,7 @@
     <div class="container mx-auto px-4 pb-[calc(72px+env(safe-area-inset-bottom,0px))]">
       <p class="m-0 text-label-sm text-onSurface-variant">
         <strong
-          ><a href="https://www.joerg-wolff-stiftung.de/" class="font-label-md text-onSurface hover:text-primary hover:underline">
+          ><a href="https://www.joerg-wolff-stiftung.de/" class=" text-onSurface hover:text-primary hover:underline">
             Jörg Wolff Stiftung</a
           ></strong
         >, Kölner Straße 8, 70376 Stuttgart, Germany
