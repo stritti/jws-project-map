@@ -195,6 +195,13 @@ defineExpose({
   @apply flex gap-px bg-black/10 rounded-lg p-px flex-shrink-0;
 }
 
+/* Hide view toggle on mobile to save space for filter button */
+@media (max-width: 767.98px) {
+  .view-toggle {
+    display: none;
+  }
+}
+
 .view-btn {
   @apply flex items-center justify-center w-[30px] h-[30px] border-none rounded-lg bg-transparent text-onSurface-variant cursor-pointer transition-all duration-150 text-base leading-none;
 }
