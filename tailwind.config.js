@@ -73,6 +73,14 @@ export default {
         'margin-lg': '24px',
         'sidebar-width': '320px',
       },
+      lineHeight: {
+        'headline-lg': '32px',
+        'headline-md': '28px',
+        'body-lg': '24px',
+        'body-md': '20px',
+        'label-md': '16px',
+        'label-sm': '14px',
+      },
       borderRadius: {
         'round-small': '0.25rem',
         'round-default': '0.5rem',
@@ -88,6 +96,12 @@ export default {
       },
       transitionTimingFunction: {
         'jws': 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+      outlineWidth: {
+        '3': '3px',
+      },
+      outlineColor: {
+        'secondary': '#3c5d9d',
       },
       animation: {
         'loader-slide': 'loader-slide 1.4s ease-in-out infinite',
