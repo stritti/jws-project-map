@@ -113,7 +113,7 @@ function isActive(item: NavItem): boolean {
 
   /* Thin top border for definition on light backgrounds */
   &::before {
-    @apply content-[''] absolute top-0 left-[1rem] right-[1rem] h-px bg-black/6;
+    @apply content-[''] absolute top-0 left-[1rem] right-[1rem] h-px bg-black/10;
   }
 }
 

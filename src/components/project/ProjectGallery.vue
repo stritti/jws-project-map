@@ -163,7 +163,7 @@ function onImageError() {
   }
 
   img {
-    @apply w-full h-full object-cover transition-transform duration-600 ease-[cubic-bezier(0.2,0.8,0.2,1)];
+    @apply w-full h-full object-cover transition-transform duration-[600ms] ease-[cubic-bezier(0.2,0.8,0.2,1)];
   }
 }
 

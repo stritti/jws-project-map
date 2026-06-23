@@ -476,7 +476,7 @@ const detailMarkerIcon = computed(() => {
 }
 
 .mini-map {
-  @apply border border-black/5 line-height-0;
+  @apply border border-black/5 leading-0;
 
   :deep(.leaflet-control-attribution) {
     @apply text-[9px];

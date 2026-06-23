@@ -175,7 +175,7 @@ onUnmounted(() => {
 }
 
 .meta-divider {
-  @apply h-px bg-black/6 my-[0.15rem] mx-[0.25rem];
+  @apply h-px bg-black/10 my-[0.15rem] mx-[0.25rem];
 }
 
 .meta-about-btn {

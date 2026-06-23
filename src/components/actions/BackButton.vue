@@ -40,7 +40,7 @@ export default defineComponent({
   @apply bg-transparent text-primary border-none rounded-round-default p-[var(--spacing-unit)] text-label-md leading-label-md tracking-label-md inline-flex items-center justify-center transition-[background-color,color] duration-200;
   
   &:hover {
-    @apply bg-primary text-on-primary;
+    @apply bg-primary text-white;
   }
   
   /* Ensure icon inherits color */
