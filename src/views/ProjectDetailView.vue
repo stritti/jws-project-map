@@ -208,9 +208,7 @@ const MarkdownText = defineAsyncComponent(
   () => import("@/components/MarkdownText.vue"),
 );
 
-const ProjectGallery = defineAsyncComponent(
-  () => import("@/components/project/ProjectGallery.vue"),
-);
+import ProjectGallery from "@/components/project/ProjectGallery.vue";
 
 const props = defineProps({
   projectId: {
