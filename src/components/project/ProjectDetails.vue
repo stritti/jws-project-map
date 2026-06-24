@@ -82,7 +82,7 @@ $bottom-nav-height: 64px;
   bottom: calc($bottom-nav-height + var(--spacing-unit) * 3 + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1000;
+  z-index: 1002;
   width: 90%;
   max-width: 600px;
 }

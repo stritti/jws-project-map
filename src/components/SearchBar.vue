@@ -16,6 +16,18 @@
         @blur="$emit('blur')"
       />
 
+      <button 
+        class="filter-btn" 
+        :class="{ active: filterCount > 0 }"
+        :aria-label="resolvedFilterLabel"
+        :aria-expanded="filterVisible"
+        @click="$emit('filter-click')"
+      >
+        <IBiFilterRight />
+        <span class="filter-label">{{ resolvedFilterLabel }}</span>
+        <span v-if="filterCount > 0" class="filter-badge">{{ filterCount }}</span>
+      </button>
+
       <!-- View toggle: Map / List -->
       <div class="view-toggle" role="group" :aria-label="t('search.viewToggleLabel')">
         <button
@@ -39,18 +51,6 @@
           <IBiListUl aria-hidden="true" />
         </button>
       </div>
-
-      <button 
-        class="filter-btn" 
-        :class="{ active: filterCount > 0 }"
-        :aria-label="resolvedFilterLabel"
-        :aria-expanded="filterVisible"
-        @click="$emit('filter-click')"
-      >
-        <IBiFilterRight />
-        <span class="filter-label">{{ resolvedFilterLabel }}</span>
-        <span v-if="filterCount > 0" class="filter-badge">{{ filterCount }}</span>
-      </button>
     </div>
     
     <!-- Filter chips -->
@@ -295,7 +295,7 @@ defineExpose({
   .filter-label {
     font-size: var(--font-size-label-md);
   }
-  
+
   .filter-badge {
     position: absolute;
     top: -4px;
@@ -316,6 +316,18 @@ defineExpose({
   &.active .filter-badge {
     background: var(--color-on-secondary);
     color: var(--color-secondary);
+  }
+}
+
+// On mobile, hide view toggle when search input is focused to save space
+@media (max-width: 767.98px) {
+  .search-bar:focus-within .view-toggle {
+    display: none;
+  }
+  
+  // Hide filter label text on mobile to save space
+  .filter-label {
+    display: none;
   }
 }
 

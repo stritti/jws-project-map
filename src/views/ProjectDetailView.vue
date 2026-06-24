@@ -168,7 +168,7 @@
               </b-button>
             </div>
 
-            <project-gallery v-if="project.gallery || project.teaserImg" :project="project" :title="t('gallery.title')" />
+            <project-gallery v-if="(project.gallery && project.gallery.length > 0) || (project.teaserImg && project.teaserImg.length > 0)" :project="project" :title="t('gallery.title')" />
           </div>
         </b-placeholder-wrapper>
       </div>
@@ -223,9 +223,7 @@ const MarkdownText = defineAsyncComponent(
   () => import("@/components/MarkdownText.vue"),
 );
 
-const ProjectGallery = defineAsyncComponent(
-  () => import("@/components/project/ProjectGallery.vue"),
-);
+import ProjectGallery from "@/components/project/ProjectGallery.vue";
 
 const props = defineProps({
   projectId: {

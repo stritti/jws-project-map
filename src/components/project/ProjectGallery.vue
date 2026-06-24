@@ -1,5 +1,5 @@
 <template>
-  <div v-if="project.gallery || project.teaserImg" class="project-gallery-section">
+  <div v-if="(project.gallery && project.gallery.length > 0) || (project.teaserImg && project.teaserImg.length > 0)" class="project-gallery-section">
     <h2 class="gallery-title mb-4">{{ title }}</h2>
     <div class="gallery-grid">
       <div
@@ -50,6 +50,7 @@
         >
           <video
             :src="item.signedUrl"
+            :poster="item.thumbnails?.card_cover?.signedUrl || item.thumbnails?.small?.signedUrl"
             preload="metadata"
             controls
             class="video-preview"
