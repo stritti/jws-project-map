@@ -52,6 +52,7 @@
             :src="item.signedUrl"
             :poster="item.thumbnails?.card_cover?.signedUrl || item.thumbnails?.small?.signedUrl"
             preload="metadata"
+            controls
             class="video-preview"
           >
             Your browser does not support the video tag.
