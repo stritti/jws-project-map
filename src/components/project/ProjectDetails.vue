@@ -73,7 +73,7 @@ export default defineComponent({
 /* Bottom navigation height (MainMenu content + padding) */
 /* Must account for safe-area-inset-bottom on notched devices. */
 .project-card-overlay {
-  @apply fixed bottom-[calc(64px+var(--spacing-unit)*3+env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 z-[1000] w-[90%] max-w-[600px];
+  @apply fixed bottom-[calc(64px+var(--spacing-unit)*3+env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 z-[1002] w-[90%] max-w-[600px];
 }
 
 .project-card-container {
