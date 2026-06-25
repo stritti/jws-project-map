@@ -16,6 +16,18 @@
         @blur="$emit('blur')"
       />
 
+      <button 
+        class="filter-btn" 
+        :class="{ active: filterCount > 0 }"
+        :aria-label="resolvedFilterLabel"
+        :aria-expanded="filterVisible"
+        @click="$emit('filter-click')"
+      >
+        <IBiFilterRight />
+        <span class="filter-label">{{ resolvedFilterLabel }}</span>
+        <span v-if="filterCount > 0" class="filter-badge">{{ filterCount }}</span>
+      </button>
+
       <!-- View toggle: Map / List -->
       <div class="view-toggle" role="group" :aria-label="t('search.viewToggleLabel')">
         <button
@@ -39,18 +51,6 @@
           <IBiListUl aria-hidden="true" />
         </button>
       </div>
-
-      <button 
-        class="filter-btn" 
-        :class="{ active: filterCount > 0 }"
-        :aria-label="resolvedFilterLabel"
-        :aria-expanded="filterVisible"
-        @click="$emit('filter-click')"
-      >
-        <IBiFilterRight />
-        <span class="filter-label">{{ resolvedFilterLabel }}</span>
-        <span v-if="filterCount > 0" class="filter-badge">{{ filterCount }}</span>
-      </button>
     </div>
     
     <!-- Filter chips -->
@@ -258,7 +258,7 @@ defineExpose({
 }
 
 .filter-label {
-  @apply text-label-md;
+  @apply text-label-md md:block;
 }
 
 .filter-badge {
