@@ -10,7 +10,7 @@
         <!-- Use ProjectListItem with actions slot — entire card links to detail page -->
         <project-list-item :project="project">
           <template #actions>
-            <button variant="primary" size="sm" class="details-btn" @click.stop="goToDetail">
+            <button class="details-btn" @click.stop="goToDetail">
               <IBiBoxArrowUpRight />
             </button>
             <navigate-button
@@ -105,7 +105,7 @@ export default defineComponent({
 
 .slide-up-enter-to,
 .slide-up-leave-from {
-  @apply opacity-10 -translate-x-1/2 translate-y-0;
+  @apply opacity-100 -translate-x-1/2 translate-y-0;
 }
 </style>
 

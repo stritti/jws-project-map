@@ -2,6 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Design tokens — consumed by components via var() */
+:root {
+  --spacing-unit: 4px;
+  --spacing-gutter-md: 16px;
+  --spacing-margin-lg: 24px;
+  --font-size-body-md: 14px;
+  --font-size-label-sm: 11px;
+  --font-weight-label-sm: 500;
+  --line-height-label-sm: 14px;
+  --letter-spacing-label-sm: 0.03em;
+  --shape-round-full: 9999px;
+  --color-surface-variant: #e1e3e4;
+  --color-on-surface-variant: #64748b;
+  /* Legacy aliases for components not yet fully migrated */
+  --jws-bg-subtle: #f0f0f0;
+  --jws-text-main: #212529;
+}
+
 /* Custom base styles */
 @layer base {
   html {

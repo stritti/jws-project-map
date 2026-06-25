@@ -126,12 +126,12 @@ function onImageError() {
 .gallery-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  auto-rows: 280px;
+  grid-auto-rows: 280px;
   gap: 1.5rem;
 
   @media (max-width: 576px) {
-    grid-template-columns: 1;
-    auto-rows: 240px;
+    grid-template-columns: 1fr;
+    grid-auto-rows: 240px;
   }
 }
 
@@ -146,7 +146,7 @@ function onImageError() {
     }
 
     .video-overlay {
-      @apply bg-black/100 backdrop-blur-[4px];
+      @apply bg-black/40 backdrop-blur-[4px];
 
       .play-button {
         @apply scale-[1.15] bg-white;
