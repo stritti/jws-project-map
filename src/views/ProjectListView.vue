@@ -416,7 +416,7 @@ onBeforeMount(() => {
   .filter-dropdown {
     position: relative;
     z-index: 1000;
-    max-height: min(50vh, 24rem);
+    max-height: min(70vh, 28rem);
   }
 }
 

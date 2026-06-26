@@ -142,24 +142,28 @@ const countryList = computed(() =>
 
 /* ── Header ── */
 .filter-header {
-  @apply flex items-center justify-between px-4 py-3 border-b border-outline/15;
+  @apply flex items-center justify-between px-3 py-2 border-b border-outline/15;
 }
 
 .filter-title {
-  @apply flex items-center gap-2 text-body-lg font-bold text-onSurface m-0 leading-none;
+  @apply flex items-center gap-1.5 text-body-md font-semibold text-onSurface m-0 leading-none;
+}
+
+.filter-title :deep(svg) {
+  font-size: 1rem;
 }
 
 .filter-close {
-  @apply flex items-center justify-center w-8 h-8 rounded-full border-none bg-transparent text-onSurface-variant cursor-pointer transition-all duration-200 hover:bg-black/10 hover:text-onSurface;
+  @apply flex items-center justify-center w-7 h-7 rounded-full border-none bg-transparent text-onSurface-variant cursor-pointer transition-all duration-200 hover:bg-black/10 hover:text-onSurface;
 }
 
 .filter-close :deep(svg) {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
 }
 
 /* ── Scroll area ── */
 .filter-scroll {
-  @apply max-h-full overflow-y-auto px-4 py-3;
+  @apply max-h-full overflow-y-auto px-3 py-2;
   touch-action: pan-y;
 }
 
