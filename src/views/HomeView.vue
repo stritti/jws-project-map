@@ -235,13 +235,13 @@ onUnmounted(() => {
         <div class="mt-3">
           <div class="flex items-center justify-between">
             <label class="" for="clusterToggle">
-              Marker-Clustering
+              {{ t("search.clusteringToggle") }}
             </label>
             <label class="form-switch mb-0">
               <input class="form-check-input" type="checkbox" id="clusterToggle" v-model="clusterEnabled">
             </label>
           </div>
-          <p class="text-onSurface-variant text-label-sm mt-1 mb-0">Fasst Pins auf der Karte zusammen, um die Performance zu verbessern.</p>
+          <p class="text-onSurface-variant text-label-sm mt-1 mb-0">{{ t("search.clusteringHint") }}</p>
         </div>
       </FilterPanel>
       

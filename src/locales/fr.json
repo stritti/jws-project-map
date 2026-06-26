@@ -35,7 +35,9 @@
     "resultsLabel": "Résultats de recherche",
     "viewToggleLabel": "Vue : Carte ou Liste",
     "viewMap": "Vue Carte",
-    "viewList": "Vue Liste"
+    "viewList": "Vue Liste",
+    "clusteringToggle": "Clustering de marqueurs",
+    "clusteringHint": "Regroupe les pins sur la carte pour améliorer les performances."
   },
   "nav": {
     "map": "Carte",
