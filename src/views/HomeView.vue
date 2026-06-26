@@ -433,10 +433,12 @@ onUnmounted(() => {
 /* Form switch for cluster toggle */
 .form-switch {
   @apply inline-block relative;
+  line-height: 0;
 }
 
 .form-switch .form-check-input {
-  @apply w-[2.25rem] h-[1.25rem] rounded-full appearance-none bg-outline-variant transition-all duration-200 cursor-pointer;
+  @apply w-[2.25rem] h-[1.25rem] rounded-full appearance-none bg-outline-variant transition-all duration-200 cursor-pointer relative;
+  margin: 0;
 }
 
 .form-switch .form-check-input:checked {
@@ -454,6 +456,7 @@ onUnmounted(() => {
   border-radius: 9999px;
   transition-property: transform;
   transition-duration: 200ms;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 .form-switch .form-check-input:checked::before {
