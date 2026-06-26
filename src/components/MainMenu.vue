@@ -77,39 +77,40 @@ function isActive(item: NavItem): boolean {
       </router-link>
     </div>
 
-    <!-- About button -->
-    <button
-      class="about-btn"
-      :aria-label="t('nav.about')"
-      :title="t('nav.about')"
-      @click="openAbout"
-    >
-      <IBiInfoCircle aria-hidden="true" />
-    </button>
-
-    <AboutModal ref="aboutModalRef" @hidden="restoreFocus" />
-
-    <!-- Language switcher -->
-    <div class="lang-section" role="group" :aria-label="t('a11y.languageSelector')">
+    <!-- Right-section: About + Language switcher -->
+    <div class="right-section">
       <button
-        v-for="lang in languages"
-        :key="lang.code"
-        class="lang-btn"
-        :class="{ active: locale === lang.code }"
-        :lang="lang.code"
-        :aria-label="lang.label"
-        :aria-current="locale === lang.code ? 'true' : undefined"
-        @click="switchLocale(lang.code)"
+        class="about-btn"
+        :aria-label="t('nav.about')"
+        :title="t('nav.about')"
+        @click="openAbout"
       >
-        <span :class="`fi fis fi-${lang.flag}`" aria-hidden="true" />
+        <IBiInfoCircle aria-hidden="true" />
       </button>
+
+      <AboutModal ref="aboutModalRef" @hidden="restoreFocus" />
+
+      <div class="lang-section" role="group" :aria-label="t('a11y.languageSelector')">
+        <button
+          v-for="lang in languages"
+          :key="lang.code"
+          class="lang-btn"
+          :class="{ active: locale === lang.code }"
+          :lang="lang.code"
+          :aria-label="lang.label"
+          :aria-current="locale === lang.code ? 'true' : undefined"
+          @click="switchLocale(lang.code)"
+        >
+          <span :class="`fi fis fi-${lang.flag}`" aria-hidden="true" />
+        </button>
+      </div>
     </div>
   </nav>
 </template>
 
 <style lang="postcss" scoped>
 .main-menu {
-  @apply fixed bottom-0 left-0 right-0 z-[999] flex items-center justify-evenly px-[0.5rem] md:px-[0.75rem] pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] pt-[0.5rem] bg-white/95 backdrop-blur-xl rounded-t-[1rem] shadow-[0_-4px_16px_rgba(0,0,0,0.06)];
+  @apply fixed bottom-0 left-0 right-0 z-[999] flex items-center justify-start px-[0.5rem] md:px-[0.75rem] pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] pt-[0.5rem] bg-white/95 backdrop-blur-xl rounded-t-[1rem] shadow-[0_-4px_16px_rgba(0,0,0,0.06)];
 
   /* Thin top border for definition on light backgrounds */
   &::before {
@@ -149,6 +150,11 @@ function isActive(item: NavItem): boolean {
 
 .nav-label {
   @apply hidden md:block text-[0.7rem] font-medium leading-none tracking-[0.02em] transition-all duration-200;
+}
+
+/* Right section — pushed to the right */
+.right-section {
+  @apply flex items-center gap-[0.25rem] ml-auto;
 }
 
 /* About button */
