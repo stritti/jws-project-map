@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4">
+  <div class="container mx-auto px-2 md:px-4">
     <div class="project-list">
       <div class="list-header" :class="{ 'header-scrolled': headerScrolled }">
         <h1>{{ t("app.title") }}</h1>
