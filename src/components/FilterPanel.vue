@@ -13,7 +13,7 @@
 
       <div class="filter-scroll">
         <div class="filter-grid">
-          <div class="filter-group md:border-r md:border-outline/20 md:pr-4">
+          <div class="filter-group sm:border-r sm:border-outline/20 sm:pr-3">
             <fieldset class="filter-fieldset">
               <legend class="filter-group-title flex items-center gap-2">
                 <IBiCheck2Circle /> {{ t("search.filterGroups.status") }}
@@ -34,7 +34,7 @@
               </div>
             </fieldset>
           </div>
-          <div class="filter-group md:border-r md:border-outline/20 md:pr-4">
+          <div class="filter-group sm:border-r sm:border-outline/20 sm:pr-3">
             <fieldset class="filter-fieldset">
               <legend class="filter-group-title flex items-center gap-2">
                 <IBiTag /> {{ t("search.filterGroups.categories") }}
@@ -174,12 +174,12 @@ const countryList = computed(() =>
 
 /* ── Grid layout ── */
 .filter-grid {
-  @apply grid grid-cols-1 md:grid-cols-3 gap-4;
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3;
 }
 
 /* ── Group ── */
 .filter-group {
-  @apply mb-4 md:mb-0;
+  @apply mb-3 sm:mb-0;
 }
 
 .filter-fieldset {
@@ -192,7 +192,7 @@ const countryList = computed(() =>
 
 /* ── Custom checkbox ── */
 .custom-check-group {
-  @apply space-y-2;
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-1;
 }
 
 .form-check {
