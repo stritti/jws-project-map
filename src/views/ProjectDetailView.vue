@@ -10,7 +10,7 @@
           </div>
         </div>
         <div v-if="project" class="page-header flex flex-wrap items-center gap-3 py-2">
-          <back-button v-if="!isIFrame" class="back-btn shadow-sm hidden md:flex" />
+          <back-button v-if="!isIFrame" class="back-btn shadow-sm flex" />
           <h1 class="title mb-0 flex-grow-1 font-bold">
             {{ project.name }}
           </h1>
@@ -18,16 +18,7 @@
       </div>
     </div>
 
-    <!-- Floating back button for mobile -->
-    <button
-      v-if="!isIFrame && project"
-      class="floating-back-btn md:hidden"
-      :aria-label="t('nav.back')"
-      :title="t('nav.back')"
-      @click="goBack"
-    >
-      <IBiArrowLeft class="floating-back-icon" aria-hidden="true" />
-    </button>
+    <!-- Mobile back button in header bar (visible via .back-btn) -->
 
     <div class="container mx-auto px-0 md:px-3">
       <div v-if="loading" class="w-full h-[40vh] rounded-round-xl mb-4 animate-pulse bg-outline-variant/20"></div>
@@ -223,10 +214,6 @@ const projectStore = useProjectStore();
 const categoryStore = useCategoryStore();
 const countryStore = useCountryStore();
 
-function goBack() {
-  router.go(-1);
-}
-
 // Load data before mount to start fetching earlier
 onBeforeMount(() => {
   Promise.all([projectStore.load(), categoryStore.load(), countryStore.load()]);
@@ -316,7 +303,7 @@ const detailMarkerIcon = computed(() => {
 }
 
 .page-header-sticky {
-  @apply sticky top-0 z-[100] bg-white/85 backdrop-blur-xl shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition-[padding,box-shadow] duration-300 ease-in-out;
+  @apply sticky top-0 z-[1001] bg-white/85 backdrop-blur-xl shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition-[padding,box-shadow] duration-300 ease-in-out;
 
   &.header-scrolled {
     @apply pt-[0.2rem] pb-[0.1rem] shadow-[0_2px_8px_rgba(0,0,0,0.05)];
@@ -340,37 +327,10 @@ const detailMarkerIcon = computed(() => {
 }
 
 :deep(.back-btn) {
-  border-radius: 9999px;
-  width: 2.75rem;
-  height: 2.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition-property: all;
-  transition-duration: 300ms;
-  transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
-  background-color: white;
-  border: 1px solid #3d5e9e;
-  color: #3d5e9e;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-:deep(.back-btn:hover) {
-  transform: translateX(-0.25rem);
-  background-color: #3d5e9e;
-  color: white;
-  box-shadow: 0 4px 15px rgba(61, 94, 158, 0.2);
-}
-
-.floating-back-btn {
-  @apply fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-[calc(1rem+env(safe-area-inset-left,0px))] z-[999] w-11 h-11 rounded-full border border-black/10 bg-white/90 backdrop-blur-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] cursor-pointer flex items-center justify-center text-onSurface transition-all duration-200 ease-in-out;
-
-  &:hover {
-    @apply bg-white/90 shadow-[0_4px_20px_rgba(0,0,0,0.12)] text-secondary;
-  }
-
-  .floating-back-icon {
-    @apply text-[1.35rem] leading-none;
+  .back-button-inner {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.25rem;
   }
 }
 

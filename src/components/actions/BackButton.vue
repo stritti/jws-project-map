@@ -37,15 +37,15 @@ export default defineComponent({
 
 <style lang="postcss" scoped>
 .back-button-inner {
-  @apply bg-transparent text-primary border-none rounded-round-default p-[var(--spacing-unit)] text-label-md leading-label-md tracking-label-md inline-flex items-center justify-center transition-[background-color,color] duration-200;
-  
+  @apply flex items-center justify-center w-[36px] h-[36px] rounded-full border-none bg-transparent cursor-pointer p-0 transition-all duration-200 text-onSurface-variant;
+
   &:hover {
-    @apply bg-primary text-white;
+    @apply text-primary bg-secondary/10;
   }
   
   /* Ensure icon inherits color */
-  .ibi-arrow-left {
-    @apply text-inherit text-[1.25rem];
+  :deep(svg) {
+    @apply text-[1.25rem];
   }
 }
 </style>
