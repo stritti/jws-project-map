@@ -192,7 +192,7 @@ const countryList = computed(() =>
 
 /* ── Custom checkbox ── */
 .custom-check-group {
-  @apply grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-1;
+  @apply grid grid-cols-2 gap-x-3 gap-y-1;
 }
 
 .form-check {
