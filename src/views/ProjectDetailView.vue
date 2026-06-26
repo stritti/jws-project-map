@@ -536,6 +536,20 @@ const detailMarkerIcon = computed(() => {
 .detail-marker-icon {
   @apply bg-transparent border-none;
 }
+
+/* State badge backgrounds — kept in unscoped to avoid Chromium compositing
+   edge case where scoped [data-v-xxx] variant selectors don't paint reliably. */
+.state-badge.finished {
+  @apply bg-finished text-white;
+}
+
+.state-badge.under-construction {
+  @apply bg-underConstruction text-black;
+}
+
+.state-badge.planned {
+  @apply bg-planned text-white;
+}
 </style>
 
 /* Custom animations */

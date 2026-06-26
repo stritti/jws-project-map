@@ -57,7 +57,7 @@
         <!-- Filter panel overlays the list via absolute positioning -->
         <FilterPanel v-if="filterVisible" @close="filterVisible = false" />
       </div>
-      <div class="mb-4 text-onSurface-variant text-body-md" v-if="filteredProjectList.length !== finalProjectList.length || activeFiltersCount > 0 || searchQuery">
+      <div class="pt-16 md:pt-0 mb-4 text-onSurface-variant text-body-md" v-if="filteredProjectList.length !== finalProjectList.length || activeFiltersCount > 0 || searchQuery">
         {{ t("search.resultsCount", { count: finalProjectList.length }) }}
       </div>
       <!-- Screen reader announcement for filter result count -->
