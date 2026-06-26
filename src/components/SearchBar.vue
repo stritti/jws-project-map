@@ -179,7 +179,16 @@ defineExpose({
 }
 
 .search-input {
-  @apply flex-1 bg-transparent border-none px-[0.5rem] py-[0.25rem] text-body-md text-onSurface placeholder:text-onSurface-variant focus:outline-2 focus:outline-secondary focus:outline-offset-2;
+  @apply bg-transparent border-none px-[0.5rem] py-[0.25rem] text-body-md text-onSurface placeholder:text-onSurface-variant focus:outline-2 focus:outline-secondary focus:outline-offset-2;
+  /* Compact by default — only grows on focus */
+  flex: 0 1 80px;
+  min-width: 60px;
+  transition: flex 0.25s ease, min-width 0.25s ease;
+}
+
+.search-bar:focus-within .search-input {
+  flex: 1 1 100%;
+  min-width: 0;
 }
 
 /* iOS Safari auto-zooms any input with font-size < 16px; force 16px on mobile */

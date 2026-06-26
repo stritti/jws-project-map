@@ -109,7 +109,7 @@ function isActive(item: NavItem): boolean {
 
 <style lang="postcss" scoped>
 .main-menu {
-  @apply fixed bottom-0 left-0 right-0 z-[999] flex items-center justify-evenly px-[0.75rem] pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] pt-[0.5rem] bg-white/95 backdrop-blur-xl rounded-t-[1rem] shadow-[0_-4px_16px_rgba(0,0,0,0.06)];
+  @apply fixed bottom-0 left-0 right-0 z-[999] flex items-center justify-evenly px-[0.5rem] md:px-[0.75rem] pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] pt-[0.5rem] bg-white/95 backdrop-blur-xl rounded-t-[1rem] shadow-[0_-4px_16px_rgba(0,0,0,0.06)];
 
   /* Thin top border for definition on light backgrounds */
   &::before {
@@ -124,11 +124,11 @@ function isActive(item: NavItem): boolean {
 }
 
 .nav-items {
-  @apply flex items-center gap-[0.25rem];
+  @apply flex items-center gap-[0.15rem] md:gap-[0.25rem];
 }
 
 .nav-item {
-  @apply flex flex-col items-center justify-center gap-[3px] no-underline text-onSurface-variant px-[0.375rem] py-[0.375rem] rounded-full transition-all duration-200 min-w-[64px];
+  @apply flex flex-col items-center justify-center gap-[2px] md:gap-[3px] no-underline text-onSurface-variant px-[0.25rem] md:px-[0.375rem] py-[0.25rem] md:py-[0.375rem] rounded-full transition-all duration-200 min-w-[40px] md:min-w-[64px];
 
   &:hover {
     @apply text-primary bg-secondary/10;
@@ -144,33 +144,33 @@ function isActive(item: NavItem): boolean {
 }
 
 .nav-icon {
-  @apply text-[1.35rem] leading-none transition-all duration-200;
+  @apply text-[1.25rem] md:text-[1.35rem] leading-none transition-all duration-200;
 }
 
 .nav-label {
-  @apply text-[0.7rem] font-medium leading-none tracking-[0.02em] transition-all duration-200;
+  @apply hidden md:block text-[0.7rem] font-medium leading-none tracking-[0.02em] transition-all duration-200;
 }
 
 /* About button */
 .about-btn {
-  @apply flex items-center justify-center w-[32px] h-[32px] rounded-full border-none bg-transparent cursor-pointer p-0 transition-all duration-200 text-onSurface-variant;
+  @apply flex items-center justify-center w-[28px] h-[28px] md:w-[32px] md:h-[32px] rounded-full border-none bg-transparent cursor-pointer p-0 transition-all duration-200 text-onSurface-variant;
 
   &:hover {
     @apply text-primary bg-secondary/10;
   }
 
   :deep(svg) {
-    font-size: 1.25rem;
+    font-size: 1.15rem;
   }
 }
 
 /* Language switcher */
 .lang-section {
-  @apply flex items-center gap-[0.15rem];
+  @apply flex items-center gap-[0.1rem] md:gap-[0.15rem];
 }
 
 .lang-btn {
-  @apply flex items-center justify-center w-[28px] h-[28px] rounded-full border-2 border-transparent bg-transparent cursor-pointer p-0 transition-all duration-200 opacity-40 grayscale-[0.6];
+  @apply flex items-center justify-center w-[22px] h-[22px] md:w-[28px] md:h-[28px] rounded-full border-2 border-transparent bg-transparent cursor-pointer p-0 transition-all duration-200 opacity-40 grayscale-[0.6];
 
   &:hover {
     @apply opacity-85 grayscale-0 bg-secondary/10;
@@ -181,8 +181,15 @@ function isActive(item: NavItem): boolean {
   }
 
   :deep(.fi) {
-    font-size: 0.95rem;
+    font-size: 0.75rem;
     border-radius: 2px;
+  }
+}
+
+/* On mobile, reduce overall spacing */
+@media (max-width: 767.98px) {
+  .nav-item {
+    min-width: 36px;
   }
 }
 </style>
