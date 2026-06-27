@@ -29,3 +29,6 @@ coverage
 dev-dist/
 .aider*
 opencode.json
+
+# Bun is the package manager — npm lockfile not needed
+package-lock.json
