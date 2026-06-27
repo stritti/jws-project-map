@@ -78,7 +78,7 @@
         </div>
         <div v-if="finalProjectList.length === 0" class="no-results py-5 text-center">
           <div class="text-[4rem] text-onSurface-variant opacity-25 mb-4">
-            <IBiEmojiDizzy />
+            <IBiEmojiDizzy aria-hidden="true" />
           </div>
           <h3>{{ t("search.noResultsTitle") }}</h3>
           <p class="text-onSurface-variant">{{ t("search.noResultsHint") }}</p>

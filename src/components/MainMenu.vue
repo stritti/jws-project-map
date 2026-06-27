@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, nextTick, onMounted, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { setLocale, type Locale } from "@/plugins/i18n";
@@ -29,6 +29,8 @@ const { setTrigger, restoreFocus } = useFocusRestore();
 /* More-menu state */
 const moreOpen = ref(false);
 const moreMenuRef = ref<HTMLElement | null>(null);
+const morePanelRef = ref<HTMLElement | null>(null);
+const moreFocusIndex = ref(-1);
 
 function toggleMore() {
   moreOpen.value = !moreOpen.value;
@@ -36,6 +38,11 @@ function toggleMore() {
 
 function closeMore() {
   moreOpen.value = false;
+  moreFocusIndex.value = -1;
+  // Return focus to trigger after DOM update
+  nextTick(() => {
+    moreMenuRef.value?.querySelector<HTMLElement>('.more-trigger')?.focus();
+  });
 }
 
 function onClickOutside(e: MouseEvent) {
@@ -44,18 +51,67 @@ function onClickOutside(e: MouseEvent) {
   }
 }
 
-function onKeydown(e: KeyboardEvent) {
+/* Keyboard navigation for role="menu" (ARIA APG pattern) */
+function onMorePanelKeydown(e: KeyboardEvent) {
+  if (!moreOpen.value) return;
+  const items = morePanelRef.value?.querySelectorAll<HTMLElement>('[role="menuitem"]');
+  if (!items || items.length === 0) return;
+
+  let idx = moreFocusIndex.value;
+
+  switch (e.key) {
+    case 'ArrowDown':
+    case 'ArrowRight':
+      e.preventDefault();
+      idx = (idx + 1) % items.length;
+      break;
+    case 'ArrowUp':
+    case 'ArrowLeft':
+      e.preventDefault();
+      idx = (idx - 1 + items.length) % items.length;
+      break;
+    case 'Home':
+      e.preventDefault();
+      idx = 0;
+      break;
+    case 'End':
+      e.preventDefault();
+      idx = items.length - 1;
+      break;
+    case 'Escape':
+      e.preventDefault();
+      closeMore();
+      return;
+    default:
+      return;
+  }
+
+  moreFocusIndex.value = idx;
+  items[idx]?.focus();
+}
+
+function onMorePanelEnter() {
+  const items = morePanelRef.value?.querySelectorAll<HTMLElement>('[role="menuitem"]');
+  if (!items || items.length === 0) return;
+  const activeIdx = Array.from(items).findIndex(
+    (item) => item.classList.contains('active'),
+  );
+  moreFocusIndex.value = activeIdx >= 0 ? activeIdx : 0;
+  items[moreFocusIndex.value]?.focus();
+}
+
+function onGlobalKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape') closeMore();
 }
 
 onMounted(() => {
   document.addEventListener('click', onClickOutside);
-  document.addEventListener('keydown', onKeydown);
+  document.addEventListener('keydown', onGlobalKeydown);
 });
 
 onUnmounted(() => {
   document.removeEventListener('click', onClickOutside);
-  document.removeEventListener('keydown', onKeydown);
+  document.removeEventListener('keydown', onGlobalKeydown);
 });
 
 function openAbout() {
@@ -123,8 +179,15 @@ function isActive(item: NavItem): boolean {
           <IBiThreeDots aria-hidden="true" />
         </button>
 
-        <Transition name="more-flyout">
-          <div v-if="moreOpen" class="more-panel" role="menu" :aria-label="t('nav.more')">
+        <Transition name="more-flyout" @after-enter="onMorePanelEnter">
+          <div
+            v-if="moreOpen"
+            ref="morePanelRef"
+            class="more-panel"
+            role="menu"
+            :aria-label="t('nav.more')"
+            @keydown="onMorePanelKeydown"
+          >
             <!-- Language options -->
             <div class="more-section">
               <button
@@ -134,7 +197,7 @@ function isActive(item: NavItem): boolean {
                 :class="{ active: locale === lang.code }"
                 role="menuitem"
                 :lang="lang.code"
-                :aria-label="lang.label"
+                :aria-current="locale === lang.code ? 'true' : undefined"
                 @click="switchLocale(lang.code); closeMore()"
               >
                 <span :class="`fi fis fi-${lang.flag}`" aria-hidden="true" />
