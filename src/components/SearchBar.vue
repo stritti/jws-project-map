@@ -212,7 +212,7 @@ defineExpose({
 }
 
 .view-btn {
-  @apply flex items-center justify-center w-[30px] h-[30px] border-none rounded-lg bg-transparent text-onSurface-variant cursor-pointer transition-all duration-150 text-base leading-none;
+  @apply flex items-center justify-center w-[30px] h-[30px] border-none rounded-lg bg-transparent text-onSurface-variant cursor-pointer transition-colors duration-150 text-base leading-none;
 }
 
 /* Touch-friendly minimum 44×44 px on mobile */
@@ -288,7 +288,7 @@ defineExpose({
 }
 
 .filter-chip {
-  @apply flex-shrink-0 px-[0.75rem] py-[0.375rem] rounded-full text-label-md font-medium cursor-pointer transition-all duration-150 whitespace-nowrap bg-surface border border-outline text-onSurface hover:bg-surface-variant;
+  @apply flex-shrink-0 px-[0.75rem] py-[0.375rem] rounded-full text-label-md font-medium cursor-pointer transition-colors duration-150 whitespace-nowrap bg-surface border border-outline text-onSurface hover:bg-surface-variant;
 }
 
 .filter-chip.active {

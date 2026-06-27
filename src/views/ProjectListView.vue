@@ -435,6 +435,14 @@ onBeforeMount(() => {
   }
 }
 
+/* Respect reduced motion: solid bg instead of expensive backdrop-filter */
+@media (prefers-reduced-motion: reduce) {
+  .list-header {
+    background-color: rgba(255, 255, 255, 0.97) !important;
+    backdrop-filter: none !important;
+  }
+}
+
 .no-results {
   @apply bg-surface rounded-round-xl my-[var(--spacing-margin-lg)] p-[var(--spacing-margin-lg)] text-center;
 }

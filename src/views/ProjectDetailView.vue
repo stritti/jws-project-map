@@ -327,9 +327,17 @@ const detailMarkerIcon = computed(() => {
   }
 }
 
+/* Respect reduced motion: solid bg instead of expensive backdrop-filter */
+@media (prefers-reduced-motion: reduce) {
+  .page-header-sticky {
+    background-color: rgba(255, 255, 255, 0.97) !important;
+    backdrop-filter: none !important;
+  }
+}
+
 .page-header {
   .title {
-    @apply text-[1.5rem] font-bold text-primary tracking-[-0.02em] leading-[1.2] transition-all duration-300 ease-in-out;
+    @apply text-[1.5rem] font-bold text-primary tracking-[-0.02em] leading-[1.2] transition-[font-size] duration-300 ease-in-out;
 
     @media (max-width: 768px) {
       font-size: 1.25rem;
@@ -348,7 +356,7 @@ const detailMarkerIcon = computed(() => {
 }
 
 .floating-back-btn {
-  @apply fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-[calc(1rem+env(safe-area-inset-left,0px))] z-[999] w-11 h-11 rounded-full border border-black/10 bg-white/90 backdrop-blur-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] cursor-pointer flex items-center justify-center text-onSurface transition-all duration-200 ease-in-out;
+  @apply fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-[calc(1rem+env(safe-area-inset-left,0px))] z-[999] w-11 h-11 rounded-full border border-black/10 bg-white/90 backdrop-blur-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] cursor-pointer flex items-center justify-center text-onSurface transition-[color,box-shadow] duration-200 ease-in-out;
 
   &:hover {
     @apply bg-white/90 shadow-[0_4px_20px_rgba(0,0,0,0.12)] text-secondary;

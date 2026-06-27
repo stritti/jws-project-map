@@ -247,7 +247,7 @@ function isActive(item: NavItem): boolean {
 }
 
 .nav-item {
-  @apply flex flex-col items-center justify-center gap-[2px] md:gap-[3px] no-underline text-onSurface-variant px-[0.25rem] md:px-[0.375rem] py-[0.25rem] md:py-[0.375rem] rounded-full transition-all duration-200 min-w-[40px] md:min-w-[64px];
+  @apply flex flex-col items-center justify-center gap-[2px] md:gap-[3px] no-underline text-onSurface-variant px-[0.25rem] md:px-[0.375rem] py-[0.25rem] md:py-[0.375rem] rounded-full transition-colors duration-200 min-w-[40px] md:min-w-[64px];
 
   &:hover {
     @apply text-primary bg-secondary/10;
@@ -263,11 +263,11 @@ function isActive(item: NavItem): boolean {
 }
 
 .nav-icon {
-  @apply text-[1.25rem] md:text-[1.35rem] leading-none transition-all duration-200;
+  @apply text-[1.25rem] md:text-[1.35rem] leading-none transition-[font-size] duration-200;
 }
 
 .nav-label {
-  @apply hidden md:block text-[0.7rem] font-medium leading-none tracking-[0.02em] transition-all duration-200;
+  @apply hidden md:block text-[0.7rem] font-medium leading-none tracking-[0.02em];
 }
 
 /* Right section — pushed to the right */
@@ -281,7 +281,7 @@ function isActive(item: NavItem): boolean {
 }
 
 .more-trigger {
-  @apply flex items-center justify-center w-[28px] h-[28px] md:w-[32px] md:h-[32px] rounded-full border-none bg-transparent cursor-pointer p-0 transition-all duration-200 text-onSurface-variant;
+  @apply flex items-center justify-center w-[28px] h-[28px] md:w-[32px] md:h-[32px] rounded-full border-none bg-transparent cursor-pointer p-0 transition-colors duration-200 text-onSurface-variant;
 
   &:hover {
     @apply text-primary bg-secondary/10;
@@ -304,7 +304,7 @@ function isActive(item: NavItem): boolean {
 }
 
 .more-option {
-  @apply flex items-center gap-2.5 w-full px-3 py-2 rounded-lg border-none bg-transparent cursor-pointer text-sm text-onSurface transition-all duration-150 text-left;
+  @apply flex items-center gap-2.5 w-full px-3 py-2 rounded-lg border-none bg-transparent cursor-pointer text-sm text-onSurface transition-colors duration-150 text-left;
 
   &:hover {
     @apply bg-secondary/10 text-primary;

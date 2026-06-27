@@ -136,7 +136,7 @@ function onImageError() {
 }
 
 .gallery-item {
-  @apply relative rounded-round-xl overflow-hidden cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.06)] transition-all duration-300 bg-surface;
+  @apply relative rounded-round-xl overflow-hidden cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.06)] transition-[transform,box-shadow] duration-300 bg-surface;
 
   &:hover {
     @apply -translate-y-[6px] shadow-[0_12px_28px_rgba(0,0,0,0.12)] z-10;
@@ -188,11 +188,11 @@ function onImageError() {
 }
 
 .video-overlay {
-  @apply absolute inset-0 bg-black/25 flex items-center justify-center transition-all duration-300;
+  @apply absolute inset-0 bg-black/25 flex items-center justify-center transition-colors duration-300;
 }
 
 .play-button {
-  @apply w-[72px] h-[72px] bg-white/90 backdrop-blur-[8px] rounded-full flex items-center justify-center transition-all duration-300 relative shadow-[0_8px_24px_rgba(0,0,0,0.2)];
+  @apply w-[72px] h-[72px] bg-white/90 backdrop-blur-[8px] rounded-full flex items-center justify-center transition-[transform,background-color] duration-300 relative shadow-[0_8px_24px_rgba(0,0,0,0.2)];
 
   &::after {
     @apply content-[''] absolute ml-[6px] border-solid border-t-[12px] border-b-[12px] border-l-[20px] border-transparent border-l-primary;

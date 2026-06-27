@@ -127,7 +127,7 @@ onUnmounted(() => {
 
 .meta-trigger {
   /* 44px matches the iOS HIG minimum touch target size */
-  @apply w-[44px] h-[44px] rounded-full border border-black/10 bg-white/90 backdrop-blur-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] cursor-pointer flex items-center justify-center text-onSurface transition-all duration-200;
+  @apply w-[44px] h-[44px] rounded-full border border-black/10 bg-white/90 backdrop-blur-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] cursor-pointer flex items-center justify-center text-onSurface transition-[color,background-color,box-shadow] duration-200;
 
   &:hover {
     @apply bg-white/90 shadow-[0_4px_20px_rgba(0,0,0,0.12)] text-secondary;
@@ -155,7 +155,7 @@ onUnmounted(() => {
 }
 
 .meta-lang-btn {
-  @apply flex items-center justify-center w-[32px] h-[32px] rounded-[8px] border-none bg-transparent cursor-pointer p-0 transition-all duration-150 opacity-40 grayscale-[0.6];
+  @apply flex items-center justify-center w-[32px] h-[32px] rounded-[8px] border-none bg-transparent cursor-pointer p-0 transition-[opacity,filter,background-color] duration-150 opacity-40 grayscale-[0.6];
 
   &:hover {
     @apply opacity-80 grayscale-0 bg-secondary/10;
@@ -181,7 +181,7 @@ onUnmounted(() => {
 }
 
 .meta-about-btn {
-  @apply flex items-center gap-[0.5rem] px-[0.75rem] py-[0.4rem] rounded-[8px] border-none bg-transparent cursor-pointer text-[0.8rem] text-onSurface transition-all duration-150 whitespace-nowrap;
+  @apply flex items-center gap-[0.5rem] px-[0.75rem] py-[0.4rem] rounded-[8px] border-none bg-transparent cursor-pointer text-[0.8rem] text-onSurface transition-colors duration-150 whitespace-nowrap;
 
   &:hover {
     @apply bg-secondary/10 text-secondary;
@@ -196,7 +196,7 @@ onUnmounted(() => {
 /* Transition */
 .meta-fade-enter-active,
 .meta-fade-leave-active {
-  @apply transition-all duration-200 ease-in-out;
+  @apply transition-[opacity,transform] duration-200 ease-in-out;
 }
 
 .meta-fade-enter-from,

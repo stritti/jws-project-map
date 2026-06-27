@@ -81,7 +81,7 @@ export default defineComponent({
 }
 
 .close-btn {
-  @apply absolute -top-[calc(var(--spacing-unit)*1.5)] -right-[calc(var(--spacing-unit)*1.5)] z-10 w-8 h-8 rounded-full border-none bg-surface text-onSurface shadow-[0_var(--spacing-unit)_calc(var(--spacing-unit)*3)_rgba(9,20,38,0.12)] cursor-pointer flex items-center justify-center transition-all duration-200;
+  @apply absolute -top-[calc(var(--spacing-unit)*1.5)] -right-[calc(var(--spacing-unit)*1.5)] z-10 w-8 h-8 rounded-full border-none bg-surface text-onSurface shadow-[0_var(--spacing-unit)_calc(var(--spacing-unit)*3)_rgba(9,20,38,0.12)] cursor-pointer flex items-center justify-center transition-[background-color,transform] duration-200;
   
   &:hover {
     @apply bg-surface-variant scale-110;
@@ -95,7 +95,7 @@ export default defineComponent({
 /* Transition */
 .slide-up-enter-active,
 .slide-up-leave-active {
-  @apply transition-all duration-300 ease-[cubic-bezier(0.165,0.84,0.44,1)];
+  @apply transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.165,0.84,0.44,1)];
 }
 
 .slide-up-enter-from,

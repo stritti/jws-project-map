@@ -176,7 +176,7 @@ export default defineComponent({
 }
 
 .project-list-item {
-  @apply h-full min-h-[180px] transition-all duration-[400ms] ease-[cubic-bezier(0.165,0.84,0.44,1)] border-none rounded-round-xl overflow-hidden shadow-[0_var(--spacing-unit)_calc(var(--spacing-unit)*3)_rgba(9,20,38,0.08)] bg-surface relative;
+  @apply h-full min-h-[180px] transition-[transform,box-shadow] duration-[400ms] ease-[cubic-bezier(0.165,0.84,0.44,1)] border-none rounded-round-xl overflow-hidden shadow-[0_var(--spacing-unit)_calc(var(--spacing-unit)*3)_rgba(9,20,38,0.08)] bg-surface relative;
 
   &:hover {
     @apply -translate-y-[calc(var(--spacing-unit)*2)] shadow-[0_calc(var(--spacing-unit)*2)_calc(var(--spacing-unit)*6)_rgba(9,20,38,0.12)];

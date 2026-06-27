@@ -422,7 +422,7 @@ onUnmounted(() => {
   }
 
   .map-type-btn {
-    @apply flex items-center px-4 py-2 rounded-full text-label-md font-semibold cursor-pointer transition-all duration-150 border border-outline bg-surface text-onSurface hover:border-secondary hover:bg-secondary/10;
+    @apply flex items-center px-4 py-2 rounded-full text-label-md font-semibold cursor-pointer transition-colors duration-150 border border-outline bg-surface text-onSurface hover:border-secondary hover:bg-secondary/10;
 
     &.active {
       @apply bg-secondary border-secondary text-white shadow-[0_2px_8px_rgba(61,94,158,0.25)];
@@ -437,7 +437,7 @@ onUnmounted(() => {
 }
 
 .form-switch .form-check-input {
-  @apply w-[2.25rem] h-[1.25rem] rounded-full appearance-none bg-outline-variant transition-all duration-200 cursor-pointer relative;
+  @apply w-[2.25rem] h-[1.25rem] rounded-full appearance-none bg-outline-variant transition-[background-color] duration-200 cursor-pointer relative;
   margin: 0;
 }
 

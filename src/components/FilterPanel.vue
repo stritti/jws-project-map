@@ -154,7 +154,7 @@ const countryList = computed(() =>
 }
 
 .filter-close {
-  @apply flex items-center justify-center w-7 h-7 rounded-full border-none bg-transparent text-onSurface-variant cursor-pointer transition-all duration-200 hover:bg-black/10 hover:text-onSurface;
+  @apply flex items-center justify-center w-7 h-7 rounded-full border-none bg-transparent text-onSurface-variant cursor-pointer transition-colors duration-200 hover:bg-black/10 hover:text-onSurface;
 }
 
 .filter-close :deep(svg) {
@@ -214,7 +214,7 @@ const countryList = computed(() =>
 
 /* Custom checkmark box */
 .form-check-checkmark {
-  @apply flex items-center justify-center w-5 h-5 rounded-round-default border-2 border-outline bg-white flex-shrink-0 transition-all duration-150 mr-3;
+  @apply flex items-center justify-center w-5 h-5 rounded-round-default border-2 border-outline bg-white flex-shrink-0 transition-colors duration-150 mr-3;
 }
 
 .form-check-input:focus-visible + .form-check-checkmark {
