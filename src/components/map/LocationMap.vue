@@ -7,7 +7,7 @@
       crs="EPSG:4326"
       :min-zoom="4"
       :max-zoom="17"
-      :bounds="bounds"
+      :center="center"
       :use-global-leaflet="true"
       :options="mapOptions"
       @click="addMarker"
@@ -197,12 +197,9 @@ const locations = computed(() => {
 });
 
 const zoom = ref(5);
-const bounds = ref(
-  latLngBounds([
-    [-14.5981259, 5.8997233],
-    [8.9490075, 11.322326],
-  ]),
-);
+// Default center for the map (fallback when no locations are available)
+// This is roughly the center of the default bounds (Africa region)
+const center = ref<[number, number]>([0, 8]);
 const isOpened = ref(false);
 const selectedLocation = ref<Project | undefined>(undefined);
 const map = ref<any>(null);
