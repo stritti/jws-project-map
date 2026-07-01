@@ -64,106 +64,100 @@
   </component>
 </template>
 
-<script lang="ts">
-import { defineComponent, computed } from "vue";
+<script setup lang="ts">
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useWebFrame } from "@/composables/useWebFrame";
-import CategoryBadge from "../../components/CategoryBadge.vue";
-import CountryLabel from "../../components/CountryLabel.vue";
+import type { Project } from "@/interfaces/Project";
+import CategoryBadge from "../CategoryBadge.vue";
+import CountryLabel from "../CountryLabel.vue";
 
-export default defineComponent({
-  name: "ProjectListItem",
-  components: { CategoryBadge, CountryLabel },
-  setup() {
-    const { t } = useI18n();
-    const { isIFrame, notifyNavigate } = useWebFrame();
-    const router = useRouter();
-    return { t, isIFrame, notifyNavigate, router };
-  },
-  emits: ['click'],
-  props: {
-    project: {
-      type: Object,
-      required: true,
-    },
-    // Optional props for external links
-    to: {
-      type: String,
-      default: null,
-    },
-    href: {
-      type: String,
-      default: null,
-    },
-    target: {
-      type: String,
-      default: undefined,
-    },
-  },
-  computed: {
-    // In iframe mode: render as <a href="..." target="_blank">
-    // so the project detail opens in a new browser tab.
-    resolvedComponent() {
-      if (this.href) return 'a';
-      if (this.to && this.isIFrame) return 'a';
-      if (this.to) return 'router-link';
-      return 'div';
-    },
-    resolvedTo() {
-      return this.to && !this.isIFrame ? this.to : null;
-    },
-    resolvedHref() {
-      if (this.href) return this.href;
-      if (this.to && this.isIFrame) {
-        return this.router.resolve(this.to, this.$route).href;
-      }
-      return null;
-    },
-    resolvedTarget() {
-      if (this.href) return '_blank';
-      if (this.to && this.isIFrame) return '_blank';
-      return undefined;
-    },
-    resolvedRel() {
-      if (this.resolvedTarget === '_blank') return 'noopener noreferrer';
-      return undefined;
-    },
-    teaserImage() {
-      if (this.project.teaserImg && this.project.teaserImg.length > 0) {
-        const img = this.project.teaserImg[0];
-        return img.thumbnails?.card_cover?.signedUrl || img.signedUrl || "/img/placeholder.png";
-      } else {
-        return "/img/placeholder.png";
-      }
-    },
-    cardAriaLabel() {
-      const parts = [this.project.name];
-      if (this.stateLabel) parts.push(this.stateLabel);
-      if (this.project.country && this.project.country.fields?.Name) {
-        parts.push(this.project.country.fields.Name);
-      }
-      return parts.join(", ");
-    },
-    stateLabel() {
-      const labels: Record<string, string> = {
-        finished: this.$t("project.state.finished"),
-        "under construction": this.$t("project.state.underConstruction"),
-        planned: this.$t("project.state.planned"),
-      };
-      return labels[this.project.state] || this.project.state;
-    },
-  },
-  methods: {
-    onCardClick() {
-      // In iframe mode: notify the parent frame about the navigation
-      if (this.isIFrame && this.to && this.project) {
-        this.notifyNavigate(this.to, this.project.id);
-      }
-      this.$emit('click');
-    },
-  },
+const { t } = useI18n();
+const { isIFrame, notifyNavigate } = useWebFrame();
+const router = useRouter();
+const route = useRoute();
+
+const props = withDefaults(defineProps<{
+  project: Project;
+  to?: string | null;
+  href?: string | null;
+  target?: string;
+}>(), {
+  to: null,
+  href: null,
 });
+
+const emit = defineEmits<{
+  (e: 'click'): void;
+}>();
+
+const stateLabel = computed(() => {
+  const labels: Record<string, string> = {
+    finished: t("project.state.finished"),
+    "under construction": t("project.state.underConstruction"),
+    planned: t("project.state.planned"),
+  };
+  return labels[props.project.state] || props.project.state;
+});
+
+const teaserImage = computed(() => {
+  if (props.project.teaserImg && props.project.teaserImg.length > 0) {
+    const img = props.project.teaserImg[0];
+    return img.thumbnails?.card_cover?.signedUrl || img.signedUrl || "/img/placeholder.png";
+  } else {
+    return "/img/placeholder.png";
+  }
+});
+
+const cardAriaLabel = computed(() => {
+  const parts = [props.project.name];
+  if (stateLabel.value) parts.push(stateLabel.value);
+  if (props.project.country) {
+    parts.push(props.project.country.fields.Name);
+  }
+  return parts.join(", ");
+});
+
+// In iframe mode: render as <a href="..." target="_blank">
+// so the project detail opens in a new browser tab.
+const resolvedComponent = computed(() => {
+  if (props.href) return 'a';
+  if (props.to && isIFrame.value) return 'a';
+  if (props.to) return 'router-link';
+  return 'div';
+});
+
+const resolvedTo = computed(() => {
+  return props.to && !isIFrame.value ? props.to : null;
+});
+
+const resolvedHref = computed(() => {
+  if (props.href) return props.href;
+  if (props.to && isIFrame.value) {
+    return router.resolve(props.to, route).href;
+  }
+  return null;
+});
+
+const resolvedTarget = computed(() => {
+  if (props.href) return '_blank';
+  if (props.to && isIFrame.value) return '_blank';
+  return undefined;
+});
+
+const resolvedRel = computed(() => {
+  if (resolvedTarget.value === '_blank') return 'noopener noreferrer';
+  return undefined;
+});
+
+function onCardClick() {
+  // In iframe mode: notify the parent frame about the navigation
+  if (isIFrame.value && props.to && props.project) {
+    notifyNavigate(props.to, props.project.id);
+  }
+  emit('click');
+}
 </script>
 
 <style lang="postcss">
