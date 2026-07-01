@@ -65,46 +65,49 @@
           <IBiThreeDots aria-hidden="true" />
         </button>
 
-        <Transition name="more-flyout" @after-enter="onMorePanelEnter">
-          <div
-            v-if="moreOpen"
-            ref="morePanelRef"
-            class="more-panel"
-            role="menu"
-            :aria-label="t('nav.more')"
-            @keydown="onMorePanelKeydown"
-          >
-            <!-- Language options -->
-            <div class="more-section">
+        <Teleport to="body">
+          <Transition name="more-flyout" @after-enter="onMorePanelEnter">
+            <div
+              v-if="moreOpen"
+              ref="morePanelRef"
+              class="more-panel"
+              :style="{ position: 'fixed', right: panelPosition.right, bottom: panelPosition.bottom }"
+              role="menu"
+              :aria-label="t('nav.more')"
+              @keydown="onMorePanelKeydown"
+            >
+              <!-- Language options -->
+              <div class="more-section">
+                <button
+                  v-for="lang in languages"
+                  :key="lang.code"
+                  class="more-option"
+                  :class="{ active: currentLocale === lang.code }"
+                  role="menuitem"
+                  :lang="lang.code"
+                  :aria-current="currentLocale === lang.code ? 'true' : undefined"
+                  @click="switchLocale(lang.code); closeMore()"
+                >
+                  <span :class="`fi fis fi-${lang.flag}`" aria-hidden="true" />
+                  <span>{{ lang.label }}</span>
+                  <span v-if="currentLocale === lang.code" class="more-check" aria-hidden="true">\u2713</span>
+                </button>
+              </div>
+
+              <div class="more-divider" role="separator"></div>
+
+              <!-- About -->
               <button
-                v-for="lang in languages"
-                :key="lang.code"
                 class="more-option"
-                :class="{ active: currentLocale === lang.code }"
                 role="menuitem"
-                :lang="lang.code"
-                :aria-current="currentLocale === lang.code ? 'true' : undefined"
-                @click="switchLocale(lang.code); closeMore()"
+                @click="openAbout(); closeMore()"
               >
-                <span :class="`fi fis fi-${lang.flag}`" aria-hidden="true" />
-                <span>{{ lang.label }}</span>
-                <span v-if="currentLocale === lang.code" class="more-check" aria-hidden="true">\u2713</span>
+                <IBiInfoCircle aria-hidden="true" />
+                <span>{{ t('nav.about') }}</span>
               </button>
             </div>
-
-            <div class="more-divider" role="separator"></div>
-
-            <!-- About -->
-            <button
-              class="more-option"
-              role="menuitem"
-              @click="openAbout(); closeMore()"
-            >
-              <IBiInfoCircle aria-hidden="true" />
-              <span>{{ t('nav.about') }}</span>
-            </button>
-          </div>
-        </Transition>
+          </Transition>
+        </Teleport>
       </div>
     </div>
     
@@ -152,6 +155,8 @@ const moreOpen = ref(false);
 const moreMenuRef = ref<HTMLElement | null>(null);
 const morePanelRef = ref<HTMLElement | null>(null);
 const moreFocusIndex = ref(-1);
+// Position for teleported panel (fixed positioning relative to viewport)
+const panelPosition = ref({ right: '0px', bottom: '0px' });
 
 const aboutModalRef = ref<InstanceType<typeof AboutModal> | null>(null);
 
@@ -162,6 +167,17 @@ function switchLocale(lang: Locale) {
 }
 
 function toggleMore() {
+  if (!moreOpen.value) {
+    // Calculate position relative to viewport so the teleported panel appears above the trigger
+    const trigger = moreMenuRef.value?.querySelector<HTMLElement>('.more-trigger');
+    if (trigger) {
+      const rect = trigger.getBoundingClientRect();
+      panelPosition.value = {
+        right: `${window.innerWidth - rect.right}px`,
+        bottom: `${window.innerHeight - rect.top + 8}px`,
+      };
+    }
+  }
   moreOpen.value = !moreOpen.value;
 }
 
@@ -175,7 +191,12 @@ function closeMore() {
 }
 
 function onClickOutside(e: MouseEvent) {
-  if (moreOpen.value && moreMenuRef.value && !moreMenuRef.value.contains(e.target as Node)) {
+  if (
+    moreOpen.value &&
+    moreMenuRef.value &&
+    !moreMenuRef.value.contains(e.target as Node) &&
+    !morePanelRef.value?.contains(e.target as Node)
+  ) {
     closeMore();
   }
 }
@@ -490,7 +511,7 @@ defineExpose({
 }
 
 .more-panel {
-  @apply absolute bottom-[calc(100%+8px)] right-0 z-50 min-w-[180px] p-2 rounded-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)] origin-bottom-right;
+  @apply z-50 min-w-[180px] p-2 rounded-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)] origin-bottom-right;
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
