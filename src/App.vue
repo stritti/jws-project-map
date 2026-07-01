@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import SiteFooter from "./components/SiteFooter.vue";
-import FloatingMeta from "./components/FloatingMeta.vue";
 import SearchModal from "@/components/SearchModal.vue";
 import { useWebFrame } from "./composables/useWebFrame";
 import { useLoadingStore } from "@/stores/loading.store";
@@ -77,7 +76,6 @@ router.afterEach((to) => {
       <router-view />
     </main>
     <site-footer v-if="!isIFrame" />
-    <floating-meta v-if="!isIFrame" />
     <search-modal ref="searchModalRef" @hidden="onSearchHidden" />
   </div>
 </template>
@@ -99,7 +97,7 @@ body {
   @apply flex-grow;
 }
 
-/* Global loading bar — thin animated bar at the very top of the viewport */
+/* Global loading bar  thin animated bar at the very top of the viewport */
 .global-loader {
   @apply fixed top-0 left-0 right-0 z-[10001] h-0.5 overflow-hidden bg-transparent;
 }
@@ -108,7 +106,7 @@ body {
   @apply w-full h-full bg-gradient-to-r from-primary via-secondary to-primary bg-[200%_100%] animate-loader-slide;
 }
 
-/* Skip-to-content link — visible only when focused via keyboard */
+/* Skip-to-content link  visible only when focused via keyboard */
 .skip-link {
   @apply absolute -top-full left-0 z-[10000] px-6 py-3 bg-primary text-white font-semibold rounded-b-round-default transition-all duration-100;
 }
@@ -128,7 +126,7 @@ body {
   }
 }
 
-/* Body lock — prevents iOS from scrolling the document when an input is
+/* Body lock  prevents iOS from scrolling the document when an input is
    focused on HomeView, which would otherwise misalign position:fixed elements
    such as the map and the search overlay.  Toggled via JS on mount/unmount. */
 html.body-locked,

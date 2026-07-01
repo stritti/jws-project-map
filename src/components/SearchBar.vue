@@ -88,7 +88,7 @@
               >
                 <span :class="`fi fis fi-${lang.flag}`" aria-hidden="true" />
                 <span>{{ lang.label }}</span>
-                <span v-if="currentLocale === lang.code" class="more-check" aria-hidden="true">✓</span>
+                <span v-if="currentLocale === lang.code" class="more-check" aria-hidden="true">\u2713</span>
               </button>
             </div>
 
@@ -244,7 +244,7 @@ const currentLocale = computed(() => locale.value);
 const languages: { code: Locale; flag: string; label: string }[] = [
   { code: "de", flag: "de", label: "Deutsch" },
   { code: "en", flag: "gb", label: "English" },
-  { code: "fr", flag: "fr", label: "Français" },
+  { code: "fr", flag: "fr", label: "Fran\u00e7ais" },
 ];
 
 // Lifecycle hooks
@@ -349,7 +349,7 @@ defineExpose({
   @apply w-full;
 }
 
-/* Search bar — Apple-style glassmorphism */
+/* Search bar  Apple-style glassmorphism */
 .search-bar {
   @apply flex items-center bg-white/70 backdrop-blur-xl border border-white/25 shadow-lg rounded-round-large px-[0.85rem] py-[0.6rem] gap-[0.5rem];
 }
@@ -360,15 +360,17 @@ defineExpose({
 
 .search-input {
   @apply bg-transparent border-none px-[0.5rem] py-[0.25rem] text-body-md text-onSurface placeholder:text-onSurface-variant focus:outline-2 focus:outline-secondary focus:outline-offset-2;
-  /* Compact by default — only grows on focus */
-  flex: 0 1 80px;
+  /* Compact by default  only grows on focus */
+  flex: 0 1 auto;
   min-width: 60px;
-  transition: flex 0.25s ease, min-width 0.25s ease;
+  max-width: 200px;
+  transition: flex 0.25s ease, min-width 0.25s ease, max-width 0.25s ease;
 }
 
 .search-bar:focus-within .search-input {
-  flex: 1 1 100%;
-  min-width: 0;
+  flex: 1 1 auto;
+  min-width: 100px;
+  max-width: 100%;
 }
 
 /* iOS Safari auto-zooms any input with font-size < 16px; force 16px on mobile */
@@ -379,23 +381,16 @@ defineExpose({
   }
 }
 
-/* View toggle — segmented control style */
+/* View toggle  segmented control style */
 .view-toggle {
   @apply flex gap-px bg-black/10 rounded-lg p-px flex-shrink-0;
-}
-
-/* On mobile, hide view toggle when search input is focused to save space */
-@media (max-width: 767.98px) {
-  .search-bar:focus-within .view-toggle {
-    display: none;
-  }
 }
 
 .view-btn {
   @apply flex items-center justify-center w-[30px] h-[30px] border-none rounded-lg bg-transparent text-onSurface-variant cursor-pointer transition-colors duration-150 text-base leading-none;
 }
 
-/* Touch-friendly minimum 44×44 px on mobile */
+/* Touch-friendly minimum 44\u00d744 px on mobile */
 @media (max-width: 767.98px) {
   .view-btn {
     width: 44px;
@@ -475,26 +470,9 @@ defineExpose({
   @apply bg-secondary border-secondary text-white;
 }
 
-/* On mobile, limit search bar width to leave space for More menu */
-@media (max-width: 767.98px) {
-  .search-bar {
-    max-width: calc(100vw - 100px);
-  }
-  
-  .search-input {
-    flex: 0 1 60px;
-    min-width: 50px;
-  }
-  
-  .search-bar:focus-within .search-input {
-    flex: 1 1 100%;
-    min-width: 80px;
-  }
-}
-
 /* More menu styles */
 .more-menu {
-  @apply relative flex items-center;
+  @apply relative flex items-center flex-shrink-0;
 }
 
 .more-trigger {
@@ -567,5 +545,43 @@ defineExpose({
 .more-flyout-leave-to {
   opacity: 0;
   transform: translateY(4px) scale(0.97);
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 767.98px) {
+  .search-bar {
+    gap: 0.25rem;
+  }
+  
+  .search-input {
+    flex: 0 1 50px;
+    min-width: 40px;
+    max-width: 120px;
+  }
+  
+  .search-bar:focus-within .search-input {
+    flex: 1 1 100%;
+    min-width: 80px;
+    max-width: 100%;
+  }
+  
+  /* On mobile, hide view toggle when search input is focused to save space */
+  .search-bar:focus-within .view-toggle {
+    display: none;
+  }
+  
+  /* On mobile, also hide filter label to save space */
+  .search-bar:focus-within .filter-label {
+    display: none;
+  }
+  
+  .more-trigger {
+    width: 36px;
+    height: 36px;
+  }
+  
+  :deep(.more-trigger svg) {
+    font-size: 1.25rem;
+  }
 }
 </style>
