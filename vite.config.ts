@@ -12,6 +12,9 @@ import tailwindcss from "tailwindcss";
 import autoprefixer from "autoprefixer";
 
 // https://vitejs.dev/config/
+// Disable PWA plugin in CI environments where Rollup native binaries may not be available
+const isCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+
 export default defineConfig({
   plugins: [
     // Optimized Leaflet and MarkerCluster handling
@@ -44,7 +47,8 @@ export default defineConfig({
       compiler: "vue3",
       autoInstall: true,
     }),
-    VitePWA({
+    // Only enable PWA plugin outside of CI to avoid Rollup native module issues
+    !isCI && VitePWA({
       registerType: "autoUpdate",
       devOptions: {
         enabled: true,
@@ -56,7 +60,7 @@ export default defineConfig({
         theme_color: "#3d5e9e",
       },
     }),
-  ],
+  ].filter(Boolean),
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
