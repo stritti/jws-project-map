@@ -12,14 +12,20 @@
         @keydown.enter="openModal(project.teaserImg[0])"
         @keydown.space.prevent="openModal(project.teaserImg[0])"
       >
-        <img
-          :src="project.teaserImg[0].signedUrl"
-          :alt="project.name + ' - Teaser'"
-          loading="lazy"
-          @error="onImageError"
-        />
-        <div class="hover-overlay">
-          <IBiZoomIn class="zoom-icon" />
+        <template v-if="!isErrored(project.teaserImg[0].signedUrl)">
+          <img
+            :src="project.teaserImg[0].signedUrl"
+            :alt="project.name + ' - Teaser'"
+            loading="lazy"
+            @error="onImageError(project.teaserImg[0].signedUrl)"
+          />
+          <div class="hover-overlay">
+            <IBiZoomIn class="zoom-icon" />
+          </div>
+        </template>
+        <div v-else class="image-fallback">
+          <IBiImage class="fallback-icon" />
+          <span class="fallback-text">{{ t('gallery.imageNotAvailable') || 'Bild nicht verfügbar' }}</span>
         </div>
       </div>
       <div
@@ -34,14 +40,20 @@
         @keydown.space.prevent="openModal(item)"
       >
         <template v-if="item.mimetype.startsWith('image')">
-          <img
-            :src="item.thumbnails?.card_cover?.signedUrl || item.signedUrl"
-            :alt="item.name || project.name + ' image'"
-            loading="lazy"
-            @error="onImageError"
-          />
-          <div class="hover-overlay">
-            <IBiZoomIn class="zoom-icon" />
+          <template v-if="!isErrored(item.thumbnails?.card_cover?.signedUrl || item.signedUrl)">
+            <img
+              :src="item.thumbnails?.card_cover?.signedUrl || item.signedUrl"
+              :alt="item.name || project.name + ' image'"
+              loading="lazy"
+              @error="onImageError(item.thumbnails?.card_cover?.signedUrl || item.signedUrl)"
+            />
+            <div class="hover-overlay">
+              <IBiZoomIn class="zoom-icon" />
+            </div>
+          </template>
+          <div v-else class="image-fallback">
+            <IBiImage class="fallback-icon" />
+            <span class="fallback-text">{{ t('gallery.imageNotAvailable') || 'Bild nicht verfügbar' }}</span>
           </div>
         </template>
         <div
@@ -87,13 +99,21 @@ const props = defineProps<{
 
 const modalVisible = ref(false);
 const currentItem = ref<Attachment | null>(null);
-const imageError = ref(false);
+const erroredImages = ref(new Set<string>());
 
 const galleryWithTeaserImg = computed(() => {
   const gallery = props.project.gallery || [];
   const teaserImg = props.project.teaserImg ? [props.project.teaserImg[0]] : [];
   return [...teaserImg, ...gallery];
 });
+
+function isErrored(src: string): boolean {
+  return erroredImages.value.has(src);
+}
+
+function onImageError(src: string) {
+  erroredImages.value = new Set([...erroredImages.value, src]);
+}
 
 function openModal(item: Attachment) {
   currentItem.value = item;
@@ -103,10 +123,6 @@ function openModal(item: Attachment) {
 function closeModal() {
   modalVisible.value = false;
   currentItem.value = null;
-}
-
-function onImageError() {
-  imageError.value = true;
 }
 </script>
 
@@ -177,6 +193,18 @@ function onImageError() {
 
 .gallery-item:hover .hover-overlay .zoom-icon {
   @apply scale-100;
+}
+
+.image-fallback {
+  @apply w-full h-full flex flex-col items-center justify-center gap-2 bg-surface-variant text-onSurface-variant;
+}
+
+.fallback-icon {
+  @apply text-[3rem] opacity-50;
+}
+
+.fallback-text {
+  @apply text-label-md text-center px-4;
 }
 
 .video-thumbnail {
