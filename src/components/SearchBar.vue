@@ -293,5 +293,21 @@ defineExpose({
 
 .filter-chip.active {
   @apply bg-secondary border-secondary text-white;
+
+/* On mobile, limit search bar width to leave space for More menu */
+@media (max-width: 767.98px) {
+  .search-bar {
+    max-width: calc(100vw - 100px);
+  }
+  
+  .search-input {
+    flex: 0 1 60px;
+    min-width: 50px;
+  }
+  
+  .search-bar:focus-within .search-input {
+    flex: 1 1 100%;
+    min-width: 80px;
+  }
 }
 </style>

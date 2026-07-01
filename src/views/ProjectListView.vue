@@ -354,7 +354,7 @@ onBeforeMount(() => {
 @media (max-width: 767.98px) {
   .project-list {
     padding: var(--spacing-gutter-md);
-    padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px) + 4rem);
+    padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px) + 4rem + 60px);
   }
 
   .list-header {
@@ -385,7 +385,7 @@ onBeforeMount(() => {
 
   .filter-overlay-container {
     position: fixed;
-    bottom: 0;
+    bottom: calc(60px + env(safe-area-inset-bottom, 0px));
     left: 0;
     right: 0;
     z-index: 1000;
