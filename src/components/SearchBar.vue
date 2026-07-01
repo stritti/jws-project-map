@@ -360,17 +360,15 @@ defineExpose({
 
 .search-input {
   @apply bg-transparent border-none px-[0.5rem] py-[0.25rem] text-body-md text-onSurface placeholder:text-onSurface-variant focus:outline-2 focus:outline-secondary focus:outline-offset-2;
-  /* Compact by default  only grows on focus */
-  flex: 0 1 auto;
-  min-width: 60px;
-  max-width: 200px;
-  transition: flex 0.25s ease, min-width 0.25s ease, max-width 0.25s ease;
+  /* Fill available space, but allow shrinking if needed */
+  flex: 1 1 auto;
+  min-width: 120px;
+  transition: min-width 0.25s ease;
 }
 
 .search-bar:focus-within .search-input {
-  flex: 1 1 auto;
-  min-width: 100px;
-  max-width: 100%;
+  /* Slightly expand on focus */
+  min-width: 160px;
 }
 
 /* iOS Safari auto-zooms any input with font-size < 16px; force 16px on mobile */
@@ -554,20 +552,19 @@ defineExpose({
   }
   
   .search-input {
-    flex: 0 1 50px;
-    min-width: 40px;
-    max-width: 120px;
+    /* On mobile, fill available space but allow shrinking */
+    flex: 1 1 auto;
+    min-width: 80px;
   }
   
   .search-bar:focus-within .search-input {
-    flex: 1 1 100%;
-    min-width: 80px;
-    max-width: 100%;
+    /* Slightly expand on focus */
+    min-width: 100px;
   }
   
-  /* On mobile, hide view toggle when search input is focused to save space */
-  .search-bar:focus-within .view-toggle {
-    display: none;
+  /* On mobile, keep view toggle visible at all times */
+  .view-toggle {
+    flex-shrink: 0;
   }
   
   /* On mobile, also hide filter label to save space */
