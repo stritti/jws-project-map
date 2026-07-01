@@ -3,7 +3,7 @@
     <!-- Search bar with icons -->
     <div class="search-bar">
       <IBiSearch class="search-icon" aria-hidden="true" />
-      <b-form-input
+      <input
         ref="inputRef"
         v-model="query"
         type="search"
@@ -15,6 +15,18 @@
         @focus="$emit('focus')"
         @blur="$emit('blur')"
       />
+
+      <button 
+        class="filter-btn" 
+        :class="{ active: filterCount > 0 }"
+        :aria-label="resolvedFilterLabel"
+        :aria-expanded="filterVisible"
+        @click="$emit('filter-click')"
+      >
+        <IBiFilterRight />
+        <span class="filter-label">{{ resolvedFilterLabel }}</span>
+        <span v-if="filterCount > 0" class="filter-badge">{{ filterCount }}</span>
+      </button>
 
       <!-- View toggle: Map / List -->
       <div class="view-toggle" role="group" :aria-label="t('search.viewToggleLabel')">
@@ -40,17 +52,60 @@
         </button>
       </div>
 
-      <button 
-        class="filter-btn" 
-        :class="{ active: filterCount > 0 }"
-        :aria-label="resolvedFilterLabel"
-        :aria-expanded="filterVisible"
-        @click="$emit('filter-click')"
-      >
-        <IBiFilterRight />
-        <span class="filter-label">{{ resolvedFilterLabel }}</span>
-        <span v-if="filterCount > 0" class="filter-badge">{{ filterCount }}</span>
-      </button>
+      <!-- More menu (language + about) - integrated from MainMenu -->
+      <div ref="moreMenuRef" class="more-menu" :class="{ open: moreOpen }">
+        <button
+          class="more-trigger"
+          :aria-label="t('nav.more')"
+          :title="t('nav.more')"
+          :aria-expanded="moreOpen"
+          :aria-haspopup="true"
+          @click="toggleMore"
+        >
+          <IBiThreeDots aria-hidden="true" />
+        </button>
+
+        <Transition name="more-flyout" @after-enter="onMorePanelEnter">
+          <div
+            v-if="moreOpen"
+            ref="morePanelRef"
+            class="more-panel"
+            role="menu"
+            :aria-label="t('nav.more')"
+            @keydown="onMorePanelKeydown"
+          >
+            <!-- Language options -->
+            <div class="more-section">
+              <button
+                v-for="lang in languages"
+                :key="lang.code"
+                class="more-option"
+                :class="{ active: currentLocale === lang.code }"
+                role="menuitem"
+                :lang="lang.code"
+                :aria-current="currentLocale === lang.code ? 'true' : undefined"
+                @click="switchLocale(lang.code); closeMore()"
+              >
+                <span :class="`fi fis fi-${lang.flag}`" aria-hidden="true" />
+                <span>{{ lang.label }}</span>
+                <span v-if="currentLocale === lang.code" class="more-check" aria-hidden="true">\u2713</span>
+              </button>
+            </div>
+
+            <div class="more-divider" role="separator"></div>
+
+            <!-- About -->
+            <button
+              class="more-option"
+              role="menuitem"
+              @click="openAbout(); closeMore()"
+            >
+              <IBiInfoCircle aria-hidden="true" />
+              <span>{{ t('nav.about') }}</span>
+            </button>
+          </div>
+        </Transition>
+      </div>
     </div>
     
     <!-- Filter chips -->
@@ -65,18 +120,143 @@
         {{ state.label }}
       </button>
     </div>
+
+    <!-- About Modal -->
+    <AboutModal ref="aboutModalRef" @hidden="restoreFocus" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRoute } from "vue-router";
+import { setLocale, type Locale } from "@/plugins/i18n";
+import { useProjectStore } from "@/features/projects/stores/project.store";
 import type { ProjectState } from "@/composables/useProjectSearch";
 
 import IBiMap from "~icons/bi/map";
 import IBiListUl from "~icons/bi/list-ul";
+import IBiSearch from "~icons/bi/search";
+import IBiFilterRight from "~icons/bi/filter-right";
+import IBiThreeDots from "~icons/bi/three-dots";
+import IBiInfoCircle from "~icons/bi/info-circle";
+import AboutModal from "./AboutModal.vue";
+import { useFocusRestore } from "@/composables/useAccessibility";
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
+const route = useRoute();
+const { setTrigger, restoreFocus } = useFocusRestore();
+
+// More-menu state
+const moreOpen = ref(false);
+const moreMenuRef = ref<HTMLElement | null>(null);
+const morePanelRef = ref<HTMLElement | null>(null);
+const moreFocusIndex = ref(-1);
+
+const aboutModalRef = ref<InstanceType<typeof AboutModal> | null>(null);
+
+function switchLocale(lang: Locale) {
+  setLocale(lang);
+  // Reload project data so localized fields (name, notes) are refetched
+  useProjectStore().load().catch(() => {});
+}
+
+function toggleMore() {
+  moreOpen.value = !moreOpen.value;
+}
+
+function closeMore() {
+  moreOpen.value = false;
+  moreFocusIndex.value = -1;
+  // Return focus to trigger after DOM update
+  nextTick(() => {
+    moreMenuRef.value?.querySelector<HTMLElement>('.more-trigger')?.focus();
+  });
+}
+
+function onClickOutside(e: MouseEvent) {
+  if (moreOpen.value && moreMenuRef.value && !moreMenuRef.value.contains(e.target as Node)) {
+    closeMore();
+  }
+}
+
+/* Keyboard navigation for role="menu" (ARIA APG pattern) */
+function onMorePanelKeydown(e: KeyboardEvent) {
+  if (!moreOpen.value) return;
+  const items = morePanelRef.value?.querySelectorAll<HTMLElement>('[role="menuitem"]');
+  if (!items || items.length === 0) return;
+
+  let idx = moreFocusIndex.value;
+
+  switch (e.key) {
+    case 'ArrowDown':
+    case 'ArrowRight':
+      e.preventDefault();
+      idx = (idx + 1) % items.length;
+      break;
+    case 'ArrowUp':
+    case 'ArrowLeft':
+      e.preventDefault();
+      idx = (idx - 1 + items.length) % items.length;
+      break;
+    case 'Home':
+      e.preventDefault();
+      idx = 0;
+      break;
+    case 'End':
+      e.preventDefault();
+      idx = items.length - 1;
+      break;
+    case 'Escape':
+      e.preventDefault();
+      closeMore();
+      return;
+    default:
+      return;
+  }
+
+  moreFocusIndex.value = idx;
+  items[idx]?.focus();
+}
+
+function onMorePanelEnter() {
+  const items = morePanelRef.value?.querySelectorAll<HTMLElement>('[role="menuitem"]');
+  if (!items || items.length === 0) return;
+  const activeIdx = Array.from(items).findIndex(
+    (item) => item.classList.contains('active'),
+  );
+  moreFocusIndex.value = activeIdx >= 0 ? activeIdx : 0;
+  items[moreFocusIndex.value]?.focus();
+}
+
+function onGlobalKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape') closeMore();
+}
+
+function openAbout() {
+  setTrigger();
+  aboutModalRef.value?.show();
+}
+
+// Current locale for language switching
+const currentLocale = computed(() => locale.value);
+
+const languages: { code: Locale; flag: string; label: string }[] = [
+  { code: "de", flag: "de", label: "Deutsch" },
+  { code: "en", flag: "gb", label: "English" },
+  { code: "fr", flag: "fr", label: "Fran\u00e7ais" },
+];
+
+// Lifecycle hooks
+onMounted(() => {
+  document.addEventListener('click', onClickOutside);
+  document.addEventListener('keydown', onGlobalKeydown);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', onClickOutside);
+  document.removeEventListener('keydown', onGlobalKeydown);
+});
 
 interface Props {
   modelValue?: string;
@@ -164,198 +344,244 @@ defineExpose({
 });
 </script>
 
-<style scoped lang="scss">
-@use "@/assets/design-tokens.scss" as *;
-
+<style scoped lang="postcss">
 .search-bar-container {
-  width: 100%;
+  @apply w-full;
 }
 
-// Search bar — Apple-style glassmorphism
+/* Search bar  Apple-style glassmorphism */
 .search-bar {
-  display: flex;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-  border-radius: 0.75rem;
-  padding: 0.6rem 0.85rem;
-  gap: 0.5rem;
+  @apply flex items-center bg-white/70 backdrop-blur-xl border border-white/25 shadow-lg rounded-round-large px-[0.85rem] py-[0.6rem] gap-[0.5rem];
 }
 
 .search-icon {
-  font-size: 1.25rem;
-  color: var(--color-on-surface-variant);
-  flex-shrink: 0;
+  @apply text-[1.25rem] text-onSurface-variant flex-shrink-0;
 }
 
 .search-input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  padding: 0.25rem 0.5rem;
-  font-size: var(--font-size-body-md);
-  // iOS Safari auto-zooms any input with font-size < 16px; force 16px on mobile
-  @media (max-width: 767.98px) {
+  @apply bg-transparent border-none px-[0.5rem] py-[0.25rem] text-body-md text-onSurface placeholder:text-onSurface-variant focus:outline-2 focus:outline-secondary focus:outline-offset-2;
+  /* Compact by default  only grows on focus */
+  flex: 0 1 auto;
+  min-width: 60px;
+  max-width: 200px;
+  transition: flex 0.25s ease, min-width 0.25s ease, max-width 0.25s ease;
+}
+
+.search-bar:focus-within .search-input {
+  flex: 1 1 auto;
+  min-width: 100px;
+  max-width: 100%;
+}
+
+/* iOS Safari auto-zooms any input with font-size < 16px; force 16px on mobile */
+@media (max-width: 767.98px) {
+  .search-input {
     font-size: 1rem;
-  }
-  color: var(--color-on-surface);
-  
-  &:focus {
-    outline: 2px solid var(--color-secondary);
-    outline-offset: 2px;
-    box-shadow: none;
-  }
-  
-  &::placeholder {
-    color: var(--color-on-surface-variant);
+    line-height: 1.5;
   }
 }
 
-// View toggle — segmented control style
+/* View toggle  segmented control style */
 .view-toggle {
-  display: flex;
-  gap: 1px;
-  background: rgba(0, 0, 0, 0.04);
-  border-radius: 8px;
-  padding: 2px;
-  flex-shrink: 0;
+  @apply flex gap-px bg-black/10 rounded-lg p-px flex-shrink-0;
 }
 
 .view-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--color-on-surface-variant, #64748b);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  font-size: 1rem;
-  line-height: 1;
+  @apply flex items-center justify-center w-[30px] h-[30px] border-none rounded-lg bg-transparent text-onSurface-variant cursor-pointer transition-colors duration-150 text-base leading-none;
+}
 
-  // Touch-friendly minimum 44×44 px on mobile
-  @media (max-width: 767.98px) {
+/* Touch-friendly minimum 44\u00d744 px on mobile */
+@media (max-width: 767.98px) {
+  .view-btn {
     width: 44px;
     height: 44px;
     font-size: 1.25rem;
   }
-
-  &:hover {
-    color: var(--color-secondary, #3d5e9e);
-    background: rgba(60, 93, 157, 0.06);
-  }
-
-  &.active {
-    color: #fff;
-    background: var(--color-secondary, #3d5e9e);
-    box-shadow: 0 1px 4px rgba(60, 93, 157, 0.3);
-  }
 }
 
-// Filter button
+.view-btn:hover {
+  @apply text-secondary bg-secondary/10;
+}
+
+.view-btn.active {
+  @apply text-white bg-secondary shadow-[0_1px_4px_rgba(60,93,157,0.3)];
+}
+
+.view-btn:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+/* Filter button */
 .filter-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  background: transparent;
-  border: none;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  color: var(--color-on-surface);
-  cursor: pointer;
-  font-size: var(--font-size-body-md);
-  position: relative;
-  flex-shrink: 0;
-
-  // Touch-friendly minimum on mobile (same as .view-btn)
-  @media (max-width: 767.98px) {
-    padding: 0.6rem 0.75rem;
-    font-size: 1rem;
-  }
-  
-  &:hover {
-    background: var(--color-surface-variant);
-  }
-  
-  &.active {
-    background: var(--color-secondary);
-    color: var(--color-on-secondary);
-  }
-  
-  .ibi-filter-right {
-    font-size: 1.25rem;
-  }
-  
-  .filter-label {
-    font-size: var(--font-size-label-md);
-  }
-  
-  .filter-badge {
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    background: var(--color-secondary);
-    color: var(--color-on-secondary);
-    font-size: 0.625rem;
-    font-weight: 600;
-    min-width: 16px;
-    height: 16px;
-    border-radius: 9999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 4px;
-  }
-  
-  &.active .filter-badge {
-    background: var(--color-on-secondary);
-    color: var(--color-secondary);
-  }
+  @apply flex items-center gap-[0.25rem] bg-transparent border-none rounded-[0.25rem] px-[0.5rem] py-[0.25rem] text-onSurface cursor-pointer text-body-md relative flex-shrink-0 hover:bg-surface-variant;
 }
 
-// Filter chips
-.filter-chips {
-  display: flex;
-  gap: 0.5rem;
-  padding: 0.75rem 0;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+/* Touch-friendly minimum on mobile (same as .view-btn) */
+@media (max-width: 767.98px) {
+  .filter-btn {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
   
-  &::-webkit-scrollbar {
+  /* Hide filter label text on mobile to save space */
+  .filter-label {
     display: none;
   }
 }
 
+.filter-btn.active {
+  @apply bg-secondary text-white;
+}
+
+.filter-btn .ibi-filter-right {
+  @apply text-[1.25rem];
+}
+
+.filter-label {
+  @apply text-label-md md:block;
+}
+
+.filter-badge {
+  @apply absolute -top-1 -right-1 bg-secondary text-white text-[0.625rem] font-bold min-w-[16px] h-[16px] rounded-full flex items-center justify-center px-1;
+}
+
+.filter-btn.active .filter-badge {
+  @apply bg-secondary text-secondary;
+}
+
+/* Filter chips */
+.filter-chips {
+  @apply flex gap-[0.5rem] py-[0.75rem] overflow-x-auto touch-pan-x scrollbar-hide;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 .filter-chip {
-  flex-shrink: 0;
-  padding: 0.375rem 0.75rem;
-  border-radius: 9999px;
-  font-size: var(--font-size-label-md);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
-  
-  // Unselected state - neutral with 1px border
-  background: var(--color-surface);
-  border: 1px solid var(--color-outline);
-  color: var(--color-on-surface);
-  
+  @apply flex-shrink-0 px-[0.75rem] py-[0.375rem] rounded-full text-label-md font-medium cursor-pointer transition-colors duration-150 whitespace-nowrap bg-surface border border-outline text-onSurface hover:bg-surface-variant;
+}
+
+.filter-chip.active {
+  @apply bg-secondary border-secondary text-white;
+}
+
+/* More menu styles */
+.more-menu {
+  @apply relative flex items-center flex-shrink-0;
+}
+
+.more-trigger {
+  @apply flex items-center justify-center w-[28px] h-[28px] md:w-[32px] md:h-[32px] rounded-full border-none bg-transparent cursor-pointer p-0 transition-colors duration-200 text-onSurface-variant;
+
   &:hover {
-    background: var(--color-surface-variant);
+    @apply text-primary bg-secondary/10;
+  }
+
+  :deep(svg) {
+    font-size: 1.15rem;
+  }
+}
+
+.more-menu.open .more-trigger {
+  @apply text-primary bg-secondary/15;
+}
+
+.more-panel {
+  @apply absolute bottom-[calc(100%+8px)] right-0 z-50 min-w-[180px] p-2 rounded-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)] origin-bottom-right;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.more-option {
+  @apply flex items-center gap-2.5 w-full px-3 py-2 rounded-lg border-none bg-transparent cursor-pointer text-sm text-onSurface transition-colors duration-150 text-left;
+
+  &:hover {
+    @apply bg-secondary/10 text-primary;
+  }
+
+  &.active {
+    @apply text-primary bg-secondary/12 font-medium;
+  }
+
+  :deep(.fi) {
+    font-size: 0.85rem;
+    border-radius: 2px;
+  }
+
+  :deep(svg) {
+    font-size: 1.1rem;
+  }
+}
+
+.more-check {
+  @apply ml-auto text-primary text-xs;
+}
+
+.more-divider {
+  @apply h-[1px] mx-2 my-1;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.more-section {
+  @apply flex flex-col gap-1;
+}
+
+/* Flyout transition */
+.more-flyout-enter-active {
+  transition: opacity 0.12s ease-out, transform 0.12s ease-out;
+}
+
+.more-flyout-leave-active {
+  transition: opacity 0.1s ease-in, transform 0.1s ease-in;
+}
+
+.more-flyout-enter-from,
+.more-flyout-leave-to {
+  opacity: 0;
+  transform: translateY(4px) scale(0.97);
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 767.98px) {
+  .search-bar {
+    gap: 0.25rem;
   }
   
-  // Selected state - secondary color
-  &.active {
-    background: var(--color-secondary);
-    border-color: var(--color-secondary);
-    color: var(--color-on-secondary);
+  .search-input {
+    flex: 0 1 50px;
+    min-width: 40px;
+    max-width: 120px;
+  }
+  
+  .search-bar:focus-within .search-input {
+    flex: 1 1 100%;
+    min-width: 80px;
+    max-width: 100%;
+  }
+  
+  /* On mobile, hide view toggle when search input is focused to save space */
+  .search-bar:focus-within .view-toggle {
+    display: none;
+  }
+  
+  /* On mobile, also hide filter label to save space */
+  .search-bar:focus-within .filter-label {
+    display: none;
+  }
+  
+  .more-trigger {
+    width: 36px;
+    height: 36px;
+  }
+  
+  :deep(.more-trigger svg) {
+    font-size: 1.25rem;
   }
 }
 </style>
