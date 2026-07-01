@@ -319,7 +319,7 @@ onUnmounted(() => {
 
     .search-overlay {
       position: fixed;
-      bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+      bottom: calc(48px + env(safe-area-inset-bottom, 0px));
       top: auto;
       left: 0;
       right: 0;
@@ -327,7 +327,7 @@ onUnmounted(() => {
       display: flex;
       flex-direction: column-reverse;
       overflow: hidden;
-      max-height: calc(100dvh - 60px - env(safe-area-inset-bottom, 0px));
+      max-height: calc(100dvh - 48px - env(safe-area-inset-bottom, 0px));
       padding: 0.75rem;
       padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
     }
