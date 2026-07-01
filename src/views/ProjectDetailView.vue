@@ -154,7 +154,7 @@
             </a>
           </div>
 
-          <project-gallery v-if="(project.gallery && project.gallery.length > 0) || (project.teaserImg && project.teaserImg.length > 0)" :project="project" :title="t('gallery.title')" />
+          <project-gallery v-if="project.gallery && project.gallery.length > 0" :project="project" :title="t('gallery.title')" />
         </div>
       </div>
     </div>

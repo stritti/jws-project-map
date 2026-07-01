@@ -1,33 +1,7 @@
 <template>
-  <div v-if="(project.gallery && project.gallery.length > 0) || (project.teaserImg && project.teaserImg.length > 0)" class="project-gallery-section">
+  <div v-if="project.gallery && project.gallery.length > 0" class="project-gallery-section">
     <h2 class="gallery-title mb-4">{{ title }}</h2>
     <div class="gallery-grid">
-      <div
-        v-if="project.teaserImg"
-        class="gallery-item teaser-item"
-        role="button"
-        tabindex="0"
-        :aria-label="t('a11y.openImage', { name: project.teaserImg[0].name || t('a11y.imageNotAvailable') })"
-        @click="openModal(project.teaserImg[0])"
-        @keydown.enter="openModal(project.teaserImg[0])"
-        @keydown.space.prevent="openModal(project.teaserImg[0])"
-      >
-        <template v-if="!isErrored(project.teaserImg[0].signedUrl)">
-          <img
-            :src="project.teaserImg[0].signedUrl"
-            :alt="project.name + ' - Teaser'"
-            loading="lazy"
-            @error="onImageError(project.teaserImg[0].signedUrl)"
-          />
-          <div class="hover-overlay">
-            <IBiZoomIn class="zoom-icon" />
-          </div>
-        </template>
-        <div v-else class="image-fallback">
-          <IBiImage class="fallback-icon" />
-          <span class="fallback-text">{{ t('gallery.imageNotAvailable') || 'Bild nicht verfügbar' }}</span>
-        </div>
-      </div>
       <div
         v-for="(item, index) in project.gallery"
         :key="index"
@@ -77,14 +51,14 @@
     <project-gallery-modal
       :is-visible="modalVisible"
       :current-item="currentItem"
-      :gallery-items="galleryWithTeaserImg"
+      :gallery-items="project.gallery"
       @update:is-visible="closeModal"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Project } from '@/interfaces/Project';
 import type { Attachment } from '@/interfaces/Attachment';
@@ -100,12 +74,6 @@ const props = defineProps<{
 const modalVisible = ref(false);
 const currentItem = ref<Attachment | null>(null);
 const erroredImages = ref(new Set<string>());
-
-const galleryWithTeaserImg = computed(() => {
-  const gallery = props.project.gallery || [];
-  const teaserImg = props.project.teaserImg ? [props.project.teaserImg[0]] : [];
-  return [...teaserImg, ...gallery];
-});
 
 function isErrored(src: string): boolean {
   return erroredImages.value.has(src);
