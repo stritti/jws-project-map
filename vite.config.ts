@@ -12,6 +12,9 @@ import tailwindcss from "tailwindcss";
 import autoprefixer from "autoprefixer";
 
 // https://vitejs.dev/config/
+// Disable PWA plugin in GitHub Actions to avoid Rollup native module issues
+const isGitHubActions = process.env.GITHUB_ACTIONS === "true";
+
 export default defineConfig({
   plugins: [
     // Optimized Leaflet and MarkerCluster handling
@@ -44,7 +47,8 @@ export default defineConfig({
       compiler: "vue3",
       autoInstall: true,
     }),
-    VitePWA({
+    // Only enable PWA plugin outside of GitHub Actions to avoid Rollup native module issues
+    !isGitHubActions && VitePWA({
       registerType: "autoUpdate",
       devOptions: {
         enabled: true,
@@ -56,7 +60,7 @@ export default defineConfig({
         theme_color: "#3d5e9e",
       },
     }),
-  ],
+  ].filter(Boolean),
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
@@ -93,20 +97,11 @@ export default defineConfig({
   },
   // Optimize dependencies to pre-bundle leaflet and markercluster together
   optimizeDeps: {
-    include: [
-      "leaflet",
-      "leaflet.markercluster",
-      "@vue-leaflet/vue-leaflet",
-      "vue-leaflet-markercluster",
-    ],
+    include: ["leaflet", "leaflet.markercluster", "@vue-leaflet/vue-leaflet"],
   },
-  // Optimize CSS for Tailwind
   css: {
     postcss: {
-      plugins: [
-        tailwindcss,
-        autoprefixer,
-      ],
+      plugins: [tailwindcss, autoprefixer],
     },
   },
 });
