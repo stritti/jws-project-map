@@ -37,7 +37,8 @@
           <video
             :src="item.signedUrl"
             preload="metadata"
-            controls
+            muted
+            playsinline
             class="video-preview"
           >
             Your browser does not support the video tag.
