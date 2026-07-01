@@ -182,7 +182,7 @@ function onCardClick() {
 }
 
 .image-col {
-  @apply relative overflow-hidden aspect-square;
+  @apply relative overflow-hidden aspect-[4/3];
 }
 
 .project-image {
