@@ -1,64 +1,66 @@
 <template>
-  <div v-if="isVisible" class="modal-overlay" @click.self="hide">
-    <div class="modal-content rounded-round-xl border-0 shadow-lg bg-white max-w-md mx-4 my-8" role="dialog" aria-modal="true" aria-labelledby="about-modal-title">
-      <div class="modal-header border-0 pb-0 flex items-center justify-between p-4">
+  <Teleport to="body">
+    <div v-if="isVisible" class="modal-overlay" @click.self="hide">
+      <div class="modal-content rounded-round-xl border-0 shadow-lg bg-white max-w-md mx-4 my-8" role="dialog" aria-modal="true" aria-labelledby="about-modal-title">
+        <div class="modal-header border-0 pb-0 flex items-center justify-between p-4">
         <h2 id="about-modal-title" class="text-headline-md font-bold text-onSurface">{{ t('about.title') }}</h2>
         <button class="close-btn" @click="hide" :aria-label="t('nav.close')">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body pt-2 px-4 pb-4 max-h-[80vh] overflow-y-auto">
-        <div class="about-content">
-          <!-- Description -->
-          <p class="about-description">
-            <i18n-t keypath="about.description" tag="span">
-              <template #foundation>
-                <a href="https://www.joerg-wolff-stiftung.de/" target="_blank" rel="noopener noreferrer" class="font-semibold">{{ t("about.foundation") }}</a>
-              </template>
-            </i18n-t>
-          </p>
+        <div class="modal-body pt-2 px-4 pb-4 max-h-[80vh] overflow-y-auto">
+          <div class="about-content">
+            <!-- Description -->
+            <p class="about-description">
+              <i18n-t keypath="about.description" tag="span">
+                <template #foundation>
+                  <a href="https://www.joerg-wolff-stiftung.de/" target="_blank" rel="noopener noreferrer" class="font-semibold">{{ t("about.foundation") }}</a>
+                </template>
+              </i18n-t>
+            </p>
 
-          <hr class="my-4 opacity-25" />
+            <hr class="my-4 opacity-25" />
 
-          <!-- Development -->
-          <h6 class="section-label">{{ t("about.development") }}</h6>
-          <p class="about-value">{{ t("about.developer") }}</p>
+            <!-- Development -->
+            <h6 class="section-label">{{ t("about.development") }}</h6>
+            <p class="about-value">{{ t("about.developer") }}</p>
 
-          <!-- Sources -->
-          <h6 class="section-label">{{ t("about.sources") }}</h6>
-          <p class="about-value">
-            <a href="https://github.com/stritti/jws-project-map" target="_blank" rel="noopener noreferrer" class="about-link">GitHub</a>
-          </p>
+            <!-- Sources -->
+            <h6 class="section-label">{{ t("about.sources") }}</h6>
+            <p class="about-value">
+              <a href="https://github.com/stritti/jws-project-map" target="_blank" rel="noopener noreferrer" class="about-link">GitHub</a>
+            </p>
 
-          <!-- Version and Reload -->
-          <div class="version-row">
-            <span class="about-value">{{ t("about.version") }}: {{ version }}</span>
-            <button
-              class="rounded-full px-3 border-0 font-semibold text-sm bg-transparent text-primary border border-primary hover:bg-primary hover:text-white transition-colors"
-              @click="reloadApp"
-            >
-              <IBiArrowRepeat class="mr-1" />
-              {{ t("about.reload") }}
-            </button>
+            <!-- Version and Reload -->
+            <div class="version-row">
+              <span class="about-value">{{ t("about.version") }}: {{ version }}</span>
+              <button
+                class="rounded-full px-3 border-0 font-semibold text-sm bg-transparent text-primary border border-primary hover:bg-primary hover:text-white transition-colors"
+                @click="reloadApp"
+              >
+                <IBiArrowRepeat class="mr-1" />
+                {{ t("about.reload") }}
+              </button>
+            </div>
+
+            <hr class="my-4 opacity-25" />
+
+            <!-- Credits -->
+            <h6 class="section-label">{{ t("about.credits") }}</h6>
+            <ul class="about-credits">
+              <li><a href="https://nocodb.com/" target="_blank" rel="noopener noreferrer" class="about-link">NocoDB</a></li>
+              <li><a href="https://vuejs.org" target="_blank" rel="noopener noreferrer" class="about-link">vue.js</a>, {{ t("about.license") }}</li>
+              <li><a href="https://leafletjs.com/" target="_blank" rel="noopener noreferrer" class="about-link">Leaflet</a>, OpenStreetMap</li>
+              <li>
+                {{ t("about.moreLibs") }}
+                <a href="https://github.com/stritti/jws-project-map/blob/main/package.json" target="_blank" rel="noopener noreferrer" class="about-link font-semibold">awesome libs &hellip;</a>
+              </li>
+            </ul>
           </div>
-
-          <hr class="my-4 opacity-25" />
-
-          <!-- Credits -->
-          <h6 class="section-label">{{ t("about.credits") }}</h6>
-          <ul class="about-credits">
-            <li><a href="https://nocodb.com/" target="_blank" rel="noopener noreferrer" class="about-link">NocoDB</a></li>
-            <li><a href="https://vuejs.org" target="_blank" rel="noopener noreferrer" class="about-link">vue.js</a>, {{ t("about.license") }}</li>
-            <li><a href="https://leafletjs.com/" target="_blank" rel="noopener noreferrer" class="about-link">Leaflet</a>, OpenStreetMap</li>
-            <li>
-              {{ t("about.moreLibs") }}
-              <a href="https://github.com/stritti/jws-project-map/blob/main/package.json" target="_blank" rel="noopener noreferrer" class="about-link font-semibold">awesome libs &hellip;</a>
-            </li>
-          </ul>
         </div>
       </div>
     </div>
-  </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
