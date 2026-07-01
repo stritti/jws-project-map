@@ -19,7 +19,7 @@ const route = useRoute();
 function switchLocale(lang: Locale) {
   setLocale(lang);
   // Reload project data so localized fields (name, notes) are refetched (Codex #P2)
-  useProjectStore().load().catch(() => {});
+  useProjectStore().loadWithLazyLoading().catch(() => {});
 }
 
 const aboutModalRef = ref<InstanceType<typeof AboutModal> | null>(null);

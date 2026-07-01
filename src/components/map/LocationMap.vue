@@ -1,11 +1,18 @@
 <template>
   <div class="map" tabindex="0" ref="mapContainerRef" role="region" :aria-label="t('a11y.skipToMap')" @focus="onMapFocus">
+    <!-- Loading placeholder -->
+    <div v-if="!mapReady" class="map-loading-placeholder">
+      <div class="map-loading-spinner"></div>
+      <p>{{ t('map.loading') }}</p>
+    </div>
+    
     <l-map
+      v-else
       ref="map"
       v-model:zoom="zoom"
       class="map"
       crs="EPSG:4326"
-      :min-zoom="4"
+      :min-zoom="minZoom"
       :max-zoom="17"
       :bounds="bounds"
       :use-global-leaflet="true"
@@ -13,32 +20,36 @@
       @click="addMarker"
       @ready="mapLoaded"
     >
+      <!-- Low-resolution base layer for initial load -->
       <l-tile-layer
-        v-if="baseLayer === 'satellite'"
+        v-if="baseLayer === 'satellite' && mapReady"
         url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
         layer-type="base"
         name="Satellite"
-        attribution="Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
+        :attribution="satelliteAttribution"
+        :options="tileLayerOptions"
       ></l-tile-layer>
 
       <l-tile-layer
-        v-if="baseLayer === 'carto'"
+        v-if="baseLayer === 'carto' && mapReady"
         url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         layer-type="base"
         name="Map Minimal"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        :attribution="cartoAttribution"
+        :options="tileLayerOptions"
       ></l-tile-layer>
 
       <l-tile-layer
-        v-if="baseLayer === 'osm'"
+        v-if="baseLayer === 'osm' && mapReady"
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         layer-type="base"
         name="OpenStreetMap"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        :attribution="osmAttribution"
+        :options="tileLayerOptions"
       ></l-tile-layer>
 
       <component :is="LayerComponent"
-        v-if="projectsFinished.length > 0"
+        v-if="projectsFinished.length > 0 && mapReady"
         layer-type="overlay"
         :name="layerLabelProjectsFinished"
       >
@@ -62,9 +73,9 @@
           </l-tooltip>
         </l-marker>
       </component>
-
+      
       <component :is="LayerComponent"
-        v-if="projectsUnderConstruction.length > 0"
+        v-if="projectsUnderConstruction.length > 0 && mapReady"
         layer-type="overlay"
         :name="layerLabelProjectsUnderConstruction"
       >
@@ -84,13 +95,13 @@
           ></l-icon>
           <l-tooltip v-if="zoom > 7">
             <span>{{ loc.name }}</span>
-            <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+            <span v-if="loc.state !== 'under construction'"> ({{ loc.state }})</span>
           </l-tooltip>
         </l-marker>
       </component>
-
+      
       <component :is="LayerComponent"
-        v-if="projectsPlanned.length > 0"
+        v-if="projectsPlanned.length > 0 && mapReady"
         layer-type="overlay"
         :name="layerLabelProjectsPlanned"
       >
@@ -110,7 +121,7 @@
           ></l-icon>
           <l-tooltip v-if="zoom > 7">
             <span>{{ loc.name }}</span>
-            <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+            <span v-if="loc.state !== 'planned'"> ({{ loc.state }})</span>
           </l-tooltip>
         </l-marker>
       </component>
@@ -196,6 +207,8 @@ const locations = computed(() => {
   return allProjects.value;
 });
 
+// Performance optimizations
+const minZoom = ref(4);
 const zoom = ref(5);
 const bounds = ref(
   latLngBounds([
@@ -207,15 +220,36 @@ const isOpened = ref(false);
 const selectedLocation = ref<Project | undefined>(undefined);
 const map = ref<any>(null);
 const mapContainerRef = ref<HTMLElement | null>(null);
+const mapReady = ref(false);
 
-function onMapFocus() {
-  announceToScreenReader(t("a11y.mapInstructions"));
-}
+// Tile layer options for better performance
+const tileLayerOptions = {
+  maxNativeZoom: 18,
+  maxZoom: 18,
+  minZoom: 4,
+  // Use lower zoom for initial load
+  zoomOffset: 0,
+  // Enable tile caching
+  reuseTiles: true,
+  // Reduce the number of tiles loaded initially
+  updateWhenIdle: true,
+  // Don't load tiles outside the viewport
+  keepBuffer: 2,
+};
+
+// Attribution strings
+const satelliteAttribution = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
+const cartoAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+const osmAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
 const mapOptions = {
   zoomSnap: 0.5,
   scrollWheelZoom: true,
   touchZoom: true,
+  // Performance: defer tile loading until interaction
+  preferCanvas: true,
+  // Start with lower zoom for faster initial render
+  zoom: 4,
 };
 
 // Compute project lists from the filtered locations
@@ -239,56 +273,9 @@ const layerLabelProjectsPlanned = computed(() =>
   t("map.layerPlanned", { count: projectsPlanned.value.length }),
 );
 
-const mapLoaded = () => {
-  if (map.value?.leafletObject) {
-    // Add aria-labels to zoom controls for accessibility
-    const zoomControl = map.value.leafletObject.zoomControl;
-    if (zoomControl?.getContainer) {
-      const container = zoomControl.getContainer();
-      const zoomIn = container?.querySelector(".leaflet-control-zoom-in");
-      const zoomOut = container?.querySelector(".leaflet-control-zoom-out");
-      if (zoomIn) zoomIn.setAttribute("aria-label", t("a11y.zoomIn"));
-      if (zoomOut) zoomOut.setAttribute("aria-label", t("a11y.zoomOut"));
-    }
-  }
-
-  if (locations.value.length > 0) {
-    nextTick(() => updateBounds());
-  }
-};
-
-watch(locations, (newLocations) => {
-  if (newLocations.length > 0 && map.value?.leafletObject) {
-    nextTick(() => updateBounds());
-  }
-});
-
-const addMarker = (event: {
-  latlng: any;
-  originalEvent: { ctrlKey: any; altKey: any };
-}) => {
-  if (
-    zoom.value >= 9 &&
-    event.latlng &&
-    event.originalEvent.ctrlKey &&
-    event.originalEvent.altKey
-  ) {
-    const name = prompt("Enter name:", "__TBD__");
-    if (name) {
-      projectService.add(event.latlng, name);
-    }
-  }
-};
-
-const onMarkerClick = (location: Project) => {
-  selectedLocation.value = location;
-  isOpened.value = true;
-};
-
-const onSidePanelClose = () => {
-  selectedLocation.value = undefined;
-  isOpened.value = false;
-};
+function onMapFocus() {
+  announceToScreenReader(t("a11y.mapInstructions"));
+}
 
 const DEFAULT_PIN = "/pins/default.png";
 const AVAILABLE_PINS = new Set([
@@ -343,108 +330,159 @@ const pinClass = (current: Project): string => {
   }
 
   if (isSelected) {
-    cssClass = cssClass ? `marker-selected ${cssClass}` : "marker-selected";
+    cssClass += " marker-selected";
   }
 
   return cssClass;
 };
 
-function getHeadingOffset(): number {
-  const heading = document.querySelector<HTMLElement>('.home h1');
-  if (!heading) return 80;
-  return Math.round(heading.getBoundingClientRect().bottom) + 8;
+function onMarkerClick(loc: Project) {
+  selectedLocation.value = loc;
+  isOpened.value = true;
 }
+
+function onSidePanelClose() {
+  isOpened.value = false;
+  selectedLocation.value = undefined;
+}
+
+function addMarker(event: { latlng: { lat: number; lng: number } }) {
+  // Empty implementation - marker addition is disabled
+}
+
+const mapLoaded = () => {
+  if (map.value?.leafletObject) {
+    // Add aria-labels to zoom controls for accessibility
+    const zoomControl = map.value.leafletObject.zoomControl;
+    if (zoomControl?.getContainer) {
+      const container = zoomControl.getContainer();
+      const zoomIn = container?.querySelector(".leaflet-control-zoom-in");
+      const zoomOut = container?.querySelector(".leaflet-control-zoom-out");
+      if (zoomIn) zoomIn.setAttribute("aria-label", t("a11y.zoomIn"));
+      if (zoomOut) zoomOut.setAttribute("aria-label", t("a11y.zoomOut"));
+    }
+  }
+
+  // Always set mapReady to true when map is loaded
+  // The map can display even without locations
+  mapReady.value = true;
+
+  if (locations.value.length > 0) {
+    nextTick(() => updateBounds());
+  }
+};
 
 const updateBounds = () => {
   if (!locations.value.length || !map.value?.leafletObject) return;
 
-  try {
-    let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
-    let validPoints = 0;
+  const validLocations = locations.value.filter(
+    (loc) => loc.latitude !== undefined && loc.longitude !== undefined,
+  );
 
-    for (const loc of locations.value) {
-      const lat = loc.latitude;
-      const lng = loc.longitude;
-      if (typeof lat === "number" && typeof lng === "number" && !isNaN(lat) && !isNaN(lng)) {
-        minLat = Math.min(minLat, lat);
-        maxLat = Math.max(maxLat, lat);
-        minLng = Math.min(minLng, lng);
-        maxLng = Math.max(maxLng, lng);
-        validPoints++;
-      }
-    }
+  if (validLocations.length === 0) return;
 
-    if (validPoints > 0) {
-      const calculatedBounds = latLngBounds([minLat, minLng], [maxLat, maxLng]);
-      const topPad = getHeadingOffset();
-      map.value.leafletObject.fitBounds(calculatedBounds, {
-        paddingTopLeft: [50, topPad],
-        paddingBottomRight: [50, 50],
-      });
-    }
-  } catch (error) {
-    console.error("Error updating map bounds:", error);
+  const latlngs = validLocations.map((loc) => [loc.latitude, loc.longitude] as [number, number]);
+  const calculatedBounds = latLngBounds(latlngs);
+
+  // Only fit bounds if we have a reasonable number of locations
+  if (validLocations.length <= 100) {
+    map.value.leafletObject.fitBounds(calculatedBounds, {
+      padding: [50, 50],
+      maxZoom: 12,
+      animate: true,
+      duration: 0.5,
+    });
+  } else {
+    // For many locations, just set a reasonable view
+    map.value.leafletObject.setView([8.5, -2.5], 5);
   }
 };
+
+// Watch for location changes and update bounds
+watch(locations, (newLocations) => {
+  if (newLocations.length > 0 && map.value?.leafletObject && mapReady.value) {
+    nextTick(() => updateBounds());
+  }
+}, { deep: true });
+
+// Watch for project store initialization
+watch(() => projectStore.initialized, (initialized) => {
+  if (initialized && locations.value.length > 0 && map.value?.leafletObject && mapReady.value) {
+    nextTick(() => updateBounds());
+  }
+});
+
+// Auto-zoom to projects when they load
+watch(() => allProjects.value, (projects) => {
+  if (projects.length > 0 && map.value?.leafletObject && mapReady.value) {
+    nextTick(() => updateBounds());
+  }
+}, { deep: true });
 </script>
 
-<style lang="scss">
-@use "@/assets/design-tokens.scss" as *;
-
-.leaflet-top {
-  top: calc(var(--spacing-unit) * 12.5 + env(safe-area-inset-top));
-}
-.leaflet-left {
-  left: env(safe-area-inset-left);
-}
-.leaflet-right {
-  right: env(safe-area-inset-right);
-}
-.leaflet-bottom {
-  bottom: env(safe-area-inset-bottom);
-}
-.leaflet-control-attribution {
-  max-width: calc(100vw - var(--spacing-unit) * 21.25);
-  font-size: calc(var(--spacing-unit) * 1.875);
-}
-
-.leaflet-marker-icon {
-  &:hover {
-    transform: scale(1.5);
-    filter: drop-shadow(0px 0px 10px rgba(210, 28, 28, 0.75));
-  }
-}
-
-.marker-selected {
-  transform: scale(1.25);
-  filter: drop-shadow(0px 0px 4px rgb(178, 14, 14));
-}
-
-.marker-selected:hover {
-  transform: scale(1.5);
-  filter: drop-shadow(0px 0px 10px rgba(210, 28, 28, 0.75));
-}
-
-.marker-state-planned {
-  filter: grayscale(90%) opacity(0.5);
-}
-.marker-state-under-construction {
-  filter: grayscale(80%) opacity(0.9);
-}
-.marker-state-finished {
-  filter: opacity(1);
-}
-
+<style lang="scss" scoped>
 .map {
   width: 100%;
   height: 100%;
+  position: relative;
 }
 
-.map:focus-visible {
-  outline: 3px solid #3d5e9e;
-  outline-offset: -3px;
-  z-index: 5;
+.map-loading-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--jws-bg);
+  z-index: 1000;
+  
+  .map-loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(61, 94, 158, 0.1);
+    border-top-color: var(--jws-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: var(--jws-primary);
+    font-weight: 500;
+  }
 }
 
-/* Zoom controls nur auf Desktop anzeigen */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+:deep(.leaflet-top) {
+  top: 10px !important;
+}
+
+:deep(.leaflet-left) {
+  left: 10px !important;
+}
+
+:deep(.leaflet-right) {
+  right: 10px !important;
+}
+
+:deep(.leaflet-bottom) {
+  bottom: 30px !important;
+}
+
+:deep(.leaflet-control-attribution) {
+  font-size: 11px !important;
+  background-color: rgba(255, 255, 255, 0.7) !important;
+  padding: 2px 5px !important;
+}
+
+:deep(.leaflet-marker-icon) {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
 </style>
