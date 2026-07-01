@@ -30,5 +30,5 @@ dev-dist/
 .aider*
 opencode.json
 
-# Bun is the package manager — npm lockfile not needed
-package-lock.json
+# Bun is the local package manager — npm lockfile needed for Netlify builds
+# package-lock.json committed for Netlify deployment compatibility
