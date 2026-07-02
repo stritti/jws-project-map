@@ -288,7 +288,7 @@ defineExpose({
 }
 
 .filter-btn.active .filter-badge {
-  @apply bg-secondary text-secondary;
+  @apply bg-white text-secondary;
 }
 
 /* Filter chips */

@@ -310,7 +310,7 @@ onUnmounted(() => {
 
   /* Mobile: search floats at the bottom (Apple-style) */
   @media (max-width: 767.98px) {
-    .home {
+    & {
       position: fixed;
       inset: 0;
       overflow: hidden;

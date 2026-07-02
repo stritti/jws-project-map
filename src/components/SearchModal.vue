@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isVisible" class="modal-overlay" @click.self="hide">
+  <div v-if="isVisible" class="modal-overlay" @click.self="hide" @keydown.escape="hide">
     <div class="modal-content rounded-round-xl border-0 shadow-lg bg-white max-w-lg mx-4 my-8" role="dialog" aria-modal="true" aria-labelledby="search-modal-title">
       <div class="modal-header border-0 pb-0 flex items-center justify-between p-4">
         <h2 id="search-modal-title" class="sr-only">{{ t('search.resultsLabel') }}</h2>

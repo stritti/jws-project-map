@@ -69,6 +69,8 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
+const emit = defineEmits(['hidden']);
+
 const isVisible = ref(false);
 
 function show() {
@@ -79,6 +81,7 @@ function show() {
 function hide() {
   isVisible.value = false;
   document.body.style.overflow = '';
+  emit('hidden');
 }
 
 defineExpose({ show, hide });

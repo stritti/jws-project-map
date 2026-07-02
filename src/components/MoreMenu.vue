@@ -189,7 +189,7 @@ function onMorePanelEnter() {
 }
 
 function onGlobalKeydown(e: KeyboardEvent) {
-  if (e.key === "Escape") closeMore();
+  if (e.key === "Escape" && moreOpen.value) closeMore();
 }
 
 // Current locale for language switching
