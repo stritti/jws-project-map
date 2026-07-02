@@ -24,8 +24,8 @@
             class="project-image"
           />
           <!-- State badge overlay -->
-          <div class="state-badge" :class="project.state?.replace(' ', '-')">
-            {{ stateLabel }}
+          <div class="state-badge-overlay">
+            <StateBadge :state="project.state" />
           </div>
         </div>
         
@@ -72,6 +72,7 @@ import { useWebFrame } from "@/composables/useWebFrame";
 import type { Project } from "@/interfaces/Project";
 import CategoryBadge from "../CategoryBadge.vue";
 import CountryLabel from "../CountryLabel.vue";
+import StateBadge from "@/components/StateBadge.vue";
 
 const { t } = useI18n();
 const { isIFrame, notifyNavigate } = useWebFrame();
@@ -92,15 +93,6 @@ const emit = defineEmits<{
   (e: 'click'): void;
 }>();
 
-const stateLabel = computed(() => {
-  const labels: Record<string, string> = {
-    finished: t("project.state.finished"),
-    "under construction": t("project.state.underConstruction"),
-    planned: t("project.state.planned"),
-  };
-  return labels[props.project.state] || props.project.state;
-});
-
 const teaserImage = computed(() => {
   if (props.project.teaserImg && props.project.teaserImg.length > 0) {
     const img = props.project.teaserImg[0];
@@ -110,9 +102,16 @@ const teaserImage = computed(() => {
   }
 });
 
+const stateLabels: Record<string, string> = {
+  finished: t("project.state.finished"),
+  "under construction": t("project.state.underConstruction"),
+  planned: t("project.state.planned"),
+};
+
 const cardAriaLabel = computed(() => {
   const parts = [props.project.name];
-  if (stateLabel.value) parts.push(stateLabel.value);
+  const sl = stateLabels[props.project.state];
+  if (sl) parts.push(sl);
   if (props.project.country) {
     parts.push(props.project.country.fields.Name);
   }
@@ -189,20 +188,8 @@ function onCardClick() {
   @apply w-full h-full object-cover object-center transition-transform duration-700 ease-[cubic-bezier(0.165,0.84,0.44,1)] rounded-round-default;
 }
 
-.state-badge {
-  @apply absolute top-[calc(var(--spacing-unit)*1.5)] right-[calc(var(--spacing-unit)*1.5)] px-[calc(var(--spacing-unit)*1)] py-[calc(var(--spacing-unit)*0.5)] rounded-full text-label-sm  uppercase tracking-[0.02em] z-[1];
-
-  &.finished {
-    @apply bg-finished text-white;
-  }
-
-  &.under-construction {
-    @apply bg-underConstruction text-black;
-  }
-
-  &.planned {
-    @apply bg-planned text-white;
-  }
+.state-badge-overlay {
+  @apply absolute top-[calc(var(--spacing-unit)*1.5)] right-[calc(var(--spacing-unit)*1.5)] z-[1];
 }
 
 .content-col {

@@ -56,9 +56,7 @@
             <div class="flex-grow-1 overflow-hidden">
               <div class="font-semibold text-truncate">{{ project.name }}</div>
               <div class="flex items-center gap-2 mt-1 flex-wrap">
-                <span class="state-badge text-capitalize" :class="stateBadgeClass(project.state)">
-                  {{ project.state }}
-                </span>
+                <StateBadge :state="project.state" />
                 <span v-if="project.country" class="text-label-sm text-onSurface-variant flex items-center gap-1">
                   <IBiGeoAlt />
                   {{ project.country.fields.Name }}
@@ -102,6 +100,7 @@ import { useProjectSearch } from "@/composables/useProjectSearch";
 import { useWebFrame } from "@/composables/useWebFrame";
 import { useSearchStore } from "@/stores/search.store";
 import SearchBar from "./SearchBar.vue";
+import StateBadge from "@/components/StateBadge.vue";
 import { useFocusRestore } from "@/composables/useAccessibility";
 
 const router = useRouter();
@@ -155,13 +154,6 @@ function getTeaserImage(project: Project) {
     return img.thumbnails?.small?.signedUrl || img.thumbnails?.card_cover?.signedUrl || img.signedUrl || "/img/placeholder.png";
   }
   return "/img/placeholder.png";
-}
-
-function stateBadgeClass(state: string) {
-  if (state === "finished") return "bg-finished text-white";
-  if (state === "under construction") return "bg-underConstruction text-black";
-  if (state === "planned") return "bg-planned text-white";
-  return "bg-secondary text-white";
 }
 
 // Ctrl+K / Cmd+K keyboard shortcut
@@ -218,10 +210,6 @@ defineExpose({ show, hide });
 
 kbd {
   @apply bg-surface border border-outline text-onSurface text-label-sm px-[calc(var(--spacing-unit)*0.25)] py-[calc(var(--spacing-unit)*0.5)] rounded-round-default;
-}
-
-.state-badge {
-  @apply inline-block px-2 py-1 rounded-full text-xs font-semibold;
 }
 
 .modal-overlay {
