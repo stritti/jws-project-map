@@ -90,7 +90,7 @@
                 >
                   <span :class="`fi fis fi-${lang.flag}`" aria-hidden="true" />
                   <span>{{ lang.label }}</span>
-                  <span v-if="currentLocale === lang.code" class="more-check" aria-hidden="true">\u2713</span>
+                  <span v-if="currentLocale === lang.code" class="more-check" aria-hidden="true">✓</span>
                 </button>
               </div>
 
