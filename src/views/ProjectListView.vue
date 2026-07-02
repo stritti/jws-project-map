@@ -385,7 +385,7 @@ onBeforeMount(() => {
 
   .filter-overlay-container {
     position: fixed;
-    bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(36px + env(safe-area-inset-bottom, 0px));
     left: 0;
     right: 0;
     z-index: 1000;
