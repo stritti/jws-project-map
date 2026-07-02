@@ -5,7 +5,6 @@ import vue from "@vitejs/plugin-vue";
 import Components from "unplugin-vue-components/vite";
 import Icons from "unplugin-icons/vite";
 import IconsResolve from "unplugin-icons/resolver";
-import { VitePWA } from "vite-plugin-pwa";
 import version from "vite-plugin-package-version";
 import VueDevTools from "vite-plugin-vue-devtools";
 import tailwindcss from "tailwindcss";
@@ -44,41 +43,8 @@ export default defineConfig({
       compiler: "vue3",
       autoInstall: true,
     }),
-    VitePWA({
-      registerType: "autoUpdate",
-      devOptions: {
-        enabled: true,
-      },
-      manifest: {
-        name: "JWF Projects",
-        short_name: "JWF Projects",
-        description: "Overview of projects in Westafrica by JWF and Humanaktiv",
-        theme_color: "#3d5e9e",
-        background_color: "#ffffff",
-        display: "standalone",
-        icons: [
-          {
-            src: "img/cropped-joerg-wolff-stiftung.png",
-            sizes: "192x192",
-            type: "image/png",
-            purpose: "any maskable",
-          },
-          {
-            src: "img/cropped-joerg-wolff-stiftung.png",
-            sizes: "512x512",
-            type: "image/png",
-          },
-        ],
-      },
-      // Disable PWA in CI to avoid Rollup native module issues
-      workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
-        // Only generate SW in production, not in CI
-        mode: process.env.NODE_ENV === "production" && !process.env.CI ? "generateSW" : "injectManifest",
-        // Skip waiting for service worker in CI
-        skipWaiting: true,
-      },
-    }),
+    // PWA plugin disabled for this PR to avoid Rollup native module issues in CI
+    // Will be re-enabled in a separate PR after Tailwind migration is complete
   ],
   resolve: {
     alias: {
