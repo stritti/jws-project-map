@@ -193,15 +193,15 @@ function onCardClick() {
   @apply absolute top-[calc(var(--spacing-unit)*1.5)] right-[calc(var(--spacing-unit)*1.5)] px-[calc(var(--spacing-unit)*1)] py-[calc(var(--spacing-unit)*0.5)] rounded-full text-label-sm  uppercase tracking-[0.02em] z-[1];
 
   &.finished {
-    @apply bg-surface-variant text-onSurface-variant;
+    @apply bg-finished text-white;
   }
 
   &.under-construction {
-    @apply bg-secondary text-white;
+    @apply bg-underConstruction text-black;
   }
 
   &.planned {
-    @apply bg-surface-variant text-onSurface-variant;
+    @apply bg-planned text-white;
   }
 }
 

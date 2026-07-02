@@ -90,7 +90,7 @@
               </div>
             </div>
             
-            <div class="info-card" v-if="project.state">
+            <div class="info-card">
               <div class="info-icon">
                 <IBiCheck2Circle />
               </div>
@@ -459,21 +459,8 @@ const detailMarkerIcon = computed(() => {
   @apply text-[1.5rem] bg-surface w-[56px] h-[56px] flex items-center justify-center rounded-round-xl text-primary flex-shrink-0;
 }
 
-.state-badge {
-  @apply inline-block px-[1rem] py-[0.35rem] rounded-full text-[0.85rem] font-bold uppercase tracking-[0.03em];
-
-  &.finished {
-    @apply bg-finished text-white;
-  }
-
-  &.under-construction {
-    @apply bg-underConstruction text-black;
-  }
-
-  &.planned {
-    @apply bg-planned text-white;
-  }
-}
+/* State-badge base styles are in the unscoped section below to avoid
+   Chromium compositing edge case with scoped [data-v-xxx] variant selectors. */
 
 .info-content {
   @apply flex flex-col;
@@ -545,8 +532,12 @@ const detailMarkerIcon = computed(() => {
   @apply bg-transparent border-none;
 }
 
-/* State badge backgrounds — kept in unscoped to avoid Chromium compositing
+/* State badge — kept entirely in unscoped to avoid Chromium compositing
    edge case where scoped [data-v-xxx] variant selectors don't paint reliably. */
+.state-badge {
+  @apply inline-block px-[1rem] py-[0.35rem] rounded-full text-[0.85rem] font-bold uppercase tracking-[0.03em];
+}
+
 .state-badge.finished {
   @apply bg-finished text-white;
 }
