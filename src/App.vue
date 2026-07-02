@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MainMenu from "./components/MainMenu.vue";
 import SiteFooter from "./components/SiteFooter.vue";
 import SearchModal from "@/components/SearchModal.vue";
 import { useWebFrame } from "./composables/useWebFrame";
@@ -75,6 +76,7 @@ router.afterEach((to) => {
     <main id="main-content" class="content" aria-label="Main content" role="main" :aria-hidden="isMainHidden">
       <router-view />
     </main>
+    <main-menu v-if="!isIFrame" />
     <site-footer v-if="!isIFrame" />
     <search-modal ref="searchModalRef" @hidden="onSearchHidden" />
   </div>

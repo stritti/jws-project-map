@@ -302,10 +302,12 @@ defineExpose({
 
 /* Filter chips */
 .filter-chips {
-  @apply flex gap-[0.5rem] py-[0.75rem] overflow-x-auto touch-pan-x scrollbar-hide;
+  @apply flex gap-[0.5rem] py-[0.75rem] overflow-x-auto touch-pan-x;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-.scrollbar-hide::-webkit-scrollbar {
+.filter-chips::-webkit-scrollbar {
   display: none;
 }
 

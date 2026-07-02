@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <div v-if="isVisible" class="modal-overlay" @click.self="hide">
-      <div class="modal-content rounded-round-xl border-0 shadow-lg bg-white max-w-md mx-4 my-8" role="dialog" aria-modal="true" aria-labelledby="about-modal-title">
+      <div ref="modalRef" class="modal-content rounded-round-xl border-0 shadow-lg bg-white max-w-md mx-4 my-8" role="dialog" aria-modal="true" aria-labelledby="about-modal-title" @keydown="onKeydown">
         <div class="modal-header border-0 pb-0 flex items-center justify-between p-4">
         <h2 id="about-modal-title" class="text-headline-md font-bold text-onSurface">{{ t('about.title') }}</h2>
         <button class="close-btn" @click="hide" :aria-label="t('nav.close')">
@@ -88,6 +88,30 @@ function hide() {
   isVisible.value = false;
   document.body.style.overflow = '';
   emit('hidden');
+}
+
+// Trap focus inside modal while open
+function onKeydown(e: KeyboardEvent) {
+  if (e.key !== 'Tab' || !isVisible.value) return;
+
+  const modal = modalRef.value;
+  if (!modal) return;
+
+  const focusable = modal.querySelectorAll<HTMLElement>(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+  );
+  if (focusable.length === 0) return;
+
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
 }
 
 defineExpose({ show, hide });

@@ -515,8 +515,6 @@ const detailMarkerIcon = computed(() => {
   @apply bg-transparent border-none;
 }
 
-</style>
-
 /* Custom animations */
 @keyframes revealImage {
   from {
@@ -534,3 +532,4 @@ const detailMarkerIcon = computed(() => {
 .animate-reveal-image {
   animation: revealImage 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
+</style>

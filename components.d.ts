@@ -37,6 +37,7 @@ declare module 'vue' {
     LocationMap: typeof import('./src/components/map/LocationMap.vue')['default']
     MainMenu: typeof import('./src/components/MainMenu.vue')['default']
     MarkdownText: typeof import('./src/components/MarkdownText.vue')['default']
+    MoreMenu: typeof import('./src/components/MoreMenu.vue')['default']
     NavigateButton: typeof import('./src/components/actions/NavigateButton.vue')['default']
     ProjectDetails: typeof import('./src/components/project/ProjectDetails.vue')['default']
     ProjectGallery: typeof import('./src/components/project/ProjectGallery.vue')['default']
@@ -48,5 +49,6 @@ declare module 'vue' {
     SearchModal: typeof import('./src/components/SearchModal.vue')['default']
     ShareButton: typeof import('./src/components/actions/ShareButton.vue')['default']
     SiteFooter: typeof import('./src/components/SiteFooter.vue')['default']
+    StateBadge: typeof import('./src/components/StateBadge.vue')['default']
   }
 }
