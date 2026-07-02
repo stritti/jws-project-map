@@ -78,5 +78,8 @@
     "vue-tsc": "^3.3.2",
     "workbox-build": "^7.1.0",
     "rollup": "^4.22.4"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.22.0"
   }
 }
