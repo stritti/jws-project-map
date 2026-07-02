@@ -1,25 +1,25 @@
 <template>
-  <div v-if="project.gallery && project.gallery.length > 0" class="project-gallery-section">
+  <div v-if="project.gallery && project.gallery.length > 0 || (project.teaserImg && project.teaserImg.length > 0)" class="project-gallery-section">
     <h2 class="gallery-title mb-4">{{ title }}</h2>
     <div class="gallery-grid">
       <div
-        v-for="(item, index) in project.gallery"
+        v-for="(item, index) in galleryItems"
         :key="index"
         class="gallery-item"
         role="button"
         tabindex="0"
-        :aria-label="t('a11y.openImage', { name: item.name || t('a11y.imageNotAvailable') })"
+        :aria-label="t('a11y.openImage', { name: item.name || project.name + ' image' })"
         @click="openModal(item)"
         @keydown.enter="openModal(item)"
         @keydown.space.prevent="openModal(item)"
       >
-        <template v-if="item.mimetype.startsWith('image')">
-          <template v-if="!isErrored(item.thumbnails?.card_cover?.signedUrl || item.signedUrl)">
+        <template v-if="item.mimetype?.startsWith('image') || !item.mimetype">
+          <template v-if="!isErrored(item.thumbnails?.card_cover?.signedUrl || item.signedUrl || item.url)">
             <img
-              :src="item.thumbnails?.card_cover?.signedUrl || item.signedUrl"
+              :src="item.thumbnails?.card_cover?.signedUrl || item.signedUrl || item.url"
               :alt="item.name || project.name + ' image'"
               loading="lazy"
-              @error="onImageError(item.thumbnails?.card_cover?.signedUrl || item.signedUrl)"
+              @error="onImageError(item.thumbnails?.card_cover?.signedUrl || item.signedUrl || item.url)"
             />
             <div class="hover-overlay">
               <IBiZoomIn class="zoom-icon" />
@@ -52,14 +52,14 @@
     <project-gallery-modal
       :is-visible="modalVisible"
       :current-item="currentItem"
-      :gallery-items="project.gallery"
+      :gallery-items="galleryItems"
       @update:is-visible="closeModal"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Project } from '@/interfaces/Project';
 import type { Attachment } from '@/interfaces/Attachment';
@@ -75,6 +75,31 @@ const props = defineProps<{
 const modalVisible = ref(false);
 const currentItem = ref<Attachment | null>(null);
 const erroredImages = ref(new Set<string>());
+
+// Include both gallery and teaser images
+const galleryItems = computed(() => {
+  const items: any[] = [];
+  
+  // Add gallery attachments
+  if (props.project.gallery && props.project.gallery.length > 0) {
+    items.push(...props.project.gallery);
+  }
+  
+  // Add teaser images if no gallery
+  if (props.project.teaserImg && props.project.teaserImg.length > 0) {
+    props.project.teaserImg.forEach((img: any) => {
+      items.push({
+        ...img,
+        name: img.name || props.project.name + ' teaser',
+        mimetype: 'image',
+        signedUrl: img.signedUrl,
+        thumbnails: img.thumbnails || {},
+      });
+    });
+  }
+  
+  return items;
+});
 
 function isErrored(src: string): boolean {
   return erroredImages.value.has(src);

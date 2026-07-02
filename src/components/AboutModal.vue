@@ -72,10 +72,16 @@ const { t } = useI18n();
 const emit = defineEmits(['hidden']);
 
 const isVisible = ref(false);
+const modalRef = ref<HTMLElement | null>(null);
 
 function show() {
   isVisible.value = true;
   document.body.style.overflow = 'hidden';
+  // Move focus to modal for accessibility
+  nextTick(() => {
+    const closeBtn = modalRef.value?.querySelector('.close-btn');
+    closeBtn?.focus();
+  });
 }
 
 function hide() {
