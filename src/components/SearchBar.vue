@@ -191,7 +191,7 @@ defineExpose({
 
 /* Search bar  Apple-style glassmorphism */
 .search-bar {
-  @apply flex items-center bg-white/70 backdrop-blur-xl border border-white/25 shadow-lg rounded-round-large px-[0.85rem] py-[0.6rem] gap-[0.5rem];
+  @apply flex items-center bg-white/70 backdrop-blur-xl border border-white/25 shadow-lg rounded-round-large px-[0.75rem] py-[0.25rem] gap-[0.5rem];
 }
 
 .search-icon {
@@ -199,10 +199,11 @@ defineExpose({
 }
 
 .search-input {
-  @apply bg-transparent border-none px-[0.5rem] py-[0.25rem] text-body-md text-onSurface placeholder:text-onSurface-variant focus:outline-2 focus:outline-secondary focus:outline-offset-2;
+  @apply bg-transparent border-none px-[0.75rem] py-[0.5rem] text-body-md text-onSurface placeholder:text-onSurface-variant focus:outline-2 focus:outline-secondary focus:outline-offset-2;
   /* Fill available space, but allow shrinking if needed */
   flex: 1 1 auto;
   min-width: 120px;
+  height: 40px;
   transition: min-width 0.25s ease;
 }
 
@@ -225,7 +226,7 @@ defineExpose({
 }
 
 .view-btn {
-  @apply flex items-center justify-center w-[30px] h-[30px] border-none rounded-lg bg-transparent text-onSurface-variant cursor-pointer transition-colors duration-150 text-base leading-none;
+  @apply flex items-center justify-center w-[40px] h-[40px] border-none rounded-lg bg-transparent text-onSurface-variant cursor-pointer transition-colors duration-150 text-base leading-none;
 }
 
 /* Touch-friendly minimum 44\u00d744 px on mobile */
@@ -251,18 +252,26 @@ defineExpose({
 
 /* Filter button */
 .filter-btn {
-  @apply flex items-center gap-[0.25rem] bg-transparent border-none rounded-[0.25rem] px-[0.5rem] py-[0.25rem] text-onSurface cursor-pointer text-body-md relative flex-shrink-0 hover:bg-surface-variant;
+  @apply flex items-center gap-[0.25rem] bg-transparent border-none rounded-lg px-[0.75rem] py-[0.5rem] text-onSurface cursor-pointer text-body-md relative flex-shrink-0 hover:bg-surface-variant;
+  height: 40px;
 }
 
 /* Touch-friendly minimum on mobile (same as .view-btn) */
 @media (max-width: 767.98px) {
+  .search-input {
+    height: 44px;
+  }
+  
+  .view-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 1.25rem;
+  }
+  
   .filter-btn {
+    height: 44px;
     padding-left: 0.75rem;
     padding-right: 0.75rem;
-    padding-top: 0.6rem;
-    padding-bottom: 0.6rem;
-    font-size: 1rem;
-    line-height: 1.5;
   }
   
   /* Hide filter label text on mobile to save space */

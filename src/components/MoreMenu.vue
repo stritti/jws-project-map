@@ -219,14 +219,14 @@ onUnmounted(() => {
 }
 
 .more-trigger {
-  @apply flex items-center justify-center w-[28px] h-[28px] md:w-[32px] md:h-[32px] rounded-full border-none bg-transparent cursor-pointer p-0 transition-colors duration-200 text-onSurface-variant;
+  @apply flex items-center justify-center w-[40px] h-[40px] md:w-[40px] md:h-[40px] rounded-lg border-none bg-transparent cursor-pointer p-0 transition-colors duration-200 text-onSurface-variant;
 
   &:hover {
     @apply text-primary bg-secondary/10;
   }
 
   :deep(svg) {
-    font-size: 1.15rem;
+    font-size: 1.25rem;
   }
 }
 
