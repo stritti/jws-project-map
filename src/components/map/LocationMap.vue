@@ -1,120 +1,123 @@
 <template>
   <div class="map" tabindex="0" ref="mapContainerRef" role="region" :aria-label="t('a11y.skipToMap')" @focus="onMapFocus">
-    <l-map
-      ref="map"
-      v-model:zoom="zoom"
-      class="map"
-      crs="EPSG:4326"
-      :min-zoom="4"
-      :max-zoom="17"
-      :center="center"
-      :use-global-leaflet="true"
-      :options="mapOptions"
-      @click="addMarker"
-      @ready="mapLoaded"
-    >
-      <l-tile-layer
-        v-if="baseLayer === 'satellite'"
-        url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-        layer-type="base"
-        name="Satellite"
-        attribution="Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
-      ></l-tile-layer>
-
-      <l-tile-layer
-        v-if="baseLayer === 'carto'"
-        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-        layer-type="base"
-        name="Map Minimal"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-      ></l-tile-layer>
-
-      <l-tile-layer
-        v-if="baseLayer === 'osm'"
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        layer-type="base"
-        name="OpenStreetMap"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      ></l-tile-layer>
-
-      <component :is="LayerComponent"
-        v-if="projectsFinished.length > 0"
-        layer-type="overlay"
-        :name="layerLabelProjectsFinished"
+    <client-only>
+      <l-map
+        v-if="isLeafletLoaded"
+        ref="map"
+        v-model:zoom="zoom"
+        class="map"
+        crs="EPSG:4326"
+        :min-zoom="4"
+        :max-zoom="17"
+        :center="center"
+        :use-global-leaflet="true"
+        :options="mapOptions"
+        @click="addMarker"
+        @ready="mapLoaded"
       >
-        <l-marker
-          v-for="loc in projectsFinished"
-          :id="loc.id"
-          :key="loc.id"
-          :lat-lng="[loc.latitude, loc.longitude]"
-          :title="loc.name"
-          @click="onMarkerClick(loc)"
-        >
-          <l-icon
-            :icon-url="getPin(loc)"
-            :class-name="pinClass(loc)"
-            :icon-size="[28, 39]"
-            :icon-anchor="[14, 39]"
-          ></l-icon>
-          <l-tooltip v-if="zoom > 7">
-            <span>{{ loc.name }}</span>
-            <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
-          </l-tooltip>
-        </l-marker>
-      </component>
+        <l-tile-layer
+          v-if="baseLayer === 'satellite'"
+          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+          layer-type="base"
+          name="Satellite"
+          attribution="Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
+        ></l-tile-layer>
 
-      <component :is="LayerComponent"
-        v-if="projectsUnderConstruction.length > 0"
-        layer-type="overlay"
-        :name="layerLabelProjectsUnderConstruction"
-      >
-        <l-marker
-          v-for="loc in projectsUnderConstruction"
-          :id="loc.id"
-          :key="loc.id"
-          :lat-lng="[loc.latitude, loc.longitude]"
-          :title="loc.name"
-          @click="onMarkerClick(loc)"
-        >
-          <l-icon
-            :icon-url="getPin(loc)"
-            :class-name="pinClass(loc)"
-            :icon-size="[28, 39]"
-            :icon-anchor="[14, 39]"
-          ></l-icon>
-          <l-tooltip v-if="zoom > 7">
-            <span>{{ loc.name }}</span>
-            <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
-          </l-tooltip>
-        </l-marker>
-      </component>
+        <l-tile-layer
+          v-if="baseLayer === 'carto'"
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+          layer-type="base"
+          name="Map Minimal"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        ></l-tile-layer>
 
-      <component :is="LayerComponent"
-        v-if="projectsPlanned.length > 0"
-        layer-type="overlay"
-        :name="layerLabelProjectsPlanned"
-      >
-        <l-marker
-          v-for="loc in projectsPlanned"
-          :id="loc.id"
-          :key="loc.id"
-          :lat-lng="[loc.latitude, loc.longitude]"
-          :title="loc.name"
-          @click="onMarkerClick(loc)"
+        <l-tile-layer
+          v-if="baseLayer === 'osm'"
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          layer-type="base"
+          name="OpenStreetMap"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        ></l-tile-layer>
+
+        <component :is="LayerComponent"
+          v-if="projectsFinished.length > 0"
+          layer-type="overlay"
+          :name="layerLabelProjectsFinished"
         >
-          <l-icon
-            :icon-url="getPin(loc)"
-            :class-name="pinClass(loc)"
-            :icon-size="[28, 39]"
-            :icon-anchor="[14, 39]"
-          ></l-icon>
-          <l-tooltip v-if="zoom > 7">
-            <span>{{ loc.name }}</span>
-            <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
-          </l-tooltip>
-        </l-marker>
-      </component>
-    </l-map>
+          <l-marker
+            v-for="loc in projectsFinished"
+            :id="loc.id"
+            :key="loc.id"
+            :lat-lng="[loc.latitude, loc.longitude]"
+            :title="loc.name"
+            @click="onMarkerClick(loc)"
+          >
+            <l-icon
+              :icon-url="getPin(loc)"
+              :class-name="pinClass(loc)"
+              :icon-size="[28, 39]"
+              :icon-anchor="[14, 39]"
+            ></l-icon>
+            <l-tooltip v-if="zoom > 7">
+              <span>{{ loc.name }}</span>
+              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+            </l-tooltip>
+          </l-marker>
+        </component>
+
+        <component :is="LayerComponent"
+          v-if="projectsUnderConstruction.length > 0"
+          layer-type="overlay"
+          :name="layerLabelProjectsUnderConstruction"
+        >
+          <l-marker
+            v-for="loc in projectsUnderConstruction"
+            :id="loc.id"
+            :key="loc.id"
+            :lat-lng="[loc.latitude, loc.longitude]"
+            :title="loc.name"
+            @click="onMarkerClick(loc)"
+          >
+            <l-icon
+              :icon-url="getPin(loc)"
+              :class-name="pinClass(loc)"
+              :icon-size="[28, 39]"
+              :icon-anchor="[14, 39]"
+            ></l-icon>
+            <l-tooltip v-if="zoom > 7">
+              <span>{{ loc.name }}</span>
+              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+            </l-tooltip>
+          </l-marker>
+        </component>
+
+        <component :is="LayerComponent"
+          v-if="projectsPlanned.length > 0"
+          layer-type="overlay"
+          :name="layerLabelProjectsPlanned"
+        >
+          <l-marker
+            v-for="loc in projectsPlanned"
+            :id="loc.id"
+            :key="loc.id"
+            :lat-lng="[loc.latitude, loc.longitude]"
+            :title="loc.name"
+            @click="onMarkerClick(loc)"
+          >
+            <l-icon
+              :icon-url="getPin(loc)"
+              :class-name="pinClass(loc)"
+              :icon-size="[28, 39]"
+              :icon-anchor="[14, 39]"
+            ></l-icon>
+            <l-tooltip v-if="zoom > 7">
+              <span>{{ loc.name }}</span>
+              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+            </l-tooltip>
+          </l-marker>
+        </component>
+      </l-map>
+    </client-only>
 
     <project-details
       :project="selectedLocation"
@@ -130,34 +133,67 @@ import {
   computed,
   watch,
   nextTick,
+  onMounted,
 } from "vue";
 import { storeToRefs } from "pinia";
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useFilterStore } from "../../stores/filter.store";
-import L, { latLngBounds } from "leaflet";
-import {
-  LMap,
-  LLayerGroup,
-  LTileLayer,
-  LMarker,
-  LIcon,
-  LTooltip,
-} from "@vue-leaflet/vue-leaflet";
-import { LMarkerClusterGroup } from "vue-leaflet-markercluster";
 import ProjectDetails from "../../components/project/ProjectDetails.vue";
 import projectService from "@/features/projects/services/project.service";
 import type { Project } from "@/interfaces/Project";
 import { useI18n } from "vue-i18n";
 import { announceToScreenReader } from "@/composables/useAccessibility";
 
-import "leaflet/dist/leaflet.css";
-import "leaflet.markercluster/dist/MarkerCluster.css";
-import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+// Lazy load Leaflet and related components
+const isLeafletLoaded = ref(false);
+let L: typeof import("leaflet");
+let LMap: any, LLayerGroup: any, LTileLayer: any, LMarker: any, LIcon: any, LTooltip: any;
+let LMarkerClusterGroup: any;
 
-const leafletGlobal = globalThis as typeof globalThis & { L?: typeof L };
-if (!leafletGlobal.L) {
-  leafletGlobal.L = L;
-}
+// Load Leaflet dynamically to improve LCP
+onMounted(async () => {
+  try {
+    // Load Leaflet CSS first
+    const leafletCSS = document.createElement('link');
+    leafletCSS.rel = 'stylesheet';
+    leafletCSS.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    leafletCSS.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+    leafletCSS.crossOrigin = '';
+    document.head.appendChild(leafletCSS);
+
+    // Load MarkerCluster CSS
+    const markerClusterCSS = document.createElement('link');
+    markerClusterCSS.rel = 'stylesheet';
+    markerClusterCSS.href = 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css';
+    document.head.appendChild(markerClusterCSS);
+
+    const markerClusterDefaultCSS = document.createElement('link');
+    markerClusterDefaultCSS.rel = 'stylesheet';
+    markerClusterDefaultCSS.href = 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css';
+    document.head.appendChild(markerClusterDefaultCSS);
+
+    // Load Leaflet and vue-leaflet dynamically
+    const [leafletModule, vueLeafletModule, markerClusterModule] = await Promise.all([
+      import('leaflet'),
+      import('@vue-leaflet/vue-leaflet'),
+      import('vue-leaflet-markercluster'),
+    ]);
+
+    L = leafletModule.default;
+    ({ LMap, LLayerGroup, LTileLayer, LMarker, LIcon, LTooltip } = vueLeafletModule);
+    ({ LMarkerClusterGroup } = markerClusterModule);
+
+    // Set global L for compatibility
+    const leafletGlobal = globalThis as typeof globalThis & { L?: typeof L };
+    if (!leafletGlobal.L) {
+      leafletGlobal.L = L;
+    }
+
+    isLeafletLoaded.value = true;
+  } catch (error) {
+    console.error('Failed to load Leaflet:', error);
+  }
+});
 
 const projectStore = useProjectStore();
 const { t } = useI18n();
@@ -372,7 +408,7 @@ const updateBounds = () => {
     }
 
     if (validPoints > 0) {
-      const calculatedBounds = latLngBounds([minLat, minLng], [maxLat, maxLng]);
+      const calculatedBounds = L.latLngBounds([minLat, minLng], [maxLat, maxLng]);
       const topPad = getHeadingOffset();
       map.value.leafletObject.fitBounds(calculatedBounds, {
         paddingTopLeft: [50, topPad],

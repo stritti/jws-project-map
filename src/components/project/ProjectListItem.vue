@@ -21,7 +21,7 @@
           <img
             :src="teaserImage"
             :alt="project.name"
-            class="project-image"
+            class="project-image" loading="lazy"
           />
           <!-- State badge overlay -->
           <div class="state-badge-overlay">

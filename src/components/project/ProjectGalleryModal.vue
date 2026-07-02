@@ -30,7 +30,7 @@
               <img
                 :src="currentItem.signedUrl"
                 :alt="currentItem.name || t('a11y.imageNotAvailable', 'Image not available')"
-                class="gallery-image"
+                class="gallery-image" loading="lazy"
               />
             </template>
             <template v-else-if="currentItem.mimetype.startsWith('video')">

@@ -47,7 +47,7 @@
               v-if="getTeaserImage(project)"
               :src="getTeaserImage(project)"
               :alt="project.name"
-              class="result-thumb rounded-round-default"
+              class="result-thumb rounded-round-default" loading="lazy"
             />
             <div v-else class="result-thumb-placeholder rounded-round-default flex items-center justify-center">
               <IBiGlobe2 class="text-onSurface-variant" aria-hidden="true" />
