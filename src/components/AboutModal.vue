@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { nextTick, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -79,7 +79,7 @@ function show() {
   document.body.style.overflow = 'hidden';
   // Move focus to modal for accessibility
   nextTick(() => {
-    const closeBtn = modalRef.value?.querySelector('.close-btn');
+    const closeBtn = modalRef.value?.querySelector<HTMLElement>('.close-btn');
     closeBtn?.focus();
   });
 }
