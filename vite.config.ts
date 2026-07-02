@@ -12,9 +12,6 @@ import tailwindcss from "tailwindcss";
 import autoprefixer from "autoprefixer";
 
 // https://vitejs.dev/config/
-// Disable PWA plugin in CI environments where Rollup native binaries may not be available
-const isCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
-
 export default defineConfig({
   plugins: [
     // Optimized Leaflet and MarkerCluster handling
@@ -47,8 +44,7 @@ export default defineConfig({
       compiler: "vue3",
       autoInstall: true,
     }),
-    // Only enable PWA plugin outside of CI to avoid Rollup native module issues
-    !isCI && VitePWA({
+    VitePWA({
       registerType: "autoUpdate",
       devOptions: {
         enabled: true,
@@ -58,9 +54,32 @@ export default defineConfig({
         short_name: "JWF Projects",
         description: "Overview of projects in Westafrica by JWF and Humanaktiv",
         theme_color: "#3d5e9e",
+        background_color: "#ffffff",
+        display: "standalone",
+        icons: [
+          {
+            src: "img/cropped-joerg-wolff-stiftung.png",
+            sizes: "192x192",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+          {
+            src: "img/cropped-joerg-wolff-stiftung.png",
+            sizes: "512x512",
+            type: "image/png",
+          },
+        ],
+      },
+      // Disable PWA in CI to avoid Rollup native module issues
+      workbox: {
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        // Only generate SW in production, not in CI
+        mode: process.env.NODE_ENV === "production" && !process.env.CI ? "generateSW" : "injectManifest",
+        // Skip waiting for service worker in CI
+        skipWaiting: true,
       },
     }),
-  ].filter(Boolean),
+  ],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
