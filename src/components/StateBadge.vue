@@ -33,7 +33,8 @@ const displayLabel = computed(() => {
 
 <style scoped lang="postcss">
 .state-badge {
-  @apply inline-block px-[0.85rem] py-[0.3rem] rounded-full text-[0.8rem] font-bold uppercase tracking-[0.03em];
+  @apply inline-flex items-center rounded-full text-label-sm font-medium whitespace-nowrap;
+  padding: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit));
 }
 
 .state-badge.finished {

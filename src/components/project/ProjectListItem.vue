@@ -197,7 +197,7 @@ function onCardClick() {
 }
 
 .project-content {
-  @apply p-[calc(var(--spacing-unit)*2)] flex flex-col gap-[calc(var(--spacing-unit)*0.5)] flex-1;
+  @apply p-[calc(var(--spacing-unit)*2)] flex flex-col gap-[calc(var(--spacing-unit)*1)] flex-1;
 }
 
 .project-title {
@@ -205,15 +205,15 @@ function onCardClick() {
 }
 
 .project-meta {
-  @apply flex flex-col gap-[calc(var(--spacing-unit)*0.5)];
+  @apply flex flex-col gap-[calc(var(--spacing-unit)*1)];
 }
 
 .category-badges {
-  @apply flex flex-wrap gap-[calc(var(--spacing-unit)*0.5)];
+  @apply flex flex-wrap gap-[calc(var(--spacing-unit)*1)];
 }
 
 .country-row {
-  @apply flex items-center gap-[calc(var(--spacing-unit)*0.5)] text-body-md text-onSurface-variant;
+  @apply flex items-center gap-[calc(var(--spacing-unit)*1)] text-body-md text-onSurface-variant;
 }
 
 .country-icon {
