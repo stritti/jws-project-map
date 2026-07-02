@@ -1,129 +1,25 @@
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted, onUnmounted } from "vue";
+import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
-import { setLocale, type Locale } from "@/plugins/i18n";
-import { useProjectStore } from "@/features/projects/stores/project.store";
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
 import IBiMap from "~icons/bi/map";
 import IBiMapFill from "~icons/bi/map-fill";
 import IBiListUl from "~icons/bi/list-ul";
 import IBiListCheck from "~icons/bi/list-check";
-import IBiInfoCircle from "~icons/bi/info-circle";
-import IBiThreeDots from "~icons/bi/three-dots";
 import AboutModal from "./AboutModal.vue";
 import { useFocusRestore } from "@/composables/useAccessibility";
 
 const route = useRoute();
 
-function switchLocale(lang: Locale) {
-  setLocale(lang);
-  // Reload project data so localized fields (name, notes) are refetched (Codex #P2)
-  useProjectStore().load().catch(() => {});
-}
-
 const aboutModalRef = ref<InstanceType<typeof AboutModal> | null>(null);
 const { setTrigger, restoreFocus } = useFocusRestore();
-
-/* More-menu state */
-const moreOpen = ref(false);
-const moreMenuRef = ref<HTMLElement | null>(null);
-const morePanelRef = ref<HTMLElement | null>(null);
-const moreFocusIndex = ref(-1);
-
-function toggleMore() {
-  moreOpen.value = !moreOpen.value;
-}
-
-function closeMore() {
-  moreOpen.value = false;
-  moreFocusIndex.value = -1;
-  // Return focus to trigger after DOM update
-  nextTick(() => {
-    moreMenuRef.value?.querySelector<HTMLElement>('.more-trigger')?.focus();
-  });
-}
-
-function onClickOutside(e: MouseEvent) {
-  if (moreOpen.value && moreMenuRef.value && !moreMenuRef.value.contains(e.target as Node)) {
-    closeMore();
-  }
-}
-
-/* Keyboard navigation for role="menu" (ARIA APG pattern) */
-function onMorePanelKeydown(e: KeyboardEvent) {
-  if (!moreOpen.value) return;
-  const items = morePanelRef.value?.querySelectorAll<HTMLElement>('[role="menuitem"]');
-  if (!items || items.length === 0) return;
-
-  let idx = moreFocusIndex.value;
-
-  switch (e.key) {
-    case 'ArrowDown':
-    case 'ArrowRight':
-      e.preventDefault();
-      idx = (idx + 1) % items.length;
-      break;
-    case 'ArrowUp':
-    case 'ArrowLeft':
-      e.preventDefault();
-      idx = (idx - 1 + items.length) % items.length;
-      break;
-    case 'Home':
-      e.preventDefault();
-      idx = 0;
-      break;
-    case 'End':
-      e.preventDefault();
-      idx = items.length - 1;
-      break;
-    case 'Escape':
-      e.preventDefault();
-      closeMore();
-      return;
-    default:
-      return;
-  }
-
-  moreFocusIndex.value = idx;
-  items[idx]?.focus();
-}
-
-function onMorePanelEnter() {
-  const items = morePanelRef.value?.querySelectorAll<HTMLElement>('[role="menuitem"]');
-  if (!items || items.length === 0) return;
-  const activeIdx = Array.from(items).findIndex(
-    (item) => item.classList.contains('active'),
-  );
-  moreFocusIndex.value = activeIdx >= 0 ? activeIdx : 0;
-  items[moreFocusIndex.value]?.focus();
-}
-
-function onGlobalKeydown(e: KeyboardEvent) {
-  if (e.key === 'Escape') closeMore();
-}
-
-onMounted(() => {
-  document.addEventListener('click', onClickOutside);
-  document.addEventListener('keydown', onGlobalKeydown);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('click', onClickOutside);
-  document.removeEventListener('keydown', onGlobalKeydown);
-});
 
 function openAbout() {
   setTrigger();
   aboutModalRef.value?.show();
 }
-
-const languages: { code: Locale; flag: string; label: string }[] = [
-  { code: "de", flag: "de", label: "Deutsch" },
-  { code: "en", flag: "gb", label: "English" },
-  { code: "fr", flag: "fr", label: "Français" },
-];
 
 interface NavItem {
   to: string;
@@ -167,60 +63,7 @@ function isActive(item: NavItem): boolean {
 
     <!-- Right-section: More menu (language + about) -->
     <div class="right-section">
-      <div ref="moreMenuRef" class="more-menu" :class="{ open: moreOpen }">
-        <button
-          class="more-trigger"
-          :aria-label="t('nav.more')"
-          :title="t('nav.more')"
-          :aria-expanded="moreOpen"
-          :aria-haspopup="true"
-          @click="toggleMore"
-        >
-          <IBiThreeDots aria-hidden="true" />
-        </button>
-
-        <Transition name="more-flyout" @after-enter="onMorePanelEnter">
-          <div
-            v-if="moreOpen"
-            ref="morePanelRef"
-            class="more-panel"
-            role="menu"
-            :aria-label="t('nav.more')"
-            @keydown="onMorePanelKeydown"
-          >
-            <!-- Language options -->
-            <div class="more-section">
-              <button
-                v-for="lang in languages"
-                :key="lang.code"
-                class="more-option"
-                :class="{ active: locale === lang.code }"
-                role="menuitem"
-                :lang="lang.code"
-                :aria-current="locale === lang.code ? 'true' : undefined"
-                @click="switchLocale(lang.code); closeMore()"
-              >
-                <span :class="`fi fis fi-${lang.flag}`" aria-hidden="true" />
-                <span>{{ lang.label }}</span>
-                <span v-if="locale === lang.code" class="more-check" aria-hidden="true">✓</span>
-              </button>
-            </div>
-
-            <div class="more-divider" role="separator"></div>
-
-            <!-- About -->
-            <button
-              class="more-option"
-              role="menuitem"
-              @click="openAbout(); closeMore()"
-            >
-              <IBiInfoCircle aria-hidden="true" />
-              <span>{{ t('nav.about') }}</span>
-            </button>
-          </div>
-        </Transition>
-      </div>
-
+      <MoreMenu @about="openAbout" />
       <AboutModal ref="aboutModalRef" @hidden="restoreFocus" />
     </div>
   </nav>
@@ -273,79 +116,6 @@ function isActive(item: NavItem): boolean {
 /* Right section — pushed to the right */
 .right-section {
   @apply flex items-center gap-[0.25rem] ml-auto;
-}
-
-/* More menu */
-.more-menu {
-  @apply relative flex items-center;
-}
-
-.more-trigger {
-  @apply flex items-center justify-center w-[28px] h-[28px] md:w-[32px] md:h-[32px] rounded-full border-none bg-transparent cursor-pointer p-0 transition-colors duration-200 text-onSurface-variant;
-
-  &:hover {
-    @apply text-primary bg-secondary/10;
-  }
-
-  :deep(svg) {
-    font-size: 1.15rem;
-  }
-}
-
-.more-menu.open .more-trigger {
-  @apply text-primary bg-secondary/15;
-}
-
-.more-panel {
-  @apply absolute bottom-[calc(100%+8px)] right-0 z-50 min-w-[180px] p-2 rounded-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)] origin-bottom-right;
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-}
-
-.more-option {
-  @apply flex items-center gap-2.5 w-full px-3 py-2 rounded-lg border-none bg-transparent cursor-pointer text-sm text-onSurface transition-colors duration-150 text-left;
-
-  &:hover {
-    @apply bg-secondary/10 text-primary;
-  }
-
-  &.active {
-    @apply text-primary bg-secondary/12 font-medium;
-  }
-
-  :deep(.fi) {
-    font-size: 0.85rem;
-    border-radius: 2px;
-  }
-
-  :deep(svg) {
-    font-size: 1.1rem;
-  }
-}
-
-.more-check {
-  @apply ml-auto text-primary text-xs;
-}
-
-.more-divider {
-  @apply h-[1px] mx-2 my-1;
-  background: rgba(0, 0, 0, 0.06);
-}
-
-/* Flyout transition */
-.more-flyout-enter-active {
-  transition: opacity 0.12s ease-out, transform 0.12s ease-out;
-}
-
-.more-flyout-leave-active {
-  transition: opacity 0.1s ease-in, transform 0.1s ease-in;
-}
-
-.more-flyout-enter-from,
-.more-flyout-leave-to {
-  opacity: 0;
-  transform: translateY(4px) scale(0.97);
 }
 
 /* On mobile, reduce overall spacing */
