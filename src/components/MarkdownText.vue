@@ -23,129 +23,135 @@ const compiled = computed(() => {
 });
 </script>
 
-<style scoped lang="scss">
-@use "@/assets/design-tokens.scss" as *;
-
+<style scoped lang="postcss">
 .markdown-text {
-  color: var(--color-on-surface);
-  font-size: var(--font-size-body-md);
-  line-height: var(--line-height-body-md);
-  
-  /* Headings - inherit from design system heading scales */
-  h1 {
-    font-size: var(--font-size-headline-lg);
-    font-weight: var(--font-weight-headline-lg);
-    line-height: var(--line-height-headline-lg);
-    letter-spacing: var(--letter-spacing-headline-lg);
-    margin-top: calc(var(--spacing-unit) * 4);
-    margin-bottom: calc(var(--spacing-unit) * 2);
-
+  color: #191c1d;
+  font-size: 14px;
+  line-height: 20px;
 }
-  
-  h2 {
-    font-size: var(--font-size-headline-md);
-    font-weight: var(--font-weight-headline-md);
-    line-height: var(--line-height-headline-md);
-    letter-spacing: var(--letter-spacing-headline-md);
-    margin-top: calc(var(--spacing-unit) * 4);
-    margin-bottom: calc(var(--spacing-unit) * 2);
-  }
-  
-  h3, h4, h5, h6 {
-    font-size: var(--font-size-body-lg);
-    font-weight: var(--font-weight-body-lg);
-    line-height: var(--line-height-body-lg);
-    margin-top: calc(var(--spacing-unit) * 3);
-    margin-bottom: calc(var(--spacing-unit) * 1.5);
-  }
-  
-  /* Paragraphs */
-  p {
-    margin-bottom: calc(var(--spacing-unit) * 3); /* 12px, close to 1.5em (~21px at 14px base) */
-  }
-  
-  /* Links */
-  a {
-    color: var(--color-primary);
-    text-decoration: none;
-    
-    &:hover,
-    &:focus {
-      text-decoration: underline;
-    }
-  }
-  
-  /* Lists */
-  ul, ol {
-    margin-bottom: calc(var(--spacing-unit) * 3);
-    padding-left: calc(var(--spacing-unit) * 4);
-    
-    li {
-      margin-bottom: calc(var(--spacing-unit) * 1);
-    }
-  }
-  
-  /* Blockquotes */
-  blockquote {
-    border-left: calc(var(--spacing-unit) * 2) solid var(--color-primary);
-    padding-left: calc(var(--spacing-unit) * 3);
-    margin-bottom: calc(var(--spacing-unit) * 3);
-    color: var(--color-on-surface-variant);
-    font-style: italic;
-  }
-  
-  /* Code */
-  code {
-    background-color: var(--color-surface-variant);
-    color: var(--color-on-surface);
-    padding: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit) * 1);
-    border-radius: var(--shape-round-default);
-    font-family: var(--font-family-inter);
-    font-size: var(--font-size-body-md);
-  }
-  
-  pre {
-    background-color: var(--color-surface-variant);
-    padding: calc(var(--spacing-unit) * 2);
-    border-radius: var(--shape-round-default);
-    overflow-x: auto;
-    margin-bottom: calc(var(--spacing-unit) * 3);
-    
-    code {
-      background-color: transparent;
-      padding: 0;
-    }
-  }
-  
-  /* Horizontal rules */
-  hr {
-    border: 0;
-    height: 1px;
-    background-color: var(--color-outline-variant);
-    margin: calc(var(--spacing-unit) * 4) 0;
-  }
-  
-  /* Tables */
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    margin-bottom: calc(var(--spacing-unit) * 3);
-    
-    th, td {
-      border: 1px solid var(--color-outline);
-      padding: calc(var(--spacing-unit) * 1) calc(var(--spacing-unit) * 1.5);
-      text-align: left;
-    }
-    
-    th {
-      background-color: var(--color-surface-variant);
-      font-weight: var(--font-weight-body-md);
-    }
-    
-    tr:nth-child(even) {
-      background-color: var(--color-background);
-    }
-  }
- 
+
+/* Headings - inherit from design system heading scales */
+.markdown-text h1 {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-top: calc(var(--spacing-unit) * 4);
+  margin-bottom: calc(var(--spacing-unit) * 2);
+}
+
+.markdown-text h2 {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-top: calc(var(--spacing-unit) * 4);
+  margin-bottom: calc(var(--spacing-unit) * 2);
+}
+
+.markdown-text h3,
+.markdown-text h4,
+.markdown-text h5,
+.markdown-text h6 {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  margin-top: calc(var(--spacing-unit) * 3);
+  margin-bottom: calc(var(--spacing-unit) * 1.5);
+}
+
+/* Paragraphs */
+.markdown-text p {
+  margin-bottom: calc(var(--spacing-unit) * 3);
+}
+
+/* Links */
+.markdown-text a {
+  color: #3d5e9e;
+  text-decoration: none;
+}
+
+.markdown-text a:hover,
+.markdown-text a:focus {
+  text-decoration: underline;
+}
+
+/* Lists */
+.markdown-text ul,
+.markdown-text ol {
+  margin-bottom: calc(var(--spacing-unit) * 3);
+  padding-left: calc(var(--spacing-unit) * 4);
+}
+
+.markdown-text li {
+  margin-bottom: calc(var(--spacing-unit) * 1);
+}
+
+/* Blockquotes */
+.markdown-text blockquote {
+  border-left: calc(var(--spacing-unit) * 2) solid #3d5e9e;
+  padding-left: calc(var(--spacing-unit) * 3);
+  margin-bottom: calc(var(--spacing-unit) * 3);
+  color: #64748b;
+  font-style: italic;
+}
+
+/* Code */
+.markdown-text code {
+  background-color: #e1e3e4;
+  color: #191c1d;
+  padding-left: calc(var(--spacing-unit) * 0.5);
+  padding-right: calc(var(--spacing-unit) * 0.5);
+  padding-top: calc(var(--spacing-unit) * 1);
+  padding-bottom: calc(var(--spacing-unit) * 1);
+  border-radius: 0.5rem;
+  font-size: 14px;
+}
+
+.markdown-text pre {
+  background-color: #e1e3e4;
+  padding: calc(var(--spacing-unit) * 2);
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin-bottom: calc(var(--spacing-unit) * 3);
+}
+
+.markdown-text pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+/* Horizontal rules */
+.markdown-text hr {
+  border: 0;
+  height: 1px;
+  background-color: #c5c6cd;
+  margin-top: calc(var(--spacing-unit) * 4);
+  margin-bottom: calc(var(--spacing-unit) * 4);
+}
+
+/* Tables */
+.markdown-text table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: calc(var(--spacing-unit) * 3);
+}
+
+.markdown-text th,
+.markdown-text td {
+  border: 1px solid #75777d;
+  padding-left: calc(var(--spacing-unit) * 1);
+  padding-right: calc(var(--spacing-unit) * 1);
+  padding-top: calc(var(--spacing-unit) * 1.5);
+  padding-bottom: calc(var(--spacing-unit) * 1.5);
+  text-align: left;
+}
+
+.markdown-text th {
+  background-color: #e1e3e4;
+}
+
+.markdown-text tr:nth-child(even) {
+  background-color: #f8f9fa;
 }
 </style>

@@ -1,70 +1,85 @@
 <template>
   <div class="filter-dropdown" role="complementary" :aria-label="t('a11y.filterPanel')">
-    <button class="filter-close" :aria-label="t('common.close')" @click="emit('close')">
-      <span aria-hidden="true">&times;</span>
-    </button>
-    <b-card bg-variant="white" class="shadow-sm border-0 rounded-4 filter-card">
+    <div class="filter-card">
+      <!-- Header -->
+      <div class="filter-header">
+        <h3 class="filter-title">
+          <IBiFunnel /> {{ t("search.filter") }}
+        </h3>
+        <button class="filter-close" :aria-label="t('common.close')" @click="emit('close')">
+          <IBiX />
+        </button>
+      </div>
+
       <div class="filter-scroll">
-        <b-row>
-          <b-col md="4">
-            <div class="filter-group mb-4 mb-md-0">
-              <fieldset class="filter-fieldset">
-                <legend class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                  <IBiCheck2Circle /> {{ t("search.filterGroups.status") }}
-                </legend>
-                <b-form-checkbox-group
-                  v-model="stateFilter"
-                  name="stateFilter"
-                  stack
-                  class="custom-check-group"
-                >
-                  <b-form-checkbox v-for="opt in stateOptions" :key="opt.value" :value="opt.value">
-                    {{ opt.text }}
-                  </b-form-checkbox>
-                </b-form-checkbox-group>
-              </fieldset>
-            </div>
-          </b-col>
-          <b-col md="4">
-            <div class="filter-group mb-4 mb-md-0">
-              <fieldset class="filter-fieldset">
-                <legend class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                  <IBiTag /> {{ t("search.filterGroups.categories") }}
-                </legend>
-                <b-form-checkbox-group
-                  v-model="categoryFilter"
-                  stack
-                  class="custom-check-group scrollable-group"
-                >
-                  <b-form-checkbox v-for="cat in categoryList" :key="cat.value" :value="cat.value">
-                    {{ cat.text }}
-                  </b-form-checkbox>
-                </b-form-checkbox-group>
-              </fieldset>
-            </div>
-          </b-col>
-          <b-col md="4">
-            <div class="filter-group">
-              <fieldset class="filter-fieldset">
-                <legend class="filter-group-title mb-3 d-flex align-items-center gap-2">
-                  <IBiGeoAlt /> {{ t("search.filterGroups.countries") }}
-                </legend>
-                <b-form-checkbox-group
-                  v-model="countryFilter"
-                  stack
-                  class="custom-check-group scrollable-group"
-                >
-                  <b-form-checkbox v-for="c in countryList" :key="c.value" :value="c.value">
-                    {{ c.text }}
-                  </b-form-checkbox>
-                </b-form-checkbox-group>
-              </fieldset>
-            </div>
-          </b-col>
-        </b-row>
+        <div class="filter-grid">
+          <div class="filter-group sm:border-r sm:border-outline/20 sm:pr-3">
+            <fieldset class="filter-fieldset">
+              <legend class="filter-group-title flex items-center gap-2">
+                <IBiCheck2Circle /> {{ t("search.filterGroups.status") }}
+              </legend>
+              <div class="custom-check-group">
+                <label v-for="opt in stateOptions" :key="opt.value" class="form-check">
+                  <input
+                    type="checkbox"
+                    v-model="stateFilter"
+                    :value="opt.value"
+                    class="form-check-input"
+                  />
+                  <span class="form-check-checkmark" aria-hidden="true">
+                    <IBiCheck class="check-icon" />
+                  </span>
+                  <span class="form-check-label">{{ opt.text }}</span>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+          <div class="filter-group sm:border-r sm:border-outline/20 sm:pr-3">
+            <fieldset class="filter-fieldset">
+              <legend class="filter-group-title flex items-center gap-2">
+                <IBiTag /> {{ t("search.filterGroups.categories") }}
+              </legend>
+              <div class="custom-check-group scrollable-group">
+                <label v-for="cat in categoryList" :key="cat.value" class="form-check">
+                  <input
+                    type="checkbox"
+                    v-model="categoryFilter"
+                    :value="cat.value"
+                    class="form-check-input"
+                  />
+                  <span class="form-check-checkmark" aria-hidden="true">
+                    <IBiCheck class="check-icon" />
+                  </span>
+                  <span class="form-check-label">{{ cat.text }}</span>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+          <div class="filter-group">
+            <fieldset class="filter-fieldset">
+              <legend class="filter-group-title flex items-center gap-2">
+                <IBiGeoAlt /> {{ t("search.filterGroups.countries") }}
+              </legend>
+              <div class="custom-check-group scrollable-group">
+                <label v-for="c in countryList" :key="c.value" class="form-check">
+                  <input
+                    type="checkbox"
+                    v-model="countryFilter"
+                    :value="c.value"
+                    class="form-check-input"
+                  />
+                  <span class="form-check-checkmark" aria-hidden="true">
+                    <IBiCheck class="check-icon" />
+                  </span>
+                  <span class="form-check-label">{{ c.text }}</span>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+        </div>
         <slot />
       </div>
-    </b-card>
+    </div>
   </div>
 </template>
 
@@ -75,6 +90,10 @@ import { useFilterStore } from '@/stores/filter.store'
 import { useCategoryStore } from '@/stores/category.store'
 import { useCountryStore } from '@/stores/country.store'
 import { storeToRefs } from 'pinia'
+
+import IBiFunnel from "~icons/bi/funnel";
+import IBiX from "~icons/bi/x";
+import IBiCheck from "~icons/bi/check";
 
 const { t } = useI18n({ useScope: 'global' })
 const filterStore = useFilterStore()
@@ -112,145 +131,154 @@ const countryList = computed(() =>
 )
 </script>
 
-<style lang="scss" scoped>
-@use "@/assets/design-tokens.scss" as *;
-
+<style lang="postcss" scoped>
 .filter-dropdown {
   position: relative;
 }
 
 .filter-card {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.08) !important;
+  @apply bg-white/70 backdrop-blur-xl shadow-lg border border-white/25 rounded-round-xl overflow-hidden;
+}
+
+/* ── Header ── */
+.filter-header {
+  @apply flex items-center justify-between px-3 py-2 border-b border-outline/15;
+}
+
+.filter-title {
+  @apply flex items-center gap-1.5 text-body-md font-semibold text-onSurface m-0 leading-none;
+}
+
+.filter-title :deep(svg) {
+  font-size: 1rem;
 }
 
 .filter-close {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 10;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(0, 0, 0, 0.08);
-  color: var(--color-on-surface);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  cursor: pointer;
-  line-height: 1;
-  padding: 0;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  @apply flex items-center justify-center w-7 h-7 rounded-full border-none bg-transparent text-onSurface-variant cursor-pointer transition-colors duration-200 hover:bg-black/10 hover:text-onSurface;
 }
 
-.filter-close:hover {
-  background: rgba(0, 0, 0, 0.15);
-  transform: scale(1.1);
+.filter-close :deep(svg) {
+  font-size: 1.1rem;
 }
 
+/* ── Scroll area ── */
 .filter-scroll {
-  max-height: inherit;
-  overflow: hidden;
-
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--color-outline-variant, #c5c6cd);
-    border-radius: 2px;
-  }
+  @apply max-h-full overflow-y-auto px-3 py-2;
+  touch-action: pan-y;
 }
 
-/* Fieldset/legend styling — matches previous h6 appearance */
+.filter-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.filter-scroll::-webkit-scrollbar-thumb {
+  background-color: #c5c6cd;
+  border-radius: 4px;
+}
+
+/* ── Grid layout ── */
+.filter-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3;
+}
+
+/* ── Group ── */
+.filter-group {
+  @apply mb-3 sm:mb-0;
+}
+
 .filter-fieldset {
-  border: none;
-  padding: 0;
-  margin: 0;
-
-  legend {
-    float: none;
-    width: auto;
-    padding: 0;
-    color: var(--color-secondary);
-    font-weight: var(--font-weight-label-md);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-size: var(--font-size-label-sm);
-    margin-bottom: 0.75rem;
-  }
+  @apply border-none p-0 m-0;
 }
-
 
 .filter-group-title {
-  color: var(--color-secondary);
-  font-weight: var(--font-weight-label-md);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: var(--font-size-label-sm);
+  @apply text-secondary text-label-md font-semibold uppercase tracking-[0.5px] mb-3;
 }
 
+/* ── Custom checkbox ── */
 .custom-check-group {
-  .form-check {
-    margin-bottom: calc(var(--spacing-unit) * 2);
-    padding-left: calc(var(--spacing-unit) * 7);
-
-    .form-check-input {
-      width: calc(var(--spacing-unit) * 5);
-      height: calc(var(--spacing-unit) * 5);
-      margin-left: calc(-1 * var(--spacing-unit) * 7);
-      cursor: pointer;
-      border-radius: var(--shape-round-default);
-
-      &:checked {
-        background-color: var(--color-secondary);
-        border-color: var(--color-secondary);
-      }
-    }
-
-    .form-check-label {
-      cursor: pointer;
-      font-size: var(--font-size-body-md);
-      transition: color 0.2s ease;
-
-      &:hover {
-        color: var(--color-secondary);
-      }
-    }
-  }
+  @apply grid grid-cols-2 gap-x-3 gap-y-1;
 }
 
+.form-check {
+  @apply relative flex items-center cursor-pointer select-none py-0.5;
+}
+
+/* Hide native checkbox visually but keep accessible */
+.form-check-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Custom checkmark box */
+.form-check-checkmark {
+  @apply flex items-center justify-center w-5 h-5 rounded-round-default border-2 border-outline bg-white flex-shrink-0 transition-colors duration-150 mr-3;
+}
+
+.form-check-input:focus-visible + .form-check-checkmark {
+  @apply ring-2 ring-secondary ring-offset-1;
+}
+
+.form-check-input:checked + .form-check-checkmark {
+  @apply bg-secondary border-secondary;
+}
+
+.form-check-input:checked + .form-check-checkmark .check-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.check-icon {
+  @apply text-white text-xs;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.form-check-label {
+  @apply text-body-md cursor-pointer transition-colors duration-150 hover:text-secondary;
+}
+
+.form-check:hover .form-check-checkmark {
+  @apply border-secondary/60;
+}
+
+.form-check:hover .check-icon {
+  @apply text-secondary/40;
+}
+
+.form-check-input:checked:hover + .form-check-checkmark {
+  @apply bg-secondary/90 border-secondary/90;
+}
+
+/* ── Scrollable sub-groups ── */
 .scrollable-group {
-  overflow-y: auto;
-  padding-right: calc(var(--spacing-unit) * 2);
+  @apply overflow-y-auto pr-2 max-h-[12rem];
+}
 
-  &::-webkit-scrollbar {
-    width: 10px;
-  }
+.scrollable-group::-webkit-scrollbar {
+  width: 6px;
+}
 
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
+.scrollable-group::-webkit-scrollbar-track {
+  background-color: transparent;
+}
 
-  &::-webkit-scrollbar-thumb {
-    background: var(--color-outline-variant);
-    border-radius: 5px;
+.scrollable-group::-webkit-scrollbar-thumb {
+  background-color: #c5c6cd;
+  border-radius: 3px;
+}
 
-    &:hover {
-      background: var(--color-outline);
-    }
-  }
+.scrollable-group::-webkit-scrollbar-thumb:hover {
+  background-color: #75777d;
 }
 </style>
 
-/* Non-scoped: same class also reaches slot content (map type toggle heading) */
-<style lang="scss">
+/* ── Non-scoped: slot content (map type toggle) ── */
+<style lang="postcss">
 .filter-group-title {
-  color: var(--color-secondary);
-  font-weight: var(--font-weight-label-md);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: var(--font-size-label-sm);
+  @apply text-secondary text-label-md font-semibold uppercase tracking-[0.5px] mb-3;
 }
 </style>

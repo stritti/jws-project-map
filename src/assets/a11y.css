@@ -1,0 +1,66 @@
+/* Accessibility utilities - Tailwind version */
+
+/* Screen-reader-only: visually hidden but announced by assistive tech */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus-visible: keyboard-only focus indicator */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid;
+  outline-offset: 2px;
+}
+
+/* Remove default focus outline for mouse users */
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+select:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible),
+[tabindex]:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* High-contrast text helper */
+.high-contrast-text {
+  color: rgb(37 37 37);
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+/* Skip-to-map link (used in HomeView) */
+.skip-to-map {
+  position: absolute;
+  top: -9999px;
+  left: 0;
+  z-index: 10000;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  background-color: #3d5e9e;
+  color: white;
+  font-weight: 600;
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  transition-property: all;
+  transition-duration: 100ms;
+}
+
+.skip-to-map:focus {
+  top: 0;
+  outline: 3px solid white;
+  outline-offset: 2px;
+}

@@ -1,37 +1,32 @@
 <template>
-  <b-container>
+  <div class="container mx-auto px-2 md:px-4">
     <div class="project-list">
       <div class="list-header" :class="{ 'header-scrolled': headerScrolled }">
         <h1>{{ t("app.title") }}</h1>
 
-        <b-placeholder-wrapper :loading="isDataLoading">
-        <template #loading>
-          <div class="skeleton-grid">
-            <b-row class="g-4">
-              <b-col v-for="n in 6" :key="n" cols="12" md="6" lg="4">
-                <div class="skeleton-card">
-                  <b-row no-gutters class="g-0 h-100">
-                    <b-col cols="5" class="skeleton-image-col">
-                      <b-placeholder class="skeleton-image" animation="wave" />
-                    </b-col>
-                    <b-col cols="7" class="skeleton-content-col">
-                      <div class="skeleton-content">
-                        <b-placeholder class="skeleton-title" animation="wave" />
-                        <b-placeholder class="skeleton-category" animation="wave" width="65%" />
-                        <b-placeholder class="skeleton-country" animation="wave" width="45%" />
-                      </div>
-                    </b-col>
-                  </b-row>
+        <div v-if="isDataLoading" class="skeleton-grid">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div v-for="n in 6" :key="n" class="skeleton-card">
+              <div class="flex h-full">
+                <div class="w-5/12 skeleton-image-col">
+                  <div class="skeleton-image"></div>
                 </div>
-              </b-col>
-            </b-row>
+                <div class="w-7/12 skeleton-content-col">
+                  <div class="skeleton-content">
+                    <div class="skeleton-title"></div>
+                    <div class="skeleton-category" style="width: 65%"></div>
+                    <div class="skeleton-country" style="width: 45%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </template>
-
-        <h3 class="my-3 text-muted fs-5">
-          {{ t("search.stats", { total: projectCount, ub: projectsUnderConstructionCount, pl: projectsPlannedCount }) }}
-        </h3>
-      </b-placeholder-wrapper>
+        </div>
+        <div v-else>
+          <h3 class="my-3 text-onSurface-variant text-body-lg">
+            {{ t("search.stats", { total: projectCount, ub: projectsUnderConstructionCount, pl: projectsPlannedCount }) }}
+          </h3>
+        </div>
       </div><!-- /.list-header -->
 
       <!-- Filter overlay – position:fixed on mobile (bottom) so it must NOT be
@@ -62,42 +57,38 @@
         <!-- Filter panel overlays the list via absolute positioning -->
         <FilterPanel v-if="filterVisible" @close="filterVisible = false" />
       </div>
-      <div class="mb-4 text-muted small" v-if="filteredProjectList.length !== finalProjectList.length || activeFiltersCount > 0 || searchQuery">
+      <div class="pt-16 md:pt-0 mb-4 text-onSurface-variant text-body-md" v-if="filteredProjectList.length !== finalProjectList.length || activeFiltersCount > 0 || searchQuery">
         {{ t("search.resultsCount", { count: finalProjectList.length }) }}
       </div>
       <!-- Screen reader announcement for filter result count -->
       <div class="sr-only" role="status" aria-live="polite">
         {{ t("a11y.filterResultsAnnouncement", { count: finalProjectList.length }) }}
       </div>
-      <b-overlay :show="isDataLoading" fixed :opacity="0.5">
-        <b-row class="my-3 g-4">
-          <b-col
-            v-for="project in finalProjectList"
-            :key="project.id"
-            cols="12"
-            md="6"
-            lg="4"
-          >
-            <project-list-item
-              :project="project"
-              :to="projectRoute(project)"
-              class="h-100"
-            />
-          </b-col>
-        </b-row>
+      <div v-if="!isDataLoading" class="my-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div
+          v-for="project in finalProjectList"
+          :key="project.id"
+          class="h-full"
+        >
+          <project-list-item
+            :project="project"
+            :to="projectRoute(project)"
+            class="h-full"
+          />
+        </div>
         <div v-if="finalProjectList.length === 0" class="no-results py-5 text-center">
-          <div class="display-1 text-muted opacity-25 mb-4">
-            <IBiEmojiDizzy />
+          <div class="text-[4rem] text-onSurface-variant opacity-25 mb-4">
+            <IBiEmojiDizzy aria-hidden="true" />
           </div>
           <h3>{{ t("search.noResultsTitle") }}</h3>
-          <p class="text-muted">{{ t("search.noResultsHint") }}</p>
-          <b-button @click="clearAllFilters" variant="outline-primary" class="mt-3 rounded-pill px-4">
+          <p class="text-onSurface-variant">{{ t("search.noResultsHint") }}</p>
+          <button @click="clearAllFilters" class="mt-3 rounded-full px-4 py-2 bg-transparent text-primary border border-primary hover:bg-primary hover:text-white transition-colors">
             {{ t("search.resetFilters") }}
-          </b-button>
+          </button>
         </div>
-      </b-overlay>
+      </div>
     </div>
-  </b-container>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -292,44 +283,34 @@ onBeforeMount(() => {
 });
 </script>
 
-<style lang="scss" scoped>
-@use "@/assets/design-tokens.scss" as *;
-
-// ── Shared (base styles outside breakpoints) ──────
+<style lang="postcss" scoped>
+/* Shared (base styles outside breakpoints) */
 .list-header {
-  // Soft bottom separation — no sharp line, just a whisper of depth
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  /* Soft bottom separation — no sharp line, just a whisper of depth */
+  @apply shadow-[0_1px_2px_rgba(0,0,0,0.03)];
 
-  // Smooth animations for collapse/expand on scroll
-  transition: padding 0.3s ease, box-shadow 0.3s ease;
+  /* Smooth animations for collapse/expand on scroll */
+  @apply transition-[padding,box-shadow] duration-300 ease-in-out;
 
   h1, h3 {
-    transition: all 0.3s ease;
+    @apply transition-all duration-300 ease-in-out;
   }
 
-  // Collapsed state: scrolled past the heading
+  /* Collapsed state: scrolled past the heading */
   &.header-scrolled {
-    padding-top: 0.2rem;
-    padding-bottom: 0.1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    @apply pt-[0.2rem] pb-[0.1rem] shadow-[0_2px_8px_rgba(0,0,0,0.05)];
 
     h1 {
-      font-size: 1rem;
-      padding: 0;
-      line-height: 1.3;
+      @apply text-base p-0 leading-[1.3];
     }
 
     h3 {
-      opacity: 0;
-      margin: 0;
-      max-height: 0;
-      overflow: hidden;
-      pointer-events: none;
+      @apply opacity-0 m-0 max-h-0 overflow-hidden pointer-events-none;
     }
   }
 }
 
-// ── Desktop ──────────────────────────────────────────
+/* Desktop */
 @media (min-width: 768px) {
   .project-list {
     padding: var(--spacing-gutter-md);
@@ -342,21 +323,22 @@ onBeforeMount(() => {
     margin: calc(-1 * var(--spacing-gutter-md));
     padding: var(--spacing-gutter-md);
     padding-bottom: 0;
-
-    // Glassmorphism
-    background: rgba(248, 249, 250, 0.85);
+    /* Glassmorphism */
+    background-color: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
   }
 
   .filter-overlay-container {
-    > * {
-      position: relative;
-    }
+    display: contents;
+  }
+
+  .filter-overlay-container > * {
+    position: relative;
   }
 
   .toolbar-section {
-    padding: calc(var(--spacing-unit) * 2) 0;
+    padding-top: calc(var(--spacing-unit) * 2);
+    padding-bottom: calc(var(--spacing-unit) * 2);
   }
 
   .filter-dropdown {
@@ -368,11 +350,11 @@ onBeforeMount(() => {
   }
 }
 
-// ── Mobile ──────────────────────────────────────────
+/* Mobile */
 @media (max-width: 767.98px) {
   .project-list {
     padding: var(--spacing-gutter-md);
-    padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px) + 4rem);
+    padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px) + 4rem + 60px);
   }
 
   .list-header {
@@ -382,28 +364,28 @@ onBeforeMount(() => {
     margin: calc(-1 * var(--spacing-gutter-md));
     padding: var(--spacing-gutter-md);
     padding-bottom: 0;
-
-    // Glassmorphism
-    background: rgba(248, 249, 250, 0.85);
+    /* Glassmorphism */
+    background-color: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    /* Smaller heading on mobile */
+  }
 
-    // Smaller heading on mobile
-    h1 {
-      font-size: 1.25rem;
-      padding: 0.375rem 0;
-      margin: 0;
-    }
+  .list-header h1 {
+    font-size: 1.25rem;
+    padding-top: 0.375rem;
+    padding-bottom: 0.375rem;
+    margin: 0;
+  }
 
-    h3 {
-      margin: 0.375rem 0;
-      font-size: 0.8rem;
-    }
+  .list-header h3 {
+    margin-top: 0.375rem;
+    margin-bottom: 0.375rem;
+    font-size: 0.8rem;
   }
 
   .filter-overlay-container {
     position: fixed;
-    bottom: 0;
+    bottom: calc(36px + env(safe-area-inset-bottom, 0px));
     left: 0;
     right: 0;
     z-index: 1000;
@@ -412,17 +394,17 @@ onBeforeMount(() => {
     gap: 0.75rem;
     padding: 0.75rem;
     padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  }
 
-    // When the search input is focused, pop the overlay to the top
-    // so it stays above the virtual keyboard.
-    &.search-active {
-      bottom: auto;
-      top: 0;
-      flex-direction: column;
-      max-height: 50dvh;
-      padding: 0.75rem;
-      padding-top: calc(env(safe-area-inset-top) + 0.75rem);
-    }
+  /* When the search input is focused, pop the overlay to the top
+     so it stays above the virtual keyboard. */
+  .filter-overlay-container.search-active {
+    bottom: auto;
+    top: 0;
+    flex-direction: column;
+    max-height: 50dvh;
+    padding: 0.75rem;
+    padding-top: calc(env(safe-area-inset-top) + 0.75rem);
   }
 
   .toolbar-section {
@@ -434,87 +416,71 @@ onBeforeMount(() => {
   .filter-dropdown {
     position: relative;
     z-index: 1000;
-    max-height: min(50vh, 24rem);
+    max-height: min(70vh, 28rem);
   }
 }
 
-// ── Shared ──────────────────────────────────────────
+/* Shared */
 .filter-backdrop {
   display: none;
+}
 
-  @media (max-width: 767.98px) {
+@media (max-width: 767.98px) {
+  .filter-backdrop {
     display: block;
     position: fixed;
     inset: 0;
     z-index: 999;
-    background: rgba(0, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Respect reduced motion: solid bg instead of expensive backdrop-filter */
+@media (prefers-reduced-motion: reduce) {
+  .list-header {
+    background-color: rgba(255, 255, 255, 0.97) !important;
+    backdrop-filter: none !important;
   }
 }
 
 .no-results {
-  background: var(--color-surface);
-  border-radius: var(--shape-round-xl);
-  margin: var(--spacing-margin-lg) 0;
-  padding: var(--spacing-margin-lg);
+  @apply bg-surface rounded-round-xl my-[var(--spacing-margin-lg)] p-[var(--spacing-margin-lg)] text-center;
 }
 
-/* ── Skeleton Loading ───────────────────────────── */
+/* Skeleton Loading */
 .skeleton-grid {
-  padding: var(--spacing-gutter-md) 0;
+  @apply p-[var(--spacing-gutter-md)];
 }
 
 .skeleton-card {
-  height: 100%;
-  min-height: 180px;
-  border: none;
-  border-radius: var(--shape-round-xl);
-  overflow: hidden;
-  box-shadow: 0 var(--spacing-unit) calc(var(--spacing-unit) * 3) rgba(9, 20, 38, 0.08);
-  background: var(--color-surface);
+  @apply h-full min-h-[180px] border-none rounded-round-xl overflow-hidden shadow-[0_var(--spacing-unit)_calc(var(--spacing-unit)*3)_rgba(9,20,38,0.08)] bg-surface;
 }
 
 .skeleton-image-col {
-  position: relative;
-  overflow: hidden;
-  aspect-ratio: 1 / 1;
+  @apply relative overflow-hidden aspect-square;
 }
 
 .skeleton-image {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: var(--shape-round-default);
+  @apply block w-full h-full rounded-round-default animate-pulse bg-outline-variant/30;
 }
 
 .skeleton-content-col {
-  display: flex;
-  flex-direction: column;
-  min-height: 180px;
+  @apply flex flex-col min-h-[180px];
 }
 
 .skeleton-content {
-  padding: calc(var(--spacing-unit) * 2);
-  display: flex;
-  flex-direction: column;
-  gap: calc(var(--spacing-unit) * 1.5);
-  flex: 1;
+  @apply p-[calc(var(--spacing-unit)*2)] flex flex-col gap-[calc(var(--spacing-unit)*1.5)] flex-1;
 }
 
 .skeleton-title {
-  display: block;
-  height: 1.3rem;
-  border-radius: 4px;
+  @apply block h-[1.3rem] rounded-[4px] animate-pulse bg-outline-variant/20;
 }
 
 .skeleton-category {
-  display: block;
-  height: 0.85rem;
-  border-radius: 4px;
+  @apply block h-[0.85rem] rounded-[4px] animate-pulse bg-outline-variant/20;
 }
 
 .skeleton-country {
-  display: block;
-  height: 0.85rem;
-  border-radius: 4px;
+  @apply block h-[0.85rem] rounded-[4px] animate-pulse bg-outline-variant/20;
 }
 </style>

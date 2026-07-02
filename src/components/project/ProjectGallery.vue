@@ -1,47 +1,33 @@
 <template>
-  <div v-if="project.gallery || project.teaserImg" class="project-gallery-section">
+  <div v-if="project.gallery && project.gallery.length > 0 || (project.teaserImg && project.teaserImg.length > 0)" class="project-gallery-section">
     <h2 class="gallery-title mb-4">{{ title }}</h2>
     <div class="gallery-grid">
       <div
-        v-if="project.teaserImg"
-        class="gallery-item teaser-item"
-        role="button"
-        tabindex="0"
-        :aria-label="t('a11y.openImage', { name: project.teaserImg[0].name || t('a11y.imageNotAvailable') })"
-        @click="openModal(project.teaserImg[0])"
-        @keydown.enter="openModal(project.teaserImg[0])"
-        @keydown.space.prevent="openModal(project.teaserImg[0])"
-      >
-        <img
-          :src="project.teaserImg[0].signedUrl"
-          :alt="project.name + ' - Teaser'"
-          loading="lazy"
-          @error="onImageError"
-        />
-        <div class="hover-overlay">
-          <IBiZoomIn class="zoom-icon" />
-        </div>
-      </div>
-      <div
-        v-for="(item, index) in project.gallery"
+        v-for="(item, index) in galleryItems"
         :key="index"
         class="gallery-item"
         role="button"
         tabindex="0"
-        :aria-label="t('a11y.openImage', { name: item.name || t('a11y.imageNotAvailable') })"
+        :aria-label="t('a11y.openImage', { name: item.name || project.name + ' image' })"
         @click="openModal(item)"
         @keydown.enter="openModal(item)"
         @keydown.space.prevent="openModal(item)"
       >
-        <template v-if="item.mimetype.startsWith('image')">
-          <img
-            :src="item.thumbnails?.card_cover?.signedUrl || item.signedUrl"
-            :alt="item.name || project.name + ' image'"
-            loading="lazy"
-            @error="onImageError"
-          />
-          <div class="hover-overlay">
-            <IBiZoomIn class="zoom-icon" />
+        <template v-if="item.mimetype?.startsWith('image') || !item.mimetype">
+          <template v-if="!isErrored(item.thumbnails?.card_cover?.signedUrl || item.signedUrl || item.url)">
+            <img
+              :src="item.thumbnails?.card_cover?.signedUrl || item.signedUrl || item.url"
+              :alt="item.name || project.name + ' image'"
+              loading="lazy"
+              @error="onImageError(item.thumbnails?.card_cover?.signedUrl || item.signedUrl || item.url)"
+            />
+            <div class="hover-overlay">
+              <IBiZoomIn class="zoom-icon" />
+            </div>
+          </template>
+          <div v-else class="image-fallback">
+            <IBiImage class="fallback-icon" />
+            <span class="fallback-text">{{ t('gallery.imageNotAvailable') || 'Bild nicht verfügbar' }}</span>
           </div>
         </template>
         <div
@@ -51,7 +37,8 @@
           <video
             :src="item.signedUrl"
             preload="metadata"
-            controls
+            muted
+            playsinline
             class="video-preview"
           >
             Your browser does not support the video tag.
@@ -65,7 +52,7 @@
     <project-gallery-modal
       :is-visible="modalVisible"
       :current-item="currentItem"
-      :gallery-items="galleryWithTeaserImg"
+      :gallery-items="galleryItems"
       @update:is-visible="closeModal"
     />
   </div>
@@ -87,13 +74,40 @@ const props = defineProps<{
 
 const modalVisible = ref(false);
 const currentItem = ref<Attachment | null>(null);
-const imageError = ref(false);
+const erroredImages = ref(new Set<string>());
 
-const galleryWithTeaserImg = computed(() => {
-  const gallery = props.project.gallery || [];
-  const teaserImg = props.project.teaserImg ? [props.project.teaserImg[0]] : [];
-  return [...teaserImg, ...gallery];
+// Include both gallery and teaser images
+const galleryItems = computed(() => {
+  const items: any[] = [];
+  
+  // Add gallery attachments
+  if (props.project.gallery && props.project.gallery.length > 0) {
+    items.push(...props.project.gallery);
+  }
+  
+  // Add teaser images if no gallery
+  if (props.project.teaserImg && props.project.teaserImg.length > 0) {
+    props.project.teaserImg.forEach((img: any) => {
+      items.push({
+        ...img,
+        name: img.name || props.project.name + ' teaser',
+        mimetype: 'image',
+        signedUrl: img.signedUrl,
+        thumbnails: img.thumbnails || {},
+      });
+    });
+  }
+  
+  return items;
 });
+
+function isErrored(src: string): boolean {
+  return erroredImages.value.has(src);
+}
+
+function onImageError(src: string) {
+  erroredImages.value = new Set([...erroredImages.value, src]);
+}
 
 function openModal(item: Attachment) {
   currentItem.value = item;
@@ -104,32 +118,18 @@ function closeModal() {
   modalVisible.value = false;
   currentItem.value = null;
 }
-
-function onImageError() {
-  imageError.value = true;
-}
 </script>
 
-<style lang="scss" scoped>
+<style lang="postcss" scoped>
 .project-gallery-section {
-  position: relative;
-  margin-top: 3rem;
+  @apply relative mt-[3rem];
 }
 
 .gallery-title {
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--jws-text-main, #212529);
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  @apply text-[2rem] font-extrabold text-onSurface flex items-center gap-[0.75rem];
 
   &::before {
-    content: "";
-    width: 6px;
-    height: 1.5em;
-    background: var(--jws-primary, #3d5e9e);
-    border-radius: 3px;
+    @apply content-[''] w-[6px] h-[1.5em] bg-primary rounded-[3px];
   }
 }
 
@@ -146,120 +146,78 @@ function onImageError() {
 }
 
 .gallery-item {
-  position: relative;
-  border-radius: 1.5rem;
-  overflow: hidden;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
-  background: var(--jws-bg-subtle, #f0f0f0);
+  @apply relative rounded-round-xl overflow-hidden cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.06)] transition-[transform,box-shadow] duration-300 bg-surface;
 
   &:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
-    z-index: 2;
+    @apply -translate-y-[6px] shadow-[0_12px_28px_rgba(0,0,0,0.12)] z-10;
 
     .hover-overlay {
-      opacity: 1;
+      @apply opacity-100;
     }
 
     .video-overlay {
-      background: rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(4px);
+      @apply bg-black/40 backdrop-blur-[4px];
 
       .play-button {
-        transform: scale(1.15);
-        background: #fff;
+        @apply scale-[1.15] bg-white;
       }
     }
 
     img {
-      transform: scale(1.08);
+      @apply scale-[1.08];
     }
   }
 
   &:focus-visible {
-    outline: 3px solid var(--color-secondary);
-    outline-offset: 2px;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    @apply outline-3 outline-secondary outline-offset-2 -translate-y-[3px] shadow-[0_8px_20px_rgba(0,0,0,0.1)];
   }
 
   img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+    @apply w-full h-full object-cover transition-transform duration-[600ms] ease-[cubic-bezier(0.2,0.8,0.2,1)];
   }
 }
 
 .hover-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  @apply absolute inset-0 bg-gradient-to-t from-black/40 to-transparent flex items-center justify-center opacity-0 transition-opacity duration-300;
 
   .zoom-icon {
-    font-size: 2.5rem;
-    color: #fff;
-    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
-    transform: scale(0.9);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    @apply text-[2.5rem] text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.3)] scale-90 transition-transform duration-300 ease-[cubic-bezier(0.175,0.885,0.32,1.275)];
   }
 }
 
 .gallery-item:hover .hover-overlay .zoom-icon {
-  transform: scale(1);
+  @apply scale-100;
+}
+
+.image-fallback {
+  @apply w-full h-full flex flex-col items-center justify-center gap-2 bg-surface-variant text-onSurface-variant;
+}
+
+.fallback-icon {
+  @apply text-[3rem] opacity-50;
+}
+
+.fallback-text {
+  @apply text-label-md text-center px-4;
 }
 
 .video-thumbnail {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  background-color: var(--jws-bg-subtle, #f0f0f0);
+  @apply w-full h-full relative bg-surface;
 }
 
 .video-preview {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.85;
+  @apply w-full h-full object-cover opacity-85;
 }
 
 .video-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
+  @apply absolute inset-0 bg-black/25 flex items-center justify-center transition-colors duration-300;
 }
 
 .play-button {
-  width: 72px;
-  height: 72px;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(8px);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  position: relative;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  @apply w-[72px] h-[72px] bg-white/90 backdrop-blur-[8px] rounded-full flex items-center justify-center transition-[transform,background-color] duration-300 relative shadow-[0_8px_24px_rgba(0,0,0,0.2)];
 
   &::after {
-    content: "";
-    position: absolute;
-    margin-left: 6px;
-    border-style: solid;
-    border-width: 12px 0 12px 20px;
-    border-color: transparent transparent transparent var(--jws-primary, #3d5e9e);
+    @apply content-[''] absolute ml-[6px] border-solid border-t-[12px] border-b-[12px] border-l-[20px] border-transparent border-l-primary;
   }
 }
 </style>

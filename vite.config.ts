@@ -3,12 +3,13 @@ import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import Components from "unplugin-vue-components/vite";
-import { BootstrapVueNextResolver } from "bootstrap-vue-next";
 import Icons from "unplugin-icons/vite";
 import IconsResolve from "unplugin-icons/resolver";
 import { VitePWA } from "vite-plugin-pwa";
 import version from "vite-plugin-package-version";
 import VueDevTools from "vite-plugin-vue-devtools";
+import tailwindcss from "tailwindcss";
+import autoprefixer from "autoprefixer";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -35,7 +36,7 @@ export default defineConfig({
     vue(),
     VueDevTools(),
     Components({
-      resolvers: [BootstrapVueNextResolver(), IconsResolve()],
+      resolvers: [IconsResolve()],
       dts: true,
     }),
     version(),
@@ -53,6 +54,26 @@ export default defineConfig({
         short_name: "JWF Projects",
         description: "Overview of projects in Westafrica by JWF and Humanaktiv",
         theme_color: "#3d5e9e",
+        background_color: "#ffffff",
+        display: "standalone",
+        icons: [
+          {
+            src: "img/cropped-joerg-wolff-stiftung.png",
+            sizes: "192x192",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+          {
+            src: "img/cropped-joerg-wolff-stiftung.png",
+            sizes: "512x512",
+            type: "image/png",
+          },
+        ],
+      },
+      workbox: {
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        skipWaiting: true,
+        clientsClaim: true,
       },
     }),
   ],
@@ -77,9 +98,6 @@ export default defineConfig({
             if (id.includes("vue-router")) return "vendor-vue-router";
             if (id.includes("pinia")) return "vendor-pinia";
             if (id.includes("/vue/")) return "vendor-vue-core";
-            if (id.includes("bootstrap-vue-next"))
-              return "vendor-bootstrap-vue";
-            if (id.includes("bootstrap")) return "vendor-bootstrap-core";
             // Combine leaflet and markercluster into single chunk
             if (id.includes("leaflet")) return "vendor-leaflet";
             if (id.includes("axios")) return "vendor-axios";
@@ -95,21 +113,11 @@ export default defineConfig({
   },
   // Optimize dependencies to pre-bundle leaflet and markercluster together
   optimizeDeps: {
-    include: [
-      "leaflet",
-      "leaflet.markercluster",
-      "@vue-leaflet/vue-leaflet",
-      "vue-leaflet-markercluster",
-    ],
+    include: ["leaflet", "leaflet.markercluster", "@vue-leaflet/vue-leaflet"],
   },
-  // Optimize CSS
   css: {
-    preprocessorOptions: {
-      scss: {
-        api: "modern-compiler",
-        charset: false,
-        quietDeps: true,
-      },
+    postcss: {
+      plugins: [tailwindcss, autoprefixer],
     },
   },
 });

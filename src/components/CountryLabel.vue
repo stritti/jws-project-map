@@ -41,33 +41,21 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss" scoped>
-@use "@/assets/design-tokens.scss" as *;
-
+<style lang="postcss" scoped>
 .country-label {
-  display: inline-flex;
-  align-items: center;
-  color: var(--color-on-surface);
-  font-size: var(--font-size-body-md);
-  font-weight: var(--font-weight-body-md);
-  line-height: var(--line-height-body-md);
-  gap: var(--spacing-unit);
+  @apply inline-flex items-center text-onSurface text-body-md leading-body-md gap-[var(--spacing-unit)];
 }
 
 /* Flag icon styling */
 .country-label [class^="fi-"] {
-  font-size: 1.5rem; /* 24px height for flag */
-  width: 2rem; /* 32px width to maintain aspect ratio */
-  display: inline-block;
-  line-height: 1;
-  vertical-align: middle;
+  @apply text-[1.5rem] w-[2rem] inline-block leading-none align-middle;
 }
 
 /* Ensure proper aspect ratio for flags (typically 3:2 or 2:1) */
 .country-label [class^="fi-"]::before {
   display: block;
-  width: 1.5rem; /* 24px */
-  height: 1rem;  /* 16px */
-  content: "";
+  width: 1.5rem;
+  height: 1rem;
+  content: '';
 }
 </style>

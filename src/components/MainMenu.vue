@@ -2,25 +2,16 @@
 import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
-import { setLocale, type Locale } from "@/plugins/i18n";
-import { useProjectStore } from "@/features/projects/stores/project.store";
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
 import IBiMap from "~icons/bi/map";
 import IBiMapFill from "~icons/bi/map-fill";
 import IBiListUl from "~icons/bi/list-ul";
 import IBiListCheck from "~icons/bi/list-check";
-import IBiInfoCircle from "~icons/bi/info-circle";
 import AboutModal from "./AboutModal.vue";
 import { useFocusRestore } from "@/composables/useAccessibility";
 
 const route = useRoute();
-
-function switchLocale(lang: Locale) {
-  setLocale(lang);
-  // Reload project data so localized fields (name, notes) are refetched (Codex #P2)
-  useProjectStore().load().catch(() => {});
-}
 
 const aboutModalRef = ref<InstanceType<typeof AboutModal> | null>(null);
 const { setTrigger, restoreFocus } = useFocusRestore();
@@ -29,13 +20,6 @@ function openAbout() {
   setTrigger();
   aboutModalRef.value?.show();
 }
-
-
-const languages: { code: Locale; flag: string; label: string }[] = [
-  { code: "de", flag: "de", label: "Deutsch" },
-  { code: "en", flag: "gb", label: "English" },
-  { code: "fr", flag: "fr", label: "Français" },
-];
 
 interface NavItem {
   to: string;
@@ -77,179 +61,67 @@ function isActive(item: NavItem): boolean {
       </router-link>
     </div>
 
-    <!-- About button -->
-    <button
-      class="about-btn"
-      :aria-label="t('nav.about')"
-      :title="t('nav.about')"
-      @click="openAbout"
-    >
-      <IBiInfoCircle aria-hidden="true" />
-    </button>
-
-    <AboutModal ref="aboutModalRef" @hidden="restoreFocus" />
-
-    <!-- Language switcher -->
-    <div class="lang-section" role="group" :aria-label="t('a11y.languageSelector')">
-      <button
-        v-for="lang in languages"
-        :key="lang.code"
-        class="lang-btn"
-        :class="{ active: locale === lang.code }"
-        :lang="lang.code"
-        :aria-label="lang.label"
-        :aria-current="locale === lang.code ? 'true' : undefined"
-        @click="switchLocale(lang.code)"
-      >
-        <span :class="`fi fis fi-${lang.flag}`" aria-hidden="true" />
-      </button>
+    <!-- Right-section: More menu (language + about) -->
+    <div class="right-section">
+      <MoreMenu @about="openAbout" />
+      <AboutModal ref="aboutModalRef" @hidden="restoreFocus" />
     </div>
   </nav>
 </template>
 
-<style lang="scss" scoped>
-@use "@/assets/design-tokens.scss" as *;
-
+<style lang="postcss" scoped>
 .main-menu {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
-  padding: 0.5rem 0.75rem calc(0.5rem + env(safe-area-inset-bottom, 0px)) 0.75rem;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-radius: 1rem 1rem 0 0;
-  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+  @apply fixed bottom-0 left-0 right-0 z-[999] flex items-center justify-start px-[0.5rem] md:px-[0.75rem] pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] pt-[0.5rem] bg-white/95 backdrop-blur-xl rounded-t-[1rem] shadow-[0_-4px_16px_rgba(0,0,0,0.06)];
 
-  // Thin top border for definition on light backgrounds
+  /* Thin top border for definition on light backgrounds */
   &::before {
-    content: "";
+    content: '';
     position: absolute;
     top: 0;
     left: 1rem;
     right: 1rem;
     height: 1px;
-    background: rgba(0, 0, 0, 0.06);
+    background-color: rgba(0, 0, 0, 0.1);
   }
 }
 
 .nav-items {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
+  @apply flex items-center gap-[0.15rem] md:gap-[0.25rem];
 }
 
 .nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  text-decoration: none;
-  color: var(--color-on-surface-variant, #45474c);
-  padding: 0.375rem 1rem;
-  border-radius: 9999px;
-  transition: all 0.2s ease;
-  min-width: 64px;
+  @apply flex flex-col items-center justify-center gap-[2px] md:gap-[3px] no-underline text-onSurface-variant px-[0.25rem] md:px-[0.375rem] py-[0.25rem] md:py-[0.375rem] rounded-full transition-colors duration-200 min-w-[40px] md:min-w-[64px];
 
   &:hover {
-    color: var(--color-primary, #3d5e9e);
-    background: rgba(60, 93, 157, 0.06);
+    @apply text-primary bg-secondary/10;
   }
 
   &.active {
-    color: var(--color-secondary, #3d5e9e);
-    background: rgba(60, 93, 157, 0.12);
-    font-weight: 700;
+    @apply text-secondary bg-secondary/12 font-bold;
 
     .nav-label {
-      font-weight: 700;
+      @apply font-bold;
     }
   }
 }
 
 .nav-icon {
-  font-size: 1.35rem;
-  line-height: 1;
-  transition: all 0.2s ease;
+  @apply text-[1.25rem] md:text-[1.35rem] leading-none transition-[font-size] duration-200;
 }
 
 .nav-label {
-  font-size: 0.7rem;
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: 0.02em;
-  transition: all 0.2s ease;
+  @apply hidden md:block text-[0.7rem] font-medium leading-none tracking-[0.02em];
 }
 
-/* About button */
-.about-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  padding: 0;
-  transition: all 0.2s ease;
-  color: var(--color-on-surface-variant, #45474c);
-
-  &:hover {
-    color: var(--color-primary, #3d5e9e);
-    background: rgba(60, 93, 157, 0.08);
-  }
-
-  :deep(svg) {
-    font-size: 1.25rem;
-  }
+/* Right section — pushed to the right */
+.right-section {
+  @apply flex items-center gap-[0.25rem] ml-auto;
 }
 
-/* Language switcher */
-.lang-section {
-  display: flex;
-  align-items: center;
-  gap: 0.15rem;
-}
-
-.lang-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  background: transparent;
-  cursor: pointer;
-  padding: 0;
-  transition: all 0.2s ease;
-  opacity: 0.4;
-  filter: grayscale(0.6);
-
-  &:hover {
-    opacity: 0.85;
-    filter: grayscale(0);
-    background: rgba(60, 93, 157, 0.1);
-  }
-
-  &.active {
-    opacity: 1;
-    filter: grayscale(0);
-    background: var(--color-secondary, #3d5e9e);
-    box-shadow: 0 0 0 2px #fff;
-  }
-
-  :deep(.fi) {
-    font-size: 0.95rem;
-    border-radius: 2px;
+/* On mobile, reduce overall spacing */
+@media (max-width: 767.98px) {
+  .nav-item {
+    min-width: 36px;
   }
 }
 </style>
