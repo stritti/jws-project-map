@@ -34,7 +34,7 @@
            positioning in Chrome).  On desktop it flows in normal document order. -->
       <div class="filter-overlay-container" :class="{ 'search-active': isSearchActive }">
         <div class="toolbar-section">
-          <SearchBar
+          <MainMenu
             v-model="searchQuery"
             v-model:state-filter="stateFilterSearch"
             :placeholder="t('search.placeholder')"
@@ -104,7 +104,7 @@ import type { Project } from "@/interfaces/Project";
 import ProjectListItem from "../components/project/ProjectListItem.vue";
 import { useProjectSearch, type ProjectState } from "@/composables/useProjectSearch";
 import FilterPanel from "@/components/FilterPanel.vue";
-import SearchBar from "../components/SearchBar.vue";
+import MainMenu from "../components/MainMenu.vue";
 import { projectRoute } from "@/utils/slug";
 
 const { t } = useI18n();
@@ -144,7 +144,7 @@ const stateOptions = computed(() => [
   { text: t("project.state.planned"), value: "planned" },
 ]);
 
-// SearchBar state filter (local – for SearchBar's internal state binding)
+// MainMenu state filter (local – for MainMenu's internal state binding)
 const stateFilterSearch = ref<ProjectState>("all");
 
 // Search-active: move the filter bar to the top when the keyboard opens (like HomeView)

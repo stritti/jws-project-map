@@ -12,7 +12,7 @@ Organized into subdirectories by concern:
 Root-level shared components:
 - **MainMenu.vue** — Bottom-fixed navigation bar with icons. Uses `useRouter()`, highlights active route, includes language switcher. `role="navigation"` with `aria-label="Main navigation"`.
 - **SiteFooter.vue** — Footer with copyright, about link. `role="contentinfo"`.
-- **SearchBar.vue** — Input + view toggle (map/list) for the map page. Handles keyboard visibility on mobile via composable.
+- **MainMenu.vue** — Input + view toggle (map/list) for the map page. Handles keyboard visibility on mobile via composable.
 - **SearchModal.vue** — Full-text search dialog triggered by Ctrl+K / Cmd+K. Uses `b-modal` with keyboard navigation, results as `role="listbox"`.
 - **FilterPanel.vue** — Slide-out filter drawer with `b-form-checkbox-group` for state, category, country filters. `role="complementary"`.
 - **FloatingMeta.vue** — Bottom-sheet expandable panel for metadata and language switching.

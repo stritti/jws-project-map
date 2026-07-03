@@ -22,5 +22,5 @@ The category and country stores are preloaded eagerly in `main.ts` (alongside th
 
 ## Integration
 - Depends on: `category.service.ts`, `country.service.ts`, `nocodb.service.ts`
-- Consumed by: FilterPanel, SearchBar, CategoryBadge, CountryLabel, ProjectListItem, ProjectDetails
+- Consumed by: FilterPanel, MainMenu, CategoryBadge, CountryLabel, ProjectListItem, ProjectDetails
 - Category and country stores are consumed by the project service for locale-aware field mapping
