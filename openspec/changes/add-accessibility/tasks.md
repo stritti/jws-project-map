@@ -48,7 +48,7 @@
 
 - [x] 6.1 Wrap each checkbox group in `FilterPanel.vue` with `<fieldset>` and `<legend>` for accessible grouping
 - [x] 6.2 Ensure individual checkboxes in `FilterPanel.vue` have programmatically associated labels
-- [x] 6.3 Add `aria-label` or associated `<label>` to `SearchBar.vue` input
+- [x] 6.3 Add `aria-label` or associated `<label>` to `MainMenu.vue` input
 - [x] 6.4 Add `aria-live="polite"` region in `FilterPanel.vue` or parent to announce filter result count changes
 - [x] 6.5 Verify `FilterPanel.vue` close button has `aria-label` and is keyboard-reachable
 - [x] 6.6 Ensure all form inputs show visible focus indicator (covered by global a11y.scss)

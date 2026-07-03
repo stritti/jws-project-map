@@ -45,7 +45,6 @@ declare module 'vue' {
     ProjectListItem: typeof import('./src/components/project/ProjectListItem.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    SearchBar: typeof import('./src/components/SearchBar.vue')['default']
     SearchModal: typeof import('./src/components/SearchModal.vue')['default']
     ShareButton: typeof import('./src/components/actions/ShareButton.vue')['default']
     SiteFooter: typeof import('./src/components/SiteFooter.vue')['default']

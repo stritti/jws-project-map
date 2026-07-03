@@ -3,7 +3,7 @@
     <div class="modal-content rounded-round-xl border-0 shadow-lg bg-white max-w-lg mx-4 my-8" role="dialog" aria-modal="true" aria-labelledby="search-modal-title">
       <div class="modal-header border-0 pb-0 flex items-center justify-between p-4">
         <h2 id="search-modal-title" class="sr-only">{{ t('search.resultsLabel') }}</h2>
-        <SearchBar
+        <MainMenu
           ref="searchBarRef"
           v-model="query"
           v-model:state-filter="stateFilter"
@@ -99,7 +99,7 @@ import type { Project } from "@/interfaces/Project";
 import { useProjectSearch } from "@/composables/useProjectSearch";
 import { useWebFrame } from "@/composables/useWebFrame";
 import { useSearchStore } from "@/stores/search.store";
-import SearchBar from "./SearchBar.vue";
+import MainMenu from "./MainMenu.vue";
 import StateBadge from "@/components/StateBadge.vue";
 import { useFocusRestore } from "@/composables/useAccessibility";
 
@@ -111,7 +111,7 @@ const { query, stateFilter, results, reset } = useProjectSearch(projects);
 const { navigateToProject } = useWebFrame();
 
 const isVisible = ref(false);
-const searchBarRef = ref<InstanceType<typeof SearchBar> | null>(null);
+const searchBarRef = ref<InstanceType<typeof MainMenu> | null>(null);
 const { setTrigger, restoreFocus } = useFocusRestore();
 
 function show() {

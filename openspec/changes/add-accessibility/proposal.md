@@ -24,7 +24,7 @@ The application currently has partial accessibility support (skip-link, reduced-
 - `a11y-core`: Foundational accessibility infrastructure — lang attribute, page titles, focus-visible styles, ARIA landmarks, heading hierarchy enforcement
 - `a11y-modals`: Focus trap, focus restore, and screen reader announcements for all modal dialogs
 - `a11y-map`: Keyboard navigation support for the Leaflet map, skip-to-map link, and accessible map controls
-- `a11y-forms`: Proper form labeling, aria-describedby, and accessible checkbox groups in FilterPanel and SearchBar
+- `a11y-forms`: Proper form labeling, aria-describedby, and accessible checkbox groups in FilterPanel and MainMenu
 - `a11y-media`: Meaningful alt text for all images, decorative icon handling, and accessible gallery navigation
 
 ### Modified Capabilities
@@ -32,7 +32,7 @@ The application currently has partial accessibility support (skip-link, reduced-
 
 ## Impact
 
-- **Components affected**: `App.vue`, `MainMenu.vue`, `SearchModal.vue`, `FilterPanel.vue`, `ProjectGalleryModal.vue`, `AboutModal.vue`, `LocationMap.vue`, `ProjectGallery.vue`, `ProjectListItem.vue`, `CountryLabel.vue`, `CategoryBadge.vue`, `SiteFooter.vue`, `SearchBar.vue`, `ProjectDetails.vue`, `ProjectListView.vue`, `HomeView.vue`, `ProjectDetailView.vue`
+- **Components affected**: `App.vue`, `MainMenu.vue`, `SearchModal.vue`, `FilterPanel.vue`, `ProjectGalleryModal.vue`, `AboutModal.vue`, `LocationMap.vue`, `ProjectGallery.vue`, `ProjectListItem.vue`, `CountryLabel.vue`, `CategoryBadge.vue`, `SiteFooter.vue`, `MainMenu.vue`, `ProjectDetails.vue`, `ProjectListView.vue`, `HomeView.vue`, `ProjectDetailView.vue`
 - **New files**: `src/composables/useAccessibility.ts`, `src/assets/a11y.scss` (focus-visible, sr-only, contrast utilities)
 - **Dependencies**: No new dependencies needed — all changes use native HTML/ARIA and existing Vue/BootstrapVueNext APIs
 - **i18n**: New translation keys for accessibility labels (skip links, map instructions, screen reader announcements) in `de`, `en`, `fr`
