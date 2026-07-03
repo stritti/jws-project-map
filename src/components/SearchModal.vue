@@ -12,8 +12,8 @@
     @hidden="onHidden"
   >
     <template #title>
-      <SearchBar
-        ref="searchBarRef"
+      <MainMenu
+        ref="mainMenuRef"
         v-model="query"
         v-model:state-filter="stateFilter"
         :placeholder="t('search.placeholderShort')"
@@ -107,7 +107,7 @@ import type { Project } from "@/interfaces/Project";
 import { useProjectSearch } from "@/composables/useProjectSearch";
 import { useWebFrame } from "@/composables/useWebFrame";
 import { useSearchStore } from "@/stores/search.store";
-import SearchBar from "./SearchBar.vue";
+import MainMenu from "./MainMenu.vue";
 import { useFocusRestore } from "@/composables/useAccessibility";
 
 const router = useRouter();
@@ -118,7 +118,7 @@ const { query, stateFilter, results, reset } = useProjectSearch(projects);
 const { navigateToProject } = useWebFrame();
 
 const modalRef = ref<{ show: () => void; hide: () => void } | null>(null);
-const searchBarRef = ref<InstanceType<typeof SearchBar> | null>(null);
+const mainMenuRef = ref<InstanceType<typeof MainMenu> | null>(null);
 const { setTrigger, restoreFocus } = useFocusRestore();
 
 function show() {
@@ -138,7 +138,7 @@ function onHidden() {
 
 async function onShown() {
   await nextTick();
-  searchBarRef.value?.focus();
+  mainMenuRef.value?.focus();
 }
 
 function navigate(project: { id: number; name: string }) {

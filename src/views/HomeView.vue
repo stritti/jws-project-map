@@ -10,7 +10,7 @@ import { useCountryStore } from "../stores/country.store";
 import { useFilterStore } from "../stores/filter.store";
 import { useProjectSearch, type ProjectState } from "@/composables/useProjectSearch";
 import FilterPanel from "@/components/FilterPanel.vue";
-import SearchBar from "../components/SearchBar.vue";
+import MainMenu from "../components/MainMenu.vue";
 const LocationMap = defineAsyncComponent(() => import("../components/map/LocationMap.vue"));
 
 const { t } = useI18n();
@@ -176,7 +176,7 @@ onUnmounted(() => {
       :class="{ 'search-active': isSearchActive }"
     >
       <div class="toolbar-section">
-        <SearchBar
+        <MainMenu
           v-model="searchQuery"
           :placeholder="t('search.placeholder')"
           :filter-label="t('search.filter')"

@@ -8,7 +8,7 @@ Four views:
 
 - **HomeView.vue** (`/`) — Primary view. Full-screen Leaflet map with overlaid search bar, map type toggle, and search results dropdown. Lazily loads LocationMap. Handles virtual keyboard via visualViewport API. Includes skip-to-map link for keyboard users. Projects loaded from store's `mapProjects`.
 
-- **ProjectListView.vue** (`/list`, redirects to `/`) — Filterable/sortable list of ProjectListItem cards. Uses FilterPanel, SearchBar. Infinite scroll behavior. Virtual keyboard handling same pattern as HomeView. Reads from store's `projects`.
+- **ProjectListView.vue** (`/list`, redirects to `/`) — Filterable/sortable list of ProjectListItem cards. Uses FilterPanel, MainMenu. Infinite scroll behavior. Virtual keyboard handling same pattern as HomeView. Reads from store's `projects`.
 
 - **ProjectDetailView.vue** (`/project/:projectId`) — Full project detail page. URL params drive which project to display. Shows gallery (ProjectGallery), markdown notes (MarkdownText), project link button, floating back button. Updates geo meta tags via `useGeoTags`. Uses `usePageTitle` for dynamic title.
 
