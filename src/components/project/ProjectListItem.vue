@@ -14,28 +14,27 @@
     :class="{ 'external-link': href || (to && isIFrame) }"
     @click="onCardClick"
   >
-      <b-card class="project-list-item" no-body :aria-label="cardAriaLabel">
-      <b-row no-gutters class="g-0">
+      <div class="project-list-item" :aria-label="cardAriaLabel">
+      <div class="flex">
         <!-- Image Section - Left side -->
-        <b-col cols="5" class="image-col">
-          <b-card-img
+        <div class="w-5/12 image-col">
+          <img
             :src="teaserImage"
             :alt="project.name"
-            class="project-image"
-            placement="top"
+            class="project-image" loading="lazy"
           />
           <!-- State badge overlay -->
-          <div class="state-badge" :class="project.state?.replace(' ', '-')">
-            {{ stateLabel }}
+          <div class="state-badge-overlay">
+            <StateBadge :state="project.state" />
           </div>
-        </b-col>
+        </div>
         
         <!-- Content Section - Right side -->
-        <b-col cols="7" class="content-col">
-          <b-card-body class="project-content">
-            <b-card-title class="project-title text-truncate">
+        <div class="w-7/12 content-col">
+          <div class="project-content">
+            <h3 class="project-title text-truncate">
               {{ project.name }}
-            </b-card-title>
+            </h3>
             
             <div class="project-meta">
               <!-- Category badges -->
@@ -58,246 +57,170 @@
             <div v-if="$slots.actions" class="project-actions">
               <slot name="actions" />
             </div>
-          </b-card-body>
-        </b-col>
-      </b-row>
-    </b-card>
+          </div>
+        </div>
+      </div>
+    </div>
   </component>
 </template>
 
-<script lang="ts">
-import { defineComponent, computed } from "vue";
+<script setup lang="ts">
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useWebFrame } from "@/composables/useWebFrame";
-import CategoryBadge from "../../components/CategoryBadge.vue";
-import CountryLabel from "../../components/CountryLabel.vue";
+import type { Project } from "@/interfaces/Project";
+import CategoryBadge from "../CategoryBadge.vue";
+import CountryLabel from "../CountryLabel.vue";
+import StateBadge from "@/components/StateBadge.vue";
 
-export default defineComponent({
-  name: "ProjectListItem",
-  components: { CategoryBadge, CountryLabel },
-  setup() {
-    const { t } = useI18n();
-    const { isIFrame, notifyNavigate } = useWebFrame();
-    const router = useRouter();
-    return { t, isIFrame, notifyNavigate, router };
-  },
-  emits: ['click'],
-  props: {
-    project: {
-      type: Object,
-      required: true,
-    },
-    // Optional props for external links
-    to: {
-      type: String,
-      default: null,
-    },
-    href: {
-      type: String,
-      default: null,
-    },
-    target: {
-      type: String,
-      default: undefined,
-    },
-  },
-  computed: {
-    // In iframe mode: render as <a href="..." target="_blank">
-    // so the project detail opens in a new browser tab.
-    resolvedComponent() {
-      if (this.href) return 'a';
-      if (this.to && this.isIFrame) return 'a';
-      if (this.to) return 'router-link';
-      return 'div';
-    },
-    resolvedTo() {
-      return this.to && !this.isIFrame ? this.to : null;
-    },
-    resolvedHref() {
-      if (this.href) return this.href;
-      if (this.to && this.isIFrame) {
-        return this.router.resolve(this.to, this.$route).href;
-      }
-      return null;
-    },
-    resolvedTarget() {
-      if (this.href) return '_blank';
-      if (this.to && this.isIFrame) return '_blank';
-      return undefined;
-    },
-    resolvedRel() {
-      if (this.resolvedTarget === '_blank') return 'noopener noreferrer';
-      return undefined;
-    },
-    teaserImage() {
-      if (this.project.teaserImg && this.project.teaserImg.length > 0) {
-        const img = this.project.teaserImg[0];
-        return img.thumbnails?.card_cover?.signedUrl || img.signedUrl || "/img/placeholder.png";
-      } else {
-        return "/img/placeholder.png";
-      }
-    },
-    cardAriaLabel() {
-      const parts = [this.project.name];
-      if (this.stateLabel) parts.push(this.stateLabel);
-      if (this.project.country && this.project.country.fields?.Name) {
-        parts.push(this.project.country.fields.Name);
-      }
-      return parts.join(", ");
-    },
-    stateLabel() {
-      const labels: Record<string, string> = {
-        finished: this.$t("project.state.finished"),
-        "under construction": this.$t("project.state.underConstruction"),
-        planned: this.$t("project.state.planned"),
-      };
-      return labels[this.project.state] || this.project.state;
-    },
-  },
-  methods: {
-    onCardClick() {
-      // In iframe mode: notify the parent frame about the navigation
-      if (this.isIFrame && this.to && this.project) {
-        this.notifyNavigate(this.to, this.project.id);
-      }
-      this.$emit('click');
-    },
-  },
+const { t } = useI18n();
+const { isIFrame, notifyNavigate } = useWebFrame();
+const router = useRouter();
+const route = useRoute();
+
+const props = withDefaults(defineProps<{
+  project: Project;
+  to?: string | null;
+  href?: string | null;
+  target?: string;
+}>(), {
+  to: null,
+  href: null,
 });
+
+const emit = defineEmits<{
+  (e: 'click'): void;
+}>();
+
+const teaserImage = computed(() => {
+  if (props.project.teaserImg && props.project.teaserImg.length > 0) {
+    const img = props.project.teaserImg[0];
+    return img.thumbnails?.card_cover?.signedUrl || img.signedUrl || "/img/placeholder.png";
+  } else {
+    return "/img/placeholder.png";
+  }
+});
+
+const stateLabels: Record<string, string> = {
+  finished: t("project.state.finished"),
+  "under construction": t("project.state.underConstruction"),
+  planned: t("project.state.planned"),
+};
+
+const cardAriaLabel = computed(() => {
+  const parts = [props.project.name];
+  const sl = stateLabels[props.project.state];
+  if (sl) parts.push(sl);
+  if (props.project.country) {
+    parts.push(props.project.country.fields.Name);
+  }
+  return parts.join(", ");
+});
+
+// In iframe mode: render as <a href="..." target="_blank">
+// so the project detail opens in a new browser tab.
+const resolvedComponent = computed(() => {
+  if (props.href) return 'a';
+  if (props.to && isIFrame.value) return 'a';
+  if (props.to) return 'router-link';
+  return 'div';
+});
+
+const resolvedTo = computed(() => {
+  return props.to && !isIFrame.value ? props.to : null;
+});
+
+const resolvedHref = computed(() => {
+  if (props.href) return props.href;
+  if (props.to && isIFrame.value) {
+    return router.resolve(props.to, route).href;
+  }
+  return null;
+});
+
+const resolvedTarget = computed(() => {
+  if (props.href) return '_blank';
+  if (props.to && isIFrame.value) return '_blank';
+  return undefined;
+});
+
+const resolvedRel = computed(() => {
+  if (resolvedTarget.value === '_blank') return 'noopener noreferrer';
+  return undefined;
+});
+
+function onCardClick() {
+  // In iframe mode: notify the parent frame about the navigation
+  if (isIFrame.value && props.to && props.project) {
+    notifyNavigate(props.to, props.project.id);
+  }
+  emit('click');
+}
 </script>
 
-<style lang="scss">
-@use "@/assets/design-tokens.scss" as *;
-
+<style lang="postcss">
 .project-card-link {
-  color: inherit;
-  text-decoration: none;
-  display: block;
-  height: 100%;
-  cursor: pointer;
+  @apply block h-full cursor-pointer text-inherit no-underline;
 
   &.external-link {
-    cursor: pointer;
+    @apply cursor-pointer;
   }
 }
 
 .project-list-item {
-  height: 100%;
-  min-height: 180px;
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-  border: none !important;
-  border-radius: var(--shape-round-xl) !important;
-  overflow: hidden;
-  box-shadow: 0 var(--spacing-unit) calc(var(--spacing-unit) * 3) rgba(9, 20, 38, 0.08);
-  background: var(--color-surface);
-  position: relative;
+  @apply h-full min-h-[180px] transition-[transform,box-shadow] duration-[400ms] ease-[cubic-bezier(0.165,0.84,0.44,1)] border-none rounded-round-xl overflow-hidden shadow-[0_var(--spacing-unit)_calc(var(--spacing-unit)*3)_rgba(9,20,38,0.08)] bg-surface relative;
 
   &:hover {
-    transform: translateY(calc(-1 * var(--spacing-unit) * 2));
-    box-shadow: 0 calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 6) rgba(9, 20, 38, 0.12);
+    @apply -translate-y-[calc(var(--spacing-unit)*2)] shadow-[0_calc(var(--spacing-unit)*2)_calc(var(--spacing-unit)*6)_rgba(9,20,38,0.12)];
 
     .project-image {
-      transform: scale(1.05);
+      @apply scale-105;
     }
   }
 }
 
 .image-col {
-  position: relative;
-  overflow: hidden;
-  aspect-ratio: 1 / 1;
+  @apply relative overflow-hidden aspect-[4/3];
 }
 
 .project-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  transition: transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
-  border-radius: var(--shape-round-default);
+  @apply w-full h-full object-cover object-center transition-transform duration-700 ease-[cubic-bezier(0.165,0.84,0.44,1)] rounded-round-default;
 }
 
-.state-badge {
-  position: absolute;
-  top: calc(var(--spacing-unit) * 1.5);
-  right: calc(var(--spacing-unit) * 1.5);
-  padding: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit) * 1);
-  border-radius: var(--shape-round-full);
-  font-size: var(--font-size-label-sm);
-  font-weight: var(--font-weight-label-md);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  z-index: 1;
-
-  &.finished {
-    background: var(--color-tertiary);
-    color: var(--color-on-tertiary);
-  }
-
-  &.under-construction {
-    background: var(--color-secondary);
-    color: var(--color-on-secondary);
-  }
-
-  &.planned {
-    background: var(--color-surface-variant);
-    color: var(--color-on-surface-variant);
-  }
+.state-badge-overlay {
+  @apply absolute top-[calc(var(--spacing-unit)*1.5)] right-[calc(var(--spacing-unit)*1.5)] z-[1];
 }
 
 .content-col {
-  display: flex;
-  flex-direction: column;
-  min-height: 180px;
+  @apply flex flex-col min-h-[180px];
 }
 
 .project-content {
-  padding: calc(var(--spacing-unit) * 2);
-  display: flex;
-  flex-direction: column;
-  gap: calc(var(--spacing-unit) * 0.5);
-  flex: 1;
+  @apply p-[calc(var(--spacing-unit)*2)] flex flex-col gap-[calc(var(--spacing-unit)*1)] flex-1;
 }
 
 .project-title {
-  font-size: var(--font-size-headline-md);
-  font-weight: var(--font-weight-headline-md);
-  color: var(--color-on-surface);
-  margin: 0;
-  line-height: var(--line-height-headline-md);
-  letter-spacing: var(--letter-spacing-headline-md);
+  @apply text-headline-md  text-onSurface m-0 leading-headline-md tracking-headline-md;
 }
 
 .project-meta {
-  display: flex;
-  flex-direction: column;
-  gap: calc(var(--spacing-unit) * 0.5);
+  @apply flex flex-col gap-[calc(var(--spacing-unit)*1)];
 }
 
 .category-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: calc(var(--spacing-unit) * 0.5);
+  @apply flex flex-wrap gap-[calc(var(--spacing-unit)*1)];
 }
 
 .country-row {
-  display: flex;
-  align-items: center;
-  gap: calc(var(--spacing-unit) * 0.5);
-  font-size: var(--font-size-body-md);
-  color: var(--color-on-surface-variant);
+  @apply flex items-center gap-[calc(var(--spacing-unit)*1)] text-body-md text-onSurface-variant;
 }
 
 .country-icon {
-  font-size: var(--font-size-body-md);
-  color: var(--color-on-surface-variant);
+  @apply text-body-md text-onSurface-variant;
 }
 
 .project-actions {
-  display: flex;
-  gap: calc(var(--spacing-unit) * 1);
-  margin-top: auto;
-  padding-top: calc(var(--spacing-unit) * 1);
+  @apply flex gap-[calc(var(--spacing-unit)*1)] mt-auto pt-[calc(var(--spacing-unit)*1)];
 }
 </style>

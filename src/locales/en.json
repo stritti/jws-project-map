@@ -35,7 +35,9 @@
     "resultsLabel": "Search results",
     "viewToggleLabel": "View: Map or List",
     "viewMap": "Map view",
-    "viewList": "List view"
+    "viewList": "List view",
+    "clusteringToggle": "Marker Clustering",
+    "clusteringHint": "Groups nearby pins on the map to improve performance."
   },
   "nav": {
     "map": "Map",

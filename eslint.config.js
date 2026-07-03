@@ -34,6 +34,6 @@ export default [
     },
   },
   {
-    ignores: ["node_modules", "dist", "dev-dist", ".git", ".github", "public"],
+    ignores: ["node_modules", "dist", "dev-dist", ".git", ".github", "public", ".opencode/plugins/agentmemory-capture.ts"],
   },
 ];

@@ -2,32 +2,26 @@
   <div class="project-page">
     <!-- Sticky header bar: back button + project title -->
     <div class="page-header-sticky" :class="{ 'header-scrolled': headerScrolled }">
-      <b-container>
-        <b-placeholder-wrapper :loading="loading">
-          <template #loading>
-            <b-row class="align-items-center py-2">
-              <b-col cols="auto">
-                <b-placeholder width="44px" height="44px" class="rounded-circle" />
-              </b-col>
-              <b-col>
-                <h2><b-placeholder width="50%" height="2rem"></b-placeholder></h2>
-              </b-col>
-            </b-row>
-          </template>
-          <div v-if="project" class="page-header d-flex flex-wrap align-items-center gap-3 py-2">
-            <back-button v-if="!isIFrame" class="back-btn shadow-sm d-none d-md-flex" />
-            <h1 class="title mb-0 flex-grow-1 fw-bold">
-              {{ project.name }}
-            </h1>
+      <div class="container mx-auto px-4">
+        <div v-if="loading" class="flex items-center py-2">
+          <div class="w-11 h-11 rounded-full animate-pulse bg-outline-variant/20"></div>
+          <div class="ml-4 flex-1">
+            <h2 class="w-1/2 h-8 animate-pulse bg-outline-variant/20 rounded"></h2>
           </div>
-        </b-placeholder-wrapper>
-      </b-container>
+        </div>
+        <div v-if="project" class="page-header flex flex-wrap items-center gap-3 py-2">
+          <back-button v-if="!isIFrame" class="back-btn shadow-sm hidden md:flex" />
+          <h1 class="title mb-0 flex-grow-1 font-bold">
+            {{ project.name }}
+          </h1>
+        </div>
+      </div>
     </div>
 
     <!-- Floating back button for mobile -->
     <button
       v-if="!isIFrame && project"
-      class="floating-back-btn d-md-none"
+      class="floating-back-btn md:hidden"
       :aria-label="t('nav.back')"
       :title="t('nav.back')"
       @click="goBack"
@@ -35,144 +29,133 @@
       <IBiArrowLeft class="floating-back-icon" aria-hidden="true" />
     </button>
 
-    <b-container fluid class="px-0 px-md-3">
-      <b-placeholder-wrapper :loading="loading">
-         <template #loading>
-             <b-placeholder width="100%" height="40vh" class="rounded-4 mb-4"></b-placeholder>
-         </template>
-        <div v-if="project" class="teaser-wrapper">
-          <div
-            class="teaser-card"
-            :style="{ backgroundImage: `url(${teaserImage})` }"
-          >
-            <div class="action-bar d-flex gap-2">
-              <share-button
-                class="action-btn share glass-btn"
-                :title="project.name"
-                :text="project.name"
-                :url="$route.path"
-                :fixed="false"
-              />
-              <navigate-button
-                class="action-btn navigate glass-btn"
-                :lat="project.latitude"
-                :lng="project.longitude"
-              />
-            </div>
+    <div class="container mx-auto px-0 md:px-3">
+      <div v-if="loading" class="w-full h-[40vh] rounded-round-xl mb-4 animate-pulse bg-outline-variant/20"></div>
+      <div v-if="project" class="teaser-wrapper">
+        <div
+          class="teaser-card"
+          :style="{ backgroundImage: `url(${teaserImage})` }"
+        >
+          <div class="action-bar flex gap-2">
+            <share-button
+              class="action-btn share glass-btn"
+              :title="project.name"
+              :text="project.name"
+              :url="$route.path"
+              :fixed="false"
+            />
+            <navigate-button
+              class="action-btn navigate glass-btn"
+              :lat="project.latitude"
+              :lng="project.longitude"
+            />
           </div>
         </div>
-      </b-placeholder-wrapper>
-    </b-container>
-
-
-    <b-container class="mt-5">
-      <div class="project-details">
-        <b-placeholder-wrapper :loading="loading">
-          <template #loading>
-            <div class="info-grid mb-5">
-               <b-placeholder v-for="i in 3" :key="i" width="100%" height="80px" class="rounded-3" />
-            </div>
-            <p>
-              <b-placeholder width="85%" class="mb-2"></b-placeholder>
-              <b-placeholder width="55%" class="mb-2"></b-placeholder>
-              <b-placeholder width="70%"></b-placeholder>
-            </p>
-          </template>
-
-          <div v-if="project">
-            
-            <!-- Category tiles -->
-            <div v-if="project.category?.length" class="category-tiles mb-4">
-              <div
-                v-for="category in project.category"
-                :key="category.id"
-                class="category-tile"
-                :style="categoryTileStyle(category.id)"
-              >
-                {{ categoryName(category.id) }}
-              </div>
-            </div>
-
-            <div class="info-grid mb-5">
-               <div class="info-card" v-if="project.country">
-                  <div class="info-icon">
-                    <IBiGlobe2 />
-                  </div>
-                  <div class="info-content">
-                    <span class="info-label">{{ t("project.detail.country") }}</span>
-                    <strong class="info-value"><country-label :country-id="project.country.id" /></strong>
-                  </div>
-               </div>
-               
-               <div class="info-card" v-if="project.state">
-                  <div class="info-icon">
-                    <IBiCheck2Circle />
-                  </div>
-                  <div class="info-content">
-                    <span class="info-label">{{ t("project.detail.state") }}</span>
-                    <span class="state-badge" :class="project.state.replace(' ', '-')">
-                      {{ stateLabel }}
-                    </span>
-                  </div>
-               </div>
-
-               <div class="info-card" v-if="project.since">
-                  <div class="info-icon">
-                    <IBiCalendar3 />
-                  </div>
-                  <div class="info-content">
-                    <span class="info-label">{{ t("project.detail.since") }}</span>
-                    <strong class="info-value">{{ formattedSince }}</strong>
-                  </div>
-               </div>
-            </div>
-
-            <!-- Mini location map -->
-            <div v-if="project.latitude && project.longitude" class="location-section mb-5">
-              <h2 class="section-title mb-4">{{ t("project.detail.location") }}</h2>
-              <div class="mini-map rounded-4 overflow-hidden shadow-sm">
-                <l-map
-                  :zoom="13"
-                  :center="[project.latitude, project.longitude]"
-                  :options="mapOptions"
-                  :use-global-leaflet="true"
-                  style="height: 300px; width: 100%"
-                >
-                  <l-tile-layer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    layer-type="base"
-                    name="OpenStreetMap"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  />
-                  <l-marker
-                    :lat-lng="[project.latitude, project.longitude]"
-                    :icon="detailMarkerIcon"
-                  />
-                </l-map>
-              </div>
-            </div>
-
-            <div v-if="project.notes" class="project-details__description mb-5">
-              <h2 class="section-title mb-4">{{ t("project.detail.description") }}</h2>
-              <div class="notes-content">
-                <markdown-text
-                   class="project-details__notes"
-                   :text="project.notes"
-                />
-              </div>
-            </div>
-
-            <div v-if="project.link" class="mb-5">
-              <b-button :href="project.link" variant="primary" class="rounded-pill px-4 py-2 shadow-sm fw-bold border-0" target="_blank" rel="noopener noreferrer">
-                {{ t("project.detail.more") }}
-              </b-button>
-            </div>
-
-            <project-gallery v-if="project.gallery || project.teaserImg" :project="project" :title="t('gallery.title')" />
-          </div>
-        </b-placeholder-wrapper>
       </div>
-    </b-container>
+    </div>
+
+    <div class="container mx-auto mt-5 px-4">
+      <div class="project-details">
+        <div v-if="loading" class="info-grid mb-5">
+          <div v-for="i in 3" :key="i" class="h-20 rounded-round-large animate-pulse bg-outline-variant/20"></div>
+        </div>
+        <div v-if="loading" class="space-y-2">
+          <div class="w-4/5 h-6 animate-pulse bg-outline-variant/20 rounded mb-2"></div>
+          <div class="w-2/3 h-6 animate-pulse bg-outline-variant/20 rounded mb-2"></div>
+          <div class="w-3/4 h-6 animate-pulse bg-outline-variant/20 rounded"></div>
+        </div>
+
+        <div v-if="project">
+          
+          <!-- Category tiles -->
+          <div v-if="project.category?.length" class="category-tiles mb-4">
+            <div
+              v-for="category in project.category"
+              :key="category.id"
+              class="category-tile"
+              :style="categoryTileStyle(category.id)"
+            >
+              {{ categoryName(category.id) }}
+            </div>
+          </div>
+
+          <div class="info-grid mb-5">
+            <div class="info-card" v-if="project.country">
+              <div class="info-icon">
+                <IBiGlobe2 />
+              </div>
+              <div class="info-content">
+                <span class="info-label">{{ t("project.detail.country") }}</span>
+                <strong class="info-value"><country-label :country-id="project.country.id" /></strong>
+              </div>
+            </div>
+            
+            <div class="info-card">
+              <div class="info-icon">
+                <IBiCheck2Circle />
+              </div>
+              <div class="info-content">
+                <span class="info-label">{{ t("project.detail.state") }}</span>
+                <StateBadge :state="project.state" />
+              </div>
+            </div>
+
+            <div class="info-card" v-if="project.since">
+              <div class="info-icon">
+                <IBiCalendar3 />
+              </div>
+              <div class="info-content">
+                <span class="info-label">{{ t("project.detail.since") }}</span>
+                <strong class="info-value">{{ formattedSince }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mini location map -->
+          <div v-if="project.latitude && project.longitude" class="location-section mb-5">
+            <h2 class="section-title mb-4">{{ t("project.detail.location") }}</h2>
+            <div class="mini-map rounded-round-large overflow-hidden shadow-sm">
+              <l-map
+                :zoom="13"
+                :center="[project.latitude, project.longitude]"
+                :options="mapOptions"
+                :use-global-leaflet="true"
+                style="height: 300px; width: 100%"
+              >
+                <l-tile-layer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  layer-type="base"
+                  name="OpenStreetMap"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                <l-marker
+                  :lat-lng="[project.latitude, project.longitude]"
+                  :icon="detailMarkerIcon"
+                />
+              </l-map>
+            </div>
+          </div>
+
+          <div v-if="project.notes" class="project-details__description mb-5">
+            <h2 class="section-title mb-4">{{ t("project.detail.description") }}</h2>
+            <div class="notes-content">
+              <markdown-text
+                 class="project-details__notes"
+                 :text="project.notes"
+              />
+            </div>
+          </div>
+
+          <div v-if="project.link" class="mb-5">
+            <a :href="project.link" class="btn btn-primary shadow-sm font-bold border-0" target="_blank" rel="noopener noreferrer">
+              {{ t("project.detail.more") }}
+            </a>
+          </div>
+
+          <project-gallery v-if="project.gallery && project.gallery.length > 0" :project="project" :title="t('gallery.title')" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -192,6 +175,7 @@ import NavigateButton from "@/components/actions/NavigateButton.vue";
 import { defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import type { Project } from "@/interfaces/Project";
+import StateBadge from "@/components/StateBadge.vue";
 import { useGeoTags } from "@/composables/useGeoTags";
 import { useStructuredData } from "@/composables/useStructuredData";
 import { parseProjectId } from "@/utils/slug";
@@ -223,9 +207,7 @@ const MarkdownText = defineAsyncComponent(
   () => import("@/components/MarkdownText.vue"),
 );
 
-const ProjectGallery = defineAsyncComponent(
-  () => import("@/components/project/ProjectGallery.vue"),
-);
+import ProjectGallery from "@/components/project/ProjectGallery.vue";
 
 const props = defineProps({
   projectId: {
@@ -281,19 +263,6 @@ const teaserImage = computed(() => {
   return "/img/placeholder.png";
 });
 
-const stateKeyMap: Record<string, string> = {
-  finished: "finished",
-  "under construction": "underConstruction",
-  planned: "planned",
-};
-
-const stateLabel = computed(() => {
-  const key = project.value?.state;
-  if (!key) return "";
-  const localeKey = stateKeyMap[key];
-  return localeKey ? t(`project.state.${localeKey}`) : key;
-});
-
 const mapOptions = {
   zoomControl: true,
   scrollWheelZoom: false,
@@ -327,113 +296,70 @@ const detailMarkerIcon = computed(() => {
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="postcss" scoped>
 .project-page {
-  padding-bottom: 4rem;
-  background-color: var(--jws-bg-subtle);
+  @apply pb-[4rem] bg-surface;
 }
 
-
 .page-header-sticky {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: rgba(248, 249, 250, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-  transition: padding 0.3s ease, box-shadow 0.3s ease;
+  @apply sticky top-0 z-[1001] bg-white/85 backdrop-blur-xl shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition-[padding,box-shadow] duration-300 ease-in-out;
 
   &.header-scrolled {
-    padding-top: 0.2rem;
-    padding-bottom: 0.1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    @apply pt-[0.2rem] pb-[0.1rem] shadow-[0_2px_8px_rgba(0,0,0,0.05)];
 
     .title {
-      font-size: 1rem;
-      padding: 0;
-      line-height: 1.3;
+      @apply text-base p-0 leading-[1.3];
     }
+  }
+}
+
+/* Respect reduced motion: solid bg instead of expensive backdrop-filter */
+@media (prefers-reduced-motion: reduce) {
+  .page-header-sticky {
+    background-color: rgba(255, 255, 255, 0.97) !important;
+    backdrop-filter: none !important;
   }
 }
 
 .page-header {
   .title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--jws-primary);
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-    transition: all 0.3s ease;
+    @apply text-[1.5rem] font-bold text-primary tracking-[-0.02em] leading-[1.2] transition-[font-size] duration-300 ease-in-out;
 
     @media (max-width: 768px) {
       font-size: 1.25rem;
-      padding: 0.375rem 0;
+      padding-top: 0.375rem;
+      padding-bottom: 0.375rem;
     }
   }
 }
 
 :deep(.back-btn) {
-  border-radius: 50% !important;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-  background: #fff !important;
-  border: 1px solid var(--bs-primary) !important;
-  color: var(--bs-primary) !important;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
-  
-  &:hover {
-    transform: translateX(-4px);
-    background: var(--bs-primary) !important;
-    color: #fff !important;
-    box-shadow: 0 4px 15px rgba(61, 94, 158, 0.2) !important;
+  .back-button-inner {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.25rem;
   }
 }
 
 .floating-back-btn {
-  position: fixed;
-  // No bottom filter bar on this view, so place near the screen edge (matching FloatingMeta .on-detail)
-  bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
-  left: calc(1rem + env(safe-area-inset-left, 0px));
-  z-index: 999;
-  // 44px matches the iOS HIG minimum touch target size
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-on-surface, #1e293b);
-  transition: all 0.2s ease;
+  @apply fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-[calc(1rem+env(safe-area-inset-left,0px))] z-[999] w-11 h-11 rounded-full border border-black/10 bg-white/90 backdrop-blur-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] cursor-pointer flex items-center justify-center text-onSurface transition-[color,box-shadow] duration-200 ease-in-out;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.96);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-    color: var(--color-secondary, #3d5e9e);
+    @apply bg-white/90 shadow-[0_4px_20px_rgba(0,0,0,0.12)] text-secondary;
   }
 
   .floating-back-icon {
-    font-size: 1.35rem;
-    line-height: 1;
+    @apply text-[1.35rem] leading-none;
   }
 }
 
 .teaser-wrapper {
   padding: 0;
-  margin-top: 1rem;
-  
+  margin-top: 0.25rem;
+
   @media (min-width: 768px) {
-    padding: 0 1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 }
 
@@ -447,61 +373,52 @@ const detailMarkerIcon = computed(() => {
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  box-shadow: var(--jws-shadow-lg);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  
+
   animation: revealImage 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 
   @media (min-width: 768px) {
-    border-radius: var(--jws-radius-xl);
+    border-radius: 1rem;
   }
 
   &::before {
-    content: "";
+    content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,0.4) 100%);
+    background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.4));
     pointer-events: none;
   }
 }
 
-@keyframes revealImage {
-  from { transform: scale(1.1); opacity: 0; filter: blur(10px); }
-  to { transform: scale(1); opacity: 1; filter: blur(0); }
-}
-
 .action-bar {
-  position: absolute;
-  bottom: 2rem;
-  right: 2rem;
-  z-index: 10;
-  display: flex;
-  gap: 1rem;
+  @apply absolute bottom-[2rem] right-[2rem] z-10 flex gap-[1rem];
 }
 
 :deep(.glass-btn) {
-  background: rgba(255, 255, 255, 0.15) !important;
+  background-color: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  color: #fff !important;
-  border-radius: 50px !important;
-  padding: 0.75rem 1.5rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  border-radius: 9999px;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
   font-weight: 600;
-  transition: var(--jws-transition);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  transition-property: all;
+  transition-duration: 300ms;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+}
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.25) !important;
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
-  }
+:deep(.glass-btn:hover) {
+  background-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
 }
 
 .info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 2rem;
+  @apply grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-[2rem];
 }
 
 .info-card {
@@ -509,94 +426,45 @@ const detailMarkerIcon = computed(() => {
   align-items: center;
   gap: 1.25rem;
   padding: 1.5rem;
-  background: #fff;
-  border-radius: var(--jws-radius-lg);
-  border: 1px solid rgba(0,0,0,0.03);
-  box-shadow: var(--jws-shadow-sm);
-  transition: var(--jws-transition);
+  background-color: white;
+  border-radius: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition-property: all;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--jws-shadow-md);
-    border-color: var(--jws-primary-light);
-  }
+.info-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  border-color: #6a8fd4;
 }
 
 .info-icon {
-  font-size: 1.5rem;
-  background: var(--jws-bg-subtle);
-  width: 56px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 1rem;
-  color: var(--jws-primary);
-  flex-shrink: 0;
-}
-
-.state-badge {
-  display: inline-block;
-  position: static;
-  padding: 0.35rem 1rem;
-  border-radius: 2rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-
-  &.finished {
-    background: #198754;
-    color: #fff;
-  }
-
-  &.under-construction {
-    background: #ffc107;
-    color: #212529;
-  }
-
-  &.planned {
-    background: #3d5e9e;
-    color: #fff;
-  }
+  @apply text-[1.5rem] bg-surface w-[56px] h-[56px] flex items-center justify-center rounded-round-xl text-primary flex-shrink-0;
 }
 
 .info-content {
-  display: flex;
-  flex-direction: column;
+  @apply flex flex-col;
 }
 
 .info-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--jws-text-muted);
-  margin-bottom: 0.25rem;
+  @apply text-[0.75rem] font-bold uppercase tracking-[0.1em] text-onSurface-variant mb-[0.25rem];
 }
 
 .info-value {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--jws-text-main);
-  display: flex;
-  align-items: center;
+  @apply text-[1.2rem] font-bold text-onSurface flex items-center;
 }
 
 .section-title {
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--jws-text-main);
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  
+  @apply text-[2rem] font-extrabold text-onSurface mb-[2rem] flex items-center gap-[0.75rem];
+
   &::before {
-    content: "";
+    content: '';
     width: 6px;
     height: 1.5em;
-    background: var(--jws-primary);
+    background-color: #3d5e9e;
     border-radius: 3px;
   }
 }
@@ -604,12 +472,12 @@ const detailMarkerIcon = computed(() => {
 :deep(.notes-content) {
   font-size: 1.5rem;
   line-height: 1.8;
-  color: var(--jws-text-main);
+  color: #191c1d;
   opacity: 0.9;
-  
-  p {
-    margin-bottom: 2rem;
-  }
+}
+
+:deep(.notes-content p) {
+  margin-bottom: 2rem;
 }
 
 .category-tiles {
@@ -619,8 +487,11 @@ const detailMarkerIcon = computed(() => {
 }
 
 .category-tile {
-  padding: 0.5rem 1.25rem;
-  border-radius: 2rem;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-radius: 9999px;
   font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -630,18 +501,35 @@ const detailMarkerIcon = computed(() => {
 
 .mini-map {
   border: 1px solid rgba(0, 0, 0, 0.05);
-  line-height: 0;
+  line-height: 1;
+}
 
-  :deep(.leaflet-control-attribution) {
-    font-size: 9px;
-  }
+.mini-map :deep(.leaflet-control-attribution) {
+  font-size: 9px;
 }
 </style>
 
-<!-- Unscoped: Leaflet renders its DOM outside Vue's scope -->
-<style lang="scss">
+/* Unscoped: Leaflet renders its DOM outside Vue's scope */
+<style lang="postcss">
 .detail-marker-icon {
-  background: none !important;
-  border: none !important;
+  @apply bg-transparent border-none;
+}
+
+/* Custom animations */
+@keyframes revealImage {
+  from {
+    transform: scale(1.1);
+    opacity: 0;
+    filter: blur(10px);
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.animate-reveal-image {
+  animation: revealImage 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 </style>

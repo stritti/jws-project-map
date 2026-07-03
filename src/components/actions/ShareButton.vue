@@ -1,13 +1,13 @@
 <template>
-  <b-button
+  <button
     v-if="isShareable"
     :title="t('nav.share')"
     :aria-label="t('nav.share')"
     @click="shareDetails"
-    class="share-button d-flex align-items-center justify-content-center"
+    class="share-button flex items-center justify-center"
   >
     <IBiShareFill /> Share &hellip;
-  </b-button>
+  </button>
 </template>
 <script setup lang="ts">
 import { computed } from "vue";
@@ -33,34 +33,17 @@ function shareDetails() {
   });
 }
 </script>
-<style lang="scss" scoped>
-@use "@/assets/design-tokens.scss" as *;
-
+<style lang="postcss" scoped>
 .share-button {
-  background-color: transparent;
-  color: var(--color-primary);
-  border: none;
-  border-radius: var(--shape-round-default);
-  padding: var(--spacing-unit);
-  font-size: var(--font-size-label-md);
-  font-weight: var(--font-weight-label-md);
-  line-height: var(--line-height-label-md);
-  letter-spacing: var(--letter-spacing-label-md);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-unit);
-  transition: background-color 0.2s, color 0.2s;
+  @apply bg-transparent text-primary border-none rounded-round-default p-[var(--spacing-unit)] text-label-md  leading-label-md tracking-label-md inline-flex items-center justify-center gap-[var(--spacing-unit)] transition-[background-color,color] duration-200;
   
   &:hover {
-    background-color: var(--color-primary-container);
-    color: var(--color-on-primary);
+    @apply bg-primary text-white;
   }
   
   /* Ensure icon inherits color and size */
   .ibi-share-fill {
-    font-size: 1.25rem; /* 20px, similar to fs-5 */
-    color: inherit;
+    @apply text-[1.25rem] text-inherit;
   }
 }
 </style>

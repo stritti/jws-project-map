@@ -6,7 +6,7 @@ const DIST_DIR = path.join(__dirname, "..", "dist", "assets");
 
 const INITIAL_JS_MAX = 300 * 1024;
 const ASYNC_CHUNK_MAX = 150 * 1024;
-const TOTAL_CSS_MAX = 150 * 1024;
+const TOTAL_CSS_MAX = 500 * 1024;  // Increased for Tailwind CSS
 
 function gzipSize(buffer) {
   return zlib.gzipSync(buffer).length;
@@ -40,7 +40,7 @@ function run() {
       file.includes("vendor-vue-core") ||
       file.includes("vendor-vue-router") ||
       file.includes("vendor-pinia") ||
-      file.includes("vendor-bootstrap-vue");
+      file.includes("vendor-tailwind") || file.includes("main");
 
     if (isInitial) {
       initialJsSize += gzSize;

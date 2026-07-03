@@ -1,84 +1,117 @@
 <template>
-  <b-modal
-    ref="modalRef"
-    id="about-modal"
-    :title="t('about.title')"
-    size="md"
-    centered
-    scrollable
-    hide-footer
-    header-class="border-0 pb-0"
-    body-class="pt-2"
-    content-class="rounded-4 border-0 shadow-lg"
-    :header-close-label="t('nav.close')"
-  >
-    <div class="about-content">
-      <!-- Description -->
-      <p class="about-description">
-        <i18n-t keypath="about.description" tag="span">
-          <template #foundation>
-            <a href="https://www.joerg-wolff-stiftung.de/" target="_blank" rel="noopener noreferrer" class="fw-semibold">{{ t("about.foundation") }}</a>
-          </template>
-        </i18n-t>
-      </p>
-
-      <hr class="my-4 opacity-25" />
-
-      <!-- Development -->
-      <h6 class="section-label">{{ t("about.development") }}</h6>
-      <p class="about-value">{{ t("about.developer") }}</p>
-
-      <!-- Sources -->
-      <h6 class="section-label">{{ t("about.sources") }}</h6>
-      <p class="about-value">
-        <a href="https://github.com/stritti/jws-project-map" target="_blank" rel="noopener noreferrer" class="about-link">GitHub</a>
-      </p>
-
-      <!-- Version and Reload -->
-      <div class="version-row">
-        <span class="about-value">{{ t("about.version") }}: {{ version }}</span>
-        <b-button
-          size="sm"
-          variant="outline-primary"
-          class="rounded-pill px-3 border-0 fw-semibold"
-          @click="reloadApp"
-        >
-          <IBiArrowRepeat class="me-1" />
-          {{ t("about.reload") }}
-        </b-button>
+  <Teleport to="body">
+    <div v-if="isVisible" class="modal-overlay" @click.self="hide">
+      <div ref="modalRef" class="modal-content rounded-round-xl border-0 shadow-lg bg-white max-w-md mx-4 my-8" role="dialog" aria-modal="true" aria-labelledby="about-modal-title" @keydown="onKeydown">
+        <div class="modal-header border-0 pb-0 flex items-center justify-between p-4">
+        <h2 id="about-modal-title" class="text-headline-md font-bold text-onSurface">{{ t('about.title') }}</h2>
+        <button class="close-btn" @click="hide" :aria-label="t('nav.close')">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
+        <div class="modal-body pt-2 px-4 pb-4 max-h-[80vh] overflow-y-auto">
+          <div class="about-content">
+            <!-- Description -->
+            <p class="about-description">
+              <i18n-t keypath="about.description" tag="span">
+                <template #foundation>
+                  <a href="https://www.joerg-wolff-stiftung.de/" target="_blank" rel="noopener noreferrer" class="font-semibold">{{ t("about.foundation") }}</a>
+                </template>
+              </i18n-t>
+            </p>
 
-      <hr class="my-4 opacity-25" />
+            <hr class="my-4 opacity-25" />
 
-      <!-- Credits -->
-      <h6 class="section-label">{{ t("about.credits") }}</h6>
-      <ul class="about-credits">
-        <li><a href="https://nocodb.com/" target="_blank" rel="noopener noreferrer" class="about-link">NocoDB</a></li>
-        <li><a href="https://vuejs.org" target="_blank" rel="noopener noreferrer" class="about-link">vue.js</a>, {{ t("about.license") }}</li>
-        <li><a href="https://leafletjs.com/" target="_blank" rel="noopener noreferrer" class="about-link">Leaflet</a>, OpenStreetMap</li>
-        <li>
-          {{ t("about.moreLibs") }}
-          <a href="https://github.com/stritti/jws-project-map/blob/main/package.json" target="_blank" rel="noopener noreferrer" class="about-link fw-semibold">awesome libs &hellip;</a>
-        </li>
-      </ul>
+            <!-- Development -->
+            <h6 class="section-label">{{ t("about.development") }}</h6>
+            <p class="about-value">{{ t("about.developer") }}</p>
+
+            <!-- Sources -->
+            <h6 class="section-label">{{ t("about.sources") }}</h6>
+            <p class="about-value">
+              <a href="https://github.com/stritti/jws-project-map" target="_blank" rel="noopener noreferrer" class="about-link">GitHub</a>
+            </p>
+
+            <!-- Version and Reload -->
+            <div class="version-row">
+              <span class="about-value">{{ t("about.version") }}: {{ version }}</span>
+              <button
+                class="rounded-full px-3 border-0 font-semibold text-sm bg-transparent text-primary border border-primary hover:bg-primary hover:text-white transition-colors"
+                @click="reloadApp"
+              >
+                <IBiArrowRepeat class="mr-1" />
+                {{ t("about.reload") }}
+              </button>
+            </div>
+
+            <hr class="my-4 opacity-25" />
+
+            <!-- Credits -->
+            <h6 class="section-label">{{ t("about.credits") }}</h6>
+            <ul class="about-credits">
+              <li><a href="https://nocodb.com/" target="_blank" rel="noopener noreferrer" class="about-link">NocoDB</a></li>
+              <li><a href="https://vuejs.org" target="_blank" rel="noopener noreferrer" class="about-link">vue.js</a>, {{ t("about.license") }}</li>
+              <li><a href="https://leafletjs.com/" target="_blank" rel="noopener noreferrer" class="about-link">Leaflet</a>, OpenStreetMap</li>
+              <li>
+                {{ t("about.moreLibs") }}
+                <a href="https://github.com/stritti/jws-project-map/blob/main/package.json" target="_blank" rel="noopener noreferrer" class="about-link font-semibold">awesome libs &hellip;</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
-  </b-modal>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { nextTick, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
-const modalRef = ref<{ show: () => void; hide: () => void } | null>(null);
+const emit = defineEmits(['hidden']);
+
+const isVisible = ref(false);
+const modalRef = ref<HTMLElement | null>(null);
 
 function show() {
-  modalRef.value?.show();
+  isVisible.value = true;
+  document.body.style.overflow = 'hidden';
+  // Move focus to modal for accessibility
+  nextTick(() => {
+    const closeBtn = modalRef.value?.querySelector<HTMLElement>('.close-btn');
+    closeBtn?.focus();
+  });
 }
 
 function hide() {
-  modalRef.value?.hide();
+  isVisible.value = false;
+  document.body.style.overflow = '';
+  emit('hidden');
+}
+
+// Trap focus inside modal while open
+function onKeydown(e: KeyboardEvent) {
+  if (e.key !== 'Tab' || !isVisible.value) return;
+
+  const modal = modalRef.value;
+  if (!modal) return;
+
+  const focusable = modal.querySelectorAll<HTMLElement>(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+  );
+  if (focusable.length === 0) return;
+
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
 }
 
 defineExpose({ show, hide });
@@ -102,10 +135,9 @@ const reloadApp = async () => {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="postcss" scoped>
 .about-content {
-  padding: 0 0.25rem;
-
+  @apply px-[0.25rem];
 
   @media (max-width: 575.98px) {
     padding: 0;
@@ -115,9 +147,8 @@ const reloadApp = async () => {
 .about-description {
   font-size: 1rem;
   line-height: 1.6;
-  color: var(--color-on-surface, #191c1d);
+  color: #191c1d;
   margin: 0;
-
 
   @media (max-width: 575.98px) {
     font-size: 0.875rem;
@@ -126,19 +157,13 @@ const reloadApp = async () => {
 }
 
 .section-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--color-on-surface-variant, #45474c);
-  margin-bottom: 0.35rem;
+  @apply text-[0.75rem] font-bold uppercase tracking-[0.1em] text-onSurface-variant mb-[0.35rem];
 }
 
 .about-value {
   font-size: 1rem;
-  color: var(--color-on-surface, #191c1d);
+  color: #191c1d;
   margin-bottom: 1rem;
-
 
   @media (max-width: 575.98px) {
     font-size: 0.875rem;
@@ -147,21 +172,15 @@ const reloadApp = async () => {
 }
 
 .about-link {
-  color: var(--color-secondary, #3d5e9e);
-  text-decoration: none;
-  font-weight: 500;
+  @apply text-secondary no-underline font-medium;
 
   &:hover {
-    text-decoration: underline;
+    @apply underline;
   }
 }
 
 .version-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
+  @apply flex items-center justify-between gap-[1rem] flex-wrap;
 }
 
 .about-credits {
@@ -174,8 +193,7 @@ const reloadApp = async () => {
 
   li {
     font-size: 0.95rem;
-    color: var(--color-on-surface, #191c1d);
-
+    color: #191c1d;
 
     @media (max-width: 575.98px) {
       font-size: 0.85rem;
@@ -183,15 +201,41 @@ const reloadApp = async () => {
   }
 }
 
-:deep(.modal-body) {
+.modal-overlay {
+  @apply fixed inset-0 z-[1000] bg-black/50 flex items-center justify-center p-4;
+}
+
+.modal-content {
+  @apply w-full max-w-md mx-4 my-8;
+}
+
+.modal-header {
+  border: none;
+  padding-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+
+  @media (max-width: 575.98px) {
+    padding: 0.75rem 1rem 0;
+  }
+}
+
+.modal-body {
+  padding-top: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 1rem;
+  max-height: 80vh;
+  overflow-y: auto;
+
   @media (max-width: 575.98px) {
     padding: 0.75rem 1rem;
   }
 }
 
-:deep(.modal-header) {
-  @media (max-width: 575.98px) {
-    padding: 0.75rem 1rem 0;
-  }
+.close-btn {
+  @apply w-8 h-8 rounded-full border-none bg-transparent text-onSurface flex items-center justify-center text-[22px] cursor-pointer leading-none transition-all duration-200 hover:bg-black/10;
 }
 </style>

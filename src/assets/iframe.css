@@ -1,0 +1,139 @@
+/* Iframe Design Overrides */
+/* Applied automatically when .is-iframe is present on */
+/* <html> (set by useWebFrame composable). */
+/* */
+/* Purpose: make the app look like a native part of the */
+/* parent page, without excess whitespace, floating UI */
+/* elements, or scroll issues. */
+
+/* 1. Reset full-viewport assumptions */
+.is-iframe {
+  /* Cancel safe-area insets (handled by parent page) */
+  --safe-area-inset-top: 0px;
+  --safe-area-inset-bottom: 0px;
+}
+
+.is-iframe body {
+  /* Remove body scroll (iframe handles its own height) */
+  overflow: hidden;
+  /* Prevent overscroll/bounce on body */
+  overscroll-behavior: none;
+}
+
+/* 2. Remove standalone chrome */
+.is-iframe .app-wrapper {
+  /* App wrapper should not force min-height 100vh */
+  min-height: auto;
+}
+
+.is-iframe .skip-link {
+  /* Hide PWA-related elements */
+  display: none;
+}
+
+.is-iframe .content {
+  /* Content doesn't need flex-grow (no footer to push down) */
+  flex-grow: 0;
+}
+
+/* 3. HomeView / Map overrides */
+.is-iframe .home h1 {
+  /* Smaller, more compact title */
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: auto;
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  z-index: 1000;
+  max-width: 50vw;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.is-iframe .home .project-map {
+  /* Map should fill the iframe */
+  position: fixed;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.is-iframe .home .search-overlay {
+  top: 0.5rem;
+  width: 95%;
+  max-width: 500px;
+}
+
+@media (max-width: 767.98px) {
+  /* On mobile in iframe, there's no main menu, so search sits at bottom */
+  .is-iframe .home .search-overlay {
+    top: auto;
+    bottom: 0.5rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    width: auto;
+    max-width: none;
+  }
+}
+
+/* 4. ProjectDetailView overrides */
+.is-iframe .project-page {
+  padding-bottom: 1rem;
+}
+
+.is-iframe .project-page .teaser-card {
+  height: 40vh;
+  min-height: 200px;
+  max-height: 400px;
+  border-radius: 0;
+}
+
+.is-iframe .project-page .page-header .title {
+  font-size: 1.5rem;
+}
+
+.is-iframe .project-page .info-grid {
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.is-iframe .project-page .info-card {
+  padding: 1rem;
+}
+
+.is-iframe .project-page .section-title {
+  font-size: 1.25rem;
+}
+
+.is-iframe .project-page .mini-map {
+  max-height: 200px;
+}
+
+.is-iframe .project-page .mini-map .leaflet-container {
+  max-height: 200px;
+}
+
+/* 5. ProjectListView overrides */
+.is-iframe .project-list {
+  padding-top: 0.5rem;
+  padding-bottom: 1rem;
+}
+
+.is-iframe .project-list h1 {
+  font-size: 1.25rem;
+  margin-top: 0;
+}
+
+@media (min-width: 768px) {
+  .is-iframe .project-list {
+    padding-bottom: 0;
+  }
+}

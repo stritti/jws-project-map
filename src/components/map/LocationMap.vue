@@ -1,120 +1,123 @@
 <template>
   <div class="map" tabindex="0" ref="mapContainerRef" role="region" :aria-label="t('a11y.skipToMap')" @focus="onMapFocus">
-    <l-map
-      ref="map"
-      v-model:zoom="zoom"
-      class="map"
-      crs="EPSG:4326"
-      :min-zoom="4"
-      :max-zoom="17"
-      :bounds="bounds"
-      :use-global-leaflet="true"
-      :options="mapOptions"
-      @click="addMarker"
-      @ready="mapLoaded"
-    >
-      <l-tile-layer
-        v-if="baseLayer === 'satellite'"
-        url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-        layer-type="base"
-        name="Satellite"
-        attribution="Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
-      ></l-tile-layer>
-
-      <l-tile-layer
-        v-if="baseLayer === 'carto'"
-        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-        layer-type="base"
-        name="Map Minimal"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-      ></l-tile-layer>
-
-      <l-tile-layer
-        v-if="baseLayer === 'osm'"
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        layer-type="base"
-        name="OpenStreetMap"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      ></l-tile-layer>
-
-      <component :is="LayerComponent"
-        v-if="projectsFinished.length > 0"
-        layer-type="overlay"
-        :name="layerLabelProjectsFinished"
+    <client-only>
+      <l-map
+        v-if="isLeafletLoaded"
+        ref="map"
+        v-model:zoom="zoom"
+        class="map"
+        crs="EPSG:4326"
+        :min-zoom="4"
+        :max-zoom="17"
+        :center="center"
+        :use-global-leaflet="true"
+        :options="mapOptions"
+        @click="addMarker"
+        @ready="mapLoaded"
       >
-        <l-marker
-          v-for="loc in projectsFinished"
-          :id="loc.id"
-          :key="loc.id"
-          :lat-lng="[loc.latitude, loc.longitude]"
-          :title="loc.name"
-          @click="onMarkerClick(loc)"
-        >
-          <l-icon
-            :icon-url="getPin(loc)"
-            :class-name="pinClass(loc)"
-            :icon-size="[28, 39]"
-            :icon-anchor="[14, 39]"
-          ></l-icon>
-          <l-tooltip v-if="zoom > 7">
-            <span>{{ loc.name }}</span>
-            <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
-          </l-tooltip>
-        </l-marker>
-      </component>
+        <l-tile-layer
+          v-if="baseLayer === 'satellite'"
+          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+          layer-type="base"
+          name="Satellite"
+          attribution="Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
+        ></l-tile-layer>
 
-      <component :is="LayerComponent"
-        v-if="projectsUnderConstruction.length > 0"
-        layer-type="overlay"
-        :name="layerLabelProjectsUnderConstruction"
-      >
-        <l-marker
-          v-for="loc in projectsUnderConstruction"
-          :id="loc.id"
-          :key="loc.id"
-          :lat-lng="[loc.latitude, loc.longitude]"
-          :title="loc.name"
-          @click="onMarkerClick(loc)"
-        >
-          <l-icon
-            :icon-url="getPin(loc)"
-            :class-name="pinClass(loc)"
-            :icon-size="[28, 39]"
-            :icon-anchor="[14, 39]"
-          ></l-icon>
-          <l-tooltip v-if="zoom > 7">
-            <span>{{ loc.name }}</span>
-            <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
-          </l-tooltip>
-        </l-marker>
-      </component>
+        <l-tile-layer
+          v-if="baseLayer === 'carto'"
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+          layer-type="base"
+          name="Map Minimal"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        ></l-tile-layer>
 
-      <component :is="LayerComponent"
-        v-if="projectsPlanned.length > 0"
-        layer-type="overlay"
-        :name="layerLabelProjectsPlanned"
-      >
-        <l-marker
-          v-for="loc in projectsPlanned"
-          :id="loc.id"
-          :key="loc.id"
-          :lat-lng="[loc.latitude, loc.longitude]"
-          :title="loc.name"
-          @click="onMarkerClick(loc)"
+        <l-tile-layer
+          v-if="baseLayer === 'osm'"
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          layer-type="base"
+          name="OpenStreetMap"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        ></l-tile-layer>
+
+        <component :is="LayerComponent"
+          v-if="projectsFinished.length > 0"
+          layer-type="overlay"
+          :name="layerLabelProjectsFinished"
         >
-          <l-icon
-            :icon-url="getPin(loc)"
-            :class-name="pinClass(loc)"
-            :icon-size="[28, 39]"
-            :icon-anchor="[14, 39]"
-          ></l-icon>
-          <l-tooltip v-if="zoom > 7">
-            <span>{{ loc.name }}</span>
-            <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
-          </l-tooltip>
-        </l-marker>
-      </component>
-    </l-map>
+          <l-marker
+            v-for="loc in projectsFinished"
+            :id="loc.id"
+            :key="loc.id"
+            :lat-lng="[loc.latitude, loc.longitude]"
+            :title="loc.name"
+            @click="onMarkerClick(loc)"
+          >
+            <l-icon
+              :icon-url="getPin(loc)"
+              :class-name="pinClass(loc)"
+              :icon-size="[28, 39]"
+              :icon-anchor="[14, 39]"
+            ></l-icon>
+            <l-tooltip v-if="zoom > 7">
+              <span>{{ loc.name }}</span>
+              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+            </l-tooltip>
+          </l-marker>
+        </component>
+
+        <component :is="LayerComponent"
+          v-if="projectsUnderConstruction.length > 0"
+          layer-type="overlay"
+          :name="layerLabelProjectsUnderConstruction"
+        >
+          <l-marker
+            v-for="loc in projectsUnderConstruction"
+            :id="loc.id"
+            :key="loc.id"
+            :lat-lng="[loc.latitude, loc.longitude]"
+            :title="loc.name"
+            @click="onMarkerClick(loc)"
+          >
+            <l-icon
+              :icon-url="getPin(loc)"
+              :class-name="pinClass(loc)"
+              :icon-size="[28, 39]"
+              :icon-anchor="[14, 39]"
+            ></l-icon>
+            <l-tooltip v-if="zoom > 7">
+              <span>{{ loc.name }}</span>
+              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+            </l-tooltip>
+          </l-marker>
+        </component>
+
+        <component :is="LayerComponent"
+          v-if="projectsPlanned.length > 0"
+          layer-type="overlay"
+          :name="layerLabelProjectsPlanned"
+        >
+          <l-marker
+            v-for="loc in projectsPlanned"
+            :id="loc.id"
+            :key="loc.id"
+            :lat-lng="[loc.latitude, loc.longitude]"
+            :title="loc.name"
+            @click="onMarkerClick(loc)"
+          >
+            <l-icon
+              :icon-url="getPin(loc)"
+              :class-name="pinClass(loc)"
+              :icon-size="[28, 39]"
+              :icon-anchor="[14, 39]"
+            ></l-icon>
+            <l-tooltip v-if="zoom > 7">
+              <span>{{ loc.name }}</span>
+              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+            </l-tooltip>
+          </l-marker>
+        </component>
+      </l-map>
+    </client-only>
 
     <project-details
       :project="selectedLocation"
@@ -130,34 +133,67 @@ import {
   computed,
   watch,
   nextTick,
+  onMounted,
 } from "vue";
 import { storeToRefs } from "pinia";
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useFilterStore } from "../../stores/filter.store";
-import L, { latLngBounds } from "leaflet";
-import {
-  LMap,
-  LLayerGroup,
-  LTileLayer,
-  LMarker,
-  LIcon,
-  LTooltip,
-} from "@vue-leaflet/vue-leaflet";
-import { LMarkerClusterGroup } from "vue-leaflet-markercluster";
 import ProjectDetails from "../../components/project/ProjectDetails.vue";
 import projectService from "@/features/projects/services/project.service";
 import type { Project } from "@/interfaces/Project";
 import { useI18n } from "vue-i18n";
 import { announceToScreenReader } from "@/composables/useAccessibility";
 
-import "leaflet/dist/leaflet.css";
-import "leaflet.markercluster/dist/MarkerCluster.css";
-import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+// Lazy load Leaflet and related components
+const isLeafletLoaded = ref(false);
+let L: typeof import("leaflet");
+let LMap: any, LLayerGroup: any, LTileLayer: any, LMarker: any, LIcon: any, LTooltip: any;
+let LMarkerClusterGroup: any;
 
-const leafletGlobal = globalThis as typeof globalThis & { L?: typeof L };
-if (!leafletGlobal.L) {
-  leafletGlobal.L = L;
-}
+// Load Leaflet dynamically to improve LCP
+onMounted(async () => {
+  try {
+    // Load Leaflet CSS first
+    const leafletCSS = document.createElement('link');
+    leafletCSS.rel = 'stylesheet';
+    leafletCSS.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    leafletCSS.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+    leafletCSS.crossOrigin = '';
+    document.head.appendChild(leafletCSS);
+
+    // Load MarkerCluster CSS
+    const markerClusterCSS = document.createElement('link');
+    markerClusterCSS.rel = 'stylesheet';
+    markerClusterCSS.href = 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css';
+    document.head.appendChild(markerClusterCSS);
+
+    const markerClusterDefaultCSS = document.createElement('link');
+    markerClusterDefaultCSS.rel = 'stylesheet';
+    markerClusterDefaultCSS.href = 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css';
+    document.head.appendChild(markerClusterDefaultCSS);
+
+    // Load Leaflet and vue-leaflet dynamically
+    const [leafletModule, vueLeafletModule, markerClusterModule] = await Promise.all([
+      import('leaflet'),
+      import('@vue-leaflet/vue-leaflet'),
+      import('vue-leaflet-markercluster'),
+    ]);
+
+    L = leafletModule.default;
+    ({ LMap, LLayerGroup, LTileLayer, LMarker, LIcon, LTooltip } = vueLeafletModule);
+    ({ LMarkerClusterGroup } = markerClusterModule);
+
+    // Set global L for compatibility
+    const leafletGlobal = globalThis as typeof globalThis & { L?: typeof L };
+    if (!leafletGlobal.L) {
+      leafletGlobal.L = L;
+    }
+
+    isLeafletLoaded.value = true;
+  } catch (error) {
+    console.error('Failed to load Leaflet:', error);
+  }
+});
 
 const projectStore = useProjectStore();
 const { t } = useI18n();
@@ -197,12 +233,9 @@ const locations = computed(() => {
 });
 
 const zoom = ref(5);
-const bounds = ref(
-  latLngBounds([
-    [-14.5981259, 5.8997233],
-    [8.9490075, 11.322326],
-  ]),
-);
+// Default center for the map (fallback when no locations are available)
+// This is roughly the center of the default bounds (Africa region)
+const center = ref<[number, number]>([0, 8]);
 const isOpened = ref(false);
 const selectedLocation = ref<Project | undefined>(undefined);
 const map = ref<any>(null);
@@ -375,7 +408,7 @@ const updateBounds = () => {
     }
 
     if (validPoints > 0) {
-      const calculatedBounds = latLngBounds([minLat, minLng], [maxLat, maxLng]);
+      const calculatedBounds = L.latLngBounds([minLat, minLng], [maxLat, maxLng]);
       const topPad = getHeadingOffset();
       map.value.leafletObject.fitBounds(calculatedBounds, {
         paddingTopLeft: [50, topPad],
@@ -388,62 +421,53 @@ const updateBounds = () => {
 };
 </script>
 
-<style lang="scss">
-@use "@/assets/design-tokens.scss" as *;
-
+<style lang="postcss">
 .leaflet-top {
-  top: calc(var(--spacing-unit) * 12.5 + env(safe-area-inset-top));
+  @apply top-[calc(var(--spacing-unit)*12.5+env(safe-area-inset-top))];
 }
 .leaflet-left {
-  left: env(safe-area-inset-left);
+  @apply left-[env(safe-area-inset-left)];
 }
 .leaflet-right {
-  right: env(safe-area-inset-right);
+  @apply right-[env(safe-area-inset-right)];
 }
 .leaflet-bottom {
-  bottom: env(safe-area-inset-bottom);
+  @apply bottom-[env(safe-area-inset-bottom)];
 }
 .leaflet-control-attribution {
-  max-width: calc(100vw - var(--spacing-unit) * 21.25);
-  font-size: calc(var(--spacing-unit) * 1.875);
+  @apply max-w-[calc(100vw-var(--spacing-unit)*21.25)] text-[calc(var(--spacing-unit)*1.875)];
 }
 
 .leaflet-marker-icon {
   &:hover {
-    transform: scale(1.5);
-    filter: drop-shadow(0px 0px 10px rgba(210, 28, 28, 0.75));
+    @apply scale-150 drop-shadow-[0px_0px_10px_rgba(210,28,28,0.75)];
   }
 }
 
 .marker-selected {
-  transform: scale(1.25);
-  filter: drop-shadow(0px 0px 4px rgb(178, 14, 14));
+  @apply scale-125 drop-shadow-[0px_0px_4px_rgb(178,14,14)];
 }
 
 .marker-selected:hover {
-  transform: scale(1.5);
-  filter: drop-shadow(0px 0px 10px rgba(210, 28, 28, 0.75));
+  @apply scale-150 drop-shadow-[0px_0px_10px_rgba(210,28,28,0.75)];
 }
 
 .marker-state-planned {
-  filter: grayscale(90%) opacity(0.5);
+  @apply grayscale-[90%] opacity-50;
 }
 .marker-state-under-construction {
-  filter: grayscale(80%) opacity(0.9);
+  @apply grayscale-[80%] opacity-90;
 }
 .marker-state-finished {
-  filter: opacity(1);
+  @apply opacity-100;
 }
 
 .map {
-  width: 100%;
-  height: 100%;
+  @apply w-full h-full;
 }
 
 .map:focus-visible {
-  outline: 3px solid #3d5e9e;
-  outline-offset: -3px;
-  z-index: 5;
+  @apply outline-3 outline-primary outline-offset-[-3px] z-10;
 }
 
 /* Zoom controls nur auf Desktop anzeigen */

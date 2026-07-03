@@ -18,8 +18,8 @@ Each checkbox SHALL have a label that is programmatically associated via the `fo
 - **WHEN** a screen reader focuses a checkbox in the filter panel
 - **THEN** it announces the checkbox label (e.g., "Finished, unchecked")
 
-### Requirement: SearchBar input has accessible label
-The search input in SearchBar SHALL have an associated `<label>` element (visually hidden if needed) or `aria-label` attribute that describes the input's purpose.
+### Requirement: MainMenu input has accessible label
+The search input in MainMenu SHALL have an associated `<label>` element (visually hidden if needed) or `aria-label` attribute that describes the input's purpose.
 
 #### Scenario: Search input has label
 - **WHEN** a screen reader focuses the search input
