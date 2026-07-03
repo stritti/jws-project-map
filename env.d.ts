@@ -9,3 +9,6 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+// Global version variable injected by vite-plugin-package-version
+declare const __APP_VERSION__: string;

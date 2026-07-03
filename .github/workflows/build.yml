@@ -43,4 +43,3 @@ jobs:
       - name: Run tests
         if: github.event.inputs.run_tests == 'true'
         run: bun test
-
