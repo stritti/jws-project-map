@@ -85,17 +85,30 @@ const moreMenuRef = ref<HTMLElement | null>(null);
 const morePanelRef = ref<HTMLElement | null>(null);
 const moreFocusIndex = ref(-1);
 
+// Check if mobile view
+const isMobileView = computed(() => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth < 768;
+});
+
+
 // Teleport-enabled: fixed position relative to viewport
-const panelPosition = ref({ right: "0px", bottom: "0px" });
+const panelPosition = ref({ right: "0px", bottom: "0px", top: "" });
 const teleported = computed(() => props.teleport && moreOpen.value);
 
 const panelInlineStyle = computed(() => {
   if (!teleported.value) return {};
-  return {
-    position: "fixed" as const,
+  const style: Record<string, string> = {
+    position: "fixed",
     right: panelPosition.value.right,
-    bottom: panelPosition.value.bottom,
   };
+  if (panelPosition.value.bottom && panelPosition.value.bottom !== 'auto') {
+    style.bottom = panelPosition.value.bottom;
+  }
+  if (panelPosition.value.top) {
+    style.top = panelPosition.value.top;
+  }
+  return style;
 });
 
 function switchLocale(lang: Locale) {
@@ -110,10 +123,21 @@ function toggleMore() {
     const trigger = moreMenuRef.value?.querySelector<HTMLElement>(".more-trigger");
     if (trigger) {
       const rect = trigger.getBoundingClientRect();
-      panelPosition.value = {
-        right: `${window.innerWidth - rect.right}px`,
-        bottom: `${window.innerHeight - rect.top + 8}px`,
-      };
+      // On mobile: open upward (bottom positioning)
+      // On desktop: open downward (top positioning)
+      if (isMobileView.value) {
+        panelPosition.value = {
+          right: `${window.innerWidth - rect.right}px`,
+          bottom: `${window.innerHeight - rect.top + 8}px`,
+          top: "",
+        };
+      } else {
+        panelPosition.value = {
+          right: `${window.innerWidth - rect.right}px`,
+          bottom: "auto",
+          top: `${rect.bottom + 8}px`,
+        };
+      }
     }
   }
   moreOpen.value = !moreOpen.value;
@@ -239,11 +263,25 @@ onUnmounted(() => {
   @apply absolute bottom-[calc(100%+8px)] right-0;
 }
 
+/* Desktop: open downward */
+@media (min-width: 768px) {
+  .more-panel:not(.teleported) {
+    @apply absolute top-[calc(100%+8px)] right-0;
+  }
+}
+
 .more-panel {
   @apply z-50 min-w-[180px] p-2 rounded-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)] origin-bottom-right;
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
+}
+
+/* Desktop: adjust shadow and origin for downward opening */
+@media (min-width: 768px) {
+  .more-panel:not(.teleported) {
+    @apply shadow-[0_4px_20px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)] origin-top-right;
+  }
 }
 
 .more-option {
