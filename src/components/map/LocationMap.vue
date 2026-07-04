@@ -60,7 +60,7 @@
             ></l-icon>
             <l-tooltip v-if="zoom > 7">
               <span>{{ loc.name }}</span>
-              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+              <span v-if="loc.state !== PROJECT_STATES.FINISHED"> ({{ loc.state }})</span>
             </l-tooltip>
           </l-marker>
         </component>
@@ -86,7 +86,7 @@
             ></l-icon>
             <l-tooltip v-if="zoom > 7">
               <span>{{ loc.name }}</span>
-              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+              <span v-if="loc.state !== PROJECT_STATES.FINISHED"> ({{ loc.state }})</span>
             </l-tooltip>
           </l-marker>
         </component>
@@ -112,7 +112,7 @@
             ></l-icon>
             <l-tooltip v-if="zoom > 7">
               <span>{{ loc.name }}</span>
-              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+              <span v-if="loc.state !== PROJECT_STATES.FINISHED"> ({{ loc.state }})</span>
             </l-tooltip>
           </l-marker>
         </component>
@@ -143,6 +143,7 @@ import projectService from "@/features/projects/services/project.service";
 import type { Project } from "@/interfaces/Project";
 import { useI18n } from "vue-i18n";
 import { announceToScreenReader } from "@/composables/useAccessibility";
+import { PROJECT_STATES } from "@/constants/projectStates";
 
 // Lazy load Leaflet and related components
 const isLeafletLoaded = ref(false);
@@ -253,13 +254,13 @@ const mapOptions = {
 
 // Compute project lists from the filtered locations
 const projectsFinished = computed(() =>
-  locations.value.filter((p) => p.state === "finished"),
+  locations.value.filter((p) => p.state === PROJECT_STATES.FINISHED),
 );
 const projectsUnderConstruction = computed(() =>
-  locations.value.filter((p) => p.state === "under construction"),
+  locations.value.filter((p) => p.state === PROJECT_STATES.UNDER_CONSTRUCTION),
 );
 const projectsPlanned = computed(() =>
-  locations.value.filter((p) => p.state === "planned"),
+  locations.value.filter((p) => p.state === PROJECT_STATES.PLANNED),
 );
 
 const layerLabelProjectsFinished = computed(() =>

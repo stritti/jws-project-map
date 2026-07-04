@@ -103,6 +103,7 @@ import { useFilterStore } from "../stores/filter.store";
 import type { Project } from "@/interfaces/Project";
 import ProjectListItem from "../components/project/ProjectListItem.vue";
 import { useProjectSearch, type ProjectState } from "@/composables/useProjectSearch";
+import { PROJECT_STATES } from "@/constants/projectStates";
 import FilterPanel from "@/components/FilterPanel.vue";
 import MainMenu from "../components/MainMenu.vue";
 import { projectRoute } from "@/utils/slug";
@@ -139,9 +140,9 @@ const finalProjectList = computed(() => {
 });
 
 const stateOptions = computed(() => [
-  { text: t("project.state.finished"), value: "finished" },
-  { text: t("project.state.underConstruction"), value: "under construction" },
-  { text: t("project.state.planned"), value: "planned" },
+  { text: t("project.state.finished"), value: PROJECT_STATES.FINISHED },
+  { text: t("project.state.underConstruction"), value: PROJECT_STATES.UNDER_CONSTRUCTION },
+  { text: t("project.state.planned"), value: PROJECT_STATES.PLANNED },
 ]);
 
 // MainMenu state filter (local – for MainMenu's internal state binding)
@@ -264,11 +265,11 @@ const countryList = computed(() =>
 
 const projectCount = computed(() => projectList.value.length);
 const projectsPlannedCount = computed(
-  () => projectStore.projects.filter((p) => p.state === "planned").length,
+  () => projectStore.projects.filter((p) => p.state === PROJECT_STATES.PLANNED).length,
 );
 const projectsUnderConstructionCount = computed(
   () =>
-    projectStore.projects.filter((p) => p.state === "under construction")
+    projectStore.projects.filter((p) => p.state === PROJECT_STATES.UNDER_CONSTRUCTION)
       .length,
 );
 
@@ -278,7 +279,7 @@ onBeforeMount(() => {
 
   // Set default state filters if none are active
   if (filterStore.stateFilter.length === 0) {
-    filterStore.stateFilter = ["finished", "planned", "under construction"];
+    filterStore.stateFilter = [PROJECT_STATES.FINISHED, PROJECT_STATES.PLANNED, PROJECT_STATES.UNDER_CONSTRUCTION];
   }
 });
 </script>

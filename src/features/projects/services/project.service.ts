@@ -2,7 +2,8 @@ import { projectRepository } from "@/features/projects/repositories/project.repo
 import type { Project } from "@/interfaces/Project";
 import type { LatLng } from "leaflet";
 import type { RawProjectRecord } from "@/features/projects/repositories/project.repository";
-import { i18n } from "@/plugins/i18n";
+import { currentLocale } from "@/utils/locale";
+import { normaliseProjectState } from "@/constants/projectStates";
 
 function resolveRecordFields(record: RawProjectRecord): Record<string, unknown> {
   if (record.fields && typeof record.fields === "object") {
@@ -12,19 +13,8 @@ function resolveRecordFields(record: RawProjectRecord): Record<string, unknown> 
 }
 
 function resolveProjectState(sourceFields: Record<string, unknown>): string {
-  const rawState = String(sourceFields.State || sourceFields.Status || "")
-    .trim()
-    .toLowerCase();
-
-  if (["under construction", "under_construction", "construction"].includes(rawState)) {
-    return "under construction";
-  }
-
-  if (rawState === "planned") {
-    return "planned";
-  }
-
-  return "finished";
+  const rawState = String(sourceFields.State || sourceFields.Status || "").trim();
+  return normaliseProjectState(rawState);
 }
 
 function resolveNumericId(value: unknown): number | undefined {
@@ -53,16 +43,6 @@ function resolveProjectId(
     resolveNumericId(sourceFields.id) ??
     resolveNumericId(sourceFields.Id)
   );
-}
-
-function currentLocale(): string {
-  try {
-    const loc = (i18n.global.locale as unknown as { value: string }).value;
-    if (loc && typeof loc === "string") return loc;
-  } catch {
-    // ignore
-  }
-  return "en";
 }
 
 function processProjectData(records: RawProjectRecord[]): Array<Project> {

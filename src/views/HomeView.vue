@@ -9,6 +9,7 @@ import { useCategoryStore } from "../stores/category.store";
 import { useCountryStore } from "../stores/country.store";
 import { useFilterStore } from "../stores/filter.store";
 import { useProjectSearch, type ProjectState } from "@/composables/useProjectSearch";
+import { PROJECT_STATES } from "@/constants/projectStates";
 import FilterPanel from "@/components/FilterPanel.vue";
 import MainMenu from "../components/MainMenu.vue";
 const LocationMap = defineAsyncComponent(() => import("../components/map/LocationMap.vue"));
@@ -35,9 +36,9 @@ const baseLayer = ref<'satellite' | 'osm' | 'carto'>('carto');
 const clusterEnabled = ref(false);
 
 const stateOptions = computed(() => [
-  { text: t("project.state.finished"), value: "finished" },
-  { text: t("project.state.underConstruction"), value: "under construction" },
-  { text: t("project.state.planned"), value: "planned" },
+  { text: t("project.state.finished"), value: PROJECT_STATES.FINISHED },
+  { text: t("project.state.underConstruction"), value: PROJECT_STATES.UNDER_CONSTRUCTION },
+  { text: t("project.state.planned"), value: PROJECT_STATES.PLANNED },
 ]);
 
 // Fuzzy search on the store's filtered list

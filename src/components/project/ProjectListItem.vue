@@ -73,6 +73,7 @@ import type { Project } from "@/interfaces/Project";
 import CategoryBadge from "../CategoryBadge.vue";
 import CountryLabel from "../CountryLabel.vue";
 import StateBadge from "@/components/StateBadge.vue";
+import { PROJECT_STATES } from "@/constants/projectStates";
 
 const { t } = useI18n();
 const { isIFrame, notifyNavigate } = useWebFrame();
@@ -103,9 +104,9 @@ const teaserImage = computed(() => {
 });
 
 const stateLabels: Record<string, string> = {
-  finished: t("project.state.finished"),
-  "under construction": t("project.state.underConstruction"),
-  planned: t("project.state.planned"),
+  [PROJECT_STATES.FINISHED]: t("project.state.finished"),
+  [PROJECT_STATES.UNDER_CONSTRUCTION]: t("project.state.underConstruction"),
+  [PROJECT_STATES.PLANNED]: t("project.state.planned"),
 };
 
 const cardAriaLabel = computed(() => {
