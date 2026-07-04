@@ -12,3 +12,12 @@ interface ImportMeta {
 
 // Global version variable injected by vite-plugin-package-version
 declare const __APP_VERSION__: string;
+
+// Extend Window interface to include the version
+export {};
+
+declare global {
+  interface Window {
+    __APP_VERSION__: string;
+  }
+}
