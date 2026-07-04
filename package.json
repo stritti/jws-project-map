@@ -1,6 +1,6 @@
 {
   "name": "jws-project-map",
-  "version": "2.6.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -104,11 +104,15 @@
       "path": "./node_modules/cz-conventional-changelog"
     },
     "commitlint": {
-      "extends": ["@commitlint/config-conventional"]
+      "extends": [
+        "@commitlint/config-conventional"
+      ]
     }
   },
   "release": {
-    "branches": ["main"],
+    "branches": [
+      "main"
+    ],
     "plugins": [
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
