@@ -68,14 +68,20 @@ export const useProjectStore = defineStore("project", {
         if (result && Array.isArray(result)) {
           this.projects = result;
           this.filteredList = result;
-          this.initialized = true;
+        } else {
+          console.warn(
+            "Project store: service returned unexpected data:",
+            result,
+          );
         }
       } catch (error) {
         console.error("Error fetching projects:", error);
-      } finally {
+        // Do NOT set initialized — allow retry on next navigation
         this.loading = false;
         loadingStore.updateLoading(false);
+        return;
       }
+      this.initialized = true;
     },
 
     doFilter(
