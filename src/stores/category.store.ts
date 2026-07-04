@@ -13,13 +13,13 @@ function currentLocale(): string {
 
 interface State {
   categories: Category[];
-  initialized: boolean; // Flag to track initialization
+  initialized: boolean;
 }
 
 export const useCategoryStore = defineStore("category", {
   state: (): State => ({
     categories: [],
-    initialized: false, // Initialize as false
+    initialized: false,
   }),
   persist: false,
   getters: {
@@ -39,18 +39,19 @@ export const useCategoryStore = defineStore("category", {
   },
   actions: {
     async load(): Promise<void> {
-      // Prevent re-initialization
+      // Prevent re-initialization once successfully loaded
       if (this.initialized) {
         return;
       }
-      this.initialized = true; // Set flag immediately
 
-      // Load data in background without blocking UI
       try {
         const list = await categoryService.getAll();
         this.categories = list as Array<Category>;
+        // Only mark as initialized on success — allows retry on error
+        this.initialized = true;
       } catch (error) {
         console.error("Error initializing category store:", error);
+        // Do NOT set initialized = true — permits retry
       }
     },
   },
