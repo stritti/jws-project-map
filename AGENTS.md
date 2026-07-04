@@ -87,6 +87,7 @@ These are required at build time. No defaults.
 ## Code quality
 
 - **ESLint** — flat config (`eslint.config.js`), TypeScript + Vue plugins. Key rule overrides: `vue/multi-word-component-names: off`, `vue/no-v-html: off`, `@typescript-eslint/no-explicit-any: warn`, `no-unused-vars: warn`.
+- **Clean Code** — see the `.opencode/skills/clean-code/` skill for the Clean Code review checklist with project-specific patterns (DRY, magic strings, type safety, error handling). Run `skill clean-code` before submitting a PR to verify compliance.
 - **Prettier** — empty config (defaults only).
 - **TypeScript** — strict mode enabled. `skipLibCheck: true`.
 - **No tests exist** — no vitest config, no test/spec files. The CI build workflow has a conditional `bun test` step that only runs when `run_tests=true` is set (disabled by default).
