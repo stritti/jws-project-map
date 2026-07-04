@@ -2,7 +2,7 @@ import { projectRepository } from "@/features/projects/repositories/project.repo
 import type { Project } from "@/interfaces/Project";
 import type { LatLng } from "leaflet";
 import type { RawProjectRecord } from "@/features/projects/repositories/project.repository";
-import { i18n } from "@/plugins/i18n";
+import { currentLocale } from "@/utils/locale";
 
 function resolveRecordFields(record: RawProjectRecord): Record<string, unknown> {
   if (record.fields && typeof record.fields === "object") {
@@ -53,16 +53,6 @@ function resolveProjectId(
     resolveNumericId(sourceFields.id) ??
     resolveNumericId(sourceFields.Id)
   );
-}
-
-function currentLocale(): string {
-  try {
-    const loc = (i18n.global.locale as unknown as { value: string }).value;
-    if (loc && typeof loc === "string") return loc;
-  } catch {
-    // ignore
-  }
-  return "en";
 }
 
 function processProjectData(records: RawProjectRecord[]): Array<Project> {
