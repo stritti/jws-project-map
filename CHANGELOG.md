@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/stritti/jws-project-map/compare/v1.0.0...v1.1.0) (2026-07-04)
+
+
+### Features
+
+* add Clean Code skill with review checklist for agents ([#883](https://github.com/stritti/jws-project-map/issues/883)) ([efc16d8](https://github.com/stritti/jws-project-map/commit/efc16d8eba0862c2c7976697746fe381eb89695a))
+
 # 1.0.0 (2026-07-04)
 
 
