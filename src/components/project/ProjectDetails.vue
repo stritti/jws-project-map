@@ -6,7 +6,7 @@
         <button class="close-btn" @click.stop="onClose" :aria-label="t('common.close')">
           <IBiX />
         </button>
-        
+
         <!-- Use ProjectListItem with actions slot — entire card links to detail page -->
         <project-list-item :project="project">
           <template #actions>
@@ -24,49 +24,49 @@
   </Transition>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
 import type { PropType } from "vue";
 import { useI18n } from "vue-i18n";
 import { useWebFrame } from "@/composables/useWebFrame";
 import ProjectListItem from "./ProjectListItem.vue";
 import type { Project } from "../../interfaces/Project";
 
-export default defineComponent({
-  name: "ProjectDetails",
-  components: { ProjectListItem },
-  setup() {
-    const { t } = useI18n();
-    const { navigateToProject } = useWebFrame();
-    return { t, navigateToProject };
+import IBiX from "~icons/bi/x";
+import IBiBoxArrowUpRight from "~icons/bi/box-arrow-up-right";
+
+const { t } = useI18n();
+const { navigateToProject } = useWebFrame();
+
+const props = defineProps({
+  project: {
+    type: Object as PropType<Project>,
+    required: false,
   },
-  props: {
-    project: {
-      type: Object as PropType<Project>,
-      required: false,
-    },
-    isOpened: {
-      type: Boolean,
-      required: true,
-    },
-  },
-  emits: ["close"],
-  methods: {
-    onClose() {
-      this.$emit("close");
-    },
-    onCardClick() {
-      if (this.project) {
-        this.navigateToProject(this.project);
-      }
-    },
-    goToDetail() {
-      if (this.project) {
-        this.navigateToProject(this.project);
-      }
-    },
+  isOpened: {
+    type: Boolean,
+    required: true,
   },
 });
+
+const emit = defineEmits<{
+  (e: "close"): void;
+}>();
+
+function onClose(): void {
+  emit("close");
+}
+
+function onCardClick(): void {
+  if (props.project) {
+    navigateToProject(props.project);
+  }
+}
+
+function goToDetail(): void {
+  if (props.project) {
+    navigateToProject(props.project);
+  }
+}
 </script>
 
 <style lang="postcss">
@@ -82,7 +82,7 @@ export default defineComponent({
 
 .close-btn {
   @apply absolute -top-[calc(var(--spacing-unit)*1.5)] -right-[calc(var(--spacing-unit)*1.5)] z-10 w-8 h-8 rounded-full border-none bg-surface text-onSurface shadow-[0_var(--spacing-unit)_calc(var(--spacing-unit)*3)_rgba(9,20,38,0.12)] cursor-pointer flex items-center justify-center transition-[background-color,transform] duration-200;
-  
+
   &:hover {
     @apply bg-surface-variant scale-110;
   }
@@ -108,4 +108,3 @@ export default defineComponent({
   @apply opacity-100 -translate-x-1/2 translate-y-0;
 }
 </style>
-
