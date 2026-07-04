@@ -1,15 +1,7 @@
 import type { Country } from "@/interfaces/Country";
 import { defineStore } from "pinia";
 import countryService from "../services/country.service";
-import { i18n } from "@/plugins/i18n";
-
-function currentLocale(): string {
-  try {
-    return (i18n.global.locale as unknown as { value: string }).value || "en";
-  } catch {
-    return "en";
-  }
-}
+import { currentLocale } from "@/utils/locale";
 
 interface State {
   countries: Country[];

@@ -1,15 +1,7 @@
 import type { Category } from "@/interfaces/Category";
 import { defineStore } from "pinia";
 import categoryService from "../services/category.service";
-import { i18n } from "@/plugins/i18n";
-
-function currentLocale(): string {
-  try {
-    return (i18n.global.locale as unknown as { value: string }).value || "en";
-  } catch {
-    return "en";
-  }
-}
+import { currentLocale } from "@/utils/locale";
 
 interface State {
   categories: Category[];
