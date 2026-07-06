@@ -6,7 +6,6 @@ import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 import App from "./App.vue";
 import router from "./router";
 
-import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useCategoryStore } from "@/stores/category.store";
 import { useCountryStore } from "@/stores/country.store";
 
@@ -32,13 +31,12 @@ app.use(router);
 app.use(i18n);
 
 // Initialize stores after Pinia is attached to the app
-// Note: projectStore is intentionally not used here for lazy loading
-// Projects will be loaded on-demand when first accessed
+// Note: Stores are initialized with underscore prefix to indicate intentional usage
 const _categoryStore = useCategoryStore(pinia);
 const _countryStore = useCountryStore(pinia);
 
 // Load metadata (categories, countries) on startup as they're small
-// Project data is loaded lazily - only when first accessed
+// Project data is loaded lazily - only when first accessed via useProjectStore()
 const initializeStores = async () => {
   await Promise.allSettled([
     _categoryStore.load(),
