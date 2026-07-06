@@ -37,7 +37,7 @@ const _countryStore = useCountryStore(pinia);
 
 // Load metadata (categories, countries) on startup as they're small
 // Project data is loaded lazily - only when first accessed via useProjectStore()
-const initializeStores = async () => {
+const initializeStores = async (): Promise<void> => {
   await Promise.allSettled([
     _categoryStore.load(),
     _countryStore.load(),
@@ -45,12 +45,8 @@ const initializeStores = async () => {
 };
 
 // Initialize metadata stores
-initializeStores().then((results) => {
-  results.forEach((result) => {
-    if (result.status === "rejected") {
-      console.error("Initial metadata load failed:", result.reason);
-    }
-  });
+initializeStores().catch((error) => {
+  console.error("Initial metadata load failed:", error);
 });
 
 app.mount("#app");
