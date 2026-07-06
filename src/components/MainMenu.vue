@@ -1,5 +1,5 @@
 <template>
-  <div class="main-menu-container">
+  <div class="main-menu-container" role="search" :aria-label="t('a11y.searchInput')">
     <!-- Search bar with icons -->
     <div class="search-bar">
       <IBiSearch class="search-icon" aria-hidden="true" />
@@ -22,10 +22,12 @@
         :aria-label="resolvedFilterLabel"
         :aria-expanded="filterVisible"
         @click="$emit('filter-click')"
+        @keydown.enter="$emit('filter-click')"
+        @keydown.space.prevent="$emit('filter-click')"
       >
-        <IBiFilterRight />
+        <IBiFilterRight aria-hidden="true" />
         <span class="filter-label">{{ resolvedFilterLabel }}</span>
-        <span v-if="filterCount > 0" class="filter-badge">{{ filterCount }}</span>
+        <span v-if="filterCount > 0" class="filter-badge" aria-label="Active filters">{{ filterCount }}</span>
       </button>
 
       <!-- View toggle: Map / List -->
@@ -37,6 +39,8 @@
           :aria-current="viewMode === 'map' ? 'true' : undefined"
           :disabled="viewMode === 'map'"
           @click="$emit('view-change', 'map')"
+          @keydown.enter="$emit('view-change', 'map')"
+          @keydown.space.prevent="$emit('view-change', 'map')"
         >
           <IBiMap aria-hidden="true" />
         </button>
@@ -47,6 +51,8 @@
           :aria-current="viewMode === 'list' ? 'true' : undefined"
           :disabled="viewMode === 'list'"
           @click="$emit('view-change', 'list')"
+          @keydown.enter="$emit('view-change', 'list')"
+          @keydown.space.prevent="$emit('view-change', 'list')"
         >
           <IBiListUl aria-hidden="true" />
         </button>
@@ -57,13 +63,17 @@
     </div>
     
     <!-- Filter chips -->
-    <div v-if="showFilterChips" class="filter-chips">
+    <div v-if="showFilterChips" class="filter-chips" role="group" :aria-label="t('a11y.statusFilter')">
       <button
         v-for="state in stateOptions"
         :key="state.value"
         class="filter-chip"
         :class="{ active: stateFilter === state.value }"
+        :aria-label="state.label"
+        :aria-pressed="stateFilter === state.value"
         @click="onChipClick(state.value)"
+        @keydown.enter="onChipClick(state.value)"
+        @keydown.space.prevent="onChipClick(state.value)"
       >
         {{ state.label }}
       </button>
@@ -226,7 +236,7 @@ defineExpose({
 }
 
 .view-btn {
-  @apply flex items-center justify-center w-[40px] h-[40px] border-none rounded-lg bg-transparent text-onSurface-variant cursor-pointer transition-colors duration-150 text-base leading-none;
+  @apply flex items-center justify-center w-[40px] h-[40px] border-none rounded-lg bg-transparent text-onSurface-variant cursor-pointer transition-colors duration-150 text-base leading-none focus:outline-2 focus:outline-secondary focus:outline-offset-2;
 }
 
 /* Touch-friendly minimum 44\u00d744 px on mobile */
@@ -252,7 +262,7 @@ defineExpose({
 
 /* Filter button */
 .filter-btn {
-  @apply flex items-center gap-[0.25rem] bg-transparent border-none rounded-lg px-[0.75rem] py-[0.5rem] text-onSurface cursor-pointer text-body-md relative flex-shrink-0 hover:bg-surface-variant;
+  @apply flex items-center gap-[0.25rem] bg-transparent border-none rounded-lg px-[0.75rem] py-[0.5rem] text-onSurface cursor-pointer text-body-md relative flex-shrink-0 hover:bg-surface-variant focus:outline-2 focus:outline-secondary focus:outline-offset-2;
   height: 40px;
 }
 
@@ -312,7 +322,7 @@ defineExpose({
 }
 
 .filter-chip {
-  @apply flex-shrink-0 px-[0.75rem] py-[0.375rem] rounded-full text-label-md font-medium cursor-pointer transition-colors duration-150 whitespace-nowrap bg-surface border border-outline text-onSurface hover:bg-surface-variant;
+  @apply flex-shrink-0 px-[0.75rem] py-[0.375rem] rounded-full text-label-md font-medium cursor-pointer transition-colors duration-150 whitespace-nowrap bg-surface border border-outline text-onSurface hover:bg-surface-variant focus:outline-2 focus:outline-secondary focus:outline-offset-2;
 }
 
 .filter-chip.active {

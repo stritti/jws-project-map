@@ -1,17 +1,29 @@
 <template>
   <Transition name="slide-up">
     <div v-if="project && isOpened" class="project-card-overlay" @click="onCardClick">
-      <div class="project-card-container">
-        <!-- Close button — stop propagation to prevent navigation -->
-        <button class="close-btn" @click.stop="onClose" :aria-label="t('common.close')">
-          <IBiX />
+      <div class="project-card-container" role="dialog" aria-modal="true" aria-labelledby="project-details-title">
+        <!-- Close button  stop propagation to prevent navigation -->
+        <button 
+          class="close-btn" 
+          @click.stop="onClose" 
+          :aria-label="t('common.close')"
+          @keydown.enter.stop="onClose"
+          @keydown.space.prevent.stop="onClose"
+        >
+          <IBiX aria-hidden="true" />
         </button>
 
-        <!-- Use ProjectListItem with actions slot — entire card links to detail page -->
+        <!-- Use ProjectListItem with actions slot  entire card links to detail page -->
         <project-list-item :project="project">
           <template #actions>
-            <button class="details-btn" @click.stop="goToDetail">
-              <IBiBoxArrowUpRight />
+            <button 
+              class="details-btn" 
+              @click.stop="goToDetail"
+              :aria-label="t('a11y.viewProjectDetails')"
+              @keydown.enter.stop="goToDetail"
+              @keydown.space.prevent.stop="goToDetail"
+            >
+              <IBiBoxArrowUpRight aria-hidden="true" />
             </button>
             <navigate-button
               :lat="project.latitude"
@@ -81,7 +93,7 @@ function goToDetail(): void {
 }
 
 .close-btn {
-  @apply absolute -top-[calc(var(--spacing-unit)*1.5)] -right-[calc(var(--spacing-unit)*1.5)] z-10 w-8 h-8 rounded-full border-none bg-surface text-onSurface shadow-[0_var(--spacing-unit)_calc(var(--spacing-unit)*3)_rgba(9,20,38,0.12)] cursor-pointer flex items-center justify-center transition-[background-color,transform] duration-200;
+  @apply absolute -top-[calc(var(--spacing-unit)*1.5)] -right-[calc(var(--spacing-unit)*1.5)] z-10 w-8 h-8 rounded-full border-none bg-surface text-onSurface shadow-[0_var(--spacing-unit)_calc(var(--spacing-unit)*3)_rgba(9,20,38,0.12)] cursor-pointer flex items-center justify-center transition-[background-color,transform] duration-200 focus:outline-2 focus:outline-secondary focus:outline-offset-2;
 
   &:hover {
     @apply bg-surface-variant scale-110;
@@ -89,7 +101,7 @@ function goToDetail(): void {
 }
 
 .details-btn {
-  @apply flex items-center justify-center p-[var(--spacing-unit)] w-[36px] h-[36px] bg-primary text-white rounded-round-default hover:bg-primary-dark transition-colors duration-200;
+  @apply flex items-center justify-center p-[var(--spacing-unit)] w-[36px] h-[36px] bg-primary text-white rounded-round-default hover:bg-primary-dark transition-colors duration-200 focus:outline-2 focus:outline-secondary focus:outline-offset-2;
 }
 
 /* Transition */
@@ -98,13 +110,3 @@ function goToDetail(): void {
   @apply transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.165,0.84,0.44,1)];
 }
 
-.slide-up-enter-from,
-.slide-up-leave-to {
-  @apply opacity-0 -translate-x-1/2 translate-y-[20px];
-}
-
-.slide-up-enter-to,
-.slide-up-leave-from {
-  @apply opacity-100 -translate-x-1/2 translate-y-0;
-}
-</style>

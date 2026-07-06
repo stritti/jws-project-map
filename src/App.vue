@@ -7,11 +7,11 @@ import { useSearchStore } from "@/stores/search.store";
 import { storeToRefs } from "pinia";
 import { computed, watch, ref } from "vue";
 import { useRouter } from "vue-router";
-import { usePageTitle } from "./composables/useAccessibility";
+import { usePageTitle, useHtmlLang } from "./composables/useAccessibility";
 import { useCanonicalUrl } from "./composables/useCanonicalUrl";
 import { useI18n } from "vue-i18n";
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 import "./assets/iframe.css";
 
@@ -25,6 +25,9 @@ const searchModalRef = ref<InstanceType<typeof SearchModal> | null>(null);
 
 // Update page title on route changes
 usePageTitle(router);
+
+// Set HTML lang attribute for accessibility
+useHtmlLang({ locale });
 
 // Canonical URL to prevent duplicate content
 useCanonicalUrl(router);
@@ -66,12 +69,17 @@ router.afterEach((to) => {
     {{ t("a11y.skipToContent") }}
   </a>
 
+  <!-- Skip-to-map link for keyboard users -->
+  <a href="#project-map" class="skip-link" v-if="!$route.path.startsWith('/project')">
+    {{ t("a11y.skipToMap") }}
+  </a>
+
   <!-- Global loading bar -->
-  <div v-if="isLoading" class="global-loader" role="status" aria-label="Loading data">
-    <div class="loader-bar"></div>
+  <div v-if="isLoading" class="global-loader" role="status" aria-live="polite" aria-label="Loading data">
+    <div class="loader-bar" aria-hidden="true"></div>
   </div>
 
-  <div class="app-wrapper">
+  <div class="app-wrapper" role="application" aria-label="JWS Project Map">
     <main id="main-content" class="content" aria-label="Main content" role="main" :aria-hidden="isMainHidden">
       <router-view />
     </main>

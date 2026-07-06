@@ -1,8 +1,15 @@
 <template>
   <div v-if="isVisible" class="modal-overlay" @click.self="hide" @keydown.escape="hide">
-    <div class="modal-content rounded-round-xl border-0 shadow-lg bg-white max-w-lg mx-4 my-8" role="dialog" aria-modal="true" aria-labelledby="search-modal-title">
+    <div 
+      class="modal-content rounded-round-xl border-0 shadow-lg bg-white max-w-lg mx-4 my-8" 
+      role="dialog" 
+      aria-modal="true" 
+      aria-labelledby="search-modal-title"
+      aria-describedby="search-modal-desc"
+    >
       <div class="modal-header border-0 pb-0 flex items-center justify-between p-4">
         <h2 id="search-modal-title" class="sr-only">{{ t('search.resultsLabel') }}</h2>
+        <p id="search-modal-desc" class="sr-only">{{ t('a11y.searchInput') }}</p>
         <MainMenu
           ref="searchBarRef"
           v-model="query"
@@ -11,16 +18,20 @@
           :filter-label="t('search.filter')"
           @escape="hide()"
         />
-        <button class="close-btn" @click="hide" :aria-label="t('nav.close')">
+        <button 
+          class="close-btn" 
+          @click="hide" 
+          :aria-label="t('a11y.closeSearch')"
+        >
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
 
       <!-- Results -->
-      <div class="search-results">
+      <div class="search-results" role="region" :aria-label="t('a11y.searchResultsLabel')">
         <!-- Hint when query is too short -->
-        <div v-if="query.trim().length < 2" class="p-4 text-center text-onSurface-variant">
-          <IBiSearch style="font-size: 2rem; opacity: 0.3" />
+        <div v-if="query.trim().length < 2" class="p-4 text-center text-onSurface-variant" role="status">
+          <IBiSearch style="font-size: 2rem; opacity: 0.3" aria-hidden="true" />
           <p class="mt-2 mb-0 text-label-sm">{{ t("search.minChars") }}</p>
         </div>
 
@@ -28,26 +39,39 @@
         <div
           v-else-if="results.length === 0"
           class="p-4 text-center text-onSurface-variant"
+          role="status"
+          aria-live="polite"
         >
-          <IBiEmojiDizzy style="font-size: 2rem; opacity: 0.3" />
+          <IBiEmojiDizzy style="font-size: 2rem; opacity: 0.3" aria-hidden="true" />
           <p class="mt-2 mb-0 text-label-sm">{{ t("search.noResults") }} <strong>{{ query }}</strong></p>
         </div>
 
         <!-- Result list -->
-        <div v-else class="result-list" role="listbox" id="search-results-list" :aria-label="t('search.resultsLabel')">
+        <div 
+          v-else 
+          class="result-list" 
+          role="listbox" 
+          id="search-results-list" 
+          :aria-label="t('a11y.searchResultsLabel')"
+        >
           <button
-            v-for="project in results"
+            v-for="(project, index) in results"
             :key="project.id"
             role="option"
+            :aria-label="`${project.name}, ${t('a11y.viewProjectDetails')}`"
             class="result-item flex items-start gap-3 py-3 px-4 w-full text-left"
             @click="navigate(project)"
+            @keydown.enter="navigate(project)"
+            @keydown.space.prevent="navigate(project)"
+            :tabindex="index === 0 ? 0 : -1"
           >
             <!-- Thumbnail -->
             <img
               v-if="getTeaserImage(project)"
               :src="getTeaserImage(project)"
               :alt="project.name"
-              class="result-thumb rounded-round-default" loading="lazy"
+              class="result-thumb rounded-round-default" 
+              loading="lazy"
             />
             <div v-else class="result-thumb-placeholder rounded-round-default flex items-center justify-center">
               <IBiGlobe2 class="text-onSurface-variant" aria-hidden="true" />
@@ -58,21 +82,22 @@
               <div class="flex items-center gap-2 mt-1 flex-wrap">
                 <StateBadge :state="project.state" />
                 <span v-if="project.country" class="text-label-sm text-onSurface-variant flex items-center gap-1">
-                  <IBiGeoAlt />
+                  <IBiGeoAlt aria-hidden="true" />
                   {{ project.country.fields.Name }}
                 </span>
               </div>
             </div>
 
-            <IBiChevronRight class="text-onSurface-variant self-center" />
+            <IBiChevronRight class="text-onSurface-variant self-center" aria-hidden="true" />
           </button>
         </div>
       </div>
 
       <!-- Footer hint -->
       <div v-if="results.length > 0" class="search-footer px-4 py-2 flex items-center gap-3 text-onSurface-variant text-label-sm border-t border-outline-variant">
-        <span aria-hidden="true"><kbd>↵</kbd> öffnen</span>
-        <span aria-hidden="true"><kbd>Esc</kbd> schließen</span>
+        <span aria-hidden="true"><kbd>↑</kbd> <kbd>↓</kbd> {{ t('a11y.navigate') }}</span>
+        <span aria-hidden="true"><kbd>Enter</kbd> {{ t('a11y.open') }}</span>
+        <span aria-hidden="true"><kbd>Esc</kbd> {{ t('a11y.close') }}</span>
         <span class="ml-auto" aria-live="polite">{{ t("a11y.searchResultsAnnouncement", { count: results.length }) }}</span>
       </div>
       <div class="sr-only" role="status" aria-live="polite">
@@ -83,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, onUnmounted } from "vue";
+import { ref, nextTick, onMounted, onUnmounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
@@ -156,6 +181,14 @@ function getTeaserImage(project: Project) {
   return "/img/placeholder.png";
 }
 
+// Handle keyboard navigation in results
+function handleResultKeydown(e: KeyboardEvent, project: Project) {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    navigate(project);
+  }
+}
+
 // Ctrl+K / Cmd+K keyboard shortcut
 function handleKeydown(e: KeyboardEvent) {
   // Don't open if user is currently typing in another input
@@ -170,6 +203,29 @@ function handleKeydown(e: KeyboardEvent) {
     e.preventDefault();
     const searchStore = useSearchStore();
     searchStore.openSearch();
+  }
+}
+
+// Trap focus inside modal
+function trapFocus(e: KeyboardEvent) {
+  if (e.key !== 'Tab' || !isVisible.value) return;
+
+  const modal = e.currentTarget as HTMLElement;
+  const focusable = modal.querySelectorAll<HTMLElement>(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+  );
+  
+  if (focusable.length === 0) return;
+
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
   }
 }
 
@@ -189,7 +245,11 @@ defineExpose({ show, hide });
 }
 
 .result-item {
-  @apply cursor-pointer bg-surface rounded-round-default transition-[background-color,transform] duration-150 hover:bg-surface-variant hover:-translate-y-0.5 active:translate-y-0;
+  @apply cursor-pointer bg-surface rounded-round-default transition-[background-color,transform] duration-150 hover:bg-surface-variant hover:-translate-y-0.5 active:translate-y-0 focus:outline-2 focus:outline-secondary focus:outline-offset-2;
+}
+
+.result-item:focus-visible {
+  @apply outline-2 outline-secondary outline-offset-2;
 }
 
 .result-thumb {
@@ -225,7 +285,11 @@ kbd {
 }
 
 .close-btn {
-  @apply w-8 h-8 rounded-full border-none bg-transparent text-onSurface flex items-center justify-center text-[22px] cursor-pointer leading-none transition-all duration-200 hover:bg-black/10;
+  @apply w-8 h-8 rounded-full border-none bg-transparent text-onSurface flex items-center justify-center text-[22px] cursor-pointer leading-none transition-all duration-200 hover:bg-black/10 focus:outline-2 focus:outline-secondary focus:outline-offset-2;
+}
+
+.close-btn:focus-visible {
+  @apply outline-2 outline-secondary outline-offset-2;
 }
 
 .sr-only {
