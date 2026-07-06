@@ -11,25 +11,25 @@
     <link rel="mask-icon" href="/img/icons/safari-pinned-tab.svg" color="#3d5e9e">
     <meta name="theme-color" content="#3d5e9e">
 
-    <title>JWF + Humanaktiv: Wells and Schools in Westafrica | Jörg Wolff Foundation</title>
+    <title>JWF + Humanaktiv: Wells and Schools in Westafrica | Jrg Wolff Foundation</title>
 
-    <meta name="description" content="The Jörg Wolff Foundation in Stuttgart promotes development programs to fight against hunger and disease in the world, especially in West Africa.">
+    <meta name="description" content="The Jrg Wolff Foundation in Stuttgart promotes development programs to fight against hunger and disease in the world, especially in West Africa.">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="JWF + Humanaktiv: Wells and Schools in Westafrica | Jörg Wolff Foundation">
+    <meta property="og:title" content="JWF + Humanaktiv: Wells and Schools in Westafrica | Jrg Wolff Foundation">
 
     <meta property="og:image" content="/img/cropped-joerg-wolff-stiftung.png">
     <meta property="og:image:width" content="512">
     <meta property="og:image:height" content="512">
     <meta property="og:locale" content="en_US">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="JWF + Humanaktiv: Wells and Schools in Westafrica | Jörg Wolff Foundation">
-    <meta property="og:description" content="The Jörg Wolff Foundation in Stuttgart promotes development programs to fight against hunger and disease in the world, especially in West Africa.">
+    <meta property="og:title" content="JWF + Humanaktiv: Wells and Schools in Westafrica | Jrg Wolff Foundation">
+    <meta property="og:description" content="The Jrg Wolff Foundation in Stuttgart promotes development programs to fight against hunger and disease in the world, especially in West Africa.">
     <meta property="og:url" content="https://www.joerg-wolff-stiftung.de/en/development-aid/">
-    <meta property="og:site_name" content="Jörg Wolff Foundation">
+    <meta property="og:site_name" content="Jrg Wolff Foundation">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="JWF + Humanaktiv: Wells and Schools in Westafrica | Jörg Wolff Foundation">
-    <meta name="twitter:description" content="The Jörg Wolff Foundation in Stuttgart promotes development programs to fight against hunger and disease in the world, especially in West Africa.">
+    <meta name="twitter:title" content="JWF + Humanaktiv: Wells and Schools in Westafrica | Jrg Wolff Foundation">
+    <meta name="twitter:description" content="The Jrg Wolff Foundation in Stuttgart promotes development programs to fight against hunger and disease in the world, especially in West Africa.">
     <meta name="twitter:image" content="/img/cropped-joerg-wolff-stiftung.png">
     <meta name="twitter:image:width" content="512">
     <meta name="twitter:image:height" content="512">
@@ -47,6 +47,16 @@
     <!-- Preload critical resources -->
     <link rel="preload" href="/img/favicon.ico" as="image" type="image/x-icon">
     <link rel="preload" href="/img/cropped-joerg-wolff-stiftung.png" as="image" type="image/png">
+
+    <!-- Load Leaflet CSS from CDN to reduce bundle size (~25KB savings) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- Inline MarkerCluster CSS to avoid extra request -->
+    <style>
+      .marker-cluster-custom { background-color: #ff7800; color: #fff; }
+      .marker-cluster-custom div { background-color: #f44336; }
+      .marker-cluster-custom span { background-color: #1976D2; }
+    </style>
 
     <!-- Inline critical CSS for instant app shell -->
     <style>

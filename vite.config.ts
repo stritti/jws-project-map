@@ -31,23 +31,6 @@ export default defineConfig({
         );
       },
     },
-    // Plugin to inject Leaflet CSS from CDN
-    {
-      name: "inject-leaflet-css-cdn",
-      transformIndexHtml(html: string) {
-        return html.replace(
-          /<head>/,
-          `<head>
-          <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-          <style>
-            /* Inline MarkerCluster CSS to avoid extra request */
-            .marker-cluster-custom { background-color: #ff7800; color: #fff; }
-            .marker-cluster-custom div { background-color: #f44336; }
-            .marker-cluster-custom span { background-color: #1976D2; }
-          </style>`
-        );
-      },
-    },
     // Optimized Leaflet and MarkerCluster handling
     // 1. Force Vite to pre-bundle leaflet and leaflet.markercluster together
     // 2. Ensure window.L is available before markercluster IIFE executes
@@ -146,7 +129,7 @@ export default defineConfig({
     },
   },
   // Optimize dependencies to pre-bundle leaflet and markercluster together
-  // Exclude leaflet CSS as it's loaded from CDN
+  // Exclude leaflet CSS as it's loaded from CDN (in index.html)
   optimizeDeps: {
     include: [
       "leaflet",
