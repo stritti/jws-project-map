@@ -79,6 +79,7 @@ import { ref, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import type { ProjectState } from "@/composables/useProjectSearch";
+import { PROJECT_STATES } from "@/constants/projectStates";
 
 import IBiMap from "~icons/bi/map";
 import IBiListUl from "~icons/bi/list-ul";
@@ -141,9 +142,9 @@ const resolvedFilterLabel = computed(() => props.filterLabel || t("search.filter
 
 const stateOptions = computed(() => [
   { value: "all" as ProjectState, label: t("search.chips.all") },
-  { value: "planned" as ProjectState, label: t("search.chips.planned") },
-  { value: "under construction" as ProjectState, label: t("search.chips.underConstruction") },
-  { value: "finished" as ProjectState, label: t("search.chips.finished") },
+  { value: PROJECT_STATES.PLANNED as ProjectState, label: t("search.chips.planned") },
+  { value: PROJECT_STATES.UNDER_CONSTRUCTION as ProjectState, label: t("search.chips.underConstruction") },
+  { value: PROJECT_STATES.FINISHED as ProjectState, label: t("search.chips.finished") },
 ]);
 
 // Handle filter-chip click: update local state + emit both events (Codex #P2)

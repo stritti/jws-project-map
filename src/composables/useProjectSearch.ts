@@ -4,7 +4,7 @@ import type { Project } from "@/interfaces/Project";
 
 const DEFAULT_MAX_RESULTS = 20;
 
-export type ProjectState = "all" | "planned" | "under construction" | "finished";
+export type ProjectState = "all" | import("@/constants/projectStates").ProjectState;
 
 export function useProjectSearch(projects: Ref<Project[]>, options?: { limit?: number }) {
   const query = ref("");

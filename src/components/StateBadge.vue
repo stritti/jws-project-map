@@ -7,6 +7,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { PROJECT_STATES } from "@/constants/projectStates";
 
 const { t } = useI18n();
 
@@ -16,9 +17,9 @@ const props = withDefaults(defineProps<{
 }>(), {});
 
 const stateKeyMap: Record<string, string> = {
-  finished: "finished",
-  "under construction": "underConstruction",
-  planned: "planned",
+  [PROJECT_STATES.FINISHED]: "finished",
+  [PROJECT_STATES.UNDER_CONSTRUCTION]: "underConstruction",
+  [PROJECT_STATES.PLANNED]: "planned",
 };
 
 const cssClass = computed(() => props.state.replace(" ", "-"));
