@@ -32,22 +32,18 @@ app.use(router);
 app.use(i18n);
 
 // Initialize stores after Pinia is attached to the app
-const projectStore = useProjectStore(pinia);
-const categoryStore = useCategoryStore(pinia);
-const countryStore = useCountryStore(pinia);
+// Note: projectStore is intentionally not used here for lazy loading
+// Projects will be loaded on-demand when first accessed
+const _categoryStore = useCategoryStore(pinia);
+const _countryStore = useCountryStore(pinia);
 
-// Lazy loading: Only load data when actually needed
-// This prevents loading all data on startup, improving initial load performance
-// Data will be loaded on-demand when components access the stores
+// Load metadata (categories, countries) on startup as they're small
+// Project data is loaded lazily - only when first accessed
 const initializeStores = async () => {
-  // Load metadata (categories, countries) on startup as they're small
   await Promise.allSettled([
-    categoryStore.load(),
-    countryStore.load(),
+    _categoryStore.load(),
+    _countryStore.load(),
   ]);
-  
-  // Project data is loaded lazily - only when first accessed
-  // This is handled in the project store with lazy loading pattern
 };
 
 // Initialize metadata stores
