@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+. "$(dirname "$0")/_/husky.sh"
+
+# Use commitizen for interactive commits
+if [ -z "$COMMIT_EDITMSG" ]; then
+  exec < /dev/tty
+  npx git-cz --hook
+fi

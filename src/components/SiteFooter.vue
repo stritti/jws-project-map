@@ -4,9 +4,9 @@
       <p class="m-0 text-label-sm text-onSurface-variant">
         <strong
           ><a href="https://www.joerg-wolff-stiftung.de/" class=" text-onSurface hover:text-primary hover:underline">
-            Jörg Wolff Stiftung</a
+            Jorg Wolff Stiftung</a
           ></strong
-        >, Kölner Straße 8, 70376 Stuttgart, Germany
+        >, Klner Strae 8, 70376 Stuttgart, Germany
       </p>
       <p class="mt-3 text-label-sm text-onSurface-variant">
         Tel. +49 (0) 711/540 04-10,
@@ -14,16 +14,17 @@
           info@joerg-wolff-stiftung.de</a
         >
       </p>
+      <p v-if="version" class="mt-3 text-label-sm text-onSurface-variant">
+        Version: {{ version }}
+      </p>
     </div>
   </footer>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { useAppVersion } from '@/composables/useAppVersion';
 
-export default defineComponent({
-  name: "SiteFooter",
-});
+const { version } = useAppVersion();
 </script>
 
 <style lang="postcss" scoped>

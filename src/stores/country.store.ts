@@ -1,26 +1,18 @@
 import type { Country } from "@/interfaces/Country";
 import { defineStore } from "pinia";
 import countryService from "../services/country.service";
-import { i18n } from "@/plugins/i18n";
-
-function currentLocale(): string {
-  try {
-    return (i18n.global.locale as unknown as { value: string }).value || "en";
-  } catch {
-    return "en";
-  }
-}
+import { currentLocale } from "@/utils/locale";
 
 interface State {
   countries: Country[];
-  initialized: boolean; // Flag to track initialization
+  initialized: boolean;
 }
 
 export const useCountryStore = defineStore("country", {
   state: (): State => {
     return {
       countries: [],
-      initialized: false, // Initialize as false
+      initialized: false,
     };
   },
   persist: false,
@@ -38,18 +30,19 @@ export const useCountryStore = defineStore("country", {
   },
   actions: {
     async load(): Promise<void> {
-      // Prevent re-initialization
+      // Prevent re-initialization once successfully loaded
       if (this.initialized) {
         return;
       }
-      this.initialized = true; // Set flag immediately
 
-      // Load data in background without blocking UI
       try {
         const list = await countryService.getAll();
         this.countries = list as Array<Country>;
+        // Only mark as initialized on success — allows retry on error
+        this.initialized = true;
       } catch (error) {
         console.error("Error initializing country store:", error);
+        // Do NOT set initialized = true — permits retry
       }
     },
   },
