@@ -6,9 +6,8 @@ import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 import App from "./App.vue";
 import router from "./router";
 
-import { useProjectStore } from "@/features/projects/stores/project.store";
-import { useCategoryStore } from "./stores/category.store";
-import { useCountryStore } from "./stores/country.store";
+import { useCategoryStore } from "@/stores/category.store";
+import { useCountryStore } from "@/stores/country.store";
 
 import { i18n } from "./plugins/i18n";
 import { useHtmlLang } from "./composables/useAccessibility";
@@ -32,21 +31,22 @@ app.use(router);
 app.use(i18n);
 
 // Initialize stores after Pinia is attached to the app
-const projectStore = useProjectStore(pinia);
-const categoryStore = useCategoryStore(pinia);
-const countryStore = useCountryStore(pinia);
+// Note: Stores are initialized with underscore prefix to indicate intentional usage
+const _categoryStore = useCategoryStore(pinia);
+const _countryStore = useCountryStore(pinia);
 
-// Load all data on startup
-Promise.allSettled([
-  projectStore.load(),
-  categoryStore.load(),
-  countryStore.load(),
-]).then((results) => {
-  results.forEach((result) => {
-    if (result.status === "rejected") {
-      console.error("Initial data load failed:", result.reason);
-    }
-  });
+// Load metadata (categories, countries) on startup as they're small
+// Project data is loaded lazily - only when first accessed via useProjectStore()
+const initializeStores = async (): Promise<void> => {
+  await Promise.allSettled([
+    _categoryStore.load(),
+    _countryStore.load(),
+  ]);
+};
+
+// Initialize metadata stores
+initializeStores().catch((error) => {
+  console.error("Initial metadata load failed:", error);
 });
 
 app.mount("#app");

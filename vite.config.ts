@@ -129,8 +129,15 @@ export default defineConfig({
     },
   },
   // Optimize dependencies to pre-bundle leaflet and markercluster together
+  // Exclude leaflet CSS as it's loaded from CDN (in index.html)
   optimizeDeps: {
-    include: ["leaflet", "leaflet.markercluster", "@vue-leaflet/vue-leaflet"],
+    include: [
+      "leaflet",
+      "leaflet.markercluster",
+      "@vue-leaflet/vue-leaflet",
+      "vue-leaflet-markercluster"
+    ],
+    exclude: ["leaflet/dist/leaflet.css"]
   },
   css: {
     postcss: {

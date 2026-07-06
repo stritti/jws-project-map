@@ -49,13 +49,21 @@ export const useProjectStore = defineStore("project", {
       state.projects.filter((p) => p.state === "planned"),
   },
   actions: {
-    async load(): Promise<void> {
-      if (this.initialized && this.projects.length > 0) {
-        return;
+    /**
+     * Lazy loading implementation - only loads projects when needed
+     * @param force - Force reload even if already loaded
+     * @returns Promise that resolves to the projects array
+     */
+    async loadProjects(force = false): Promise<Project[]> {
+      // Return cached data if available and not forced to reload
+      if (this.projects.length > 0 && !force) {
+        return this.projects;
       }
 
+      // Prevent duplicate concurrent requests
       if (this.loading) {
-        return;
+        // Return existing data or empty array if not yet loaded
+        return this.projects.length > 0 ? this.projects : [];
       }
 
       this.loading = true;
@@ -68,20 +76,33 @@ export const useProjectStore = defineStore("project", {
         if (result && Array.isArray(result)) {
           this.projects = result;
           this.filteredList = result;
+          this.initialized = true;
+          return result;
         } else {
           console.warn(
             "Project store: service returned unexpected data:",
             result,
           );
+          return [];
         }
       } catch (error) {
         console.error("Error fetching projects:", error);
         // Do NOT set initialized — allow retry on next navigation
         this.loading = false;
         loadingStore.updateLoading(false);
-        return;
+        return [];
+      } finally {
+        this.loading = false;
+        loadingStore.updateLoading(false);
       }
-      this.initialized = true;
+    },
+
+    /**
+     * Legacy method for backward compatibility
+     * @deprecated Use loadProjects() instead
+     */
+    async load(): Promise<void> {
+      await this.loadProjects();
     },
 
     doFilter(
