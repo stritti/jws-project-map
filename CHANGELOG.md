@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/stritti/jws-project-map/compare/v1.1.0...v1.2.0) (2026-07-06)
+
+
+### Features
+
+* **i18n:** implement lazy loading and missing translation handler ([#889](https://github.com/stritti/jws-project-map/issues/889)) ([b95a530](https://github.com/stritti/jws-project-map/commit/b95a5306a77890d971cb330bd6be79faf21b9286))
+
 # [1.1.0](https://github.com/stritti/jws-project-map/compare/v1.0.0...v1.1.0) (2026-07-04)
 
 
