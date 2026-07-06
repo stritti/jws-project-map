@@ -55,8 +55,8 @@ export const useProjectStore = defineStore("project", {
      * @returns Promise that resolves to the projects array
      */
     async loadProjects(force = false): Promise<Project[]> {
-      // Return cached data if available and not forced to reload
-      if (this.projects.length > 0 && !force) {
+      // Return cached data if already initialized and not forced to reload
+      if (this.initialized && !force) {
         return this.projects;
       }
 
