@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",
-    "@commitlint/config-conventional": "^19.5.0",
+    "@commitlint/config-conventional": "^21.2.0",
     "@iconify-json/bi": "^1.2.7",
     "@lhci/cli": "^0.15.1",
     "@modelcontextprotocol/sdk": "^1.29.0",
