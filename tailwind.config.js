@@ -49,7 +49,7 @@ export default {
           DEFAULT: '#75777d',
           variant: '#c5c6cd',
         },
-        // State colors
+        // State colors - these are used dynamically in the app
         finished: '#198754',
         underConstruction: '#ffc107',
         planned: '#3d5e9e',
@@ -132,6 +132,25 @@ export default {
       },
     },
   },
+  // Only generate variants that are actually used in the project
+  variants: {
+    extend: {
+      opacity: ['group-hover'],
+      visibility: ['group-hover'],
+    },
+  },
+  // Safelist only for truly dynamic classes that can't be detected by PurgeCSS
+  safelist: [
+    'bg-finished',
+    'bg-underConstruction',
+    'bg-planned',
+    'text-finished',
+    'text-underConstruction',
+    'text-planned',
+    'border-finished',
+    'border-underConstruction',
+    'border-planned',
+  ],
   plugins: [
     forms,
     typography,
