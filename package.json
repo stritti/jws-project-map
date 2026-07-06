@@ -28,7 +28,7 @@
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "axios": "^1.18.1",
     "baseline-browser-mapping": "^2.10.40",
-    "caniuse-lite": "^1.0.30001797",
+    "caniuse-lite": "^1.0.30001800",
     "flag-icons": "^7.5.0",
     "fuse.js": "^7.4.0",
     "leaflet": "^1.9.4",
