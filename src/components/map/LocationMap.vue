@@ -75,7 +75,7 @@
             ></l-icon>
             <l-tooltip v-if="zoom > 7" role="tooltip">
               <span>{{ loc.name }}</span>
-              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+              <span v-if="loc.state !== PROJECT_STATES.FINISHED"> ({{ loc.state }})</span>
             </l-tooltip>
           </l-marker>
         </component>
@@ -107,7 +107,7 @@
             ></l-icon>
             <l-tooltip v-if="zoom > 7" role="tooltip">
               <span>{{ loc.name }}</span>
-              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+              <span v-if="loc.state !== PROJECT_STATES.FINISHED"> ({{ loc.state }})</span>
             </l-tooltip>
           </l-marker>
         </component>
@@ -139,7 +139,7 @@
             ></l-icon>
             <l-tooltip v-if="zoom > 7" role="tooltip">
               <span>{{ loc.name }}</span>
-              <span v-if="loc.state !== 'finished'"> ({{ loc.state }})</span>
+              <span v-if="loc.state !== PROJECT_STATES.FINISHED"> ({{ loc.state }})</span>
             </l-tooltip>
           </l-marker>
         </component>
@@ -170,6 +170,7 @@ import projectService from "@/features/projects/services/project.service";
 import type { Project } from "@/interfaces/Project";
 import { useI18n } from "vue-i18n";
 import { announceToScreenReader } from "@/composables/useAccessibility";
+import { PROJECT_STATES } from "@/constants/projectStates";
 
 // Lazy load Leaflet and related components
 const isLeafletLoaded = ref(false);
@@ -346,15 +347,63 @@ const layerLabelProjectsPlanned = computed(() =>
   t("map.layerPlanned", { count: projectsPlanned.value.length })
 );
 
-function getPin(loc: Project) {
-  if (loc.state === "finished") {
-    return projectService.getPinForProject(loc);
+const DEFAULT_PIN = "/pins/default.png";
+const AVAILABLE_PINS = new Set([
+  "default",
+  "school",
+  "midwife",
+  "well",
+  "teacher",
+  "school-well",
+  "well-school",
+  "undefined",
+]);
+
+function getPin(location: Project): string {
+  if (!location) return DEFAULT_PIN;
+
+  try {
+    const categories = location.category;
+    if (!categories || categories.length === 0) return DEFAULT_PIN;
+
+    const categoryNames = categories
+      .map((cat) => {
+        const name = cat.fields?.Name || String(cat.id);
+        return name && name !== "undefined" && name !== "null"
+          ? String(name).toLowerCase()
+          : null;
+      })
+      .filter(Boolean)
+      .join("-");
+
+    if (!categoryNames) return DEFAULT_PIN;
+    if (AVAILABLE_PINS.has(categoryNames)) return `/pins/${categoryNames}.png`;
+
+    const primaryCategory = categoryNames.split("-")[0];
+    if (primaryCategory && AVAILABLE_PINS.has(primaryCategory)) {
+      return `/pins/${primaryCategory}.png`;
+    }
+
+    return DEFAULT_PIN;
+  } catch (error) {
+    console.error("Error getting pin for location:", error);
+    return DEFAULT_PIN;
   }
-  return projectService.getPinForProject(loc, true);
 }
 
-function pinClass(loc: Project) {
-  return loc.state === "finished" ? "pin-finished" : "pin-planned";
+function pinClass(current: Project): string {
+  const isSelected = selectedLocation.value?.id === current.id;
+  let cssClass = "";
+
+  if (current.state) {
+    cssClass = `marker-state-${current.state.toLowerCase().replace(" ", "-")}`;
+  }
+
+  if (isSelected) {
+    cssClass = cssClass ? `marker-selected ${cssClass}` : "marker-selected";
+  }
+
+  return cssClass;
 }
 
 function onMarkerClick(loc: Project) {
@@ -369,52 +418,132 @@ function onSidePanelClose() {
   selectedLocation.value = undefined;
 }
 
-function addMarker(event: any) {
-  // Handle map click - could add new marker functionality here
-  console.log("Map clicked at:", event.latlng);
+function getHeadingOffset(): number {
+  const heading = document.querySelector<HTMLElement>('.home h1');
+  if (!heading) return 80;
+  return Math.round(heading.getBoundingClientRect().bottom) + 8;
 }
 
-function mapLoaded() {
-  // Map is ready
-  if (map.value) {
-    const mapInstance = map.value.leafletObject;
-    if (mapInstance) {
-      // Set initial view if we have locations
-      if (locations.value.length > 0) {
-        const bounds = L.latLngBounds(
-          locations.value.map((loc) => [loc.latitude, loc.longitude])
-        );
-        mapInstance.fitBounds(bounds, { padding: [50, 50] });
+function updateBounds() {
+  if (!locations.value.length || !map.value?.leafletObject) return;
+
+  try {
+    let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
+    let validPoints = 0;
+
+    for (const loc of locations.value) {
+      const lat = loc.latitude;
+      const lng = loc.longitude;
+      if (typeof lat === "number" && typeof lng === "number" && !isNaN(lat) && !isNaN(lng)) {
+        minLat = Math.min(minLat, lat);
+        maxLat = Math.max(maxLat, lat);
+        minLng = Math.min(minLng, lng);
+        maxLng = Math.max(maxLng, lng);
+        validPoints++;
       }
     }
+
+    if (validPoints > 0) {
+      const calculatedBounds = L.latLngBounds([minLat, minLng], [maxLat, maxLng]);
+      const topPad = getHeadingOffset();
+      map.value.leafletObject.fitBounds(calculatedBounds, {
+        paddingTopLeft: [50, topPad],
+        paddingBottomRight: [50, 50],
+      });
+    }
+  } catch (error) {
+    console.error("Error updating map bounds:", error);
   }
 }
 
-// Watch for location changes and update map bounds
-watch(
-  () => locations.value,
-  () => {
-    if (map.value && locations.value.length > 0) {
-      const mapInstance = map.value.leafletObject;
-      if (mapInstance) {
-        const bounds = L.latLngBounds(
-          locations.value.map((loc) => [loc.latitude, loc.longitude])
-        );
-        mapInstance.fitBounds(bounds, { padding: [50, 50] });
-      }
+const addMarker = (event: {
+  latlng: any;
+  originalEvent: { ctrlKey: any; altKey: any };
+}) => {
+  if (
+    zoom.value >= 9 &&
+    event.latlng &&
+    event.originalEvent.ctrlKey &&
+    event.originalEvent.altKey
+  ) {
+    const name = prompt("Enter name:", "__TBD__");
+    if (name) {
+      projectService.add(event.latlng, name);
     }
-  },
-  { deep: true }
-);
+  }
+};
+
+const mapLoaded = () => {
+  if (map.value?.leafletObject) {
+    // Add aria-labels to zoom controls for accessibility
+    const zoomControl = map.value.leafletObject.zoomControl;
+    if (zoomControl?.getContainer) {
+      const container = zoomControl.getContainer();
+      const zoomIn = container?.querySelector(".leaflet-control-zoom-in");
+      const zoomOut = container?.querySelector(".leaflet-control-zoom-out");
+      if (zoomIn) zoomIn.setAttribute("aria-label", t("a11y.zoomIn"));
+      if (zoomOut) zoomOut.setAttribute("aria-label", t("a11y.zoomOut"));
+    }
+  }
+
+  if (locations.value.length > 0) {
+    nextTick(() => updateBounds());
+  }
+};
+
+watch(locations, (newLocations) => {
+  if (newLocations.length > 0 && map.value?.leafletObject) {
+    nextTick(() => updateBounds());
+  }
+});
 </script>
 
-<style scoped lang="postcss">
-.map {
-  @apply w-full h-full min-h-screen;
+<style lang="postcss">
+.leaflet-top {
+  @apply top-[calc(var(--spacing-unit)*12.5+env(safe-area-inset-top))];
+}
+.leaflet-left {
+  @apply left-[env(safe-area-inset-left)];
+}
+.leaflet-right {
+  @apply right-[env(safe-area-inset-right)];
+}
+.leaflet-bottom {
+  @apply bottom-[env(safe-area-inset-bottom)];
+}
+.leaflet-control-attribution {
+  @apply max-w-[calc(100vw-var(--spacing-unit)*21.25)] text-[calc(var(--spacing-unit)*1.875)];
 }
 
-/* Focus styles for keyboard navigation */
+.leaflet-marker-icon {
+  &:hover {
+    @apply scale-150 drop-shadow-[0px_0px_10px_rgba(210,28,28,0.75)];
+  }
+}
+
+.marker-selected {
+  @apply scale-125 drop-shadow-[0px_0px_4px_rgb(178,14,14)];
+}
+
+.marker-selected:hover {
+  @apply scale-150 drop-shadow-[0px_0px_10px_rgba(210,28,28,0.75)];
+}
+
+.marker-state-planned {
+  @apply grayscale-[90%] opacity-50;
+}
+.marker-state-under-construction {
+  @apply grayscale-[80%] opacity-90;
+}
+.marker-state-finished {
+  @apply opacity-100;
+}
+
+.map {
+  @apply w-full h-full;
+}
+
 .map:focus-visible {
-  @apply outline-2 outline-secondary outline-offset-2;
+  @apply outline-3 outline-primary outline-offset-[-3px] z-10;
 }
 </style>

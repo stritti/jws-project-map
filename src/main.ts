@@ -7,10 +7,10 @@ import App from "./App.vue";
 import router from "./router";
 
 import { useProjectStore } from "@/features/projects/stores/project.store";
-import { useCategoryStore } from "./stores/category.store";
-import { useCountryStore } from "./stores/country.store";
+import { useCategoryStore } from "@/stores/category.store";
+import { useCountryStore } from "@/stores/country.store";
 
-import { i18n } from "./plugins/i18n";
+import { i18n, initializeLocale } from "@/plugins/i18n";
 import { useHtmlLang } from "./composables/useAccessibility";
 
 import "./assets/main.css";
@@ -36,23 +36,31 @@ const projectStore = useProjectStore(pinia);
 const categoryStore = useCategoryStore(pinia);
 const countryStore = useCountryStore(pinia);
 
-// Load all data on startup
-Promise.allSettled([
-  projectStore.load(),
-  categoryStore.load(),
-  countryStore.load(),
-]).then((results) => {
-  results.forEach((result) => {
-    if (result.status === "rejected") {
-      console.error("Initial data load failed:", result.reason);
-    }
-  });
-});
+// Initialize locale messages before loading data
+async function initializeApp() {
+  try {
+    // Load locale messages first
+    await initializeLocale();
+    
+    // Then load all data
+    await Promise.allSettled([
+      projectStore.load(),
+      categoryStore.load(),
+      countryStore.load(),
+    ]);
+  } catch (error) {
+    console.error("Initialization failed:", error);
+  } finally {
+    // Mount the app after initialization
+    app.mount("#app");
+    
+    // Bind HTML lang attribute to current i18n locale
+    useHtmlLang(i18n);
+  }
+}
 
-app.mount("#app");
-
-// Bind HTML lang attribute to current i18n locale
-useHtmlLang(i18n);
+// Start initialization
+initializeApp();
 
 // Vite preload errors occur when a dynamic import's dependency chunk cannot be
 // fetched — typically because the PWA service worker is serving stale cached

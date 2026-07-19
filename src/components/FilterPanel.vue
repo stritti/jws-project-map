@@ -107,3 +107,180 @@ import IBiCheck from "~icons/bi/check";
 const { t } = useI18n({ useScope: 'global' })
 const filterStore = useFilterStore()
 const categoryStore = useCategoryStore()
+const countryStore = useCountryStore()
+
+const { categories } = storeToRefs(categoryStore)
+const { countries } = storeToRefs(countryStore)
+const { stateFilter, categoryFilter, countryFilter } = storeToRefs(filterStore)
+
+const emit = defineEmits<{
+  (e: 'close'): void
+}>()
+
+const stateOptions = computed(() => [
+  { text: t('project.state.finished'), value: 'finished' },
+  { text: t('project.state.underConstruction'), value: 'under construction' },
+  { text: t('project.state.planned'), value: 'planned' },
+])
+
+const categoryList = computed(() =>
+  categories.value.map((category) => ({
+    text: categoryStore.getDisplayName(category.id),
+    value: Number(category.id),
+    ...category,
+  })),
+)
+
+const countryList = computed(() =>
+  countries.value.map((country) => ({
+    text: countryStore.getDisplayName(country.id),
+    value: Number(country.id),
+    ...country,
+  })),
+)
+</script>
+
+<style lang="postcss" scoped>
+.filter-dropdown {
+  position: relative;
+}
+
+.filter-card {
+  @apply bg-white/70 backdrop-blur-xl shadow-lg border border-white/25 rounded-round-xl overflow-hidden;
+}
+
+/* ── Header ── */
+.filter-header {
+  @apply flex items-center justify-between px-3 py-2 border-b border-outline/15;
+}
+
+.filter-title {
+  @apply flex items-center gap-1.5 text-body-md font-semibold text-onSurface m-0 leading-none;
+}
+
+.filter-title :deep(svg) {
+  font-size: 1rem;
+}
+
+.filter-close {
+  @apply flex items-center justify-center w-7 h-7 rounded-full border-none bg-transparent text-onSurface-variant cursor-pointer transition-colors duration-200 hover:bg-black/10 hover:text-onSurface;
+}
+
+.filter-close :deep(svg) {
+  font-size: 1.1rem;
+}
+
+/* ── Scroll area ── */
+.filter-scroll {
+  @apply max-h-full overflow-y-auto px-3 py-2;
+  touch-action: pan-y;
+}
+
+.filter-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.filter-scroll::-webkit-scrollbar-thumb {
+  background-color: #c5c6cd;
+  border-radius: 4px;
+}
+
+/* ── Grid layout ── */
+.filter-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3;
+}
+
+/* ── Group ── */
+.filter-group {
+  @apply mb-3 sm:mb-0;
+}
+
+.filter-fieldset {
+  @apply border-none p-0 m-0;
+}
+
+.filter-group-title {
+  @apply text-secondary text-label-md font-semibold uppercase tracking-[0.5px] mb-3;
+}
+
+/* ── Custom checkbox ── */
+.custom-check-group {
+  @apply grid grid-cols-2 gap-x-3 gap-y-1;
+}
+
+.form-check {
+  @apply relative flex items-center cursor-pointer select-none py-0.5;
+}
+
+/* Hide native checkbox visually but keep accessible */
+.form-check-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Custom checkmark box */
+.form-check-checkmark {
+  @apply flex items-center justify-center w-5 h-5 rounded-round-default border-2 border-outline bg-white flex-shrink-0 transition-colors duration-150 mr-3;
+}
+
+.form-check-input:focus-visible + .form-check-checkmark {
+  @apply ring-2 ring-secondary ring-offset-1;
+}
+
+.form-check-input:checked + .form-check-checkmark {
+  @apply bg-secondary border-secondary;
+}
+
+.form-check-input:checked + .form-check-checkmark .check-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.check-icon {
+  @apply text-white text-xs;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.form-check-label {
+  @apply text-body-md cursor-pointer transition-colors duration-150 hover:text-secondary;
+}
+
+.form-check:hover .form-check-checkmark {
+  @apply border-secondary/60;
+}
+
+.form-check:hover .check-icon {
+  @apply text-secondary/40;
+}
+
+.form-check-input:checked:hover + .form-check-checkmark {
+  @apply bg-secondary/90 border-secondary/90;
+}
+
+/* ── Scrollable sub-groups ── */
+.scrollable-group {
+  @apply overflow-y-auto pr-2 max-h-[12rem];
+}
+
+.scrollable-group::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollable-group::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.scrollable-group::-webkit-scrollbar-thumb {
+  background-color: #c5c6cd;
+  border-radius: 3px;
+}
+
+.scrollable-group::-webkit-scrollbar-thumb:hover {
+  background-color: #75777d;
+}
+</style>

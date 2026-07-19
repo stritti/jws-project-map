@@ -109,4 +109,5 @@ function goToDetail(): void {
 .slide-up-leave-active {
   @apply transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.165,0.84,0.44,1)];
 }
+</style>
 

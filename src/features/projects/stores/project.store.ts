@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { PROJECT_STATES } from "@/constants/projectStates";
 import projectService from "@/features/projects/services/project.service";
 import { useLoadingStore } from "@/stores/loading.store";
 import type { Project } from "@/interfaces/Project";
@@ -24,29 +25,25 @@ export const useProjectStore = defineStore("project", {
       state.projects.find((project: Project) => project.id === id) as Project,
     projectsByState: (
       state,
-    ): {
-      finished: Project[];
-      "under construction": Project[];
-      planned: Project[];
-    } => {
-      const result = {
-        finished: [] as Project[],
-        "under construction": [] as Project[],
-        planned: [] as Project[],
+    ): Record<string, Project[]> => {
+      const result: Record<string, Project[]> = {
+        [PROJECT_STATES.FINISHED]: [],
+        [PROJECT_STATES.UNDER_CONSTRUCTION]: [],
+        [PROJECT_STATES.PLANNED]: [],
       };
       state.projects.forEach((project) => {
-        if (project.state && result[project.state as keyof typeof result]) {
-          result[project.state as keyof typeof result].push(project);
+        if (project.state && result[project.state]) {
+          result[project.state].push(project);
         }
       });
       return result;
     },
     projectsFinished: (state): Project[] =>
-      state.projects.filter((p) => p.state === "finished"),
+      state.projects.filter((p) => p.state === PROJECT_STATES.FINISHED),
     projectsUnderConstruction: (state): Project[] =>
-      state.projects.filter((p) => p.state === "under construction"),
+      state.projects.filter((p) => p.state === PROJECT_STATES.UNDER_CONSTRUCTION),
     projectsPlanned: (state): Project[] =>
-      state.projects.filter((p) => p.state === "planned"),
+      state.projects.filter((p) => p.state === PROJECT_STATES.PLANNED),
   },
   actions: {
     async load(): Promise<void> {
