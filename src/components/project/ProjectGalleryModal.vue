@@ -1,25 +1,46 @@
 <template>
-  <div v-if="props.isVisible" ref="galleryRef" class="fullscreen-gallery" role="dialog" :aria-label="t('a11y.closeGallery')" tabindex="0" @keydown="onKeydown">
-    <button class="gallery-close" @click="closeModal" :aria-label="t('a11y.closeGallery')">
+  <div 
+    v-if="props.isVisible" 
+    ref="galleryRef" 
+    class="fullscreen-gallery" 
+    role="dialog" 
+    :aria-label="t('a11y.closeGallery')"
+    aria-modal="true"
+    aria-describedby="gallery-desc"
+    tabindex="-1"
+    @keydown="onKeydown"
+  >
+    <p id="gallery-desc" class="sr-only">{{ t('gallery.title') }}. {{ t('a11y.imagePosition', { current: currentIndex + 1, total: props.galleryItems.length }) }}</p>
+    
+    <button 
+      class="gallery-close" 
+      @click="closeModal" 
+      :aria-label="t('a11y.closeGallery')"
+      ref="closeBtn"
+    >
       <span aria-hidden="true">&times;</span>
     </button>
 
     <button
       class="gallery-nav gallery-nav-prev"
       :class="{ 'gallery-nav-hidden': props.galleryItems.length <= 1 }"
-      :aria-label="t('gallery.prevImage', 'Previous image')"
+      :aria-label="t('a11y.previousImage')"
       @click="goPrev"
+      @keydown.enter="goPrev"
+      @keydown.space.prevent="goPrev"
     >
-      <span class="gallery-nav-icon gallery-nav-icon-prev" />
+      <span class="gallery-nav-icon gallery-nav-icon-prev" aria-hidden="true" />
     </button>
 
     <button
       class="gallery-nav gallery-nav-next"
       :class="{ 'gallery-nav-hidden': props.galleryItems.length <= 1 }"
-      :aria-label="t('gallery.nextImage', 'Next image')"
+      :aria-label="t('a11y.nextImage')"
       @click="goNext"
+      @keydown.enter="goNext"
+      @keydown.space.prevent="goNext"
     >
-      <span class="gallery-nav-icon gallery-nav-icon-next" />
+      <span class="gallery-nav-icon gallery-nav-icon-next" aria-hidden="true" />
     </button>
 
     <div class="gallery-carousel">
@@ -30,7 +51,8 @@
               <img
                 :src="currentItem.signedUrl"
                 :alt="currentItem.name || t('a11y.imageNotAvailable', 'Image not available')"
-                class="gallery-image" loading="lazy"
+                class="gallery-image" 
+                loading="lazy"
               />
             </template>
             <template v-else-if="currentItem.mimetype.startsWith('video')">
@@ -43,13 +65,14 @@
                   preload="metadata"
                   class="native-video-player"
                   style="width: 100%; height: 100%; object-fit: contain;"
+                  :aria-label="currentItem.name || t('a11y.imageNotAvailable')"
                 >
                   Your browser does not support the video tag.
                 </video>
               </div>
             </template>
           </div>
-          <div class="gallery-caption">
+          <div class="gallery-caption" aria-live="polite">
             {{ currentItem.name }}
           </div>
         </div>
@@ -57,7 +80,7 @@
     </div>
 
     <!-- Screen reader announcement for image position -->
-    <div class="sr-only" role="status" aria-live="polite">
+    <div class="sr-only" role="status" aria-live="polite" aria-atomic="true">
       {{ props.isVisible ? t('a11y.imagePosition', { current: currentIndex + 1, total: props.galleryItems.length }) : '' }}
     </div>
   </div>
@@ -84,6 +107,8 @@ const emit = defineEmits<{
 
 const currentIndex = ref(0)
 const videoRef = ref<HTMLVideoElement | null>(null)
+const galleryRef = ref<HTMLElement | null>(null)
+const closeBtn = ref<HTMLElement | null>(null)
 
 const currentItem = computed(() => {
   return props.galleryItems[currentIndex.value] || props.galleryItems[0]
@@ -96,6 +121,8 @@ function goPrev() {
   } else {
     currentIndex.value = props.galleryItems.length - 1
   }
+  // Announce position change for screen readers
+  announcePosition()
 }
 
 function goNext() {
@@ -105,6 +132,12 @@ function goNext() {
   } else {
     currentIndex.value = 0
   }
+  // Announce position change for screen readers
+  announcePosition()
+}
+
+function announcePosition() {
+  // This will be picked up by the aria-live region
 }
 
 function closeModal() {
@@ -118,8 +151,6 @@ function closeModal() {
   }
   emit('update:isVisible', false)
 }
-
-const galleryRef = ref<HTMLElement | null>(null)
 
 function trapFocus(e: KeyboardEvent) {
   if (e.key !== 'Tab' || !galleryRef.value) return
@@ -149,6 +180,14 @@ function onKeydown(e: KeyboardEvent) {
   } else if (e.key === 'Escape') {
     e.preventDefault()
     closeModal()
+  } else if (e.key === 'Home') {
+    e.preventDefault()
+    currentIndex.value = 0
+    announcePosition()
+  } else if (e.key === 'End') {
+    e.preventDefault()
+    currentIndex.value = props.galleryItems.length - 1
+    announcePosition()
   }
 }
 
@@ -176,11 +215,8 @@ watch(
     if (visible) {
       setTrigger()
       await nextTick()
-      // Focus first focusable element inside the modal (close button)
-      const firstFocusable = galleryRef.value?.querySelector<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-      )
-      firstFocusable?.focus()
+      // Focus close button first
+      closeBtn.value?.focus()
     } else {
       restoreFocus()
     }

@@ -1,13 +1,27 @@
 <template>
   <Teleport to="body">
     <div v-if="isVisible" class="modal-overlay" @click.self="hide">
-      <div ref="modalRef" class="modal-content rounded-round-xl border-0 shadow-lg bg-white max-w-md mx-4 my-8" role="dialog" aria-modal="true" aria-labelledby="about-modal-title" @keydown="onKeydown">
+      <div 
+        ref="modalRef" 
+        class="modal-content rounded-round-xl border-0 shadow-lg bg-white max-w-md mx-4 my-8" 
+        role="dialog" 
+        aria-modal="true" 
+        aria-labelledby="about-modal-title"
+        aria-describedby="about-modal-desc"
+        @keydown="onKeydown"
+      >
         <div class="modal-header border-0 pb-0 flex items-center justify-between p-4">
-        <h2 id="about-modal-title" class="text-headline-md font-bold text-onSurface">{{ t('about.title') }}</h2>
-        <button class="close-btn" @click="hide" :aria-label="t('nav.close')">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
+          <h2 id="about-modal-title" class="text-headline-md font-bold text-onSurface">{{ t('about.title') }}</h2>
+          <p id="about-modal-desc" class="sr-only">{{ t('a11y.closeAbout') }}</p>
+          <button 
+            class="close-btn" 
+            @click="hide" 
+            :aria-label="t('a11y.closeAbout')"
+            ref="closeBtn"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
         <div class="modal-body pt-2 px-4 pb-4 max-h-[80vh] overflow-y-auto">
           <div class="about-content">
             <!-- Description -->
@@ -28,17 +42,18 @@
             <!-- Sources -->
             <h6 class="section-label">{{ t("about.sources") }}</h6>
             <p class="about-value">
-              <a href="https://github.com/stritti/jws-project-map" target="_blank" rel="noopener noreferrer" class="about-link">GitHub</a>
+              <a href="https://github.com/stritti/jws-project-map" target="_blank" rel="noopener noreferrer" class="about-link">{{ t('about.sources') }}</a>
             </p>
 
             <!-- Version and Reload -->
             <div class="version-row">
               <span class="about-value">{{ t("about.version") }}: {{ version }}</span>
               <button
-                class="rounded-full px-3 border-0 font-semibold text-sm bg-transparent text-primary border border-primary hover:bg-primary hover:text-white transition-colors"
+                class="rounded-full px-3 border-0 font-semibold text-sm bg-transparent text-primary border border-primary hover:bg-primary hover:text-white transition-colors focus:outline-2 focus:outline-secondary focus:outline-offset-2"
                 @click="reloadApp"
+                :aria-label="t('about.reload')"
               >
-                <IBiArrowRepeat class="mr-1" />
+                <IBiArrowRepeat class="mr-1" aria-hidden="true" />
                 {{ t("about.reload") }}
               </button>
             </div>
@@ -47,7 +62,7 @@
 
             <!-- Credits -->
             <h6 class="section-label">{{ t("about.credits") }}</h6>
-            <ul class="about-credits">
+            <ul class="about-credits" role="list">
               <li><a href="https://nocodb.com/" target="_blank" rel="noopener noreferrer" class="about-link">NocoDB</a></li>
               <li><a href="https://vuejs.org" target="_blank" rel="noopener noreferrer" class="about-link">vue.js</a>, {{ t("about.license") }}</li>
               <li><a href="https://leafletjs.com/" target="_blank" rel="noopener noreferrer" class="about-link">Leaflet</a>, OpenStreetMap</li>
@@ -73,14 +88,14 @@ const emit = defineEmits(['hidden']);
 
 const isVisible = ref(false);
 const modalRef = ref<HTMLElement | null>(null);
+const closeBtn = ref<HTMLElement | null>(null);
 
 function show() {
   isVisible.value = true;
   document.body.style.overflow = 'hidden';
-  // Move focus to modal for accessibility
+  // Move focus to close button for accessibility
   nextTick(() => {
-    const closeBtn = modalRef.value?.querySelector<HTMLElement>('.close-btn');
-    closeBtn?.focus();
+    closeBtn.value?.focus();
   });
 }
 
@@ -114,6 +129,14 @@ function onKeydown(e: KeyboardEvent) {
   }
 }
 
+// Handle escape key
+function handleEscape(e: KeyboardEvent) {
+  if (e.key === 'Escape' && isVisible.value) {
+    e.preventDefault();
+    hide();
+  }
+}
+
 defineExpose({ show, hide });
 
 const version = import.meta.env.PACKAGE_VERSION;
@@ -133,6 +156,17 @@ const reloadApp = async () => {
   }
   window.location.reload();
 };
+
+// Add escape key listener
+import { onMounted, onUnmounted } from "vue";
+
+onMounted(() => {
+  window.addEventListener('keydown', handleEscape);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleEscape);
+});
 </script>
 
 <style lang="postcss" scoped>
@@ -176,6 +210,10 @@ const reloadApp = async () => {
 
   &:hover {
     @apply underline;
+  }
+  
+  &:focus-visible {
+    @apply outline-2 outline-secondary outline-offset-2;
   }
 }
 
@@ -236,6 +274,22 @@ const reloadApp = async () => {
 }
 
 .close-btn {
-  @apply w-8 h-8 rounded-full border-none bg-transparent text-onSurface flex items-center justify-center text-[22px] cursor-pointer leading-none transition-all duration-200 hover:bg-black/10;
+  @apply w-8 h-8 rounded-full border-none bg-transparent text-onSurface flex items-center justify-center text-[22px] cursor-pointer leading-none transition-all duration-200 hover:bg-black/10 focus:outline-2 focus:outline-secondary focus:outline-offset-2;
+}
+
+.close-btn:focus-visible {
+  @apply outline-2 outline-secondary outline-offset-2;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 </style>
