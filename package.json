@@ -38,7 +38,7 @@
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",
     "vite-plugin-package-version": "^1.1.0",
-    "vue": "^3.5.38",
+    "vue": "^3.5.40",
     "vue-i18n": "^11.4.6",
     "vue-leaflet-markercluster": "^0.6.1",
     "vue-router": "^5.1.0",
