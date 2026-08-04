@@ -1,0 +1,24 @@
+name: Security Audit
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    - cron: '0 0 * * 1' # Wöchentlich
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: oven-sh/setup-bun@v2
+
+      - run: bun install
+
+      - name: Audit dependencies
+        run: bun audit || true
+
+      - name: Check for vulnerabilities
+        run: bunx npm-audit-resolver || true
