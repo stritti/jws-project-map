@@ -63,7 +63,7 @@
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^26.1.1",
     "@types/sharp": "^0.32.0",
-    "@vitejs/plugin-vue": "^6.0.7",
+    "@vitejs/plugin-vue": "^6.0.8",
     "@vue/compiler-sfc": "^3.5.35",
     "@vue/eslint-config-prettier": "^10.2.0",
     "@vue/eslint-config-typescript": "^14.9.0",
