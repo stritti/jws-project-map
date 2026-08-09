@@ -10,7 +10,7 @@
         "@vue-leaflet/vue-leaflet": "^0.10.1",
         "axios": "^1.18.1",
         "baseline-browser-mapping": "^2.10.40",
-        "caniuse-lite": "^1.0.30001800",
+        "caniuse-lite": "^1.0.30001806",
         "flag-icons": "^7.5.0",
         "fuse.js": "^7.5.0",
         "leaflet": "^1.9.4",
@@ -958,7 +958,7 @@
 
     "camelcase-css": ["camelcase-css@2.0.1", "", {}, "sha512-QOSvevhslijgYwRx6Rv7zKdMF8lbRmx+uQGx2+vDc+KI/eBnsy9kit5aj23AgGu3pa4t9AgwbnXWqS+iOY+2aA=="],
 
-    "caniuse-lite": ["caniuse-lite@1.0.30001800", "", {}, "sha512-MMHtuAz9Ys840zAY5F4k6fV5GaivZ9sPk+nz0mY+GYVzRBnYkN0mpqkSR92oWRQ19yQWo4HvBV/FnC16AJX8MA=="],
+    "caniuse-lite": ["caniuse-lite@1.0.30001806", "", {}, "sha512-72Cuvd95zbSYPKq6Fhg8eDJRlzgWDf7/mtoZv6Qe/DYNCEBdNxoA3+rZAU2ZhGCpZlns3EssFavaZomckT5Uuw=="],
 
     "chalk": ["chalk@5.6.2", "", {}, ""],
 
