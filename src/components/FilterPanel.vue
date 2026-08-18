@@ -1,30 +1,37 @@
 <template>
   <div class="filter-dropdown" role="complementary" :aria-label="t('a11y.filterPanel')">
-    <div class="filter-card">
+    <div class="filter-card" role="region" aria-label="Filter options">
       <!-- Header -->
       <div class="filter-header">
-        <h3 class="filter-title">
-          <IBiFunnel /> {{ t("search.filter") }}
+        <h3 class="filter-title" id="filter-title">
+          <IBiFunnel aria-hidden="true" /> {{ t("search.filter") }}
         </h3>
-        <button class="filter-close" :aria-label="t('common.close')" @click="emit('close')">
-          <IBiX />
+        <button 
+          class="filter-close" 
+          :aria-label="t('common.close')"
+          @click="emit('close')"
+          @keydown.enter="emit('close')"
+          @keydown.space.prevent="emit('close')"
+        >
+          <IBiX aria-hidden="true" />
         </button>
       </div>
 
       <div class="filter-scroll">
-        <div class="filter-grid">
+        <form class="filter-grid" role="form" aria-labelledby="filter-title">
           <div class="filter-group sm:border-r sm:border-outline/20 sm:pr-3">
-            <fieldset class="filter-fieldset">
+            <fieldset class="filter-fieldset" role="group" :aria-label="t('a11y.statusFilter')">
               <legend class="filter-group-title flex items-center gap-2">
-                <IBiCheck2Circle /> {{ t("search.filterGroups.status") }}
+                <IBiCheck2Circle aria-hidden="true" /> {{ t("search.filterGroups.status") }}
               </legend>
-              <div class="custom-check-group">
+              <div class="custom-check-group" role="group">
                 <label v-for="opt in stateOptions" :key="opt.value" class="form-check">
                   <input
                     type="checkbox"
                     v-model="stateFilter"
                     :value="opt.value"
                     class="form-check-input"
+                    :aria-label="opt.text"
                   />
                   <span class="form-check-checkmark" aria-hidden="true">
                     <IBiCheck class="check-icon" />
@@ -35,17 +42,18 @@
             </fieldset>
           </div>
           <div class="filter-group sm:border-r sm:border-outline/20 sm:pr-3">
-            <fieldset class="filter-fieldset">
+            <fieldset class="filter-fieldset" role="group" :aria-label="t('a11y.categoriesFilter')">
               <legend class="filter-group-title flex items-center gap-2">
-                <IBiTag /> {{ t("search.filterGroups.categories") }}
+                <IBiTag aria-hidden="true" /> {{ t("search.filterGroups.categories") }}
               </legend>
-              <div class="custom-check-group scrollable-group">
+              <div class="custom-check-group scrollable-group" role="group">
                 <label v-for="cat in categoryList" :key="cat.value" class="form-check">
                   <input
                     type="checkbox"
                     v-model="categoryFilter"
                     :value="cat.value"
                     class="form-check-input"
+                    :aria-label="cat.text"
                   />
                   <span class="form-check-checkmark" aria-hidden="true">
                     <IBiCheck class="check-icon" />
@@ -56,17 +64,18 @@
             </fieldset>
           </div>
           <div class="filter-group">
-            <fieldset class="filter-fieldset">
+            <fieldset class="filter-fieldset" role="group" :aria-label="t('a11y.countriesFilter')">
               <legend class="filter-group-title flex items-center gap-2">
-                <IBiGeoAlt /> {{ t("search.filterGroups.countries") }}
+                <IBiGeoAlt aria-hidden="true" /> {{ t("search.filterGroups.countries") }}
               </legend>
-              <div class="custom-check-group scrollable-group">
+              <div class="custom-check-group scrollable-group" role="group">
                 <label v-for="c in countryList" :key="c.value" class="form-check">
                   <input
                     type="checkbox"
                     v-model="countryFilter"
                     :value="c.value"
                     class="form-check-input"
+                    :aria-label="c.text"
                   />
                   <span class="form-check-checkmark" aria-hidden="true">
                     <IBiCheck class="check-icon" />
@@ -76,7 +85,7 @@
               </div>
             </fieldset>
           </div>
-        </div>
+        </form>
         <slot />
       </div>
     </div>
@@ -273,12 +282,5 @@ const countryList = computed(() =>
 
 .scrollable-group::-webkit-scrollbar-thumb:hover {
   background-color: #75777d;
-}
-</style>
-
-/* ── Non-scoped: slot content (map type toggle) ── */
-<style lang="postcss">
-.filter-group-title {
-  @apply text-secondary text-label-md font-semibold uppercase tracking-[0.5px] mb-3;
 }
 </style>

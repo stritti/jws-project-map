@@ -1,11 +1,13 @@
 <template>
   <button
-    :title="t('nav.navigate')"
-    :aria-label="t('nav.navigate')"
+    :title="t('a11y.shareProject')"
+    :aria-label="t('a11y.shareProject')"
     @click="navigate"
-    class="navigate-button flex items-center justify-center"
+    @keydown.enter="navigate"
+    @keydown.space.prevent="navigate"
+    class="navigate-button flex items-center justify-center focus:outline-2 focus:outline-secondary focus:outline-offset-2"
   >
-    <IBiPinMapFill /> Navigate &hellip;
+    <IBiPinMapFill aria-hidden="true" /> {{ t('nav.navigate') }}
   </button>
 </template>
 <script setup lang="ts">
