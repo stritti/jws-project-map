@@ -90,6 +90,16 @@ export function usePageTitle(router: Router): void {
   // Set title on init
   updateTitle(router.currentRoute.value)
 
+  // Recompute title when project data arrives for an already-open project route.
+  watch(
+    () => [router.currentRoute.value.path, projectStore.projects.length],
+    () => {
+      if (router.currentRoute.value.params.projectId) {
+        updateTitle(router.currentRoute.value)
+      }
+    },
+  )
+
   // Update on every route change
   router.afterEach((to) => {
     updateTitle(to)
