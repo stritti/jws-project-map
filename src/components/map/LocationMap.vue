@@ -225,7 +225,7 @@ const locations = computed(() => {
   return allProjects.value;
 });
 
-const zoom = ref(5);
+const zoom = ref(4);
 // Default center for the map (fallback when no locations are available)
 // This is roughly the center of the default bounds (Africa region)
 const center = ref<[number, number]>([0, 8]);
@@ -431,6 +431,7 @@ const updateBounds = () => {
       map.value.leafletObject.fitBounds(calculatedBounds, {
         paddingTopLeft: [50, topPad],
         paddingBottomRight: [50, 50],
+        maxZoom: 8,
       });
     }
   } catch (error) {
