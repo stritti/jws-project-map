@@ -212,12 +212,7 @@ function onImageLoad(event: Event) {
     return;
   }
 
-  if (teaserImage.value === PLACEHOLDER_IMAGE) {
-    imageLoaded.value = true;
-    return;
-  }
-
-  const expectedSrc = new URL(teaserImage.value, window.location.origin).href;
+  const expectedSrc = new URL(displayedImage.value, window.location.origin).href;
 
   if (img.currentSrc === expectedSrc || img.src === expectedSrc) {
     imageLoaded.value = true;
