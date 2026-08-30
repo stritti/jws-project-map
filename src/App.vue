@@ -35,6 +35,7 @@ const isLoading = computed(() => loadingStore.showLoadingSpinner);
 
 // Hide main content from screen readers when search modal is open
 const isMainHidden = computed(() => (isSearchVisible.value ? "true" : undefined));
+const shouldRenderSearchModal = computed(() => isSearchVisible.value || searchModalRef.value !== null);
 
 function handleGlobalShortcut(event: KeyboardEvent) {
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
@@ -98,7 +99,7 @@ router.afterEach((to) => {
       <router-view />
     </main>
     <site-footer v-if="!isIFrame" />
-    <search-modal ref="searchModalRef" @hidden="onSearchHidden" />
+    <search-modal v-if="shouldRenderSearchModal" ref="searchModalRef" @hidden="onSearchHidden" />
   </div>
 </template>
 

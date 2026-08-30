@@ -255,6 +255,20 @@ function syncMapViewport() {
   });
 }
 
+let viewportSyncScheduled = false;
+
+function scheduleMapViewportSync() {
+  if (viewportSyncScheduled) {
+    return;
+  }
+
+  viewportSyncScheduled = true;
+  syncMapViewport();
+  requestAnimationFrame(() => {
+    viewportSyncScheduled = false;
+  });
+}
+
 // Compute project lists from the filtered locations
 const projectsFinished = computed(() =>
   locations.value.filter((p) => p.state === PROJECT_STATES.FINISHED),
@@ -290,13 +304,13 @@ const mapLoaded = () => {
   }
 
   if (locations.value.length > 0) {
-    syncMapViewport();
+    scheduleMapViewportSync();
   }
 };
 
 watch(locations, (newLocations) => {
   if (newLocations.length > 0 && map.value?.leafletObject) {
-    syncMapViewport();
+    scheduleMapViewportSync();
   }
 });
 
