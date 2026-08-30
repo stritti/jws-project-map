@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/stritti/jws-project-map/compare/v1.2.1...v1.2.2) (2026-08-30)
+
+
+### Performance Improvements
+
+* progressively load project list images ([#941](https://github.com/stritti/jws-project-map/issues/941)) ([01eeaad](https://github.com/stritti/jws-project-map/commit/01eeaadc40b0c64f3122832a1e46271ac9e33570))
+
 ## [1.2.1](https://github.com/stritti/jws-project-map/compare/v1.2.0...v1.2.1) (2026-08-30)
 
 
