@@ -8,7 +8,9 @@ interface State {
   projects: Project[];
   filteredList: Project[];
   initialized: boolean;
+  mapInitialized: boolean;
   loading: boolean;
+  mapLoading: boolean;
 }
 
 export const useProjectStore = defineStore("project", {
@@ -16,7 +18,9 @@ export const useProjectStore = defineStore("project", {
     projects: [],
     filteredList: [],
     initialized: false,
+    mapInitialized: false,
     loading: false,
+    mapLoading: false,
   }),
   persist: false,
   getters: {
@@ -46,12 +50,33 @@ export const useProjectStore = defineStore("project", {
       state.projects.filter((p) => p.state === PROJECT_STATES.PLANNED),
   },
   actions: {
+    async loadMapData(): Promise<void> {
+      if (this.mapInitialized || this.loading || this.mapLoading) {
+        return;
+      }
+
+      this.mapLoading = true;
+
+      try {
+        const result = await projectService.getMapData();
+        if (result && Array.isArray(result)) {
+          this.projects = result;
+          this.filteredList = result;
+          this.mapInitialized = true;
+        }
+      } catch (error) {
+        console.error("Error fetching map projects:", error);
+      } finally {
+        this.mapLoading = false;
+      }
+    },
+
     async load(): Promise<void> {
       if (this.initialized && this.projects.length > 0) {
         return;
       }
 
-      if (this.loading) {
+      if (this.loading || this.mapLoading) {
         return;
       }
 
@@ -65,6 +90,7 @@ export const useProjectStore = defineStore("project", {
         if (result && Array.isArray(result)) {
           this.projects = result;
           this.filteredList = result;
+          this.mapInitialized = true;
         } else {
           console.warn(
             "Project store: service returned unexpected data:",

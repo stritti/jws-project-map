@@ -77,7 +77,7 @@ async function initializeApp() {
     requestAnimationFrame(() => {
       setTimeout(() => {
         Promise.allSettled([
-          loadWithStartupRetry(() => projectStore.load(), () => projectStore.initialized, () => projectStore.loading),
+          loadWithStartupRetry(() => projectStore.loadMapData(), () => projectStore.mapInitialized, () => projectStore.mapLoading),
           loadWithStartupRetry(() => categoryStore.load(), () => categoryStore.initialized, () => categoryStore.loading),
           loadWithStartupRetry(() => countryStore.load(), () => countryStore.initialized, () => countryStore.loading),
         ]).then((results) => {
@@ -86,6 +86,7 @@ async function initializeApp() {
               console.error("Initial data load failed:", result.reason);
             }
           });
+          void loadWithStartupRetry(() => projectStore.load(), () => projectStore.initialized, () => projectStore.loading);
         }).catch((error) => {
           console.error("Unexpected startup data load failure:", error);
         });
