@@ -66,13 +66,14 @@
       </div>
       <div v-if="!isDataLoading" class="my-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div
-          v-for="project in finalProjectList"
+          v-for="(project, index) in finalProjectList"
           :key="project.id"
           class="h-full"
         >
           <project-list-item
             :project="project"
             :to="projectRoute(project)"
+            :image-index="index"
             class="h-full"
           />
         </div>

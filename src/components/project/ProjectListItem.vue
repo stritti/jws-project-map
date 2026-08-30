@@ -14,14 +14,19 @@
     :class="{ 'external-link': href || (to && isIFrame) }"
     @click="onCardClick"
   >
-      <div class="project-list-item" :aria-label="cardAriaLabel">
+      <div ref="cardElement" class="project-list-item" :aria-label="cardAriaLabel">
       <div class="flex">
         <!-- Image Section - Left side -->
         <div class="w-5/12 image-col">
           <img
-            :src="teaserImage"
+            :src="displayedImage"
             :alt="project.name"
-            class="project-image" loading="lazy"
+            class="project-image"
+            :class="{ 'image-loaded': imageLoaded }"
+            :loading="imageLoading"
+            :fetchpriority="imageFetchPriority"
+            decoding="async"
+            @load="onImageLoad"
           />
           <!-- State badge overlay -->
           <div class="state-badge-overlay">
@@ -65,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, onUnmounted, ref, shallowRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { useWebFrame } from "@/composables/useWebFrame";
@@ -85,10 +90,21 @@ const props = withDefaults(defineProps<{
   to?: string | null;
   href?: string | null;
   target?: string;
+  imageIndex?: number;
 }>(), {
   to: null,
   href: null,
+  imageIndex: 0,
 });
+
+const EAGER_IMAGE_COUNT = 6;
+const IMAGE_PRELOAD_MARGIN = "600px 0px";
+const PLACEHOLDER_IMAGE = "/img/placeholder.png";
+
+const cardElement = ref<HTMLElement | null>(null);
+const shouldLoadImage = ref((props.imageIndex ?? 0) < EAGER_IMAGE_COUNT);
+const imageLoaded = ref(false);
+const imageObserver = shallowRef<IntersectionObserver | null>(null);
 
 const emit = defineEmits<{
   (e: 'click'): void;
@@ -97,11 +113,17 @@ const emit = defineEmits<{
 const teaserImage = computed(() => {
   if (props.project.teaserImg && props.project.teaserImg.length > 0) {
     const img = props.project.teaserImg[0];
-    return img.thumbnails?.card_cover?.signedUrl || img.signedUrl || "/img/placeholder.png";
-  } else {
-    return "/img/placeholder.png";
+    return img.thumbnails?.card_cover?.signedUrl || img.signedUrl || PLACEHOLDER_IMAGE;
   }
+
+  return PLACEHOLDER_IMAGE;
 });
+
+const displayedImage = computed(() => shouldLoadImage.value ? teaserImage.value : PLACEHOLDER_IMAGE);
+
+const imageLoading = computed(() => props.imageIndex < EAGER_IMAGE_COUNT ? "eager" : "lazy");
+
+const imageFetchPriority = computed(() => props.imageIndex < EAGER_IMAGE_COUNT ? "high" : "auto");
 
 const stateLabels: Record<string, string> = {
   [PROJECT_STATES.FINISHED]: t("project.state.finished"),
@@ -151,6 +173,49 @@ const resolvedRel = computed(() => {
   return undefined;
 });
 
+onMounted(() => {
+  if (shouldLoadImage.value || !cardElement.value || typeof IntersectionObserver === "undefined") {
+    shouldLoadImage.value = true;
+    return;
+  }
+
+  imageObserver.value = new IntersectionObserver(
+    entries => {
+      if (entries.some(entry => entry.isIntersecting)) {
+        shouldLoadImage.value = true;
+        imageObserver.value?.disconnect();
+        imageObserver.value = null;
+      }
+    },
+    { rootMargin: IMAGE_PRELOAD_MARGIN },
+  );
+
+  imageObserver.value.observe(cardElement.value);
+});
+
+onUnmounted(() => {
+  imageObserver.value?.disconnect();
+});
+
+function onImageLoad(event: Event) {
+  const img = event.target as HTMLImageElement | null;
+
+  if (!img) {
+    return;
+  }
+
+  if (teaserImage.value === PLACEHOLDER_IMAGE) {
+    imageLoaded.value = true;
+    return;
+  }
+
+  const expectedSrc = new URL(teaserImage.value, window.location.origin).href;
+
+  if (img.currentSrc === expectedSrc || img.src === expectedSrc) {
+    imageLoaded.value = true;
+  }
+}
+
 function onCardClick() {
   // In iframe mode: notify the parent frame about the navigation
   if (isIFrame.value && props.to && props.project) {
@@ -186,7 +251,11 @@ function onCardClick() {
 }
 
 .project-image {
-  @apply w-full h-full object-cover object-center transition-transform duration-700 ease-[cubic-bezier(0.165,0.84,0.44,1)] rounded-round-default;
+  @apply w-full h-full object-cover object-center opacity-0 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.165,0.84,0.44,1)] rounded-round-default;
+}
+
+.project-image.image-loaded {
+  @apply opacity-100;
 }
 
 .state-badge-overlay {
