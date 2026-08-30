@@ -24,14 +24,6 @@
         ></l-tile-layer>
 
         <l-tile-layer
-          v-if="baseLayer === 'carto'"
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-          layer-type="base"
-          name="Map Minimal"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        ></l-tile-layer>
-
-        <l-tile-layer
           v-if="baseLayer === 'osm'"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           layer-type="base"
@@ -208,8 +200,8 @@ const props = defineProps({
     default: () => [],
   },
   baseLayer: {
-    type: String as () => 'satellite' | 'osm' | 'carto',
-    default: 'carto',
+    type: String as () => 'satellite' | 'osm',
+    default: 'osm',
   },
   clusterEnabled: {
     type: Boolean,

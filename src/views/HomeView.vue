@@ -29,8 +29,8 @@ const { countries } = storeToRefs(countryStore);
 // Derive local refs from shared filter store for template bindings
 const { stateFilter, categoryFilter, countryFilter, filterVisible } = storeToRefs(filterStore);
 
-// Map base layer (CartoDB, satellite or OSM)
-const baseLayer = ref<'satellite' | 'osm' | 'carto'>('carto');
+// Map base layer (satellite or OSM; OSM is the default key-free layer)
+const baseLayer = ref<'satellite' | 'osm'>('osm');
 
 // Marker clustering toggle
 const clusterEnabled = ref(false);
@@ -203,15 +203,6 @@ onUnmounted(() => {
             <IBiMap /> {{ t("search.filterGroups.mapType") }}
           </h6>
           <div class="map-type-toggle" role="group" :aria-label="t('search.filterGroups.mapType')">
-            <button
-              class="map-type-btn"
-              :class="{ active: baseLayer === 'carto' }"
-              :aria-pressed="baseLayer === 'carto'"
-              @click="baseLayer = 'carto'"
-            >
-              <IBiMap class="mr-1" aria-hidden="true" />
-              {{ t("search.mapTypes.carto") }}
-            </button>
             <button
               class="map-type-btn"
               :class="{ active: baseLayer === 'satellite' }"
