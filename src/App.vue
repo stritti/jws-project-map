@@ -57,8 +57,8 @@ onMounted(() => window.addEventListener("keydown", handleGlobalShortcut));
 onUnmounted(() => window.removeEventListener("keydown", handleGlobalShortcut));
 
 
-// Watch for store changes to open the modal
-watch(isSearchVisible, (isVisible) => {
+// Watch for store changes to open the modal, and replay once the async ref exists.
+watch([isSearchVisible, searchModalRef], ([isVisible]) => {
   if (isVisible) {
     searchModalRef.value?.show();
   } else {

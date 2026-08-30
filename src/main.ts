@@ -1,5 +1,6 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
+import { watch } from "vue";
 
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 
@@ -45,13 +46,40 @@ async function initializeApp() {
     app.mount("#app");
     useHtmlLang(i18n);
 
+    async function loadWithStartupRetry(load: () => Promise<void>, isInitialized: () => boolean, isLoading: () => boolean) {
+      await load();
+
+      if (isInitialized()) {
+        return;
+      }
+
+      if (isLoading()) {
+        await new Promise<void>((resolve) => {
+          const stop = watch(
+            isLoading,
+            (loading: boolean) => {
+              if (!loading) {
+                stop();
+                resolve();
+              }
+            },
+            { immediate: true },
+          );
+        });
+      }
+
+      if (!isInitialized()) {
+        await load();
+      }
+    }
+
     // Defer the initial data loads until after the first paint.
     requestAnimationFrame(() => {
       setTimeout(() => {
         Promise.allSettled([
-          projectStore.load(),
-          categoryStore.load(),
-          countryStore.load(),
+          loadWithStartupRetry(() => projectStore.load(), () => projectStore.initialized, () => projectStore.loading),
+          loadWithStartupRetry(() => categoryStore.load(), () => categoryStore.initialized, () => categoryStore.loading),
+          loadWithStartupRetry(() => countryStore.load(), () => countryStore.initialized, () => countryStore.loading),
         ]).then((results) => {
           results.forEach((result) => {
             if (result.status === "rejected") {
