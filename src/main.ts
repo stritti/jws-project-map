@@ -58,7 +58,7 @@ async function initializeApp() {
           const stop = watch(
             isLoading,
             (loading: boolean) => {
-              if (!loading) {
+              if (!loading || isInitialized()) {
                 stop();
                 resolve();
               }

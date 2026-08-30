@@ -92,7 +92,18 @@ export function usePageTitle(router: Router): void {
 
   // Recompute title when project data arrives for an already-open project route.
   watch(
-    () => [router.currentRoute.value.path, projectStore.projects.length],
+    () => {
+      const route = router.currentRoute.value
+      const projectId = route.params.projectId
+
+      if (!projectId) {
+        return [route.path, null]
+      }
+
+      const id = parseProjectId(String(projectId))
+      const project = projectStore.projects.find((p) => p.id === id)
+      return [route.path, project?.id ?? null, project?.name ?? null]
+    },
     () => {
       if (router.currentRoute.value.params.projectId) {
         updateTitle(router.currentRoute.value)

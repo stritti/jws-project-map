@@ -100,9 +100,9 @@ export const useProjectStore = defineStore("project", {
       } catch (error) {
         console.error("Error fetching projects:", error);
         // Do NOT set initialized — allow retry on next navigation
+      } finally {
         this.loading = false;
         loadingStore.updateLoading(false);
-        return;
       }
       this.initialized = true;
     },
