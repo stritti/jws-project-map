@@ -73,11 +73,28 @@ async function initializeApp() {
       }
     }
 
+    function loadProjectMapData() {
+      return loadWithStartupRetry(
+        () => projectStore.loadMapData(),
+        () => projectStore.mapInitialized,
+        () => projectStore.mapLoading || projectStore.loading,
+      );
+    }
+
+    function loadProjectDetails() {
+      return loadWithStartupRetry(
+        () => projectStore.load(),
+        () => projectStore.initialized,
+        () => projectStore.loading,
+      );
+    }
+
     // Defer the initial data loads until after the first paint.
     requestAnimationFrame(() => {
       setTimeout(() => {
-        Promise.allSettled([
-          loadWithStartupRetry(() => projectStore.loadMapData(), () => projectStore.mapInitialized, () => projectStore.mapLoading),
+        const mapLoad = loadProjectMapData();
+
+        void Promise.allSettled([
           loadWithStartupRetry(() => categoryStore.load(), () => categoryStore.initialized, () => categoryStore.loading),
           loadWithStartupRetry(() => countryStore.load(), () => countryStore.initialized, () => countryStore.loading),
         ]).then((results) => {
@@ -86,9 +103,12 @@ async function initializeApp() {
               console.error("Initial data load failed:", result.reason);
             }
           });
-          void loadWithStartupRetry(() => projectStore.load(), () => projectStore.initialized, () => projectStore.loading);
         }).catch((error) => {
           console.error("Unexpected startup data load failure:", error);
+        });
+
+        void mapLoad.finally(() => {
+          void loadProjectDetails();
         });
       }, 0);
     });
