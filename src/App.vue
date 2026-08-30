@@ -5,7 +5,7 @@ import { useWebFrame } from "./composables/useWebFrame";
 import { useLoadingStore } from "@/stores/loading.store";
 import { useSearchStore } from "@/stores/search.store";
 import { storeToRefs } from "pinia";
-import { computed, watch, ref } from "vue";
+import { computed, onMounted, onUnmounted, watch, ref } from "vue";
 import { useRouter } from "vue-router";
 import { usePageTitle } from "./composables/useAccessibility";
 import { useCanonicalUrl } from "./composables/useCanonicalUrl";
@@ -35,6 +35,26 @@ const isLoading = computed(() => loadingStore.showLoadingSpinner);
 
 // Hide main content from screen readers when search modal is open
 const isMainHidden = computed(() => (isSearchVisible.value ? "true" : undefined));
+
+function handleGlobalShortcut(event: KeyboardEvent) {
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+    const activeElement = document.activeElement;
+    const isContentEditable = activeElement instanceof HTMLElement && activeElement.isContentEditable;
+    if (
+      activeElement?.tagName === "INPUT" ||
+      activeElement?.tagName === "TEXTAREA" ||
+      isContentEditable
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    searchStore.openSearch();
+  }
+}
+
+onMounted(() => window.addEventListener("keydown", handleGlobalShortcut));
+onUnmounted(() => window.removeEventListener("keydown", handleGlobalShortcut));
 
 
 // Watch for store changes to open the modal
