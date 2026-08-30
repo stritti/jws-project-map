@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/stritti/jws-project-map/compare/v1.2.0...v1.2.1) (2026-08-30)
+
+
+### Performance Improvements
+
+* speed up first render by deferring startup loads ([#940](https://github.com/stritti/jws-project-map/issues/940)) ([da4daa3](https://github.com/stritti/jws-project-map/commit/da4daa35371b0e2e113a2aaa208bcdf80855894e))
+
 # [1.2.0](https://github.com/stritti/jws-project-map/compare/v1.1.0...v1.2.0) (2026-07-06)
 
 
