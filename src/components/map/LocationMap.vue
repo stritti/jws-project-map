@@ -244,6 +244,17 @@ const mapOptions = {
   touchZoom: true,
 };
 
+function syncMapViewport() {
+  nextTick(() => {
+    requestAnimationFrame(() => {
+      if (!map.value?.leafletObject) return;
+
+      map.value.leafletObject.invalidateSize();
+      updateBounds();
+    });
+  });
+}
+
 // Compute project lists from the filtered locations
 const projectsFinished = computed(() =>
   locations.value.filter((p) => p.state === PROJECT_STATES.FINISHED),
@@ -279,13 +290,13 @@ const mapLoaded = () => {
   }
 
   if (locations.value.length > 0) {
-    nextTick(() => updateBounds());
+    syncMapViewport();
   }
 };
 
 watch(locations, (newLocations) => {
   if (newLocations.length > 0 && map.value?.leafletObject) {
-    nextTick(() => updateBounds());
+    syncMapViewport();
   }
 });
 
