@@ -347,6 +347,13 @@ watch(viewportSignature, () => {
   }
 });
 
+watch(locations, () => {
+  if (selectedLocationId.value && !locations.value.some((location) => location.id === selectedLocationId.value)) {
+    selectedLocationId.value = null;
+    isOpened.value = false;
+  }
+});
+
 const addMarker = (event: {
   latlng: any;
   originalEvent: { ctrlKey: any; altKey: any };

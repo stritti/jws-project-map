@@ -87,10 +87,11 @@ export const useProjectStore = defineStore("project", {
 
       try {
         const result = await projectService.getAll();
-        if (result && Array.isArray(result)) {
+        if (result && Array.isArray(result) && result.length > 0) {
           this.projects = result;
           this.filteredList = result;
           this.mapInitialized = true;
+          this.initialized = true;
         } else {
           console.warn(
             "Project store: service returned unexpected data:",
@@ -104,7 +105,6 @@ export const useProjectStore = defineStore("project", {
         this.loading = false;
         loadingStore.updateLoading(false);
       }
-      this.initialized = true;
     },
 
     doFilter(
