@@ -92,6 +92,7 @@ export const useProjectStore = defineStore("project", {
         const result = await projectService.getAll();
         if (result && Array.isArray(result) && result.length > 0) {
           this.projects = result;
+          this.mapProjects = result;
           this.filteredList = result;
           this.mapInitialized = true;
           this.initialized = true;

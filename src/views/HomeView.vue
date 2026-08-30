@@ -41,8 +41,22 @@ const stateOptions = computed(() => [
   { text: t("project.state.planned"), value: PROJECT_STATES.PLANNED },
 ]);
 
-// Fuzzy search on the store's filtered list
-const { results: searchResults, query: searchQuery } = useProjectSearch(mapProjects, { limit: 50 });
+const filteredMapProjects = computed(() => {
+  return mapProjects.value.filter((project) => {
+    const stateMatches = stateFilter.value.length === 0 || stateFilter.value.includes(project.state as ProjectState);
+    const categoryMatches =
+      categoryFilter.value.length === 0 ||
+      (project.category?.some((cat) => categoryFilter.value.includes(cat.id)) ?? false);
+    const countryMatches =
+      countryFilter.value.length === 0 ||
+      (project.country ? countryFilter.value.includes(project.country.id) : false);
+
+    return stateMatches && categoryMatches && countryMatches;
+  });
+});
+
+// Fuzzy search on the filtered map-tier list
+const { results: searchResults, query: searchQuery } = useProjectSearch(filteredMapProjects, { limit: 50 });
 
 const activeFilters = computed(() => {
   const filters: { id: string; type: string; name: string; value: any; category: string }[] = [];
@@ -267,7 +281,12 @@ onUnmounted(() => {
     </div>
     
     <div class="project-map" id="project-map">
-      <LocationMap :filtered-projects="mapProjects" :base-layer="baseLayer" :cluster-enabled="clusterEnabled" />
+      <LocationMap
+        :filtered-projects="filteredMapProjects"
+        :full-projects="projectStore.projects"
+        :base-layer="baseLayer"
+        :cluster-enabled="clusterEnabled"
+      />
     </div>
   </div>
 </template>

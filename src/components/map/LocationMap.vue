@@ -200,6 +200,10 @@ const props = defineProps({
     type: Array as () => Project[],
     default: () => [],
   },
+  fullProjects: {
+    type: Array as () => Project[],
+    default: () => [],
+  },
   baseLayer: {
     type: String as () => 'satellite' | 'osm',
     default: 'osm',
@@ -300,6 +304,7 @@ const layerLabelProjectsPlanned = computed(() =>
 );
 
 const selectedLocation = computed(() =>
+  props.fullProjects.find((location) => location.id === selectedLocationId.value) ??
   locations.value.find((location) => location.id === selectedLocationId.value),
 );
 
