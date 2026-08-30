@@ -149,27 +149,39 @@ const stateOptions = computed(() => [
 
 // Handle filter-chip click: update local state + emit both events (Codex #P2)
 function onChipClick(value: ProjectState) {
+  if (stateFilter.value === value) return;
+
   stateFilter.value = value;
   emit("update:stateFilter", value);
   emit("state-change", value);
 }
 
-watch(query, (newValue) => {
-  emit("update:modelValue", newValue);
+watch(query, (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    emit("update:modelValue", newValue);
+  }
 });
 
-watch(stateFilter, (newValue) => {
-  emit("update:stateFilter", newValue);
+watch(stateFilter, (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    emit("update:stateFilter", newValue);
+  }
 });
 
 // Sync local state when parent resets modelValue via v-model (Codex #P2)
 watch(() => props.modelValue, (newVal) => {
-  query.value = newVal ?? "";
+  const nextValue = newVal ?? "";
+  if (query.value !== nextValue) {
+    query.value = nextValue;
+  }
 });
 
 // Sync local state when parent resets stateFilter via v-model (Codex #P2)
 watch(() => props.stateFilter, (newVal) => {
-  stateFilter.value = newVal ?? "all";
+  const nextValue = newVal ?? "all";
+  if (stateFilter.value !== nextValue) {
+    stateFilter.value = nextValue;
+  }
 });
 
 // Expose methods for parent components
