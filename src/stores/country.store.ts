@@ -6,6 +6,7 @@ import { currentLocale } from "@/utils/locale";
 interface State {
   countries: Country[];
   initialized: boolean;
+  loading: boolean;
 }
 
 export const useCountryStore = defineStore("country", {
@@ -13,6 +14,7 @@ export const useCountryStore = defineStore("country", {
     return {
       countries: [],
       initialized: false,
+      loading: false,
     };
   },
   persist: false,
@@ -35,6 +37,12 @@ export const useCountryStore = defineStore("country", {
         return;
       }
 
+      if (this.loading) {
+        return;
+      }
+
+      this.loading = true;
+
       try {
         const list = await countryService.getAll();
         this.countries = list as Array<Country>;
@@ -43,6 +51,8 @@ export const useCountryStore = defineStore("country", {
       } catch (error) {
         console.error("Error initializing country store:", error);
         // Do NOT set initialized = true — permits retry
+      } finally {
+        this.loading = false;
       }
     },
   },

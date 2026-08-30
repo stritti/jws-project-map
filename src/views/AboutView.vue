@@ -1,25 +1,10 @@
 <script setup lang="ts">
+import { reloadAppWithCacheReset } from "@/utils/reloadApp";
+
 const version = import.meta.env.PACKAGE_VERSION;
 
 const reloadApp = async () => {
-  // Cache löschen
-  if ('caches' in window) {
-    const cacheKeys = await caches.keys();
-    for (const key of cacheKeys) {
-      await caches.delete(key);
-    }
-  }
-
-  // PWA neu laden
-  if ('serviceWorker' in navigator) {
-    const registrations = await navigator.serviceWorker.getRegistrations();
-    for (const registration of registrations) {
-      await registration.unregister();
-    }
-  }
-
-  // Seite neu laden und Cache leeren
-  window.location.reload();
+  await reloadAppWithCacheReset();
 };
 </script>
 <template>

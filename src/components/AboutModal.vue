@@ -66,6 +66,7 @@
 <script setup lang="ts">
 import { nextTick, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { reloadAppWithCacheReset } from "@/utils/reloadApp";
 
 const { t } = useI18n();
 
@@ -119,19 +120,7 @@ defineExpose({ show, hide });
 const version = import.meta.env.PACKAGE_VERSION;
 
 const reloadApp = async () => {
-  if ("caches" in window) {
-    const cacheKeys = await caches.keys();
-    for (const key of cacheKeys) {
-      await caches.delete(key);
-    }
-  }
-  if ("serviceWorker" in navigator) {
-    const registrations = await navigator.serviceWorker.getRegistrations();
-    for (const registration of registrations) {
-      await registration.unregister();
-    }
-  }
-  window.location.reload();
+  await reloadAppWithCacheReset();
 };
 </script>
 

@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { defineAsyncComponent } from "vue";
 import SiteFooter from "./components/SiteFooter.vue";
-import SearchModal from "@/components/SearchModal.vue";
 import { useWebFrame } from "./composables/useWebFrame";
 import { useLoadingStore } from "@/stores/loading.store";
 import { useSearchStore } from "@/stores/search.store";
 import { storeToRefs } from "pinia";
-import { computed, watch, ref } from "vue";
+import { computed, onMounted, onUnmounted, watch, ref } from "vue";
 import { useRouter } from "vue-router";
 import { usePageTitle } from "./composables/useAccessibility";
 import { useCanonicalUrl } from "./composables/useCanonicalUrl";
@@ -21,7 +21,9 @@ const router = useRouter();
 const searchStore = useSearchStore();
 const { isSearchVisible } = storeToRefs(searchStore);
 
-const searchModalRef = ref<InstanceType<typeof SearchModal> | null>(null);
+const SearchModal = defineAsyncComponent(() => import("@/components/SearchModal.vue"));
+
+const searchModalRef = ref<{ show: () => void; hide: () => void } | null>(null);
 
 // Update page title on route changes
 usePageTitle(router);
@@ -33,10 +35,31 @@ const isLoading = computed(() => loadingStore.showLoadingSpinner);
 
 // Hide main content from screen readers when search modal is open
 const isMainHidden = computed(() => (isSearchVisible.value ? "true" : undefined));
+const shouldRenderSearchModal = computed(() => isSearchVisible.value || searchModalRef.value !== null);
+
+function handleGlobalShortcut(event: KeyboardEvent) {
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+    const activeElement = document.activeElement;
+    const isContentEditable = activeElement instanceof HTMLElement && activeElement.isContentEditable;
+    if (
+      activeElement?.tagName === "INPUT" ||
+      activeElement?.tagName === "TEXTAREA" ||
+      isContentEditable
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    searchStore.openSearch();
+  }
+}
+
+onMounted(() => window.addEventListener("keydown", handleGlobalShortcut));
+onUnmounted(() => window.removeEventListener("keydown", handleGlobalShortcut));
 
 
-// Watch for store changes to open the modal
-watch(isSearchVisible, (isVisible) => {
+// Watch for store changes to open the modal, and replay once the async ref exists.
+watch([isSearchVisible, searchModalRef], ([isVisible]) => {
   if (isVisible) {
     searchModalRef.value?.show();
   } else {
@@ -76,7 +99,7 @@ router.afterEach((to) => {
       <router-view />
     </main>
     <site-footer v-if="!isIFrame" />
-    <search-modal ref="searchModalRef" @hidden="onSearchHidden" />
+    <search-modal v-if="shouldRenderSearchModal" ref="searchModalRef" @hidden="onSearchHidden" />
   </div>
 </template>
 

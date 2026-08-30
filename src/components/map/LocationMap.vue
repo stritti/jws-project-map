@@ -24,14 +24,6 @@
         ></l-tile-layer>
 
         <l-tile-layer
-          v-if="baseLayer === 'carto'"
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-          layer-type="base"
-          name="Map Minimal"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        ></l-tile-layer>
-
-        <l-tile-layer
           v-if="baseLayer === 'osm'"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           layer-type="base"
@@ -200,6 +192,7 @@ const projectStore = useProjectStore();
 const { t } = useI18n();
 
 const { projects: allProjects } = storeToRefs(projectStore);
+const filterStore = useFilterStore();
 
 // Props
 const props = defineProps({
@@ -207,9 +200,13 @@ const props = defineProps({
     type: Array as () => Project[],
     default: () => [],
   },
+  fullProjects: {
+    type: Array as () => Project[],
+    default: () => [],
+  },
   baseLayer: {
-    type: String as () => 'satellite' | 'osm' | 'carto',
-    default: 'carto',
+    type: String as () => 'satellite' | 'osm',
+    default: 'osm',
   },
   clusterEnabled: {
     type: Boolean,
@@ -224,7 +221,6 @@ const LayerComponent = computed(() => {
 // Use filtered projects if provided, otherwise use all projects.
 const locations = computed(() => {
   if (props.filteredProjects.length > 0) return props.filteredProjects;
-  const filterStore = useFilterStore();
   const hasActiveFilters =
     filterStore.stateFilter.length > 0 ||
     filterStore.categoryFilter.length > 0 ||
@@ -233,12 +229,12 @@ const locations = computed(() => {
   return allProjects.value;
 });
 
-const zoom = ref(5);
+const zoom = ref(4);
 // Default center for the map (fallback when no locations are available)
 // This is roughly the center of the default bounds (Africa region)
 const center = ref<[number, number]>([0, 8]);
 const isOpened = ref(false);
-const selectedLocation = ref<Project | undefined>(undefined);
+const selectedLocationId = ref<number | null>(null);
 const map = ref<any>(null);
 const mapContainerRef = ref<HTMLElement | null>(null);
 
@@ -251,6 +247,40 @@ const mapOptions = {
   scrollWheelZoom: true,
   touchZoom: true,
 };
+
+function syncMapViewport() {
+  nextTick(() => {
+    requestAnimationFrame(() => {
+      if (!map.value?.leafletObject) return;
+
+      map.value.leafletObject.invalidateSize();
+      updateBounds();
+    });
+  });
+}
+
+let viewportSyncScheduled = false;
+let lastViewportSignature = "";
+
+function scheduleMapViewportSync() {
+  if (viewportSyncScheduled) {
+    return;
+  }
+
+  viewportSyncScheduled = true;
+  syncMapViewport();
+  requestAnimationFrame(() => {
+    viewportSyncScheduled = false;
+  });
+}
+
+function syncMapViewportIfNeeded() {
+  const signature = viewportSignature.value;
+  if (signature === lastViewportSignature) return;
+
+  lastViewportSignature = signature;
+  scheduleMapViewportSync();
+}
 
 // Compute project lists from the filtered locations
 const projectsFinished = computed(() =>
@@ -273,6 +303,25 @@ const layerLabelProjectsPlanned = computed(() =>
   t("map.layerPlanned", { count: projectsPlanned.value.length }),
 );
 
+const selectedLocation = computed(() =>
+  props.fullProjects.find((location) => location.id === selectedLocationId.value) ??
+  locations.value.find((location) => location.id === selectedLocationId.value),
+);
+
+const viewportSignature = computed(() => {
+  const coords = locations.value
+    .map((location) => `${location.id}:${location.latitude},${location.longitude}`)
+    .join("|");
+
+  const filters = [
+    `s:${filterStore.stateFilter.join(",")}`,
+    `c:${filterStore.categoryFilter.join(",")}`,
+    `o:${filterStore.countryFilter.join(",")}`,
+  ].join("|");
+
+  return `${coords}::${filters}`;
+});
+
 const mapLoaded = () => {
   if (map.value?.leafletObject) {
     // Add aria-labels to zoom controls for accessibility
@@ -287,13 +336,26 @@ const mapLoaded = () => {
   }
 
   if (locations.value.length > 0) {
-    nextTick(() => updateBounds());
+    syncMapViewportIfNeeded();
   }
 };
 
 watch(locations, (newLocations) => {
   if (newLocations.length > 0 && map.value?.leafletObject) {
-    nextTick(() => updateBounds());
+    syncMapViewportIfNeeded();
+  }
+});
+
+watch(viewportSignature, () => {
+  if (locations.value.length > 0 && map.value?.leafletObject) {
+    syncMapViewportIfNeeded();
+  }
+});
+
+watch(locations, () => {
+  if (selectedLocationId.value && !locations.value.some((location) => location.id === selectedLocationId.value)) {
+    selectedLocationId.value = null;
+    isOpened.value = false;
   }
 });
 
@@ -315,12 +377,12 @@ const addMarker = (event: {
 };
 
 const onMarkerClick = (location: Project) => {
-  selectedLocation.value = location;
+  selectedLocationId.value = location.id;
   isOpened.value = true;
 };
 
 const onSidePanelClose = () => {
-  selectedLocation.value = undefined;
+  selectedLocationId.value = null;
   isOpened.value = false;
 };
 
@@ -414,6 +476,7 @@ const updateBounds = () => {
       map.value.leafletObject.fitBounds(calculatedBounds, {
         paddingTopLeft: [50, topPad],
         paddingBottomRight: [50, 50],
+        maxZoom: 8,
       });
     }
   } catch (error) {

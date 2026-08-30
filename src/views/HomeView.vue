@@ -22,15 +22,15 @@ const categoryStore = useCategoryStore();
 const countryStore = useCountryStore();
 const filterStore = useFilterStore();
 
-const { filteredList } = storeToRefs(projectStore);
+const { mapProjects } = storeToRefs(projectStore);
 const { categories } = storeToRefs(categoryStore);
 const { countries } = storeToRefs(countryStore);
 
 // Derive local refs from shared filter store for template bindings
 const { stateFilter, categoryFilter, countryFilter, filterVisible } = storeToRefs(filterStore);
 
-// Map base layer (CartoDB, satellite or OSM)
-const baseLayer = ref<'satellite' | 'osm' | 'carto'>('carto');
+// Map base layer (satellite or OSM; OSM is the default key-free layer)
+const baseLayer = ref<'satellite' | 'osm'>('osm');
 
 // Marker clustering toggle
 const clusterEnabled = ref(false);
@@ -41,8 +41,22 @@ const stateOptions = computed(() => [
   { text: t("project.state.planned"), value: PROJECT_STATES.PLANNED },
 ]);
 
-// Fuzzy search on the store's filtered list
-const { results: searchResults, query: searchQuery } = useProjectSearch(filteredList, { limit: 50 });
+const filteredMapProjects = computed(() => {
+  return mapProjects.value.filter((project) => {
+    const stateMatches = stateFilter.value.length === 0 || stateFilter.value.includes(project.state as ProjectState);
+    const categoryMatches =
+      categoryFilter.value.length === 0 ||
+      (project.category?.some((cat) => categoryFilter.value.includes(cat.id)) ?? false);
+    const countryMatches =
+      countryFilter.value.length === 0 ||
+      (project.country ? countryFilter.value.includes(project.country.id) : false);
+
+    return stateMatches && categoryMatches && countryMatches;
+  });
+});
+
+// Fuzzy search on the filtered map-tier list
+const { results: searchResults, query: searchQuery } = useProjectSearch(filteredMapProjects, { limit: 50 });
 
 const activeFilters = computed(() => {
   const filters: { id: string; type: string; name: string; value: any; category: string }[] = [];
@@ -205,15 +219,6 @@ onUnmounted(() => {
           <div class="map-type-toggle" role="group" :aria-label="t('search.filterGroups.mapType')">
             <button
               class="map-type-btn"
-              :class="{ active: baseLayer === 'carto' }"
-              :aria-pressed="baseLayer === 'carto'"
-              @click="baseLayer = 'carto'"
-            >
-              <IBiMap class="mr-1" aria-hidden="true" />
-              {{ t("search.mapTypes.carto") }}
-            </button>
-            <button
-              class="map-type-btn"
               :class="{ active: baseLayer === 'satellite' }"
               :aria-pressed="baseLayer === 'satellite'"
               @click="baseLayer = 'satellite'"
@@ -276,7 +281,12 @@ onUnmounted(() => {
     </div>
     
     <div class="project-map" id="project-map">
-      <LocationMap :filtered-projects="filteredList" :base-layer="baseLayer" :cluster-enabled="clusterEnabled" />
+      <LocationMap
+        :filtered-projects="filteredMapProjects"
+        :full-projects="projectStore.projects"
+        :base-layer="baseLayer"
+        :cluster-enabled="clusterEnabled"
+      />
     </div>
   </div>
 </template>

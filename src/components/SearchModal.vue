@@ -83,9 +83,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, onUnmounted } from "vue";
+import { ref, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 
 const { t } = useI18n();
@@ -98,12 +97,10 @@ import { useProjectStore } from "@/features/projects/stores/project.store";
 import type { Project } from "@/interfaces/Project";
 import { useProjectSearch } from "@/composables/useProjectSearch";
 import { useWebFrame } from "@/composables/useWebFrame";
-import { useSearchStore } from "@/stores/search.store";
 import MainMenu from "./MainMenu.vue";
 import StateBadge from "@/components/StateBadge.vue";
 import { useFocusRestore } from "@/composables/useAccessibility";
 
-const router = useRouter();
 const projectStore = useProjectStore();
 const { projects } = storeToRefs(projectStore);
 
@@ -131,17 +128,6 @@ function hide() {
   emit("hidden");
 }
 
-function onHidden() {
-  reset();
-  restoreFocus();
-  emit("hidden");
-}
-
-async function onShown() {
-  await nextTick();
-  searchBarRef.value?.focus();
-}
-
 function navigate(project: { id: number; name: string }) {
   hide();
   navigateToProject(project);
@@ -155,26 +141,6 @@ function getTeaserImage(project: Project) {
   }
   return "/img/placeholder.png";
 }
-
-// Ctrl+K / Cmd+K keyboard shortcut
-function handleKeydown(e: KeyboardEvent) {
-  // Don't open if user is currently typing in another input
-  if (
-    document.activeElement?.tagName === "INPUT" ||
-    document.activeElement?.tagName === "TEXTAREA"
-  ) {
-    return;
-  }
-
-  if ((e.ctrlKey || e.metaKey) && e.key === "k") {
-    e.preventDefault();
-    const searchStore = useSearchStore();
-    searchStore.openSearch();
-  }
-}
-
-onMounted(() => window.addEventListener("keydown", handleKeydown));
-onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
 
 defineExpose({ show, hide });
 </script>
