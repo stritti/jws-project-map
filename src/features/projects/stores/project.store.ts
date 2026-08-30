@@ -6,6 +6,7 @@ import type { Project } from "@/interfaces/Project";
 
 interface State {
   projects: Project[];
+  mapProjects: Project[];
   filteredList: Project[];
   initialized: boolean;
   mapInitialized: boolean;
@@ -16,6 +17,7 @@ interface State {
 export const useProjectStore = defineStore("project", {
   state: (): State => ({
     projects: [],
+    mapProjects: [],
     filteredList: [],
     initialized: false,
     mapInitialized: false,
@@ -25,6 +27,7 @@ export const useProjectStore = defineStore("project", {
   persist: false,
   getters: {
     getAll: (state) => state.projects as Array<Project>,
+    getMapAll: (state) => state.mapProjects as Array<Project>,
     getById: (state) => (id: number) =>
       state.projects.find((project: Project) => project.id === id) as Project,
     projectsByState: (
@@ -60,7 +63,7 @@ export const useProjectStore = defineStore("project", {
       try {
         const result = await projectService.getMapData();
         if (result && Array.isArray(result)) {
-          this.projects = result;
+          this.mapProjects = result;
           this.filteredList = result;
           this.mapInitialized = true;
         }

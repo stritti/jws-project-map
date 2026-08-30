@@ -22,7 +22,7 @@ const categoryStore = useCategoryStore();
 const countryStore = useCountryStore();
 const filterStore = useFilterStore();
 
-const { filteredList } = storeToRefs(projectStore);
+const { mapProjects } = storeToRefs(projectStore);
 const { categories } = storeToRefs(categoryStore);
 const { countries } = storeToRefs(countryStore);
 
@@ -42,7 +42,7 @@ const stateOptions = computed(() => [
 ]);
 
 // Fuzzy search on the store's filtered list
-const { results: searchResults, query: searchQuery } = useProjectSearch(filteredList, { limit: 50 });
+const { results: searchResults, query: searchQuery } = useProjectSearch(mapProjects, { limit: 50 });
 
 const activeFilters = computed(() => {
   const filters: { id: string; type: string; name: string; value: any; category: string }[] = [];
@@ -267,7 +267,7 @@ onUnmounted(() => {
     </div>
     
     <div class="project-map" id="project-map">
-      <LocationMap :filtered-projects="filteredList" :base-layer="baseLayer" :cluster-enabled="clusterEnabled" />
+      <LocationMap :filtered-projects="mapProjects" :base-layer="baseLayer" :cluster-enabled="clusterEnabled" />
     </div>
   </div>
 </template>

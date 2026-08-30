@@ -55,7 +55,16 @@ export const projectRepository = {
       limit: 1000,
       offset: 0,
       viewId: "vwlnl4t095iifqc9",
-      fields: ["Name", "Latitude", "Longitude", "State", "Category", "Country"],
+      fields: [
+        "Name",
+        "Name (de)",
+        "Name (fr)",
+        "Latitude",
+        "Longitude",
+        "State",
+        "Category",
+        "Country",
+      ],
     });
     return result?.list || [];
   },
