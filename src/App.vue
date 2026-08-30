@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { defineAsyncComponent } from "vue";
 import SiteFooter from "./components/SiteFooter.vue";
-import SearchModal from "@/components/SearchModal.vue";
 import { useWebFrame } from "./composables/useWebFrame";
 import { useLoadingStore } from "@/stores/loading.store";
 import { useSearchStore } from "@/stores/search.store";
@@ -21,7 +21,9 @@ const router = useRouter();
 const searchStore = useSearchStore();
 const { isSearchVisible } = storeToRefs(searchStore);
 
-const searchModalRef = ref<InstanceType<typeof SearchModal> | null>(null);
+const SearchModal = defineAsyncComponent(() => import("@/components/SearchModal.vue"));
+
+const searchModalRef = ref<{ show: () => void; hide: () => void } | null>(null);
 
 // Update page title on route changes
 usePageTitle(router);

@@ -36,30 +36,36 @@ const projectStore = useProjectStore(pinia);
 const categoryStore = useCategoryStore(pinia);
 const countryStore = useCountryStore(pinia);
 
-// Initialize locale messages before loading data
 async function initializeApp() {
   try {
-    // Load locale messages first
     await initializeLocale();
-    
-    // Then load all data
-    await Promise.allSettled([
-      projectStore.load(),
-      categoryStore.load(),
-      countryStore.load(),
-    ]);
   } catch (error) {
     console.error("Initialization failed:", error);
   } finally {
-    // Mount the app after initialization
     app.mount("#app");
-    
-    // Bind HTML lang attribute to current i18n locale
     useHtmlLang(i18n);
+
+    // Defer the initial data loads until after the first paint.
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        Promise.allSettled([
+          projectStore.load(),
+          categoryStore.load(),
+          countryStore.load(),
+        ]).then((results) => {
+          results.forEach((result) => {
+            if (result.status === "rejected") {
+              console.error("Initial data load failed:", result.reason);
+            }
+          });
+        }).catch((error) => {
+          console.error("Unexpected startup data load failure:", error);
+        });
+      }, 0);
+    });
   }
 }
 
-// Start initialization
 initializeApp();
 
 // Vite preload errors occur when a dynamic import's dependency chunk cannot be
