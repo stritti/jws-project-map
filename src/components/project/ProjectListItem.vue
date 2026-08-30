@@ -27,6 +27,7 @@
             :fetchpriority="imageFetchPriority"
             decoding="async"
             @load="onImageLoad"
+            @error="onImageError"
           />
           <!-- State badge overlay -->
           <div class="state-badge-overlay">
@@ -104,6 +105,7 @@ const PLACEHOLDER_IMAGE = "/img/placeholder.png";
 const cardElement = ref<HTMLElement | null>(null);
 const shouldLoadImage = ref((props.imageIndex ?? 0) < EAGER_IMAGE_COUNT);
 const imageLoaded = ref(false);
+const imageLoadFailed = ref(false);
 const imageObserver = shallowRef<IntersectionObserver | null>(null);
 
 const emit = defineEmits<{
@@ -119,7 +121,13 @@ const teaserImage = computed(() => {
   return PLACEHOLDER_IMAGE;
 });
 
-const displayedImage = computed(() => shouldLoadImage.value ? teaserImage.value : PLACEHOLDER_IMAGE);
+const displayedImage = computed(() => {
+  if (imageLoadFailed.value || !shouldLoadImage.value) {
+    return PLACEHOLDER_IMAGE;
+  }
+
+  return teaserImage.value;
+});
 
 const imageLoading = computed(() => props.imageIndex < EAGER_IMAGE_COUNT ? "eager" : "lazy");
 
@@ -214,6 +222,11 @@ function onImageLoad(event: Event) {
   if (img.currentSrc === expectedSrc || img.src === expectedSrc) {
     imageLoaded.value = true;
   }
+}
+
+function onImageError() {
+  imageLoadFailed.value = true;
+  imageLoaded.value = true;
 }
 
 function onCardClick() {
