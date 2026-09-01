@@ -94,7 +94,7 @@
     "vite-svg-loader": "^5.1.1",
     "vue-tsc": "^3.3.7",
     "workbox-build": "^7.1.0",
-    "rollup": "^4.62.3"
+    "rollup": "^4.63.1"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "^4.22.0"
