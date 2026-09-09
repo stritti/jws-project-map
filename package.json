@@ -97,7 +97,7 @@
     "rollup": "^4.63.1"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "^4.22.0"
+    "@rollup/rollup-linux-x64-gnu": "^4.63.1"
   },
   "config": {
     "commitizen": {
