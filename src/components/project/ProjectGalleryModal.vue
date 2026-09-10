@@ -189,6 +189,8 @@ watch(
 </script>
 
 <style scoped lang="postcss">
+@reference "../../assets/main.css";
+
 .fullscreen-gallery {
   @apply fixed inset-0 w-screen h-screen bg-black/90 z-[9999];
 }

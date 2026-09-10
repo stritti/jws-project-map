@@ -238,6 +238,8 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="postcss">
+@reference "../assets/main.css";
+
 .more-menu {
   @apply relative flex items-center flex-shrink-0;
 }

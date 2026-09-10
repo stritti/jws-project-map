@@ -198,6 +198,8 @@ defineExpose({
 </script>
 
 <style scoped lang="postcss">
+@reference "../assets/main.css";
+
 .main-menu-container {
   @apply w-full;
 }

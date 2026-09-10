@@ -132,6 +132,8 @@ const countryList = computed(() =>
 </script>
 
 <style lang="postcss" scoped>
+@reference "../assets/main.css";
+
 .filter-dropdown {
   position: relative;
 }
@@ -278,6 +280,8 @@ const countryList = computed(() =>
 
 /* ── Non-scoped: slot content (map type toggle) ── */
 <style lang="postcss">
+@reference "../assets/main.css";
+
 .filter-group-title {
   @apply text-secondary text-label-md font-semibold uppercase tracking-[0.5px] mb-3;
 }

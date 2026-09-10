@@ -106,6 +106,8 @@ onUnmounted(() => {
 </template>
 
 <style lang="postcss" scoped>
+@reference "../assets/main.css";
+
 .floating-meta {
   @apply fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] right-[calc(1rem+env(safe-area-inset-right,0px))] z-[999] flex flex-col-reverse items-end gap-[0.5rem];
 

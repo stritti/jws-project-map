@@ -25,6 +25,8 @@ function navigate() {
 }
 </script>
 <style lang="postcss" scoped>
+@reference "../../assets/main.css";
+
 .navigate-button {
   @apply bg-secondary text-white border-none rounded-round-default p-[var(--spacing-unit)] text-label-md  leading-label-md tracking-label-md inline-flex items-center justify-center gap-[var(--spacing-unit)] transition-[background-color,color] duration-200;
   

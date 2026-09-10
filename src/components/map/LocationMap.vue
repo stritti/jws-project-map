@@ -486,6 +486,8 @@ const updateBounds = () => {
 </script>
 
 <style lang="postcss">
+@reference "../../assets/main.css";
+
 .leaflet-top {
   @apply top-[calc(var(--spacing-unit)*12.5+env(safe-area-inset-top))];
 }

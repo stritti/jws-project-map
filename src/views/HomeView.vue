@@ -292,6 +292,8 @@ onUnmounted(() => {
 </template>
 
 <style lang="postcss" scoped>
+@reference "../assets/main.css";
+
 .home {
   /* Skip-to-map link inherits from a11y.css .skip-to-map class */
   h1 {

@@ -125,6 +125,8 @@ const reloadApp = async () => {
 </script>
 
 <style lang="postcss" scoped>
+@reference "../assets/main.css";
+
 .about-content {
   @apply px-[0.25rem];
 
