@@ -42,6 +42,8 @@ export default defineComponent({
 </script>
 
 <style lang="postcss" scoped>
+@reference "../assets/main.css";
+
 .country-label {
   @apply inline-flex items-center text-onSurface text-body-md leading-body-md gap-[var(--spacing-unit)];
 }

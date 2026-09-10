@@ -70,6 +70,8 @@ function goToDetail(): void {
 </script>
 
 <style lang="postcss">
+@reference "../../assets/main.css";
+
 /* Bottom navigation height (MainMenu content + padding) */
 /* Must account for safe-area-inset-bottom on notched devices. */
 .project-card-overlay {

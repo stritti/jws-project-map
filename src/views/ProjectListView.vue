@@ -286,6 +286,8 @@ onBeforeMount(() => {
 </script>
 
 <style lang="postcss" scoped>
+@reference "../assets/main.css";
+
 /* Shared (base styles outside breakpoints) */
 .list-header {
   /* Soft bottom separation — no sharp line, just a whisper of depth */

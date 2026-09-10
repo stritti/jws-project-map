@@ -146,6 +146,8 @@ defineExpose({ show, hide });
 </script>
 
 <style lang="postcss" scoped>
+@reference "../assets/main.css";
+
 .search-results {
   @apply max-h-[60vh] overflow-y-auto;
 }

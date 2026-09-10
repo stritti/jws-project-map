@@ -234,6 +234,8 @@ function onCardClick() {
 </script>
 
 <style lang="postcss">
+@reference "../../assets/main.css";
+
 .project-card-link {
   @apply block h-full cursor-pointer text-inherit no-underline;
 

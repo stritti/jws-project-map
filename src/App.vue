@@ -104,6 +104,8 @@ router.afterEach((to) => {
 </template>
 
 <style lang="postcss">
+@reference "./assets/main.css";
+
 body {
   @apply overflow-x-hidden;
 }

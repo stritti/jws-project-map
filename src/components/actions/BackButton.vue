@@ -36,6 +36,8 @@ export default defineComponent({
 </script>
 
 <style lang="postcss" scoped>
+@reference "../../assets/main.css";
+
 .back-button-inner {
   @apply flex items-center justify-center w-[36px] h-[36px] rounded-full border-none bg-transparent cursor-pointer p-0 transition-all duration-200 text-onSurface-variant;
 

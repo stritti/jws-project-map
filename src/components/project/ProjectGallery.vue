@@ -121,6 +121,8 @@ function closeModal() {
 </script>
 
 <style lang="postcss" scoped>
+@reference "../../assets/main.css";
+
 .project-gallery-section {
   @apply relative mt-[3rem];
 }

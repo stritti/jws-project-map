@@ -297,6 +297,8 @@ const detailMarkerIcon = computed(() => {
 </script>
 
 <style lang="postcss" scoped>
+@reference "../assets/main.css";
+
 .project-page {
   @apply pb-[4rem] bg-surface;
 }
@@ -511,6 +513,8 @@ const detailMarkerIcon = computed(() => {
 
 /* Unscoped: Leaflet renders its DOM outside Vue's scope */
 <style lang="postcss">
+@reference "../assets/main.css";
+
 .detail-marker-icon {
   @apply bg-transparent border-none;
 }
