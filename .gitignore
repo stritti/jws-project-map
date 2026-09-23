@@ -6,29 +6,71 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+bun-debug.log*
 
-node_modules
+# Runtime data
+node_modules/
+dist/
+dist-ssr/
+build/
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# IDE
 .DS_Store
-dist
-dist-ssr
-coverage
-*.local
-
-/cypress/videos/
-/cypress/screenshots/
-
-# Editor directories and files
+.idea/
 .vscode/*
 !.vscode/extensions.json
-.idea
+!.vscode/settings.json
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Cache
+.cache/
+.bun/
+*.cache
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Local development
 dev-dist/
+dev-server.log
+
+# AI Tools
 .aider*
 opencode.json
+.gemini/
+.slim/
 
-# Bun is the local package manager — npm lockfile needed for Netlify builds
-# package-lock.json committed for Netlify deployment compatibility
+# Test artifacts
+/cypress/videos/
+/cypress/screenshots/
+/playwright-report/
+
+# Build artifacts
+*.local
+*.tgz
+
+# Note: bun.lock and package-lock.json are committed for reproducibility
