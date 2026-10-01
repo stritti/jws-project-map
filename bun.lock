@@ -9,7 +9,7 @@
         "@types/leaflet.markercluster": "^1.5.6",
         "@vue-leaflet/vue-leaflet": "^0.10.1",
         "axios": "^1.20.0",
-        "baseline-browser-mapping": "^2.11.14",
+        "baseline-browser-mapping": "^2.11.26",
         "caniuse-lite": "^1.0.30001809",
         "flag-icons": "^7.5.0",
         "fuse.js": "^7.5.0",
@@ -937,7 +937,7 @@
 
     "base64-js": ["base64-js@1.5.1", "", {}, ""],
 
-    "baseline-browser-mapping": ["baseline-browser-mapping@2.11.14", "", { "bin": { "baseline-browser-mapping": "dist/cli.cjs" } }, "sha512-JyJ954WzuIR8/FFzX0o5krdSTrBAkcCSRfWSleRsIHSWV+cZe2FI1PKggVkFke1hBldRs+LRxUczzE9iPmgZww=="],
+    "baseline-browser-mapping": ["baseline-browser-mapping@2.11.26", "", { "bin": { "baseline-browser-mapping": "dist/cli.cjs" } }, "sha512-GLQdD3y6UF8iVuMJl5fHgE4jdn/ua7n+toKfLgNlg3BqQtOZjpy68T8Tup8/wGWZCDlm7KMg7tPb4MPn7oN0TQ=="],
 
     "basic-ftp": ["basic-ftp@5.2.0", "", {}, ""],
 
