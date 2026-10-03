@@ -41,7 +41,7 @@
     "vue": "^3.5.42",
     "vue-i18n": "^11.4.12",
     "vue-leaflet-markercluster": "^0.6.1",
-    "vue-router": "^5.1.0",
+    "vue-router": "^5.3.1",
     "vue3-markdown-it": "^1.0.10"
   },
   "devDependencies": {
