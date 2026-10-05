@@ -46,7 +46,7 @@
         "@tailwindcss/postcss": "^4.3.3",
         "@tailwindcss/typography": "^0.5.15",
         "@types/leaflet": "^1.9.22",
-        "@types/markdown-it": "^14.1.2",
+        "@types/markdown-it": "^14.2.0",
         "@types/node": "^26.6.2",
         "@types/sharp": "^0.32.0",
         "@vitejs/plugin-vue": "^6.0.8",
@@ -761,7 +761,7 @@
 
     "@types/linkify-it": ["@types/linkify-it@5.0.0", "", {}, ""],
 
-    "@types/markdown-it": ["@types/markdown-it@14.1.2", "", { "dependencies": { "@types/linkify-it": "^5", "@types/mdurl": "^2" } }, ""],
+    "@types/markdown-it": ["@types/markdown-it@14.2.0", "", { "dependencies": { "@types/linkify-it": "^5", "@types/mdurl": "^2" } }, "sha512-NoQ2yGlLWj4wpxMs+TYmRKk3thDrQ97agr7sFqfLsAlvoS8SNQuTrlObhFqG9iugdTtgOE9jpJ6FNM4ZGsa5xQ=="],
 
     "@types/mdurl": ["@types/mdurl@2.0.0", "", {}, ""],
 
