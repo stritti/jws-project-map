@@ -41,7 +41,7 @@
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
-            :title="loc.name"
+            :title="markerTitle(loc)"
             @click="onMarkerClick(loc)"
           >
             <l-icon
@@ -67,7 +67,7 @@
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
-            :title="loc.name"
+            :title="markerTitle(loc)"
             @click="onMarkerClick(loc)"
           >
             <l-icon
@@ -93,7 +93,7 @@
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
-            :title="loc.name"
+            :title="markerTitle(loc)"
             @click="onMarkerClick(loc)"
           >
             <l-icon
@@ -430,6 +430,14 @@ const getPin = (location: Project): string => {
   }
 };
 
+const canHover =
+  typeof window !== "undefined" &&
+  typeof window.matchMedia === "function" &&
+  window.matchMedia("(hover: hover)").matches;
+
+const markerTitle = (location: Project): string | undefined =>
+  canHover ? location.name : undefined;
+
 const pinClass = (current: Project): string => {
   const isSelected = selectedLocation.value?.id === current.id;
   let cssClass = "";
@@ -506,16 +514,16 @@ const updateBounds = () => {
 
 .leaflet-marker-icon {
   &:hover {
-    @apply scale-150 drop-shadow-[0px_0px_10px_rgba(210,28,28,0.75)];
+    @apply drop-shadow-[0px_0px_10px_rgba(210,28,28,0.75)] brightness-110;
   }
 }
 
 .marker-selected {
-  @apply scale-125 drop-shadow-[0px_0px_4px_rgb(178,14,14)];
+  @apply drop-shadow-[0px_0px_6px_rgb(178,14,14)] brightness-110;
 }
 
 .marker-selected:hover {
-  @apply scale-150 drop-shadow-[0px_0px_10px_rgba(210,28,28,0.75)];
+  @apply drop-shadow-[0px_0px_10px_rgba(210,28,28,0.75)] brightness-110;
 }
 
 .marker-state-planned {
