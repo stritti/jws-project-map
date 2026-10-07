@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/stritti/jws-project-map/compare/v1.2.2...v1.2.3) (2026-10-07)
+
+
+### Bug Fixes
+
+* **map:** keep focused pin in place and open project card on first tap ([#997](https://github.com/stritti/jws-project-map/issues/997)) ([ba10462](https://github.com/stritti/jws-project-map/commit/ba104629725307e1b734e4db08b59e1e54ee9d0d))
+
 ## [1.2.2](https://github.com/stritti/jws-project-map/compare/v1.2.1...v1.2.2) (2026-08-30)
 
 
