@@ -17,3 +17,9 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    ignore:
+      # TypeScript 7.x ships no programmatic compiler API yet; vue-tsc
+      # (Volar) and typescript-eslint still require the TypeScript 6 API.
+      # Re-evaluate once vue-tsc/typescript-eslint support TS 7.1+.
+      - dependency-name: "typescript"
+        versions: ["7.x", ">=7.0.0"]
