@@ -45,7 +45,7 @@
     "vue3-markdown-it": "^1.0.10"
   },
   "devDependencies": {
-    "@commitlint/cli": "^21.2.2",
+    "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",
     "@iconify-json/bi": "^1.2.7",
     "@lhci/cli": "^0.15.1",
