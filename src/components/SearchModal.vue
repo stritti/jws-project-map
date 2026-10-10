@@ -1,5 +1,11 @@
 <template>
-  <div v-if="isVisible" class="modal-overlay" @click.self="hide" @keydown.escape="hide">
+  <div
+  v-if="isVisible"
+  class="modal-overlay"
+  @click.self="hide"
+  @keydown.escape="hide"
+  @keydown.tab="trapFocus"
+>
     <div 
       class="modal-content rounded-round-xl border-0 shadow-lg bg-white max-w-lg mx-4 my-8" 
       role="dialog" 
@@ -108,10 +114,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, onUnmounted, watch } from "vue";
+import { ref, nextTick, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
+import { useSearchStore } from "@/stores/search.store";
 
 const { t } = useI18n();
 
@@ -123,12 +129,10 @@ import { useProjectStore } from "@/features/projects/stores/project.store";
 import type { Project } from "@/interfaces/Project";
 import { useProjectSearch } from "@/composables/useProjectSearch";
 import { useWebFrame } from "@/composables/useWebFrame";
-import { useSearchStore } from "@/stores/search.store";
 import MainMenu from "./MainMenu.vue";
 import StateBadge from "@/components/StateBadge.vue";
 import { useFocusRestore } from "@/composables/useAccessibility";
 
-const router = useRouter();
 const projectStore = useProjectStore();
 const { projects } = storeToRefs(projectStore);
 
@@ -156,17 +160,6 @@ function hide() {
   emit("hidden");
 }
 
-function onHidden() {
-  reset();
-  restoreFocus();
-  emit("hidden");
-}
-
-async function onShown() {
-  await nextTick();
-  searchBarRef.value?.focus();
-}
-
 function navigate(project: { id: number; name: string }) {
   hide();
   navigateToProject(project);
@@ -181,6 +174,7 @@ function getTeaserImage(project: Project) {
   return "/img/placeholder.png";
 }
 
+<<<<<<< HEAD
 // Handle keyboard navigation in results
 function handleResultKeydown(e: KeyboardEvent, project: Project) {
   if (e.key === 'Enter' || e.key === ' ') {
@@ -201,8 +195,7 @@ function handleKeydown(e: KeyboardEvent) {
 
   if ((e.ctrlKey || e.metaKey) && e.key === "k") {
     e.preventDefault();
-    const searchStore = useSearchStore();
-    searchStore.openSearch();
+    useSearchStore().openSearch();
   }
 }
 
@@ -232,10 +225,14 @@ function trapFocus(e: KeyboardEvent) {
 onMounted(() => window.addEventListener("keydown", handleKeydown));
 onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
 
+=======
+>>>>>>> origin/main
 defineExpose({ show, hide });
 </script>
 
 <style lang="postcss" scoped>
+@reference "../assets/main.css";
+
 .search-results {
   @apply max-h-[60vh] overflow-y-auto;
 }

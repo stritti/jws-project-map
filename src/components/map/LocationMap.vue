@@ -33,14 +33,6 @@
         ></l-tile-layer>
 
         <l-tile-layer
-          v-if="baseLayer === 'carto'"
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-          layer-type="base"
-          name="Map Minimal"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        ></l-tile-layer>
-
-        <l-tile-layer
           v-if="baseLayer === 'osm'"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           layer-type="base"
@@ -59,7 +51,7 @@
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
-            :title="loc.name"
+            :title="markerTitle(loc)"
             @click="onMarkerClick(loc)"
             :aria-label="`${loc.name}, ${t('project.state.finished')}`"
             role="button"
@@ -91,7 +83,7 @@
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
-            :title="loc.name"
+            :title="markerTitle(loc)"
             @click="onMarkerClick(loc)"
             :aria-label="`${loc.name}, ${t('project.state.underConstruction')}`"
             role="button"
@@ -123,7 +115,7 @@
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
-            :title="loc.name"
+            :title="markerTitle(loc)"
             @click="onMarkerClick(loc)"
             :aria-label="`${loc.name}, ${t('project.state.planned')}`"
             role="button"
@@ -227,6 +219,7 @@ const projectStore = useProjectStore();
 const { t } = useI18n();
 
 const { projects: allProjects } = storeToRefs(projectStore);
+const filterStore = useFilterStore();
 
 // Props
 const props = defineProps({
@@ -234,9 +227,13 @@ const props = defineProps({
     type: Array as () => Project[],
     default: () => [],
   },
+  fullProjects: {
+    type: Array as () => Project[],
+    default: () => [],
+  },
   baseLayer: {
-    type: String as () => 'satellite' | 'osm' | 'carto',
-    default: 'carto',
+    type: String as () => 'satellite' | 'osm',
+    default: 'osm',
   },
   clusterEnabled: {
     type: Boolean,
@@ -251,7 +248,6 @@ const LayerComponent = computed(() => {
 // Use filtered projects if provided, otherwise use all projects.
 const locations = computed(() => {
   if (props.filteredProjects.length > 0) return props.filteredProjects;
-  const filterStore = useFilterStore();
   const hasActiveFilters =
     filterStore.stateFilter.length > 0 ||
     filterStore.categoryFilter.length > 0 ||
@@ -260,12 +256,12 @@ const locations = computed(() => {
   return allProjects.value;
 });
 
-const zoom = ref(5);
+const zoom = ref(4);
 // Default center for the map (fallback when no locations are available)
 // This is roughly the center of the default bounds (Africa region)
 const center = ref<[number, number]>([0, 8]);
 const isOpened = ref(false);
-const selectedLocation = ref<Project | undefined>(undefined);
+const selectedLocationId = ref<number | null>(null);
 const map = ref<any>(null);
 const mapContainerRef = ref<HTMLElement | null>(null);
 
@@ -327,6 +323,41 @@ const mapOptions = {
   keyboardPanDelta: 50,
 };
 
+function syncMapViewport() {
+  nextTick(() => {
+    requestAnimationFrame(() => {
+      if (!map.value?.leafletObject) return;
+
+      map.value.leafletObject.invalidateSize();
+      updateBounds();
+    });
+  });
+}
+
+let viewportSyncScheduled = false;
+let lastViewportSignature = "";
+
+function scheduleMapViewportSync() {
+  if (viewportSyncScheduled) {
+    return;
+  }
+
+  viewportSyncScheduled = true;
+  syncMapViewport();
+  requestAnimationFrame(() => {
+    viewportSyncScheduled = false;
+  });
+}
+
+function syncMapViewportIfNeeded() {
+  const signature = viewportSignature.value;
+  if (signature === lastViewportSignature) return;
+
+  lastViewportSignature = signature;
+  scheduleMapViewportSync();
+}
+
+// Compute project lists from the filtered locations
 const projectsFinished = computed(() =>
   locations.value.filter((loc) => loc.state === "finished")
 );
@@ -346,6 +377,89 @@ const layerLabelProjectsUnderConstruction = computed(() =>
 const layerLabelProjectsPlanned = computed(() =>
   t("map.layerPlanned", { count: projectsPlanned.value.length })
 );
+
+const selectedLocation = computed(() =>
+  props.fullProjects.find((location) => location.id === selectedLocationId.value) ??
+  locations.value.find((location) => location.id === selectedLocationId.value),
+);
+
+const viewportSignature = computed(() => {
+  const coords = locations.value
+    .map((location) => `${location.id}:${location.latitude},${location.longitude}`)
+    .join("|");
+
+  const filters = [
+    `s:${filterStore.stateFilter.join(",")}`,
+    `c:${filterStore.categoryFilter.join(",")}`,
+    `o:${filterStore.countryFilter.join(",")}`,
+  ].join("|");
+
+  return `${coords}::${filters}`;
+});
+
+const mapLoaded = () => {
+  if (map.value?.leafletObject) {
+    // Add aria-labels to zoom controls for accessibility
+    const zoomControl = map.value.leafletObject.zoomControl;
+    if (zoomControl?.getContainer) {
+      const container = zoomControl.getContainer();
+      const zoomIn = container?.querySelector(".leaflet-control-zoom-in");
+      const zoomOut = container?.querySelector(".leaflet-control-zoom-out");
+      if (zoomIn) zoomIn.setAttribute("aria-label", t("a11y.zoomIn"));
+      if (zoomOut) zoomOut.setAttribute("aria-label", t("a11y.zoomOut"));
+    }
+  }
+
+  if (locations.value.length > 0) {
+    syncMapViewportIfNeeded();
+  }
+};
+
+watch(locations, (newLocations) => {
+  if (newLocations.length > 0 && map.value?.leafletObject) {
+    syncMapViewportIfNeeded();
+  }
+});
+
+watch(viewportSignature, () => {
+  if (locations.value.length > 0 && map.value?.leafletObject) {
+    syncMapViewportIfNeeded();
+  }
+});
+
+watch(locations, () => {
+  if (selectedLocationId.value && !locations.value.some((location) => location.id === selectedLocationId.value)) {
+    selectedLocationId.value = null;
+    isOpened.value = false;
+  }
+});
+
+const addMarker = (event: {
+  latlng: any;
+  originalEvent: { ctrlKey: any; altKey: any };
+}) => {
+  if (
+    zoom.value >= 9 &&
+    event.latlng &&
+    event.originalEvent.ctrlKey &&
+    event.originalEvent.altKey
+  ) {
+    const name = prompt("Enter name:", "__TBD__");
+    if (name) {
+      projectService.add(event.latlng, name);
+    }
+  }
+};
+
+const onMarkerClick = (location: Project) => {
+  selectedLocationId.value = location.id;
+  isOpened.value = true;
+};
+
+const onSidePanelClose = () => {
+  selectedLocationId.value = null;
+  isOpened.value = false;
+};
 
 const DEFAULT_PIN = "/pins/default.png";
 const AVAILABLE_PINS = new Set([
@@ -391,7 +505,15 @@ function getPin(location: Project): string {
   }
 }
 
-function pinClass(current: Project): string {
+const canHover =
+  typeof window !== "undefined" &&
+  typeof window.matchMedia === "function" &&
+  window.matchMedia("(hover: hover)").matches;
+
+const markerTitle = (location: Project): string | undefined =>
+  canHover ? location.name : undefined;
+
+const pinClass = (current: Project): string => {
   const isSelected = selectedLocation.value?.id === current.id;
   let cssClass = "";
 
@@ -449,6 +571,7 @@ function updateBounds() {
       map.value.leafletObject.fitBounds(calculatedBounds, {
         paddingTopLeft: [50, topPad],
         paddingBottomRight: [50, 50],
+        maxZoom: 8,
       });
     }
   } catch (error) {
@@ -499,6 +622,8 @@ watch(locations, (newLocations) => {
 </script>
 
 <style lang="postcss">
+@reference "../../assets/main.css";
+
 .leaflet-top {
   @apply top-[calc(var(--spacing-unit)*12.5+env(safe-area-inset-top))];
 }
@@ -517,16 +642,16 @@ watch(locations, (newLocations) => {
 
 .leaflet-marker-icon {
   &:hover {
-    @apply scale-150 drop-shadow-[0px_0px_10px_rgba(210,28,28,0.75)];
+    @apply drop-shadow-[0px_0px_10px_rgba(210,28,28,0.75)] brightness-110;
   }
 }
 
 .marker-selected {
-  @apply scale-125 drop-shadow-[0px_0px_4px_rgb(178,14,14)];
+  @apply drop-shadow-[0px_0px_6px_rgb(178,14,14)] brightness-110;
 }
 
 .marker-selected:hover {
-  @apply scale-150 drop-shadow-[0px_0px_10px_rgba(210,28,28,0.75)];
+  @apply drop-shadow-[0px_0px_10px_rgba(210,28,28,0.75)] brightness-110;
 }
 
 .marker-state-planned {

@@ -1,3 +1,24 @@
+## [1.2.3](https://github.com/stritti/jws-project-map/compare/v1.2.2...v1.2.3) (2026-10-07)
+
+
+### Bug Fixes
+
+* **map:** keep focused pin in place and open project card on first tap ([#997](https://github.com/stritti/jws-project-map/issues/997)) ([ba10462](https://github.com/stritti/jws-project-map/commit/ba104629725307e1b734e4db08b59e1e54ee9d0d))
+
+## [1.2.2](https://github.com/stritti/jws-project-map/compare/v1.2.1...v1.2.2) (2026-08-30)
+
+
+### Performance Improvements
+
+* progressively load project list images ([#941](https://github.com/stritti/jws-project-map/issues/941)) ([01eeaad](https://github.com/stritti/jws-project-map/commit/01eeaadc40b0c64f3122832a1e46271ac9e33570))
+
+## [1.2.1](https://github.com/stritti/jws-project-map/compare/v1.2.0...v1.2.1) (2026-08-30)
+
+
+### Performance Improvements
+
+* speed up first render by deferring startup loads ([#940](https://github.com/stritti/jws-project-map/issues/940)) ([da4daa3](https://github.com/stritti/jws-project-map/commit/da4daa35371b0e2e113a2aaa208bcdf80855894e))
+
 # [1.2.0](https://github.com/stritti/jws-project-map/compare/v1.1.0...v1.2.0) (2026-07-06)
 
 

@@ -66,7 +66,7 @@
       </div>
       <div v-if="!isDataLoading" class="my-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" role="list" :aria-label="t('a11y.projectList')">
         <div
-          v-for="project in finalProjectList"
+          v-for="(project, index) in finalProjectList"
           :key="project.id"
           class="h-full"
           role="listitem"
@@ -74,6 +74,7 @@
           <project-list-item
             :project="project"
             :to="projectRoute(project)"
+            :image-index="index"
             class="h-full"
           />
         </div>
@@ -290,6 +291,8 @@ onBeforeMount(() => {
 </script>
 
 <style lang="postcss" scoped>
+@reference "../assets/main.css";
+
 /* Shared (base styles outside breakpoints) */
 .list-header {
   /* Soft bottom separation — no sharp line, just a whisper of depth */

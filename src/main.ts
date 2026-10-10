@@ -1,5 +1,6 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
+import { watch } from "vue";
 
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 
@@ -36,30 +37,84 @@ const projectStore = useProjectStore(pinia);
 const categoryStore = useCategoryStore(pinia);
 const countryStore = useCountryStore(pinia);
 
-// Initialize locale messages before loading data
 async function initializeApp() {
   try {
-    // Load locale messages first
     await initializeLocale();
-    
-    // Then load all data
-    await Promise.allSettled([
-      projectStore.load(),
-      categoryStore.load(),
-      countryStore.load(),
-    ]);
   } catch (error) {
     console.error("Initialization failed:", error);
   } finally {
-    // Mount the app after initialization
     app.mount("#app");
-    
-    // Bind HTML lang attribute to current i18n locale
     useHtmlLang(i18n);
+
+    async function loadWithStartupRetry(load: () => Promise<void>, isInitialized: () => boolean, isLoading: () => boolean) {
+      await load();
+
+      if (isInitialized()) {
+        return;
+      }
+
+      if (isLoading()) {
+        await new Promise<void>((resolve) => {
+          const stop = watch(
+            isLoading,
+            (loading: boolean) => {
+              if (!loading || isInitialized()) {
+                stop();
+                resolve();
+              }
+            },
+            { immediate: true },
+          );
+        });
+      }
+
+      if (!isInitialized()) {
+        await load();
+      }
+    }
+
+    function loadProjectMapData() {
+      return loadWithStartupRetry(
+        () => projectStore.loadMapData(),
+        () => projectStore.mapInitialized,
+        () => projectStore.mapLoading || projectStore.loading,
+      );
+    }
+
+    function loadProjectDetails() {
+      return loadWithStartupRetry(
+        () => projectStore.load(),
+        () => projectStore.initialized,
+        () => projectStore.loading,
+      );
+    }
+
+    // Defer the initial data loads until after the first paint.
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        const mapLoad = loadProjectMapData();
+
+        void Promise.allSettled([
+          loadWithStartupRetry(() => categoryStore.load(), () => categoryStore.initialized, () => categoryStore.loading),
+          loadWithStartupRetry(() => countryStore.load(), () => countryStore.initialized, () => countryStore.loading),
+        ]).then((results) => {
+          results.forEach((result) => {
+            if (result.status === "rejected") {
+              console.error("Initial data load failed:", result.reason);
+            }
+          });
+        }).catch((error) => {
+          console.error("Unexpected startup data load failure:", error);
+        });
+
+        void mapLoad.finally(() => {
+          void loadProjectDetails();
+        });
+      }, 0);
+    });
   }
 }
 
-// Start initialization
 initializeApp();
 
 // Vite preload errors occur when a dynamic import's dependency chunk cannot be

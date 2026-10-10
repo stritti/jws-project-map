@@ -33,6 +33,8 @@ const displayLabel = computed(() => {
 </script>
 
 <style scoped lang="postcss">
+@reference "../assets/main.css";
+
 .state-badge {
   @apply inline-flex items-center rounded-full text-label-sm font-medium whitespace-nowrap;
   padding: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit));

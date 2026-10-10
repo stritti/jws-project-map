@@ -28,6 +28,8 @@ const { version } = useAppVersion();
 </script>
 
 <style lang="postcss" scoped>
+@reference "../assets/main.css";
+
 .footer {
   @apply mx-0 bg-surface border-t border-outline-variant;
 }

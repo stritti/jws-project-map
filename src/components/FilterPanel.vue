@@ -141,6 +141,8 @@ const countryList = computed(() =>
 </script>
 
 <style lang="postcss" scoped>
+@reference "../assets/main.css";
+
 .filter-dropdown {
   position: relative;
 }
@@ -282,5 +284,14 @@ const countryList = computed(() =>
 
 .scrollable-group::-webkit-scrollbar-thumb:hover {
   background-color: #75777d;
+}
+</style>
+
+/* ── Non-scoped: slot content (map type toggle) ── */
+<style lang="postcss">
+@reference "../assets/main.css";
+
+.filter-group-title {
+  @apply text-secondary text-label-md font-semibold uppercase tracking-[0.5px] mb-3;
 }
 </style>

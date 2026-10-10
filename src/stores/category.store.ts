@@ -6,12 +6,14 @@ import { currentLocale } from "@/utils/locale";
 interface State {
   categories: Category[];
   initialized: boolean;
+  loading: boolean;
 }
 
 export const useCategoryStore = defineStore("category", {
   state: (): State => ({
     categories: [],
     initialized: false,
+    loading: false,
   }),
   persist: false,
   getters: {
@@ -36,6 +38,12 @@ export const useCategoryStore = defineStore("category", {
         return;
       }
 
+      if (this.loading) {
+        return;
+      }
+
+      this.loading = true;
+
       try {
         const list = await categoryService.getAll();
         this.categories = list as Array<Category>;
@@ -44,6 +52,8 @@ export const useCategoryStore = defineStore("category", {
       } catch (error) {
         console.error("Error initializing category store:", error);
         // Do NOT set initialized = true — permits retry
+      } finally {
+        this.loading = false;
       }
     },
   },

@@ -8,8 +8,6 @@ import IconsResolve from "unplugin-icons/resolver";
 import { VitePWA } from "vite-plugin-pwa";
 import version from "vite-plugin-package-version";
 import VueDevTools from "vite-plugin-vue-devtools";
-import tailwindcss from "tailwindcss";
-import autoprefixer from "autoprefixer";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -131,10 +129,5 @@ export default defineConfig({
   // Optimize dependencies to pre-bundle leaflet and markercluster together
   optimizeDeps: {
     include: ["leaflet", "leaflet.markercluster", "@vue-leaflet/vue-leaflet"],
-  },
-  css: {
-    postcss: {
-      plugins: [tailwindcss, autoprefixer],
-    },
   },
 });

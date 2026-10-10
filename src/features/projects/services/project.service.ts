@@ -133,6 +133,11 @@ function processProjectData(records: RawProjectRecord[]): Array<Project> {
 }
 
 const projectService = {
+  async getMapData(): Promise<Array<Project>> {
+    const response = await projectRepository.fetchMapData();
+    return processProjectData(response);
+  },
+
   async getAll(): Promise<Array<Project>> {
     const response = await projectRepository.fetchFull();
     return processProjectData(response);
