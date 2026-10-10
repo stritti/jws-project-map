@@ -37,11 +37,18 @@ jobs:
           done
           curl -sf http://localhost:4173 >/dev/null || (echo "preview server failed to start" && exit 1)
 
-      - name: Install synced Chrome and ChromeDriver
-        run: npx --yes browser-driver-manager install chrome
+      - name: Setup Chrome (with matching ChromeDriver)
+        id: setup-chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
 
       - name: Run axe-core accessibility checks
-        run: npx --yes @axe-core/cli http://localhost:4173 --browser chrome --exit --save axe-results.json
+        run: >-
+          npx --yes @axe-core/cli http://localhost:4173
+          --chrome-path "${{ steps.setup-chrome.outputs.chrome-path }}"
+          --chromedriver-path "${{ steps.setup-chrome.outputs.chromedriver-path }}"
+          --exit --save axe-results.json
 
       - name: Upload axe results
         uses: actions/upload-artifact@v4
