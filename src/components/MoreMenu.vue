@@ -2,11 +2,15 @@
   <div ref="moreMenuRef" class="more-menu" :class="{ open: moreOpen }">
     <button
       class="more-trigger"
-      :aria-label="t('nav.more')"
+      :aria-label="t('a11y.openMenu')"
       :title="t('nav.more')"
       :aria-expanded="moreOpen"
       :aria-haspopup="true"
+      :aria-controls="morePanelId"
       @click="toggleMore"
+      @keydown.enter="toggleMore"
+      @keydown.space.prevent="toggleMore"
+      @keydown.arrow-down.prevent="openMore; moreFocusIndex = 0"
     >
       <IBiThreeDots aria-hidden="true" />
     </button>
@@ -15,6 +19,7 @@
       <Transition name="more-flyout" @after-enter="onMorePanelEnter">
         <div
           v-if="moreOpen"
+          :id="morePanelId"
           ref="morePanelRef"
           class="more-panel"
           :class="{ teleported }"
@@ -23,31 +28,43 @@
           :aria-label="t('nav.more')"
           @keydown="onMorePanelKeydown"
         >
-          <!-- Language options -->
-          <div class="more-section">
+          <div class="more-section" role="group" :aria-label="t('a11y.languageSelector')">
             <button
-              v-for="lang in languages"
+              v-for="(lang, index) in languages"
               :key="lang.code"
               class="more-option"
               :class="{ active: currentLocale === lang.code }"
-              role="menuitem"
+              role="menuitemradio"
               :lang="lang.code"
               :aria-current="currentLocale === lang.code ? 'true' : undefined"
+              :aria-checked="currentLocale === lang.code"
+              :tabindex="moreFocusIndex === index ? 0 : -1"
               @click="switchLocale(lang.code); closeMore()"
+              @focus="moreFocusIndex = index"
+              @keydown.enter="switchLocale(lang.code); closeMore()"
+              @keydown.space.prevent="switchLocale(lang.code); closeMore()"
+              @keydown.arrow-up.prevent="moreFocusIndex = index > 0 ? index - 1 : languages.length - 1"
+              @keydown.arrow-down.prevent="moreFocusIndex = index < languages.length - 1 ? index + 1 : 0"
+              @keydown.escape.prevent="closeMore()"
             >
               <span :class="`fi fis fi-${lang.flag}`" aria-hidden="true" />
               <span>{{ lang.label }}</span>
-              <span v-if="currentLocale === lang.code" class="more-check" aria-hidden="true">✓</span>
+              <span v-if="currentLocale === lang.code" class="more-check" aria-hidden="true"></span>
             </button>
           </div>
 
-          <div class="more-divider" role="separator"></div>
+          <div class="more-divider" role="separator" aria-hidden="true"></div>
 
-          <!-- About -->
           <button
             class="more-option"
             role="menuitem"
+            :tabindex="moreFocusIndex === languages.length ? 0 : -1"
             @click="$emit('about'); closeMore()"
+            @focus="moreFocusIndex = languages.length"
+            @keydown.enter="$emit('about'); closeMore()"
+            @keydown.space.prevent="$emit('about'); closeMore()"
+            @keydown.arrow-up.prevent="moreFocusIndex = languages.length - 1"
+            @keydown.escape.prevent="closeMore()"
           >
             <IBiInfoCircle aria-hidden="true" />
             <span>{{ t('nav.about') }}</span>
@@ -78,272 +95,165 @@ const props = withDefaults(defineProps<{
 });
 
 const { t, locale } = useI18n();
+const currentLocale = computed(() => locale.value);
 
-// More-menu state
 const moreOpen = ref(false);
 const moreMenuRef = ref<HTMLElement | null>(null);
 const morePanelRef = ref<HTMLElement | null>(null);
 const moreFocusIndex = ref(-1);
+const morePanelId = ref(`more-menu-panel-${Math.random().toString(36).substr(2, 9)}`);
 
-// Check if mobile view
 const isMobileView = computed(() => {
   if (typeof window === 'undefined') return false;
   return window.innerWidth < 768;
 });
 
-
-// Teleport-enabled: fixed position relative to viewport
 const panelPosition = ref({ right: "0px", bottom: "0px", top: "" });
 const teleported = computed(() => props.teleport && moreOpen.value);
 
 const panelInlineStyle = computed(() => {
   if (!teleported.value) return {};
-  const style: Record<string, string> = {
-    position: "fixed",
+  return {
     right: panelPosition.value.right,
+    bottom: panelPosition.value.bottom,
+    top: panelPosition.value.top,
   };
-  if (panelPosition.value.bottom && panelPosition.value.bottom !== 'auto') {
-    style.bottom = panelPosition.value.bottom;
-  }
-  if (panelPosition.value.top) {
-    style.top = panelPosition.value.top;
-  }
-  return style;
 });
 
-function switchLocale(lang: Locale) {
-  setLocale(lang);
-  // Reload project data so localized fields (name, notes) are refetched
-  useProjectStore().load().catch(() => {});
+const languages = [
+  { code: "en", label: "English", flag: "us" },
+  { code: "de", label: "Deutsch", flag: "de" },
+  { code: "fr", label: "Fran\u00e7ais", flag: "fr" },
+];
+
+function switchLocale(lang: string) {
+  setLocale(lang as Locale);
 }
 
 function toggleMore() {
-  if (!moreOpen.value && props.teleport) {
-    // Calculate position relative to viewport for teleported panel
-    const trigger = moreMenuRef.value?.querySelector<HTMLElement>(".more-trigger");
-    if (trigger) {
-      const rect = trigger.getBoundingClientRect();
-      // On mobile: open upward (bottom positioning)
-      // On desktop: open downward (top positioning)
-      if (isMobileView.value) {
-        panelPosition.value = {
-          right: `${window.innerWidth - rect.right}px`,
-          bottom: `${window.innerHeight - rect.top + 8}px`,
-          top: "",
-        };
-      } else {
-        panelPosition.value = {
-          right: `${window.innerWidth - rect.right}px`,
-          bottom: "auto",
-          top: `${rect.bottom + 8}px`,
-        };
-      }
-    }
-  }
   moreOpen.value = !moreOpen.value;
+  if (moreOpen.value) {
+    nextTick(() => {
+      const firstOption = morePanelRef.value?.querySelector<HTMLElement>('.more-option');
+      firstOption?.focus();
+    });
+  }
+}
+
+function openMore() {
+  moreOpen.value = true;
+  nextTick(() => {
+    const firstOption = morePanelRef.value?.querySelector<HTMLElement>('.more-option');
+    firstOption?.focus();
+  });
 }
 
 function closeMore() {
   moreOpen.value = false;
-  moreFocusIndex.value = -1;
-  // Return focus to trigger after DOM update
   nextTick(() => {
-    moreMenuRef.value?.querySelector<HTMLElement>(".more-trigger")?.focus();
+    moreMenuRef.value?.querySelector<HTMLElement>('.more-trigger')?.focus();
   });
 }
 
-function onClickOutside(e: MouseEvent) {
-  if (
-    moreOpen.value &&
-    moreMenuRef.value &&
-    !moreMenuRef.value.contains(e.target as Node) &&
-    !morePanelRef.value?.contains(e.target as Node)
-  ) {
-    closeMore();
+function updatePanelPosition() {
+  if (!moreMenuRef.value || !morePanelRef.value) return;
+  const trigger = moreMenuRef.value.querySelector<HTMLElement>('.more-trigger');
+  if (!trigger) return;
+  const triggerRect = trigger.getBoundingClientRect();
+  const viewportHeight = window.innerHeight;
+  const panelHeight = 200;
+  if (triggerRect.bottom + panelHeight > viewportHeight) {
+    panelPosition.value = {
+      right: "0px",
+      bottom: `${viewportHeight - triggerRect.top + 8}px`,
+      top: "",
+    };
+  } else {
+    panelPosition.value = {
+      right: "0px",
+      bottom: "",
+      top: `${triggerRect.bottom + 8}px`,
+    };
   }
 }
 
-/* Keyboard navigation for role="menu" (ARIA APG pattern) */
 function onMorePanelKeydown(e: KeyboardEvent) {
-  if (!moreOpen.value) return;
-  const items = morePanelRef.value?.querySelectorAll<HTMLElement>('[role="menuitem"]');
-  if (!items || items.length === 0) return;
-
-  let idx = moreFocusIndex.value;
-
-  switch (e.key) {
-    case "ArrowDown":
-    case "ArrowRight":
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    closeMore();
+  } else if (e.key === 'Tab') {
+    const options = morePanelRef.value?.querySelectorAll<HTMLElement>('.more-option');
+    if (!options || options.length === 0) return;
+    const first = options[0];
+    const last = options[options.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
       e.preventDefault();
-      idx = (idx + 1) % items.length;
-      break;
-    case "ArrowUp":
-    case "ArrowLeft":
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
       e.preventDefault();
-      idx = (idx - 1 + items.length) % items.length;
-      break;
-    case "Home":
-      e.preventDefault();
-      idx = 0;
-      break;
-    case "End":
-      e.preventDefault();
-      idx = items.length - 1;
-      break;
-    case "Escape":
-      e.preventDefault();
-      closeMore();
-      return;
-    default:
-      return;
+      first.focus();
+    }
   }
-
-  moreFocusIndex.value = idx;
-  items[idx]?.focus();
 }
 
 function onMorePanelEnter() {
-  const items = morePanelRef.value?.querySelectorAll<HTMLElement>('[role="menuitem"]');
-  if (!items || items.length === 0) return;
-  const activeIdx = Array.from(items).findIndex(
-    (item) => item.classList.contains("active"),
-  );
-  moreFocusIndex.value = activeIdx >= 0 ? activeIdx : 0;
-  items[moreFocusIndex.value]?.focus();
+  updatePanelPosition();
 }
 
-function onGlobalKeydown(e: KeyboardEvent) {
-  if (e.key === "Escape" && moreOpen.value) closeMore();
-}
-
-// Current locale for language switching
-const currentLocale = computed(() => locale.value);
-
-const languages: { code: Locale; flag: string; label: string }[] = [
-  { code: "de", flag: "de", label: "Deutsch" },
-  { code: "en", flag: "gb", label: "English" },
-  { code: "fr", flag: "fr", label: "Fran\u00e7ais" },
-];
-
-// Lifecycle hooks
 onMounted(() => {
-  document.addEventListener("click", onClickOutside);
-  document.addEventListener("keydown", onGlobalKeydown);
+  window.addEventListener('resize', updatePanelPosition);
 });
 
 onUnmounted(() => {
-  document.removeEventListener("click", onClickOutside);
-  document.removeEventListener("keydown", onGlobalKeydown);
+  window.removeEventListener('resize', updatePanelPosition);
 });
 </script>
 
-<style scoped lang="postcss">
+<style lang="postcss" scoped>
 @reference "../assets/main.css";
-
 .more-menu {
-  @apply relative flex items-center flex-shrink-0;
+  @apply relative inline-block;
 }
-
 .more-trigger {
-  @apply flex items-center justify-center w-[40px] h-[40px] md:w-[40px] md:h-[40px] rounded-lg border-none bg-transparent cursor-pointer p-0 transition-colors duration-200 text-onSurface-variant;
-
-  &:hover {
-    @apply text-primary bg-secondary/10;
-  }
-
-  :deep(svg) {
-    font-size: 1.25rem;
-  }
+  @apply w-8 h-8 rounded-full border-none bg-transparent text-onSurface flex items-center justify-center text-[1.5rem] cursor-pointer leading-none transition-all duration-200 hover:bg-black/10 focus:outline-2 focus:outline-secondary focus:outline-offset-2;
 }
-
-.more-menu.open .more-trigger {
-  @apply text-primary bg-secondary/15;
-}
-
-/* Non-teleported: positioned relative to .more-menu parent */
-.more-panel:not(.teleported) {
-  @apply absolute bottom-[calc(100%+8px)] right-0;
-}
-
-/* Desktop: open downward */
-@media (min-width: 768px) {
-  .more-panel:not(.teleported) {
-    @apply absolute top-[calc(100%+8px)] right-0;
-  }
-}
-
 .more-panel {
-  @apply z-50 min-w-[180px] p-2 rounded-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)] origin-bottom-right;
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  @apply absolute z-[1000] bg-white rounded-round-xl shadow-lg border border-outline p-2 min-w-[180px] overflow-hidden;
 }
-
-/* Desktop: adjust shadow and origin for downward opening */
-@media (min-width: 768px) {
-  .more-panel:not(.teleported) {
-    @apply shadow-[0_4px_20px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)] origin-top-right;
-  }
+.more-panel.teleported {
+  @apply fixed;
 }
-
-.more-option {
-  @apply flex items-center gap-2.5 w-full px-3 py-2 rounded-lg border-none bg-transparent cursor-pointer text-sm text-onSurface transition-colors duration-150 text-left;
-
-  &:hover {
-    @apply bg-secondary/10 text-primary;
-  }
-
-  &.active {
-    @apply text-primary bg-secondary/12 font-medium;
-  }
-
-  :deep(.fi) {
-    font-size: 0.85rem;
-    border-radius: 2px;
-  }
-
-  :deep(svg) {
-    font-size: 1.1rem;
-  }
-}
-
-.more-check {
-  @apply ml-auto text-primary text-xs;
-}
-
-.more-divider {
-  @apply h-[1px] mx-2 my-1;
-  background: rgba(0, 0, 0, 0.06);
-}
-
 .more-section {
-  @apply flex flex-col gap-1;
+  @apply py-1;
 }
-
-/* Flyout transition */
-.more-flyout-enter-active {
-  transition: opacity 0.12s ease-out, transform 0.12s ease-out;
+.more-option {
+  @apply w-full flex items-center gap-2 px-3 py-2 rounded-lg text-body-md text-onSurface cursor-pointer transition-colors duration-150 whitespace-nowrap focus:outline-2 focus:outline-secondary focus:outline-offset-2;
 }
-
+.more-option:hover {
+  @apply bg-surface-variant;
+}
+.more-option.active {
+  @apply bg-secondary text-white;
+}
+.more-option .more-check {
+  @apply ml-auto text-secondary;
+}
+.more-option.active .more-check {
+  @apply text-white;
+}
+.more-divider {
+  @apply h-px bg-outline-variant my-1 mx-2;
+}
+.more-flyout-enter-active,
 .more-flyout-leave-active {
-  transition: opacity 0.1s ease-in, transform 0.1s ease-in;
+  @apply transition-all duration-200 ease-out;
 }
-
 .more-flyout-enter-from,
 .more-flyout-leave-to {
-  opacity: 0;
-  transform: translateY(4px) scale(0.97);
+  @apply opacity-0 scale-95;
 }
-
-/* Touch-friendly trigger on mobile */
-@media (max-width: 767.98px) {
-  .more-trigger {
-    width: 36px;
-    height: 36px;
-  }
-
-  :deep(.more-trigger svg) {
-    font-size: 1.25rem;
-  }
+.more-flyout-enter-to,
+.more-flyout-leave-from {
+  @apply opacity-100 scale-100;
 }
 </style>

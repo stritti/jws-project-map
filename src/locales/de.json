@@ -4,12 +4,12 @@
   },
   "search": {
     "placeholder": "Name, Kategorie oder Land suchen...",
-    "placeholderShort": "Projekte suchen…",
+    "placeholderShort": "Projekte suchen\u2026",
     "filter": "Filter",
     "filterGroups": {
       "status": "Status",
       "categories": "Kategorien",
-      "countries": "Länder",
+      "countries": "L\u00e4nder",
       "mapType": "Kartenansicht"
     },
     "mapTypes": {
@@ -24,14 +24,14 @@
       "finished": "Abgeschlossen"
     },
     "minChars": "Mindestens 2 Zeichen eingeben",
-    "noResults": "Keine Projekte gefunden für",
+    "noResults": "Keine Projekte gefunden f\u00fcr",
     "noResultsTitle": "Keine Projekte gefunden",
     "noResultsHint": "Passen Sie Ihre Suchanfrage oder Filter an.",
     "resultsCount": "{count} Projekte gefunden",
-    "resetFilters": "Filter zurücksetzen",
+    "resetFilters": "Filter zur\u00fccksetzen",
     "stats": "{total} Projekte (davon: {ub} im Bau, {pl} geplant)",
     "more": "weitere Projekte",
-    "loadingMap": "Karte wird geladen…",
+    "loadingMap": "Karte wird geladen\u2026",
     "resultsLabel": "Suchergebnisse",
     "viewToggleLabel": "Ansicht: Karte oder Liste",
     "viewMap": "Kartenansicht",
@@ -42,14 +42,15 @@
   "nav": {
     "map": "Karte",
     "list": "Liste",
-    "about": "Über uns",
+    "about": "\u00dcber uns",
     "more": "Mehr",
-    "close": "Schließen",
+    "close": "Schlie\u00dfen",
     "navigate": "Navigieren",
-    "share": "Teilen"
+    "share": "Teilen",
+    "back": "Zur\u00fcck"
   },
   "common": {
-    "close": "Schließen",
+    "close": "Schlie\u00dfen",
     "reload": "Neu laden"
   },
   "project": {
@@ -59,7 +60,7 @@
       "since": "Seit",
       "location": "Standort",
       "description": "Beschreibung",
-      "more": "mehr …"
+      "more": "mehr \u2026"
     },
     "state": {
       "finished": "Abgeschlossen",
@@ -68,9 +69,9 @@
     }
   },
   "about": {
-    "title": "Über diese App",
-    "description": "Auf dieser Übersichtskarte werden alle Projekte der {foundation} angezeigt. Abgeschlossene Projekte sind mit farbigen Pins markiert, geplante und in Bau befindliche Projekte in Grau.",
-    "foundation": "Jörg Wolff Stiftung",
+    "title": "\u00dcber diese App",
+    "description": "Auf dieser \u00dcbersichtskarte werden alle Projekte der {foundation} angezeigt. Abgeschlossene Projekte sind mit farbigen Pins markiert, geplante und in Bau befindliche Projekte in Grau.",
+    "foundation": "J\u00f6rg Wolff Stiftung",
     "development": "Entwicklung",
     "developer": "Stephan Strittmatter",
     "sources": "Quellen",
@@ -81,7 +82,9 @@
     "moreLibs": "und weitere Bibliotheken"
   },
   "gallery": {
-    "title": "Galerie"
+    "title": "Galerie",
+    "prevImage": "Vorheriges Bild",
+    "nextImage": "N\u00e4chstes Bild"
   },
   "map": {
     "layerFinished": "Projekte: abgeschlossen ({count})",
@@ -92,18 +95,18 @@
   "a11y": {
     "skipToContent": "Zum Hauptinhalt springen",
     "skipToMap": "Zur Karte springen",
-    "mapInstructions": "Karte: Mit Pfeiltasten verschieben, Plus und Minus zum Zoomen. Oder Tab drücken, um zur Projektliste zu springen.",
+    "mapInstructions": "Karte: Mit Pfeiltasten verschieben, Plus und Minus zum Zoomen. Oder Tab dr\u00fccken, um zur Projektliste zu springen.",
     "searchResultsAnnouncement": "{count} Ergebnisse gefunden",
     "noResultsAnnouncement": "Keine Ergebnisse gefunden",
     "projectsLoaded": "Projekte geladen",
-    "close": "Schließen",
-    "closeSearch": "Suche schließen",
-    "closeGallery": "Galerie schließen",
-    "closeAbout": "Über-Dialog schließen",
-    "imageNotAvailable": "Bild nicht verfügbar",
-    "openImage": "Öffnen {name}",
+    "close": "Schlie\u00dfen",
+    "closeSearch": "Suche schlie\u00dfen",
+    "closeGallery": "Galerie schlie\u00dfen",
+    "closeAbout": "\u00dcber-Dialog schlie\u00dfen",
+    "imageNotAvailable": "Bild nicht verf\u00fcgbar",
+    "openImage": "\u00d6ffnen {name}",
     "imagePosition": "Bild {current} von {total}",
-    "zoomIn": "Vergrößern",
+    "zoomIn": "Vergr\u00f6\u00dfern",
     "zoomOut": "Verkleinern",
     "filterResultsAnnouncement": "{count} Ergebnisse gefunden",
     "mainNavigation": "Hauptnavigation",
@@ -113,6 +116,19 @@
     "filterPanel": "Filtereinstellungen",
     "statusFilter": "Status",
     "categoriesFilter": "Kategorien",
-    "countriesFilter": "Länder"
+    "countriesFilter": "L\u00e4nder",
+    "modalOverlay": "Modal-Overlay",
+    "previousImage": "Vorheriges Bild",
+    "nextImage": "N\u00e4chstes Bild",
+    "projectList": "Projektliste",
+    "projectCard": "Projektkarte",
+    "viewProjectDetails": "Projektdetails anzeigen",
+    "backToList": "Zur\u00fcck zur Projektliste",
+    "shareProject": "Projekt teilen",
+    "openMenu": "Men\u00fc \u00f6ffnen",
+    "currentLocation": "Aktueller Standort",
+    "navigate": "Navigieren",
+    "open": "\u00d6ffnen",
+    "back": "Zur\u00fcck"
   }
 }
