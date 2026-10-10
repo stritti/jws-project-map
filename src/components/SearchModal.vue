@@ -174,7 +174,6 @@ function getTeaserImage(project: Project) {
   return "/img/placeholder.png";
 }
 
-<<<<<<< HEAD
 // Handle keyboard navigation in results
 function handleResultKeydown(e: KeyboardEvent, project: Project) {
   if (e.key === 'Enter' || e.key === ' ') {
@@ -225,8 +224,6 @@ function trapFocus(e: KeyboardEvent) {
 onMounted(() => window.addEventListener("keydown", handleKeydown));
 onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
 
-=======
->>>>>>> origin/main
 defineExpose({ show, hide });
 </script>
 

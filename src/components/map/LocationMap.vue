@@ -1,9 +1,9 @@
 <template>
-  <div 
-    class="map" 
-    tabindex="0" 
-    ref="mapContainerRef" 
-    role="region" 
+  <div
+    class="map"
+    tabindex="0"
+    ref="mapContainerRef"
+    role="region"
     :aria-label="t('a11y.skipToMap')"
     @focus="onMapFocus"
     @keydown="onMapKeydown"
@@ -22,7 +22,6 @@
         :options="mapOptions"
         @click="addMarker"
         @ready="mapLoaded"
-        aria-label="Interactive map showing project locations in West Africa"
       >
         <l-tile-layer
           v-if="baseLayer === 'satellite'"
@@ -44,7 +43,6 @@
           v-if="projectsFinished.length > 0"
           layer-type="overlay"
           :name="layerLabelProjectsFinished"
-          aria-label="Finished projects"
         >
           <l-marker
             v-for="loc in projectsFinished"
@@ -53,11 +51,6 @@
             :lat-lng="[loc.latitude, loc.longitude]"
             :title="markerTitle(loc)"
             @click="onMarkerClick(loc)"
-            :aria-label="`${loc.name}, ${t('project.state.finished')}`"
-            role="button"
-            tabindex="0"
-            @keydown.enter="onMarkerClick(loc)"
-            @keydown.space.prevent="onMarkerClick(loc)"
           >
             <l-icon
               :icon-url="getPin(loc)"
@@ -65,7 +58,7 @@
               :icon-size="[28, 39]"
               :icon-anchor="[14, 39]"
             ></l-icon>
-            <l-tooltip v-if="zoom > 7" role="tooltip">
+            <l-tooltip v-if="zoom > 7">
               <span>{{ loc.name }}</span>
               <span v-if="loc.state !== PROJECT_STATES.FINISHED"> ({{ loc.state }})</span>
             </l-tooltip>
@@ -76,7 +69,6 @@
           v-if="projectsUnderConstruction.length > 0"
           layer-type="overlay"
           :name="layerLabelProjectsUnderConstruction"
-          aria-label="Projects under construction"
         >
           <l-marker
             v-for="loc in projectsUnderConstruction"
@@ -85,11 +77,6 @@
             :lat-lng="[loc.latitude, loc.longitude]"
             :title="markerTitle(loc)"
             @click="onMarkerClick(loc)"
-            :aria-label="`${loc.name}, ${t('project.state.underConstruction')}`"
-            role="button"
-            tabindex="0"
-            @keydown.enter="onMarkerClick(loc)"
-            @keydown.space.prevent="onMarkerClick(loc)"
           >
             <l-icon
               :icon-url="getPin(loc)"
@@ -97,7 +84,7 @@
               :icon-size="[28, 39]"
               :icon-anchor="[14, 39]"
             ></l-icon>
-            <l-tooltip v-if="zoom > 7" role="tooltip">
+            <l-tooltip v-if="zoom > 7">
               <span>{{ loc.name }}</span>
               <span v-if="loc.state !== PROJECT_STATES.FINISHED"> ({{ loc.state }})</span>
             </l-tooltip>
@@ -108,7 +95,6 @@
           v-if="projectsPlanned.length > 0"
           layer-type="overlay"
           :name="layerLabelProjectsPlanned"
-          aria-label="Planned projects"
         >
           <l-marker
             v-for="loc in projectsPlanned"
@@ -117,11 +103,6 @@
             :lat-lng="[loc.latitude, loc.longitude]"
             :title="markerTitle(loc)"
             @click="onMarkerClick(loc)"
-            :aria-label="`${loc.name}, ${t('project.state.planned')}`"
-            role="button"
-            tabindex="0"
-            @keydown.enter="onMarkerClick(loc)"
-            @keydown.space.prevent="onMarkerClick(loc)"
           >
             <l-icon
               :icon-url="getPin(loc)"
@@ -129,7 +110,7 @@
               :icon-size="[28, 39]"
               :icon-anchor="[14, 39]"
             ></l-icon>
-            <l-tooltip v-if="zoom > 7" role="tooltip">
+            <l-tooltip v-if="zoom > 7">
               <span>{{ loc.name }}</span>
               <span v-if="loc.state !== PROJECT_STATES.FINISHED"> ({{ loc.state }})</span>
             </l-tooltip>
@@ -270,43 +251,39 @@ function onMapFocus() {
 }
 
 function onMapKeydown(e: KeyboardEvent) {
-  // Handle keyboard navigation for the map
-  if (!map.value) return;
-  
-  const mapInstance = map.value.leafletObject;
+  const mapInstance = map.value?.leafletObject;
   if (!mapInstance) return;
-  
+
   switch (e.key) {
-    case 'ArrowUp':
+    case "ArrowUp":
       e.preventDefault();
       mapInstance.panBy([0, -50]);
       break;
-    case 'ArrowDown':
+    case "ArrowDown":
       e.preventDefault();
       mapInstance.panBy([0, 50]);
       break;
-    case 'ArrowLeft':
+    case "ArrowLeft":
       e.preventDefault();
       mapInstance.panBy([-50, 0]);
       break;
-    case 'ArrowRight':
+    case "ArrowRight":
       e.preventDefault();
       mapInstance.panBy([50, 0]);
       break;
-    case '+':
-    case '=':
+    case "+":
+    case "=":
       e.preventDefault();
       mapInstance.zoomIn();
       announceToScreenReader(t("a11y.zoomIn"));
       break;
-    case '-':
-    case '_':
+    case "-":
+    case "_":
       e.preventDefault();
       mapInstance.zoomOut();
       announceToScreenReader(t("a11y.zoomOut"));
       break;
-    case 'Escape':
-      // Close any open popups
+    case "Escape":
       if (isOpened.value) {
         e.preventDefault();
         onSidePanelClose();
@@ -318,9 +295,7 @@ function onMapKeydown(e: KeyboardEvent) {
 const mapOptions = {
   zoomSnap: 0.5,
   scrollWheelZoom: true,
-  // Accessibility: Allow keyboard interaction
-  keyboard: true,
-  keyboardPanDelta: 50,
+  touchZoom: true,
 };
 
 function syncMapViewport() {
@@ -359,23 +334,23 @@ function syncMapViewportIfNeeded() {
 
 // Compute project lists from the filtered locations
 const projectsFinished = computed(() =>
-  locations.value.filter((loc) => loc.state === "finished")
+  locations.value.filter((p) => p.state === PROJECT_STATES.FINISHED),
 );
 const projectsUnderConstruction = computed(() =>
-  locations.value.filter((loc) => loc.state === "under construction")
+  locations.value.filter((p) => p.state === PROJECT_STATES.UNDER_CONSTRUCTION),
 );
 const projectsPlanned = computed(() =>
-  locations.value.filter((loc) => loc.state === "planned")
+  locations.value.filter((p) => p.state === PROJECT_STATES.PLANNED),
 );
 
 const layerLabelProjectsFinished = computed(() =>
-  t("map.layerFinished", { count: projectsFinished.value.length })
+  t("map.layerFinished", { count: projectsFinished.value.length }),
 );
 const layerLabelProjectsUnderConstruction = computed(() =>
-  t("map.layerUnderConstruction", { count: projectsUnderConstruction.value.length })
+  t("map.layerUnderConstruction", { count: projectsUnderConstruction.value.length }),
 );
 const layerLabelProjectsPlanned = computed(() =>
-  t("map.layerPlanned", { count: projectsPlanned.value.length })
+  t("map.layerPlanned", { count: projectsPlanned.value.length }),
 );
 
 const selectedLocation = computed(() =>
@@ -398,6 +373,16 @@ const viewportSignature = computed(() => {
 });
 
 const mapLoaded = () => {
+  if (map.value?.leafletObject) {
+    const zoomControl = map.value.leafletObject.zoomControl;
+    if (zoomControl?.getContainer) {
+      const container = zoomControl.getContainer();
+      const zoomIn = container?.querySelector(".leaflet-control-zoom-in");
+      const zoomOut = container?.querySelector(".leaflet-control-zoom-out");
+      if (zoomIn) zoomIn.setAttribute("aria-label", t("a11y.zoomIn"));
+      if (zoomOut) zoomOut.setAttribute("aria-label", t("a11y.zoomOut"));
+    }
+  }
   if (map.value?.leafletObject) {
     // Add aria-labels to zoom controls for accessibility
     const zoomControl = map.value.leafletObject.zoomControl;
@@ -473,7 +458,7 @@ const AVAILABLE_PINS = new Set([
   "undefined",
 ]);
 
-function getPin(location: Project): string {
+const getPin = (location: Project): string => {
   if (!location) return DEFAULT_PIN;
 
   try {
@@ -503,7 +488,7 @@ function getPin(location: Project): string {
     console.error("Error getting pin for location:", error);
     return DEFAULT_PIN;
   }
-}
+};
 
 const canHover =
   typeof window !== "undefined" &&
@@ -526,19 +511,7 @@ const pinClass = (current: Project): string => {
   }
 
   return cssClass;
-}
-
-function onMarkerClick(loc: Project) {
-  selectedLocation.value = loc;
-  isOpened.value = true;
-  // Announce to screen readers
-  announceToScreenReader(`Project: ${loc.name}`);
-}
-
-function onSidePanelClose() {
-  isOpened.value = false;
-  selectedLocation.value = undefined;
-}
+};
 
 function getHeadingOffset(): number {
   const heading = document.querySelector<HTMLElement>('.home h1');
@@ -546,7 +519,7 @@ function getHeadingOffset(): number {
   return Math.round(heading.getBoundingClientRect().bottom) + 8;
 }
 
-function updateBounds() {
+const updateBounds = () => {
   if (!locations.value.length || !map.value?.leafletObject) return;
 
   try {
@@ -577,48 +550,7 @@ function updateBounds() {
   } catch (error) {
     console.error("Error updating map bounds:", error);
   }
-}
-
-const addMarker = (event: {
-  latlng: any;
-  originalEvent: { ctrlKey: any; altKey: any };
-}) => {
-  if (
-    zoom.value >= 9 &&
-    event.latlng &&
-    event.originalEvent.ctrlKey &&
-    event.originalEvent.altKey
-  ) {
-    const name = prompt("Enter name:", "__TBD__");
-    if (name) {
-      projectService.add(event.latlng, name);
-    }
-  }
 };
-
-const mapLoaded = () => {
-  if (map.value?.leafletObject) {
-    // Add aria-labels to zoom controls for accessibility
-    const zoomControl = map.value.leafletObject.zoomControl;
-    if (zoomControl?.getContainer) {
-      const container = zoomControl.getContainer();
-      const zoomIn = container?.querySelector(".leaflet-control-zoom-in");
-      const zoomOut = container?.querySelector(".leaflet-control-zoom-out");
-      if (zoomIn) zoomIn.setAttribute("aria-label", t("a11y.zoomIn"));
-      if (zoomOut) zoomOut.setAttribute("aria-label", t("a11y.zoomOut"));
-    }
-  }
-
-  if (locations.value.length > 0) {
-    nextTick(() => updateBounds());
-  }
-};
-
-watch(locations, (newLocations) => {
-  if (newLocations.length > 0 && map.value?.leafletObject) {
-    nextTick(() => updateBounds());
-  }
-});
 </script>
 
 <style lang="postcss">
@@ -671,4 +603,6 @@ watch(locations, (newLocations) => {
 .map:focus-visible {
   @apply outline-3 outline-primary outline-offset-[-3px] z-10;
 }
+
+/* Zoom controls nur auf Desktop anzeigen */
 </style>

@@ -70,7 +70,7 @@
         </div>
 
         <div v-if="project">
-          
+          <template v-if="project">
           <!-- Category tiles -->
           <div v-if="project.category?.length" class="category-tiles mb-4" role="list" :aria-label="t('a11y.categoriesFilter')">
             <div
@@ -158,6 +158,7 @@
           </div>
 
           <project-gallery v-if="project.gallery && project.gallery.length > 0" :project="project" :title="t('gallery.title')" />
+          </template>
         </div>
       </div>
     </div>
