@@ -5,11 +5,10 @@ import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useWebFrame } from "@/composables/useWebFrame";
-import { useCategoryStore } from "../stores/category.store";
-import { useCountryStore } from "../stores/country.store";
-import { useFilterStore } from "../stores/filter.store";
-import { useProjectSearch, type ProjectState } from "@/composables/useProjectSearch";
-import { PROJECT_STATES } from "@/constants/projectStates";
+import { useFilterStore } from "@/stores/filter.store";
+import { useProjectSearch } from "@/composables/useProjectSearch";
+import { useSearchFilters } from "@/composables/useSearchFilters";
+import type { ProjectState } from "@/composables/useProjectSearch";
 import FilterPanel from "@/components/FilterPanel.vue";
 import MainMenu from "../components/MainMenu.vue";
 const LocationMap = defineAsyncComponent(() => import("../components/map/LocationMap.vue"));
@@ -18,28 +17,16 @@ const { t } = useI18n();
 const router = useRouter();
 const { navigateToProject } = useWebFrame();
 const projectStore = useProjectStore();
-const categoryStore = useCategoryStore();
-const countryStore = useCountryStore();
-const filterStore = useFilterStore();
 
 const { mapProjects } = storeToRefs(projectStore);
-const { categories } = storeToRefs(categoryStore);
-const { countries } = storeToRefs(countryStore);
 
-// Derive local refs from shared filter store for template bindings
-const { stateFilter, categoryFilter, countryFilter, filterVisible } = storeToRefs(filterStore);
+const { stateFilter, categoryFilter, countryFilter, filterVisible } = useSearchFilters();
 
 // Map base layer (satellite or OSM; OSM is the default key-free layer)
 const baseLayer = ref<'satellite' | 'osm'>('osm');
 
 // Marker clustering toggle
 const clusterEnabled = ref(false);
-
-const stateOptions = computed(() => [
-  { text: t("project.state.finished"), value: PROJECT_STATES.FINISHED },
-  { text: t("project.state.underConstruction"), value: PROJECT_STATES.UNDER_CONSTRUCTION },
-  { text: t("project.state.planned"), value: PROJECT_STATES.PLANNED },
-]);
 
 const filteredMapProjects = computed(() => {
   return mapProjects.value.filter((project) => {
@@ -58,69 +45,11 @@ const filteredMapProjects = computed(() => {
 // Fuzzy search on the filtered map-tier list
 const { results: searchResults, query: searchQuery } = useProjectSearch(filteredMapProjects, { limit: 50 });
 
-const activeFilters = computed(() => {
-  const filters: { id: string; type: string; name: string; value: any; category: string }[] = [];
-  
-  stateFilter.value.forEach(s => {
-    const opt = stateOptions.value.find(o => o.value === s);
-    if (opt) filters.push({ id: `state-${s}`, type: t("search.filterGroups.status"), name: opt.text, value: s, category: "state" });
-  });
-  
-  categoryFilter.value.forEach(c => {
-    const cat = categoryList.value.find(cl => cl.value === c);
-    if (cat) filters.push({ id: `cat-${c}`, type: t("search.filterGroups.categories"), name: cat.text, value: c, category: "category" });
-  });
-  
-  countryFilter.value.forEach(c => {
-    const cou = countryList.value.find(cl => cl.value === c);
-    if (cou) filters.push({ id: `cou-${c}`, type: t("search.filterGroups.countries"), name: cou.text, value: c, category: "country" });
-  });
-  
-  return filters;
-});
-
-const activeFiltersCount = computed(() => activeFilters.value.length);
-
-function handleStateFilterChange(state: ProjectState) {
-  if (state === "all") {
-    filterStore.stateFilter = [];
-  } else {
-    filterStore.stateFilter = [state];
-  }
-}
-
-function removeFilter(filter: any) {
-  if (filter.category === "state") {
-    filterStore.stateFilter = filterStore.stateFilter.filter(s => s !== filter.value);
-  } else if (filter.category === "category") {
-    filterStore.categoryFilter = filterStore.categoryFilter.filter(c => c !== filter.value);
-  } else if (filter.category === "country") {
-    filterStore.countryFilter = filterStore.countryFilter.filter(c => c !== filter.value);
-  }
-}
+const { activeFiltersCount, clearAllFilters: clearSharedFilters } = useSearchFilters(searchQuery);
 
 function clearAllFilters() {
-  filterStore.stateFilter = [];
-  filterStore.categoryFilter = [];
-  filterStore.countryFilter = [];
-  searchQuery.value = "";
+  clearSharedFilters();
 }
-
-const categoryList = computed(() =>
-  categories.value.map((category) => ({
-    text: categoryStore.getDisplayName(category.id),
-    value: Number(category.id),
-    ...category,
-  })),
-);
-
-const countryList = computed(() =>
-  countries.value.map((country) => ({
-    text: countryStore.getDisplayName(country.id),
-    value: Number(country.id),
-    ...country,
-  })),
-);
 
 function handleProjectClick(project: { id: number; name: string }) {
   navigateToProject(project);

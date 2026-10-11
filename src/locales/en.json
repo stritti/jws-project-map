@@ -4,7 +4,7 @@
   },
   "search": {
     "placeholder": "Search by name, category or country...",
-    "placeholderShort": "Search projects…",
+    "placeholderShort": "Search projects\u2026",
     "filter": "Filter",
     "filterGroups": {
       "status": "Status",
@@ -31,7 +31,7 @@
     "resetFilters": "Reset filters",
     "stats": "{total} projects ({ub} under construction, {pl} planned)",
     "more": "more projects",
-    "loadingMap": "Loading map…",
+    "loadingMap": "Loading map\u2026",
     "resultsLabel": "Search results",
     "viewToggleLabel": "View: Map or List",
     "viewMap": "Map view",
@@ -46,7 +46,8 @@
     "more": "More",
     "close": "Close",
     "navigate": "Navigate",
-    "share": "Share"
+    "share": "Share",
+    "back": "Back"
   },
   "common": {
     "close": "Close",
@@ -59,7 +60,7 @@
       "since": "Since",
       "location": "Location",
       "description": "Description",
-      "more": "more …"
+      "more": "more \u2026"
     },
     "state": {
       "finished": "Finished",
@@ -70,7 +71,7 @@
   "about": {
     "title": "About this App",
     "description": "All projects of the {foundation} are shown on this overview map. Completed projects are marked with colored pins, while planned or under-construction projects are marked in gray.",
-    "foundation": "Jörg Wolff Foundation",
+    "foundation": "J\u00f6rg Wolff Foundation",
     "development": "Development",
     "developer": "Stephan Strittmatter",
     "sources": "Sources",
@@ -81,7 +82,9 @@
     "moreLibs": "and more libraries"
   },
   "gallery": {
-    "title": "Gallery"
+    "title": "Gallery",
+    "prevImage": "Previous image",
+    "nextImage": "Next image"
   },
   "map": {
     "layerFinished": "Projects: finished ({count})",
@@ -113,6 +116,19 @@
     "filterPanel": "Filter settings",
     "statusFilter": "Status",
     "categoriesFilter": "Categories",
-    "countriesFilter": "Countries"
+    "countriesFilter": "Countries",
+    "modalOverlay": "Modal overlay",
+    "previousImage": "Previous image",
+    "nextImage": "Next image",
+    "projectList": "Project list",
+    "projectCard": "Project card",
+    "viewProjectDetails": "View project details",
+    "backToList": "Back to project list",
+    "shareProject": "Share this project",
+    "openMenu": "Open menu",
+    "currentLocation": "Current location",
+    "navigate": "Navigate",
+    "open": "Open",
+    "back": "Back"
   }
 }
