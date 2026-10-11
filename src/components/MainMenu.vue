@@ -214,7 +214,7 @@ defineExpose({
   @apply w-full;
 }
 
-/* Search bar  Apple-style glassmorphism */
+/* Search bar — Apple-style glassmorphism */
 .search-bar {
   @apply flex items-center bg-white/70 backdrop-blur-xl border border-white/25 shadow-lg rounded-round-large px-[0.75rem] py-[0.25rem] gap-[0.5rem];
 }
@@ -245,7 +245,7 @@ defineExpose({
   }
 }
 
-/* View toggle  segmented control style */
+/* View toggle — segmented control style */
 .view-toggle {
   @apply flex gap-px bg-black/10 rounded-lg p-px flex-shrink-0;
 }

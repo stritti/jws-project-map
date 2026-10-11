@@ -134,6 +134,7 @@ import {
   watch,
   nextTick,
   onMounted,
+  type Component,
 } from "vue";
 import { storeToRefs } from "pinia";
 import { useProjectStore } from "@/features/projects/stores/project.store";
@@ -148,8 +149,8 @@ import { PROJECT_STATES } from "@/constants/projectStates";
 // Lazy load Leaflet and related components
 const isLeafletLoaded = ref(false);
 let L: typeof import("leaflet");
-let LMap: any, LLayerGroup: any, LTileLayer: any, LMarker: any, LIcon: any, LTooltip: any;
-let LMarkerClusterGroup: any;
+let LMap: Component, LLayerGroup: Component, LTileLayer: Component, LMarker: Component, LIcon: Component, LTooltip: Component;
+let LMarkerClusterGroup: Component;
 
 // Load Leaflet dynamically to improve LCP
 onMounted(async () => {
@@ -243,7 +244,7 @@ const zoom = ref(4);
 const center = ref<[number, number]>([0, 8]);
 const isOpened = ref(false);
 const selectedLocationId = ref<number | null>(null);
-const map = ref<any>(null);
+const map = ref<{ leafletObject: import("leaflet").Map } | null>(null);
 const mapContainerRef = ref<HTMLElement | null>(null);
 
 function onMapFocus() {
@@ -420,8 +421,8 @@ watch(locations, () => {
 });
 
 const addMarker = (event: {
-  latlng: any;
-  originalEvent: { ctrlKey: any; altKey: any };
+  latlng: import("leaflet").LatLng;
+  originalEvent: { ctrlKey: boolean; altKey: boolean };
 }) => {
   if (
     zoom.value >= 9 &&
