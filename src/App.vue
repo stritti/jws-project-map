@@ -7,11 +7,11 @@ import { useSearchStore } from "@/stores/search.store";
 import { storeToRefs } from "pinia";
 import { computed, onMounted, onUnmounted, watch, ref } from "vue";
 import { useRouter } from "vue-router";
-import { usePageTitle, useHtmlLang } from "./composables/useAccessibility";
+import { usePageTitle } from "./composables/useAccessibility";
 import { useCanonicalUrl } from "./composables/useCanonicalUrl";
 import { useI18n } from "vue-i18n";
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
 
 import "./assets/iframe.css";
 
@@ -27,9 +27,6 @@ const searchModalRef = ref<{ show: () => void; hide: () => void } | null>(null);
 
 // Update page title on route changes
 usePageTitle(router);
-
-// Set HTML lang attribute for accessibility
-useHtmlLang({ locale });
 
 // Canonical URL to prevent duplicate content
 useCanonicalUrl(router);
