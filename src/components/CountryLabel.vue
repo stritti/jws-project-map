@@ -4,40 +4,33 @@
   </span>
 </template>
 
-<script lang="ts">
-import { mapState } from "pinia";
-import { useCountryStore } from "../stores/country.store";
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { computed } from "vue";
+import { useCountryStore } from "@/stores/country.store";
 
-export default defineComponent({
-  name: "CountryLabel",
-  props: {
-    countryId: {
-      type: Number,
-      required: false,
-      default: null,
-    },
-  },
-  computed: {
-    ...mapState(useCountryStore, {
-      getById: (store) => store.getById,
-      getDisplayName: (store) => store.getDisplayName,
-    }),
-    countryLabel(): string {
-      if (this.countryId && this.getById(this.countryId)) {
-        return this.getDisplayName(this.countryId);
-      } else {
-        return "";
-      }
-    },
-    countryClass() {
-      if (this.countryId && this.getById(this.countryId)) {
-        return `fi fis fi-${this.getById(this.countryId)?.code}`;
-      } else {
-        return "";
-      }
-    },
-  },
+const props = withDefaults(
+  defineProps<{
+    countryId?: number | null;
+  }>(),
+  { countryId: null },
+);
+
+const countryStore = useCountryStore();
+
+const countryLabel = computed<string>(() => {
+  if (props.countryId && countryStore.getById(props.countryId)) {
+    return countryStore.getDisplayName(props.countryId);
+  } else {
+    return "";
+  }
+});
+
+const countryClass = computed(() => {
+  if (props.countryId && countryStore.getById(props.countryId)) {
+    return `fi fis fi-${countryStore.getById(props.countryId)?.code}`;
+  } else {
+    return "";
+  }
 });
 </script>
 

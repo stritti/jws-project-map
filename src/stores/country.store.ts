@@ -1,59 +1,55 @@
-import type { Country } from "@/interfaces/Country";
+import { computed, ref } from "vue";
 import { defineStore } from "pinia";
-import countryService from "../services/country.service";
+import type { Country } from "@/interfaces/Country";
+import countryService from "@/services/country.service";
 import { currentLocale } from "@/utils/locale";
 
-interface State {
-  countries: Country[];
-  initialized: boolean;
-  loading: boolean;
-}
+export const useCountryStore = defineStore("country", () => {
+  const countries = ref<Country[]>([]);
+  const initialized = ref(false);
+  const loading = ref(false);
 
-export const useCountryStore = defineStore("country", {
-  state: (): State => {
-    return {
-      countries: [],
-      initialized: false,
-      loading: false,
-    };
-  },
-  persist: false,
-  getters: {
-    getAll: (state) => state.countries,
-    getById: (state) => (id: number) =>
-      state.countries.find((country: Country) => country.id === id),
-    getDisplayName: (state) => (id: number) => {
-      const c = state.countries.find((c) => c.id === id);
-      if (!c) return "";
-      const loc = currentLocale();
-      const key = `name_${loc}` as keyof Country;
-      return (c[key] as string) || c.name;
-    },
-  },
-  actions: {
-    async load(): Promise<void> {
-      // Prevent re-initialization once successfully loaded
-      if (this.initialized) {
-        return;
-      }
+  const getAll = computed(() => countries.value);
+  const getById = (id: number): Country | undefined =>
+    countries.value.find((country) => country.id === id);
+  /** Returns the country name in the current locale, falling back to the default Name */
+  const getDisplayName = (id: number): string => {
+    const c = countries.value.find((c) => c.id === id);
+    if (!c) return "";
+    const loc = currentLocale();
+    const key = `name_${loc}` as keyof Country;
+    return (c[key] as string) || c.name;
+  };
 
-      if (this.loading) {
-        return;
-      }
+  async function load(): Promise<void> {
+    // Prevent re-initialization once successfully loaded
+    if (initialized.value) {
+      return;
+    }
+    if (loading.value) {
+      return;
+    }
+    loading.value = true;
+    try {
+      const list = await countryService.getAll();
+      countries.value = list as Array<Country>;
+      // Only mark as initialized on success — allows retry on error
+      initialized.value = true;
+    } catch (error) {
+      console.error("Error initializing country store:", error);
+      // Do NOT set initialized = true — permits retry
+    } finally {
+      loading.value = false;
+    }
+  }
 
-      this.loading = true;
-
-      try {
-        const list = await countryService.getAll();
-        this.countries = list as Array<Country>;
-        // Only mark as initialized on success — allows retry on error
-        this.initialized = true;
-      } catch (error) {
-        console.error("Error initializing country store:", error);
-        // Do NOT set initialized = true — permits retry
-      } finally {
-        this.loading = false;
-      }
-    },
-  },
+  return {
+    countries,
+    initialized,
+    loading,
+    getAll,
+    getById,
+    getDisplayName,
+    load,
+  };
 });

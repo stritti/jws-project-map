@@ -1,5 +1,13 @@
 <template>
-  <div class="map" tabindex="0" ref="mapContainerRef" role="region" :aria-label="t('a11y.skipToMap')" @focus="onMapFocus">
+  <div
+    class="map"
+    tabindex="0"
+    ref="mapContainerRef"
+    role="region"
+    :aria-label="t('a11y.skipToMap')"
+    @focus="onMapFocus"
+    @keydown="onMapKeydown"
+  >
     <client-only>
       <l-map
         v-if="isLeafletLoaded"
@@ -126,6 +134,7 @@ import {
   watch,
   nextTick,
   onMounted,
+  type Component,
 } from "vue";
 import { storeToRefs } from "pinia";
 import { useProjectStore } from "@/features/projects/stores/project.store";
@@ -140,8 +149,8 @@ import { PROJECT_STATES } from "@/constants/projectStates";
 // Lazy load Leaflet and related components
 const isLeafletLoaded = ref(false);
 let L: typeof import("leaflet");
-let LMap: any, LLayerGroup: any, LTileLayer: any, LMarker: any, LIcon: any, LTooltip: any;
-let LMarkerClusterGroup: any;
+let LMap: Component, LLayerGroup: Component, LTileLayer: Component, LMarker: Component, LIcon: Component, LTooltip: Component;
+let LMarkerClusterGroup: Component;
 
 // Load Leaflet dynamically to improve LCP
 onMounted(async () => {
@@ -235,11 +244,53 @@ const zoom = ref(4);
 const center = ref<[number, number]>([0, 8]);
 const isOpened = ref(false);
 const selectedLocationId = ref<number | null>(null);
-const map = ref<any>(null);
+const map = ref<{ leafletObject: import("leaflet").Map } | null>(null);
 const mapContainerRef = ref<HTMLElement | null>(null);
 
 function onMapFocus() {
   announceToScreenReader(t("a11y.mapInstructions"));
+}
+
+function onMapKeydown(e: KeyboardEvent) {
+  const mapInstance = map.value?.leafletObject;
+  if (!mapInstance) return;
+
+  switch (e.key) {
+    case "ArrowUp":
+      e.preventDefault();
+      mapInstance.panBy([0, -50]);
+      break;
+    case "ArrowDown":
+      e.preventDefault();
+      mapInstance.panBy([0, 50]);
+      break;
+    case "ArrowLeft":
+      e.preventDefault();
+      mapInstance.panBy([-50, 0]);
+      break;
+    case "ArrowRight":
+      e.preventDefault();
+      mapInstance.panBy([50, 0]);
+      break;
+    case "+":
+    case "=":
+      e.preventDefault();
+      mapInstance.zoomIn();
+      announceToScreenReader(t("a11y.zoomIn"));
+      break;
+    case "-":
+    case "_":
+      e.preventDefault();
+      mapInstance.zoomOut();
+      announceToScreenReader(t("a11y.zoomOut"));
+      break;
+    case "Escape":
+      if (isOpened.value) {
+        e.preventDefault();
+        onSidePanelClose();
+      }
+      break;
+  }
 }
 
 const mapOptions = {
@@ -324,6 +375,16 @@ const viewportSignature = computed(() => {
 
 const mapLoaded = () => {
   if (map.value?.leafletObject) {
+    const zoomControl = map.value.leafletObject.zoomControl;
+    if (zoomControl?.getContainer) {
+      const container = zoomControl.getContainer();
+      const zoomIn = container?.querySelector(".leaflet-control-zoom-in");
+      const zoomOut = container?.querySelector(".leaflet-control-zoom-out");
+      if (zoomIn) zoomIn.setAttribute("aria-label", t("a11y.zoomIn"));
+      if (zoomOut) zoomOut.setAttribute("aria-label", t("a11y.zoomOut"));
+    }
+  }
+  if (map.value?.leafletObject) {
     // Add aria-labels to zoom controls for accessibility
     const zoomControl = map.value.leafletObject.zoomControl;
     if (zoomControl?.getContainer) {
@@ -360,8 +421,8 @@ watch(locations, () => {
 });
 
 const addMarker = (event: {
-  latlng: any;
-  originalEvent: { ctrlKey: any; altKey: any };
+  latlng: import("leaflet").LatLng;
+  originalEvent: { ctrlKey: boolean; altKey: boolean };
 }) => {
   if (
     zoom.value >= 9 &&
