@@ -2,7 +2,7 @@
   <Transition name="slide-up">
     <div v-if="project && isOpened" class="project-card-overlay" @click="onCardClick">
       <div class="project-card-container" role="dialog" aria-modal="true" aria-labelledby="project-details-title">
-        <!-- Close button  stop propagation to prevent navigation -->
+        <!-- Close button — stop propagation to prevent navigation -->
         <button 
           class="close-btn" 
           @click.stop="onClose" 
@@ -13,7 +13,7 @@
           <IBiX aria-hidden="true" />
         </button>
 
-        <!-- Use ProjectListItem with actions slot  entire card links to detail page -->
+        <!-- Use ProjectListItem with actions slot — entire card links to detail page -->
         <project-list-item :project="project">
           <template #actions>
             <button 

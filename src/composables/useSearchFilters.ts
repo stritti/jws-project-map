@@ -4,6 +4,7 @@ import { storeToRefs } from "pinia";
 import { useFilterStore } from "@/stores/filter.store";
 import { useCategoryStore } from "@/stores/category.store";
 import { useCountryStore } from "@/stores/country.store";
+import { PROJECT_STATES } from "@/constants/projectStates";
 import type { ProjectState } from "@/composables/useProjectSearch";
 
 export interface FilterChip {
@@ -34,9 +35,9 @@ export function useSearchFilters(extraQueryRef?: Ref<string>) {
 
   // ── Options for state filter UI ───────────────────────────────
   const stateOptions = computed(() => [
-    { text: t("project.state.finished"), value: "finished" as const },
-    { text: t("project.state.underConstruction"), value: "under construction" as const },
-    { text: t("project.state.planned"), value: "planned" as const },
+    { text: t("project.state.finished"), value: PROJECT_STATES.FINISHED },
+    { text: t("project.state.underConstruction"), value: PROJECT_STATES.UNDER_CONSTRUCTION },
+    { text: t("project.state.planned"), value: PROJECT_STATES.PLANNED },
   ]);
 
   // ── Category options with display names ────────────────────────

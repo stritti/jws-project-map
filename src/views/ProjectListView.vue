@@ -29,7 +29,7 @@
         </div>
       </div><!-- /.list-header -->
 
-      <!-- Filter overlay  position:fixed on mobile (bottom) so it must NOT be
+      <!-- Filter overlay — position:fixed on mobile (bottom) so it must NOT be
            inside .list-header (which has backdrop-filter that breaks fixed
            positioning in Chrome).  On desktop it flows in normal document order. -->
       <div class="filter-overlay-container" :class="{ 'search-active': isSearchActive }">
@@ -108,8 +108,10 @@ import { useCountryStore } from "../stores/country.store";
 import { useFilterStore } from "../stores/filter.store";
 import type { Project } from "@/interfaces/Project";
 import ProjectListItem from "../components/project/ProjectListItem.vue";
-import { useProjectSearch, type ProjectState } from "@/composables/useProjectSearch";
+import { useProjectSearch } from "@/composables/useProjectSearch";
+import { useSearchFilters } from "@/composables/useSearchFilters";
 import { PROJECT_STATES } from "@/constants/projectStates";
+import type { ProjectState } from "@/composables/useProjectSearch";
 import FilterPanel from "@/components/FilterPanel.vue";
 import MainMenu from "../components/MainMenu.vue";
 import { projectRoute } from "@/utils/slug";
@@ -132,7 +134,7 @@ const { categories } = storeToRefs(categoryStore);
 const { countries } = storeToRefs(countryStore);
 
 // Derive refs from shared filter store for template bindings
-const { stateFilter, categoryFilter, countryFilter, filterVisible } = storeToRefs(filterStore);
+const { stateFilter, categoryFilter, countryFilter, filterVisible } = useSearchFilters();
 
 // Real-time fuzzy search on the store's filtered list
 const { query: searchQuery, results: searchResults } = useProjectSearch(filteredProjectList, { limit: 200 });
@@ -144,12 +146,6 @@ const finalProjectList = computed(() => {
   }
   return searchResults.value;
 });
-
-const stateOptions = computed(() => [
-  { text: t("project.state.finished"), value: PROJECT_STATES.FINISHED },
-  { text: t("project.state.underConstruction"), value: PROJECT_STATES.UNDER_CONSTRUCTION },
-  { text: t("project.state.planned"), value: PROJECT_STATES.PLANNED },
-]);
 
 // MainMenu state filter (local – for MainMenu's internal state binding)
 const stateFilterSearch = ref<ProjectState>("all");
@@ -204,44 +200,10 @@ function handleStateFilterChange(state: ProjectState) {
   }
 }
 
-const activeFilters = computed(() => {
-  const filters: { id: string; type: string; name: string; value: any; category: string }[] = [];
-  
-  stateFilter.value.forEach(s => {
-    const opt = stateOptions.value.find(o => o.value === s);
-    if (opt) filters.push({ id: `state-${s}`, type: t("search.filterGroups.status"), name: opt.text, value: s, category: "state" });
-  });
-  
-  categoryFilter.value.forEach(c => {
-    const cat = categoryList.value.find(cl => cl.value === c);
-    if (cat) filters.push({ id: `cat-${c}`, type: t("search.filterGroups.categories"), name: cat.text, value: c, category: "category" });
-  });
-  
-  countryFilter.value.forEach(c => {
-    const cou = countryList.value.find(cl => cl.value === c);
-    if (cou) filters.push({ id: `cou-${c}`, type: t("search.filterGroups.countries"), name: cou.text, value: c, category: "country" });
-  });
-  
-  return filters;
-});
-
-const activeFiltersCount = computed(() => activeFilters.value.length);
-
-function removeFilter(filter: any) {
-  if (filter.category === "state") {
-    filterStore.stateFilter = filterStore.stateFilter.filter(s => s !== filter.value);
-  } else if (filter.category === "category") {
-    filterStore.categoryFilter = filterStore.categoryFilter.filter(c => c !== filter.value);
-  } else if (filter.category === "country") {
-    filterStore.countryFilter = filterStore.countryFilter.filter(c => c !== filter.value);
-  }
-}
+const { activeFiltersCount, clearAllFilters: clearSharedFilters } = useSearchFilters(searchQuery);
 
 function clearAllFilters() {
-  filterStore.stateFilter = [];
-  filterStore.categoryFilter = [];
-  filterStore.countryFilter = [];
-  searchQuery.value = "";
+  clearSharedFilters();
   stateFilterSearch.value = "all";
 }
 

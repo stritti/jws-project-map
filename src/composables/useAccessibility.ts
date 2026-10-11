@@ -75,7 +75,7 @@ export function usePageTitle(router: Router): void {
       const id = parseProjectId(String(projectId))
       const project = projectStore.projects.find((p) => p.id === id)
       const name = project?.name ?? String(projectId)
-      document.title = `${name}  JWS Project Map`
+      document.title = `${name} — JWS Project Map`
     } else {
       // Map route titles by path
       const path = route.path
@@ -87,7 +87,7 @@ export function usePageTitle(router: Router): void {
       } else {
         viewName = "JWS Project Map"
       }
-      document.title = `${viewName}  JWS Project Map`
+      document.title = `${viewName} — JWS Project Map`
     }
   }
 
@@ -127,8 +127,7 @@ export function usePageTitle(router: Router): void {
  * Accepts the i18n instance directly so it can be called from main.ts
  * (outside a component setup context where useI18n() would fail).
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function useHtmlLang(i18nInstance: any): void {
+export function useHtmlLang(i18nInstance: { global: { locale: string | { value: string } } }): void {
   function getLocale(): string {
     const loc = i18nInstance.global.locale
     return typeof loc === "string" ? loc : loc.value

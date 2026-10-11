@@ -4,9 +4,9 @@
       <p class="m-0 text-label-sm text-onSurface-variant">
         <strong
           ><a href="https://www.joerg-wolff-stiftung.de/" class=" text-onSurface hover:text-primary hover:underline">
-            Jorg Wolff Stiftung</a
+            J—org Wolff Stiftung</a
           ></strong
-        >, Klner Strae 8, 70376 Stuttgart, Germany
+        >, K—lner Stra—e 8, 70376 Stuttgart, Germany
       </p>
       <p class="mt-3 text-label-sm text-onSurface-variant">
         Tel. +49 (0) 711/540 04-10,
