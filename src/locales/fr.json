@@ -3,12 +3,12 @@
     "title": "JWF + Humanaktiv : Projets en Afrique de l'Ouest"
   },
   "search": {
-    "placeholder": "Rechercher par nom, catégorie ou pays...",
-    "placeholderShort": "Rechercher des projets…",
+    "placeholder": "Rechercher par nom, cat\u00e9gorie ou pays...",
+    "placeholderShort": "Rechercher des projets\u2026",
     "filter": "Filtrer",
     "filterGroups": {
       "status": "Statut",
-      "categories": "Catégories",
+      "categories": "Cat\u00e9gories",
       "countries": "Pays",
       "mapType": "Type de carte"
     },
@@ -19,34 +19,35 @@
     },
     "chips": {
       "all": "Tous",
-      "planned": "Planifié",
+      "planned": "Planifi\u00e9",
       "underConstruction": "En construction",
-      "finished": "Terminé"
+      "finished": "Termin\u00e9"
     },
-    "minChars": "Saisissez au moins 2 caractères",
-    "noResults": "Aucun projet trouvé pour",
-    "noResultsTitle": "Aucun projet trouvé",
+    "minChars": "Saisissez au moins 2 caract\u00e8res",
+    "noResults": "Aucun projet trouv\u00e9 pour",
+    "noResultsTitle": "Aucun projet trouv\u00e9",
     "noResultsHint": "Ajustez votre recherche ou vos filtres.",
-    "resultsCount": "{count} projets trouvés",
-    "resetFilters": "Réinitialiser les filtres",
-    "stats": "{total} projets ({ub} en construction, {pl} planifiés)",
+    "resultsCount": "{count} projets trouv\u00e9s",
+    "resetFilters": "R\u00e9initialiser les filtres",
+    "stats": "{total} projets ({ub} en construction, {pl} planifi\u00e9s)",
     "more": "plus de projets",
-    "loadingMap": "Chargement de la carte…",
-    "resultsLabel": "Résultats de recherche",
+    "loadingMap": "Chargement de la carte\u2026",
+    "resultsLabel": "R\u00e9sultats de recherche",
     "viewToggleLabel": "Vue : Carte ou Liste",
     "viewMap": "Vue Carte",
     "viewList": "Vue Liste",
     "clusteringToggle": "Clustering de marqueurs",
-    "clusteringHint": "Regroupe les pins sur la carte pour améliorer les performances."
+    "clusteringHint": "Regroupe les pins sur la carte pour am\u00e9liorer les performances."
   },
   "nav": {
     "map": "Carte",
     "list": "Liste",
-    "about": "À propos",
+    "about": "\u00c0 propos",
     "more": "Plus",
     "close": "Fermer",
     "navigate": "Naviguer",
-    "share": "Partager"
+    "share": "Partager",
+    "back": "Retour"
   },
   "common": {
     "close": "Fermer",
@@ -59,60 +60,75 @@
       "since": "Depuis",
       "location": "Emplacement",
       "description": "Description",
-      "more": "plus …"
+      "more": "plus \u2026"
     },
     "state": {
-      "finished": "Terminé",
+      "finished": "Termin\u00e9",
       "underConstruction": "En construction",
-      "planned": "Planifié"
+      "planned": "Planifi\u00e9"
     }
   },
   "about": {
-    "title": "À propos de cette app",
-    "description": "Tous les projets de la {foundation} sont affichés sur cette carte d'ensemble. Les projets terminés sont marqués par des épingles colorées, les projets planifiés ou en construction sont en gris.",
-    "foundation": "Fondation Jörg Wolff",
-    "development": "Développement",
+    "title": "\u00c0 propos de cette app",
+    "description": "Tous les projets de la {foundation} sont affich\u00e9s sur cette carte d'ensemble. Les projets termin\u00e9s sont marqu\u00e9s par des \u00e9pingles color\u00e9es, les projets planifi\u00e9s ou en construction sont en gris.",
+    "foundation": "Fondation J\u00f6rg Wolff",
+    "development": "D\u00e9veloppement",
     "developer": "Stephan Strittmatter",
     "sources": "Sources",
     "version": "Version",
     "reload": "Recharger l'application et vider le cache",
-    "credits": "Crédits",
+    "credits": "Cr\u00e9dits",
     "license": "Licence MIT",
-    "moreLibs": "et plus de bibliothèques"
+    "moreLibs": "et plus de biblioth\u00e8ques"
   },
   "gallery": {
-    "title": "Galerie"
+    "title": "Galerie",
+    "prevImage": "Image pr\u00e9c\u00e9dente",
+    "nextImage": "Image suivante"
   },
   "map": {
-    "layerFinished": "Projets : terminés ({count})",
+    "layerFinished": "Projets : termin\u00e9s ({count})",
     "layerUnderConstruction": "Projets : en construction ({count})",
-    "layerPlanned": "Projets : planifiés ({count})",
-    "loadError": "La carte n'a pas pu être chargée. Veuillez recharger la page."
+    "layerPlanned": "Projets : planifi\u00e9s ({count})",
+    "loadError": "La carte n'a pas pu \u00eatre charg\u00e9e. Veuillez recharger la page."
   },
   "a11y": {
     "skipToContent": "Aller au contenu principal",
-    "skipToMap": "Aller à la carte",
-    "mapInstructions": "Carte : utilisez les touches fléchées pour vous déplacer, plus et moins pour zoomer. Ou appuyez sur Tab pour passer à la liste des projets.",
-    "searchResultsAnnouncement": "{count} résultats trouvés",
-    "noResultsAnnouncement": "Aucun résultat trouvé",
-    "projectsLoaded": "Projets chargés",
+    "skipToMap": "Aller \u00e0 la carte",
+    "mapInstructions": "Carte : utilisez les touches fl\u00e9ch\u00e9es pour vous d\u00e9placer, plus et moins pour zoomer. Ou appuyez sur Tab pour passer \u00e0 la liste des projets.",
+    "searchResultsAnnouncement": "{count} r\u00e9sultats trouv\u00e9s",
+    "noResultsAnnouncement": "Aucun r\u00e9sultat trouv\u00e9",
+    "projectsLoaded": "Projets charg\u00e9s",
     "close": "Fermer",
     "closeSearch": "Fermer la recherche",
     "closeGallery": "Fermer la galerie",
-    "closeAbout": "Fermer la boîte de dialogue À propos",
+    "closeAbout": "Fermer la bo\u00eete de dialogue \u00c0 propos",
     "imageNotAvailable": "Image non disponible",
     "openImage": "Ouvrir {name}",
     "imagePosition": "Image {current} sur {total}",
     "zoomIn": "Zoom avant",
-    "zoomOut": "Zoom arrière",
-    "filterResultsAnnouncement": "{count} résultats trouvés",
+    "zoomOut": "Zoom arri\u00e8re",
+    "filterResultsAnnouncement": "{count} r\u00e9sultats trouv\u00e9s",
     "mainNavigation": "Navigation principale",
-    "languageSelector": "Sélecteur de langue",
-    "searchResultsLabel": "Résultats de recherche",
+    "languageSelector": "S\u00e9lecteur de langue",
+    "searchResultsLabel": "R\u00e9sultats de recherche",
     "searchInput": "Rechercher des projets",
-    "filterPanel": "Paramètres de filtre",
+    "filterPanel": "Param\u00e8tres de filtre",
     "statusFilter": "Statut",
-    "categoriesFilter": "Catégories",
-    "countriesFilter": "Pays"
+    "categoriesFilter": "Cat\u00e9gories",
+    "countriesFilter": "Pays",
+    "modalOverlay": "Superposition modale",
+    "previousImage": "Image pr\u00e9c\u00e9dente",
+    "nextImage": "Image suivante",
+    "projectList": "Liste des projets",
+    "projectCard": "Carte de projet",
+    "viewProjectDetails": "Voir les d\u00e9tails du projet",
+    "backToList": "Retour \u00e0 la liste des projets",
+    "shareProject": "Partager ce projet",
+    "openMenu": "Ouvrir le menu",
+    "currentLocation": "Emplacement actuel",
+    "navigate": "Naviguer",
+    "open": "Ouvrir",
+    "back": "Retour"
   }
 }

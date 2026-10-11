@@ -1,12 +1,14 @@
 <template>
   <button
     v-if="isShareable"
-    :title="t('nav.share')"
-    :aria-label="t('nav.share')"
+    :title="t('a11y.shareProject')"
+    :aria-label="t('a11y.shareProject')"
     @click="shareDetails"
-    class="share-button flex items-center justify-center"
+    @keydown.enter="shareDetails"
+    @keydown.space.prevent="shareDetails"
+    class="share-button flex items-center justify-center focus:outline-2 focus:outline-secondary focus:outline-offset-2"
   >
-    <IBiShareFill /> Share &hellip;
+    <IBiShareFill aria-hidden="true" /> {{ t('nav.share') }}
   </button>
 </template>
 <script setup lang="ts">
