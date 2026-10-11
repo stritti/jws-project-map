@@ -4,7 +4,7 @@ import { useI18n } from "vue-i18n"
 import { useProjectStore } from "@/features/projects/stores/project.store"
 import { parseProjectId } from "@/utils/slug"
 
-// ── Singleton live region for screen reader announcements ──────────────
+// 	 Singleton live region for screen reader announcements 											
 let liveRegion: HTMLElement | null = null
 
 function getLiveRegion(): HTMLElement {
@@ -31,7 +31,11 @@ export function announceToScreenReader(message: string): void {
   })
 }
 
-// ── Focus restore helper ───────────────────────────────────────────────
+// 	 Focus restore helper 																													
+/**
+ * Helper to restore focus to the element that triggered a modal/dialog.
+ * Call setTrigger() before opening the modal, and restoreFocus() when closing it.
+ */
 export function useFocusRestore() {
   const triggerElement = ref<HTMLElement | null>(null)
 
@@ -56,7 +60,7 @@ export function useFocusRestore() {
   return { triggerElement, setTrigger, restoreFocus }
 }
 
-// ── Page title updater ─────────────────────────────────────────────────
+// 	 Page title updater 																									
 /**
  * Update document.title on route changes.
  * Must be called from within a component setup (uses useI18n).
@@ -117,21 +121,30 @@ export function usePageTitle(router: Router): void {
   })
 }
 
-// ── HTML lang attribute binding ────────────────────────────────────────
+// 	 HTML lang attribute binding 																					
 /**
  * Bind the <html> lang attribute to the current i18n locale.
  * Accepts the i18n instance directly so it can be called from main.ts
  * (outside a component setup context where useI18n() would fail).
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function useHtmlLang(i18nInstance: any): void {
+export function useHtmlLang(i18nInstance: { global: { locale: string | { value: string } } }): void {
   function getLocale(): string {
     const loc = i18nInstance.global.locale
     return typeof loc === "string" ? loc : loc.value
   }
 
   function updateLang() {
-    document.documentElement.lang = getLocale()
+    const locale = getLocale()
+    // Map locale codes to proper HTML lang attributes
+    const langMap: Record<string, string> = {
+      'en': 'en',
+      'de': 'de',
+      'fr': 'fr',
+      'en-US': 'en',
+      'de-DE': 'de',
+      'fr-FR': 'fr',
+    }
+    document.documentElement.lang = langMap[locale] || locale.split('-')[0] || 'en'
   }
 
   // Set on init

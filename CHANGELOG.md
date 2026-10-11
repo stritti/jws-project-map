@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/stritti/jws-project-map/compare/v1.2.3...v1.3.0) (2026-10-11)
+
+
+### Features
+
+* **a11y:** comprehensive accessibility improvements with axe-core checks ([#892](https://github.com/stritti/jws-project-map/issues/892)) ([15f5010](https://github.com/stritti/jws-project-map/commit/15f50109aba42d896c697818e453b8750ebedfb6))
+
 ## [1.2.3](https://github.com/stritti/jws-project-map/compare/v1.2.2...v1.2.3) (2026-10-07)
 
 

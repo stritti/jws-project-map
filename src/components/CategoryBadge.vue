@@ -7,62 +7,51 @@
   >
 </template>
 
-<script lang="ts">
-import { mapState } from "pinia";
-import { useCategoryStore } from "../stores/category.store";
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { computed } from "vue";
+import { useCategoryStore } from "@/stores/category.store";
 
-export default defineComponent({
-  name: "CategoryBadge",
-  props: {
-    categoryId: {
-      type: Number,
-      required: true,
-    },
-  },
-  computed: {
-    ...mapState(useCategoryStore, {
-      getById: (store) => store.getById,
-      getDisplayName: (store) => store.getDisplayName,
-    }),
-    displayName() {
-      return this.getDisplayName(this.categoryId);
-    },
-    categoryStyle() {
-      const category = this.getById(this.categoryId);
-      if (category && category.color) {
-        // Active state: use category color for background, On Secondary for text
-        return `
-          background-color: ${category.color};
-          color: #ffffff;
-          border-radius: var(--shape-round-full);
-          padding: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit));
-          font-size: var(--font-size-label-sm);
-          font-weight: var(--font-weight-label-sm);
-          line-height: var(--line-height-label-sm);
-          letter-spacing: var(--letter-spacing-label-sm);
-          white-space: nowrap;
-          display: inline-flex;
-          align-items: center;
-        `;
-      } else {
-        // Inactive state: use Surface Variant for background, On Surface Variant for text
-        return `
-          background-color: var(--color-surface-variant);
-          color: var(--color-on-surface-variant);
-          border-radius: var(--shape-round-full);
-          padding: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit));
-          font-size: var(--font-size-label-sm);
-          font-weight: var(--font-weight-label-sm);
-          line-height: var(--line-height-label-sm);
-          letter-spacing: var(--letter-spacing-label-sm);
-          white-space: nowrap;
-          display: inline-flex;
-          align-items: center;
-        `;
-      }
-    },
-  },
+const props = defineProps<{
+  categoryId: number;
+}>();
+
+const categoryStore = useCategoryStore();
+
+const displayName = computed(() => categoryStore.getDisplayName(props.categoryId));
+
+const categoryStyle = computed(() => {
+  const category = categoryStore.getById(props.categoryId);
+  if (category && category.color) {
+    // Active state: use category color for background, On Secondary for text
+    return `
+      background-color: ${category.color};
+      color: #ffffff;
+      border-radius: var(--shape-round-full);
+      padding: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit));
+      font-size: var(--font-size-label-sm);
+      font-weight: var(--font-weight-label-sm);
+      line-height: var(--line-height-label-sm);
+      letter-spacing: var(--letter-spacing-label-sm);
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+    `;
+  } else {
+    // Inactive state: use Surface Variant for background, On Surface Variant for text
+    return `
+      background-color: var(--color-surface-variant);
+      color: var(--color-on-surface-variant);
+      border-radius: var(--shape-round-full);
+      padding: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit));
+      font-size: var(--font-size-label-sm);
+      font-weight: var(--font-weight-label-sm);
+      line-height: var(--line-height-label-sm);
+      letter-spacing: var(--letter-spacing-label-sm);
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+    `;
+  }
 });
 </script>
 

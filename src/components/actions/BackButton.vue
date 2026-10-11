@@ -1,38 +1,32 @@
 <template>
   <button
-    title="go back"
-    :aria-label="t('nav.back')"
-    class="back-button-inner flex items-center justify-center"
+    :title="t('a11y.backToList')"
+    :aria-label="t('a11y.backToList')"
+    class="back-button-inner flex items-center justify-center focus:outline-2 focus:outline-secondary focus:outline-offset-2"
     @click="goBack"
+    @keydown.enter="goBack"
+    @keydown.space.prevent="goBack"
   >
-    <IBiArrowLeft />
+    <IBiArrowLeft aria-hidden="true" />
   </button>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 
-export default defineComponent({
-  name: "BackButton",
-  setup() {
-    const router = useRouter();
-    const { t } = useI18n();
+const router = useRouter();
+const { t } = useI18n();
 
-    function goBack() {
-      // Use history.go(-1) if there is a previous app-internal entry,
-      // otherwise fall back to the home page (handles direct deep-links).
-      if (window.history.length > 1) {
-        router.go(-1);
-      } else {
-        router.push("/");
-      }
-    }
-
-    return { goBack, t };
-  },
-});
+function goBack() {
+  // Use history.go(-1) if there is a previous app-internal entry,
+  // otherwise fall back to the home page (handles direct deep-links).
+  if (window.history.length > 1) {
+    router.go(-1);
+  } else {
+    router.push("/");
+  }
+}
 </script>
 
 <style lang="postcss" scoped>
@@ -40,11 +34,10 @@ export default defineComponent({
 
 .back-button-inner {
   @apply flex items-center justify-center w-[36px] h-[36px] rounded-full border-none bg-transparent cursor-pointer p-0 transition-all duration-200 text-onSurface-variant;
-
   &:hover {
     @apply text-primary bg-secondary/10;
   }
-  
+
   /* Ensure icon inherits color */
   :deep(svg) {
     @apply text-[1.25rem];

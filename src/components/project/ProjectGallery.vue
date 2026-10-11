@@ -78,7 +78,7 @@ const erroredImages = ref(new Set<string>());
 
 // Include both gallery and teaser images
 const galleryItems = computed(() => {
-  const items: any[] = [];
+  const items: Attachment[] = [];
   
   // Add gallery attachments
   if (props.project.gallery && props.project.gallery.length > 0) {
@@ -87,7 +87,7 @@ const galleryItems = computed(() => {
   
   // Add teaser images if no gallery
   if (props.project.teaserImg && props.project.teaserImg.length > 0) {
-    props.project.teaserImg.forEach((img: any) => {
+    props.project.teaserImg.forEach((img) => {
       items.push({
         ...img,
         name: img.name || props.project.name + ' teaser',

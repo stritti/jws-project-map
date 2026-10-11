@@ -13,8 +13,13 @@
     class="project-card-link"
     :class="{ 'external-link': href || (to && isIFrame) }"
     @click="onCardClick"
+    @keydown.enter="onCardClick"
+    @keydown.space.prevent="onCardClick"
+    role="link"
+    :aria-label="cardAriaLabel"
+    tabindex="0"
   >
-      <div ref="cardElement" class="project-list-item" :aria-label="cardAriaLabel">
+      <div ref="cardElement" class="project-list-item">
       <div class="flex">
         <!-- Image Section - Left side -->
         <div class="w-5/12 image-col">
@@ -38,29 +43,30 @@
         <!-- Content Section - Right side -->
         <div class="w-7/12 content-col">
           <div class="project-content">
-            <h3 class="project-title text-truncate">
+            <h3 class="project-title text-truncate" :aria-label="project.name">
               {{ project.name }}
             </h3>
             
-            <div class="project-meta">
+            <div class="project-meta" role="contentinfo">
               <!-- Category badges -->
-              <div class="category-badges">
+              <div class="category-badges" role="list" :aria-label="t('a11y.categoriesFilter')">
                 <category-badge
                   v-for="category in project.category"
                   :key="category.id"
                   :category-id="category.id"
+                  role="listitem"
                 />
               </div>
               
               <!-- Country -->
-              <div v-if="project.country && project.country.id" class="country-row">
-                <IBiGeoAlt class="country-icon" />
+              <div v-if="project.country && project.country.id" class="country-row" role="contentinfo">
+                <IBiGeoAlt class="country-icon" aria-hidden="true" />
                 <country-label :country-id="project.country.id" />
               </div>
             </div>
             
             <!-- Optional actions slot (for map overlay) -->
-            <div v-if="$slots.actions" class="project-actions">
+            <div v-if="$slots.actions" class="project-actions" role="group">
               <slot name="actions" />
             </div>
           </div>
