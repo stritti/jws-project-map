@@ -39,6 +39,21 @@ bun run mcp              # run the stdio MCP server (for AI tooling)
 
 **Performance CI** (`.github/workflows/performance.yml`) uses Bun throughout (`bun install`, `bun run build:prod`, `bunx lhci autorun`).
 
+## API style (Vue official recommendation)
+
+**Composition API with `<script setup>` is the preferred and default style** for this
+repository — for components, composables, and Pinia stores alike. The Vue.js docs
+recommend the Composition API for new code; the Options API is only tolerated for
+small cases and is being phased out here.
+
+Rules:
+
+- Components: always `<script setup lang="ts">` — no `defineComponent` / Options API.
+- Pinia stores: always the **setup store** syntax `defineStore("x", () => { ... })`
+  with `ref`/`computed` — not the options-object syntax.
+- Naming: actions use verbs (`load`, `filter`), boolean-returning functions start
+  with `is`/`has`/`should`/`can`.
+
 ## Architecture
 
 ```

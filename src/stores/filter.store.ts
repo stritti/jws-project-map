@@ -10,7 +10,7 @@ export const useFilterStore = defineStore("filter", () => {
 
   function applyFilters() {
     const projectStore = useProjectStore();
-    projectStore.doFilter(
+    projectStore.filter(
       stateFilter.value,
       categoryFilter.value,
       countryFilter.value,
