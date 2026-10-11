@@ -89,12 +89,17 @@ router.afterEach((to) => {
     {{ t("a11y.skipToContent") }}
   </a>
 
+  <!-- Skip-to-map link for keyboard users -->
+  <a href="#project-map" class="skip-link" v-if="!$route.path.startsWith('/project')">
+    {{ t("a11y.skipToMap") }}
+  </a>
+
   <!-- Global loading bar -->
-  <div v-if="isLoading" class="global-loader" role="status" aria-label="Loading data">
-    <div class="loader-bar"></div>
+  <div v-if="isLoading" class="global-loader" role="status" aria-live="polite" aria-label="Loading data">
+    <div class="loader-bar" aria-hidden="true"></div>
   </div>
 
-  <div class="app-wrapper">
+  <div class="app-wrapper" role="application" aria-label="JWS Project Map">
     <main id="main-content" class="content" aria-label="Main content" role="main" :aria-hidden="isMainHidden">
       <router-view />
     </main>

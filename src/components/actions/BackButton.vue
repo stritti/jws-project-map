@@ -1,11 +1,13 @@
 <template>
   <button
-    title="go back"
-    :aria-label="t('nav.back')"
-    class="back-button-inner flex items-center justify-center"
+    :title="t('a11y.backToList')"
+    :aria-label="t('a11y.backToList')"
+    class="back-button-inner flex items-center justify-center focus:outline-2 focus:outline-secondary focus:outline-offset-2"
     @click="goBack"
+    @keydown.enter="goBack"
+    @keydown.space.prevent="goBack"
   >
-    <IBiArrowLeft />
+    <IBiArrowLeft aria-hidden="true" />
   </button>
 </template>
 

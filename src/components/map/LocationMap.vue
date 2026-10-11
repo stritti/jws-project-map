@@ -1,5 +1,13 @@
 <template>
-  <div class="map" tabindex="0" ref="mapContainerRef" role="region" :aria-label="t('a11y.skipToMap')" @focus="onMapFocus">
+  <div
+    class="map"
+    tabindex="0"
+    ref="mapContainerRef"
+    role="region"
+    :aria-label="t('a11y.skipToMap')"
+    @focus="onMapFocus"
+    @keydown="onMapKeydown"
+  >
     <client-only>
       <l-map
         v-if="isLeafletLoaded"
@@ -242,6 +250,48 @@ function onMapFocus() {
   announceToScreenReader(t("a11y.mapInstructions"));
 }
 
+function onMapKeydown(e: KeyboardEvent) {
+  const mapInstance = map.value?.leafletObject;
+  if (!mapInstance) return;
+
+  switch (e.key) {
+    case "ArrowUp":
+      e.preventDefault();
+      mapInstance.panBy([0, -50]);
+      break;
+    case "ArrowDown":
+      e.preventDefault();
+      mapInstance.panBy([0, 50]);
+      break;
+    case "ArrowLeft":
+      e.preventDefault();
+      mapInstance.panBy([-50, 0]);
+      break;
+    case "ArrowRight":
+      e.preventDefault();
+      mapInstance.panBy([50, 0]);
+      break;
+    case "+":
+    case "=":
+      e.preventDefault();
+      mapInstance.zoomIn();
+      announceToScreenReader(t("a11y.zoomIn"));
+      break;
+    case "-":
+    case "_":
+      e.preventDefault();
+      mapInstance.zoomOut();
+      announceToScreenReader(t("a11y.zoomOut"));
+      break;
+    case "Escape":
+      if (isOpened.value) {
+        e.preventDefault();
+        onSidePanelClose();
+      }
+      break;
+  }
+}
+
 const mapOptions = {
   zoomSnap: 0.5,
   scrollWheelZoom: true,
@@ -323,6 +373,16 @@ const viewportSignature = computed(() => {
 });
 
 const mapLoaded = () => {
+  if (map.value?.leafletObject) {
+    const zoomControl = map.value.leafletObject.zoomControl;
+    if (zoomControl?.getContainer) {
+      const container = zoomControl.getContainer();
+      const zoomIn = container?.querySelector(".leaflet-control-zoom-in");
+      const zoomOut = container?.querySelector(".leaflet-control-zoom-out");
+      if (zoomIn) zoomIn.setAttribute("aria-label", t("a11y.zoomIn"));
+      if (zoomOut) zoomOut.setAttribute("aria-label", t("a11y.zoomOut"));
+    }
+  }
   if (map.value?.leafletObject) {
     // Add aria-labels to zoom controls for accessibility
     const zoomControl = map.value.leafletObject.zoomControl;
