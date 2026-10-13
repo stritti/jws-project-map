@@ -44,7 +44,7 @@ jobs:
           --exit --save axe-results.json
 
       - name: Upload axe results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: axe-accessibility-results
@@ -82,7 +82,7 @@ jobs:
         run: npx --yes lighthouse http://localhost:4173 --preset=desktop --only-categories=accessibility --output=json --output-path=./lighthouse-results.json --chrome-flags="--headless=new --no-sandbox"
 
       - name: Upload Lighthouse results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: lighthouse-a11y-results
