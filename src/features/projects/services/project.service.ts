@@ -4,6 +4,7 @@ import type { LatLng } from "leaflet";
 import type { RawProjectRecord } from "@/features/projects/repositories/project.repository";
 import { currentLocale } from "@/utils/locale";
 import { normaliseProjectState } from "@/constants/projectStates";
+import { i18n } from "@/plugins/i18n";
 
 type SourceFields = Record<string, unknown>;
 
@@ -70,7 +71,11 @@ function resolveProjectName(
   sourceFields: SourceFields,
   localeField: string,
 ): string {
-  return readString(sourceFields, localeField) ?? readString(sourceFields, "Name") ?? "Unbenannt";
+  return (
+    readString(sourceFields, localeField) ??
+    readString(sourceFields, "Name") ??
+    i18n.global.t("project.unnamed")
+  );
 }
 
 function resolveProjectNotes(

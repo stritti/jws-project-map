@@ -20,7 +20,6 @@
         :center="center"
         :use-global-leaflet="true"
         :options="mapOptions"
-        @click="addMarker"
         @ready="mapLoaded"
       >
         <l-tile-layer
@@ -140,7 +139,6 @@ import { storeToRefs } from "pinia";
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useFilterStore } from "../../stores/filter.store";
 import ProjectDetails from "../../components/project/ProjectDetails.vue";
-import projectService from "@/features/projects/services/project.service";
 import type { Project } from "@/interfaces/Project";
 import { useI18n } from "vue-i18n";
 import { announceToScreenReader } from "@/composables/useAccessibility";
@@ -420,23 +418,6 @@ watch(locations, () => {
   }
 });
 
-const addMarker = (event: {
-  latlng: import("leaflet").LatLng;
-  originalEvent: { ctrlKey: boolean; altKey: boolean };
-}) => {
-  if (
-    zoom.value >= 9 &&
-    event.latlng &&
-    event.originalEvent.ctrlKey &&
-    event.originalEvent.altKey
-  ) {
-    const name = prompt("Enter name:", "__TBD__");
-    if (name) {
-      projectService.add(event.latlng, name);
-    }
-  }
-};
-
 const onMarkerClick = (location: Project) => {
   selectedLocationId.value = location.id;
   isOpened.value = true;
@@ -448,6 +429,8 @@ const onSidePanelClose = () => {
 };
 
 const DEFAULT_PIN = "/pins/default.png";
+// NocoDB sometimes yields the literal string "undefined"/"null" for empty category names.
+const UNSET_CATEGORY_NAMES = new Set(["undefined", "null"]);
 const AVAILABLE_PINS = new Set([
   "default",
   "school",
@@ -469,7 +452,7 @@ const getPin = (location: Project): string => {
     const categoryNames = categories
       .map((cat) => {
         const name = cat.fields?.Name || String(cat.id);
-        return name && name !== "undefined" && name !== "null"
+        return name && !UNSET_CATEGORY_NAMES.has(String(name).toLowerCase())
           ? String(name).toLowerCase()
           : null;
       })
