@@ -8,6 +8,20 @@
     @focus="onMapFocus"
     @keydown="onMapKeydown"
   >
+    <div
+      v-if="addMarkerError"
+      class="add-marker-error alert alert-warning m-2"
+      role="alert"
+    >
+      {{ t("map.addMarkerError") }}
+      <button
+        type="button"
+        class="btn-close float-end"
+        :aria-label="t('common.close')"
+        @click="addMarkerError = false"
+      ></button>
+    </div>
+
     <client-only>
       <l-map
         v-if="isLeafletLoaded"
@@ -422,6 +436,7 @@ watch(locations, () => {
 // Admin affordance: Ctrl+Alt+click on the map (at zoom >= 9) creates a new
 // project record at the clicked position via the NocoDB repository layer.
 const ADD_MARKER_MIN_ZOOM = 9;
+const addMarkerError = ref(false);
 
 const addMarker = (event: {
   latlng: import("leaflet").LatLng;
@@ -437,8 +452,11 @@ const addMarker = (event: {
     if (name) {
       projectService
         .add(event.latlng, name)
-        .then(() => projectStore.loadMapData())
-        .catch((error: unknown) => console.error("Error creating project:", error));
+        .then(() => projectStore.refresh())
+        .catch((error: unknown) => {
+          console.error("Error creating project:", error);
+          addMarkerError.value = true;
+        });
     }
   }
 };

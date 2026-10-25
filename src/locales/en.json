@@ -92,7 +92,8 @@
     "layerUnderConstruction": "Projects: under construction ({count})",
     "layerPlanned": "Projects: planned ({count})",
     "loadError": "Map could not be loaded. Please reload the page.",
-    "addMarkerPrompt": "Name of the new project:"
+    "addMarkerPrompt": "Name of the new project:",
+    "addMarkerError": "Project could not be created. Please try again."
   },
   "a11y": {
     "skipToContent": "Skip to main content",
