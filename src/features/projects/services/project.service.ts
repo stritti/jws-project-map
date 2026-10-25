@@ -174,9 +174,15 @@ const projectService = {
     const response = await projectRepository.fetchFull();
     return processProjectData(response);
   },
-  add(latLng: LatLng, name: string): Promise<unknown> {
-    console.warn("add() not yet migrated to repository layer");
-    return Promise.resolve({ latLng, name });
+  async add(latLng: LatLng, name: string): Promise<RawProjectRecord[]> {
+    const payload = [
+      {
+        Name: name,
+        Latitude: latLng.lat,
+        Longitude: latLng.lng,
+      },
+    ];
+    return projectRepository.create(payload) as Promise<RawProjectRecord[]>;
   },
 };
 

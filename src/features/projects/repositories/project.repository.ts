@@ -81,4 +81,8 @@ export const projectRepository = {
   async fetchById(id: number): Promise<RawProjectRecord> {
     return base.read(id) as Promise<RawProjectRecord>;
   },
+
+  async create(data: Record<string, unknown>[]): Promise<unknown> {
+    return base.create(data);
+  },
 };

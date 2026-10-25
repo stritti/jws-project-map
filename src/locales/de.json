@@ -91,7 +91,8 @@
     "layerFinished": "Projekte: abgeschlossen ({count})",
     "layerUnderConstruction": "Projekte: im Bau ({count})",
     "layerPlanned": "Projekte: geplant ({count})",
-    "loadError": "Karte konnte nicht geladen werden. Bitte die Seite neu laden."
+    "loadError": "Karte konnte nicht geladen werden. Bitte die Seite neu laden.",
+    "addMarkerPrompt": "Name des neuen Projekts:"
   },
   "a11y": {
     "skipToContent": "Zum Hauptinhalt springen",

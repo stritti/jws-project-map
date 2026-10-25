@@ -20,6 +20,7 @@
         :center="center"
         :use-global-leaflet="true"
         :options="mapOptions"
+        @click="addMarker"
         @ready="mapLoaded"
       >
         <l-tile-layer
@@ -418,6 +419,30 @@ watch(locations, () => {
   }
 });
 
+// Admin affordance: Ctrl+Alt+click on the map (at zoom >= 9) creates a new
+// project record at the clicked position via the NocoDB repository layer.
+const ADD_MARKER_MIN_ZOOM = 9;
+
+const addMarker = (event: {
+  latlng: import("leaflet").LatLng;
+  originalEvent: { ctrlKey: boolean; altKey: boolean };
+}) => {
+  if (
+    zoom.value >= ADD_MARKER_MIN_ZOOM &&
+    event.latlng &&
+    event.originalEvent.ctrlKey &&
+    event.originalEvent.altKey
+  ) {
+    const name = window.prompt(t("map.addMarkerPrompt"));
+    if (name) {
+      projectService
+        .add(event.latlng, name)
+        .then(() => projectStore.loadMapData())
+        .catch((error: unknown) => console.error("Error creating project:", error));
+    }
+  }
+};
+
 const onMarkerClick = (location: Project) => {
   selectedLocationId.value = location.id;
   isOpened.value = true;
@@ -427,6 +452,8 @@ const onSidePanelClose = () => {
   selectedLocationId.value = null;
   isOpened.value = false;
 };
+
+import projectService from "@/features/projects/services/project.service";
 
 const DEFAULT_PIN = "/pins/default.png";
 // NocoDB sometimes yields the literal string "undefined"/"null" for empty category names.

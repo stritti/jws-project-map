@@ -91,7 +91,8 @@
     "layerFinished": "Projects: finished ({count})",
     "layerUnderConstruction": "Projects: under construction ({count})",
     "layerPlanned": "Projects: planned ({count})",
-    "loadError": "Map could not be loaded. Please reload the page."
+    "loadError": "Map could not be loaded. Please reload the page.",
+    "addMarkerPrompt": "Name of the new project:"
   },
   "a11y": {
     "skipToContent": "Skip to main content",

@@ -91,7 +91,8 @@
     "layerFinished": "Projets : termin\u00e9s ({count})",
     "layerUnderConstruction": "Projets : en construction ({count})",
     "layerPlanned": "Projets : planifi\u00e9s ({count})",
-    "loadError": "La carte n'a pas pu \u00eatre charg\u00e9e. Veuillez recharger la page."
+    "loadError": "La carte n'a pas pu \u00eatre charg\u00e9e. Veuillez recharger la page.",
+    "addMarkerPrompt": "Nom du nouveau projet :"
   },
   "a11y": {
     "skipToContent": "Aller au contenu principal",
