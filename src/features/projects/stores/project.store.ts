@@ -13,6 +13,8 @@ export const useProjectStore = defineStore("project", () => {
   const mapInitialized = ref(false);
   const loading = ref(false);
   const mapLoading = ref(false);
+  const error = ref<Error | null>(null);
+  const mapError = ref<Error | null>(null);
 
   const getAll = computed(() => projects.value);
   const getMapAll = computed(() => mapProjects.value);
@@ -46,6 +48,7 @@ export const useProjectStore = defineStore("project", () => {
       return;
     }
     mapLoading.value = true;
+    mapError.value = null;
     try {
       const result = await projectService.getMapData();
       if (result && Array.isArray(result)) {
@@ -53,8 +56,9 @@ export const useProjectStore = defineStore("project", () => {
         filteredList.value = result;
         mapInitialized.value = true;
       }
-    } catch (error) {
-      console.error("Error fetching map projects:", error);
+    } catch (cause) {
+      mapError.value = cause instanceof Error ? cause : new Error(String(cause));
+      console.error("Error fetching map projects:", cause);
     } finally {
       mapLoading.value = false;
     }
@@ -70,9 +74,10 @@ export const useProjectStore = defineStore("project", () => {
     loading.value = true;
     const loadingStore = useLoadingStore();
     loadingStore.updateLoading(true);
+    error.value = null;
     try {
       const result = await projectService.getAll();
-      if (result && Array.isArray(result) && result.length > 0) {
+      if (result && Array.isArray(result)) {
         projects.value = result;
         mapProjects.value = result;
         filteredList.value = result;
@@ -84,8 +89,9 @@ export const useProjectStore = defineStore("project", () => {
           result,
         );
       }
-    } catch (error) {
-      console.error("Error fetching projects:", error);
+    } catch (cause) {
+      error.value = cause instanceof Error ? cause : new Error(String(cause));
+      console.error("Error fetching projects:", cause);
       // Do NOT set initialized — allow retry on next navigation
     } finally {
       loading.value = false;
@@ -117,6 +123,8 @@ export const useProjectStore = defineStore("project", () => {
     mapInitialized,
     loading,
     mapLoading,
+    error,
+    mapError,
     getAll,
     getMapAll,
     getById,
