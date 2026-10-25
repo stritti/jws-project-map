@@ -28,7 +28,6 @@ jobs:
         run: |
           bunx lhci autorun \
             --collect.staticDistDir=dist \
-            --collect.url=["index.html"] \
             --upload.target=filesystem \
             --upload.outputDir=.lighthouseci
 
