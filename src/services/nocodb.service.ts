@@ -63,10 +63,6 @@ export class NocoDBService {
           data,
         );
         return { list: [] as T[] };
-      })
-      .catch((error) => {
-        console.error("NocoDBService.list error:", error);
-        return { list: [] as T[] };
       });
   }
 
