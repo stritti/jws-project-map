@@ -41,6 +41,13 @@ jobs:
         id: lhmetrics
         run: |
           REPORT=$(ls .lighthouseci/lhr-*.json 2>/dev/null | head -n 1)
+          # Prefer the report of the app entry page over other pages (e.g. iframe-preview)
+          for f in .lighthouseci/lhr-*.json; do
+            if grep -q '"finalDisplayedUrl": "http://localhost:[0-9]*/index.html"' "$f"; then
+              REPORT="$f"
+              break
+            fi
+          done
           if [ -z "$REPORT" ]; then
             echo "No Lighthouse report found"
             exit 1
