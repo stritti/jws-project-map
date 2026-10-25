@@ -43,8 +43,8 @@ export const useProjectStore = defineStore("project", () => {
     projects.value.filter((p) => p.state === PROJECT_STATES.PLANNED),
   );
 
-  async function loadMapData(): Promise<void> {
-    if (mapInitialized.value || loading.value || mapLoading.value) {
+  async function loadMapData(options?: { force?: boolean }): Promise<void> {
+    if (!options?.force && (mapInitialized.value || loading.value || mapLoading.value)) {
       return;
     }
     mapLoading.value = true;
@@ -64,8 +64,8 @@ export const useProjectStore = defineStore("project", () => {
     }
   }
 
-  async function load(): Promise<void> {
-    if (initialized.value && projects.value.length > 0) {
+  async function load(options?: { force?: boolean }): Promise<void> {
+    if (!options?.force && initialized.value && projects.value.length > 0) {
       return;
     }
     if (loading.value || mapLoading.value) {
@@ -97,6 +97,11 @@ export const useProjectStore = defineStore("project", () => {
       loading.value = false;
       loadingStore.updateLoading(false);
     }
+  }
+
+  async function refresh(): Promise<void> {
+    await loadMapData({ force: true });
+    await load({ force: true });
   }
 
   function filter(
@@ -134,6 +139,7 @@ export const useProjectStore = defineStore("project", () => {
     projectsPlanned,
     loadMapData,
     load,
+    refresh,
     filter,
   };
 });

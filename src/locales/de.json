@@ -66,7 +66,8 @@
       "finished": "Abgeschlossen",
       "underConstruction": "Im Bau",
       "planned": "Geplant"
-    }
+    },
+    "unnamed": "Unbenannt"
   },
   "about": {
     "title": "\u00dcber diese App",
@@ -90,7 +91,9 @@
     "layerFinished": "Projekte: abgeschlossen ({count})",
     "layerUnderConstruction": "Projekte: im Bau ({count})",
     "layerPlanned": "Projekte: geplant ({count})",
-    "loadError": "Karte konnte nicht geladen werden. Bitte die Seite neu laden."
+    "loadError": "Karte konnte nicht geladen werden. Bitte die Seite neu laden.",
+    "addMarkerPrompt": "Name des neuen Projekts:",
+    "addMarkerError": "Projekt konnte nicht angelegt werden. Bitte versuchen Sie es erneut."
   },
   "a11y": {
     "skipToContent": "Zum Hauptinhalt springen",
