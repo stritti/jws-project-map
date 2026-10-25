@@ -40,12 +40,13 @@
         ></l-tile-layer>
 
         <component :is="LayerComponent"
-          v-if="projectsFinished.length > 0"
+          v-for="layer in markerLayers"
+          :key="layer.id"
           layer-type="overlay"
-          :name="layerLabelProjectsFinished"
+          :name="layer.label"
         >
           <l-marker
-            v-for="loc in projectsFinished"
+            v-for="loc in layer.projects"
             :id="loc.id"
             :key="loc.id"
             :lat-lng="[loc.latitude, loc.longitude]"
@@ -58,59 +59,7 @@
               :icon-size="[28, 39]"
               :icon-anchor="[14, 39]"
             ></l-icon>
-            <l-tooltip v-if="zoom > 7">
-              <span>{{ loc.name }}</span>
-              <span v-if="loc.state !== PROJECT_STATES.FINISHED"> ({{ loc.state }})</span>
-            </l-tooltip>
-          </l-marker>
-        </component>
-
-        <component :is="LayerComponent"
-          v-if="projectsUnderConstruction.length > 0"
-          layer-type="overlay"
-          :name="layerLabelProjectsUnderConstruction"
-        >
-          <l-marker
-            v-for="loc in projectsUnderConstruction"
-            :id="loc.id"
-            :key="loc.id"
-            :lat-lng="[loc.latitude, loc.longitude]"
-            :title="markerTitle(loc)"
-            @click="onMarkerClick(loc)"
-          >
-            <l-icon
-              :icon-url="getPin(loc)"
-              :class-name="pinClass(loc)"
-              :icon-size="[28, 39]"
-              :icon-anchor="[14, 39]"
-            ></l-icon>
-            <l-tooltip v-if="zoom > 7">
-              <span>{{ loc.name }}</span>
-              <span v-if="loc.state !== PROJECT_STATES.FINISHED"> ({{ loc.state }})</span>
-            </l-tooltip>
-          </l-marker>
-        </component>
-
-        <component :is="LayerComponent"
-          v-if="projectsPlanned.length > 0"
-          layer-type="overlay"
-          :name="layerLabelProjectsPlanned"
-        >
-          <l-marker
-            v-for="loc in projectsPlanned"
-            :id="loc.id"
-            :key="loc.id"
-            :lat-lng="[loc.latitude, loc.longitude]"
-            :title="markerTitle(loc)"
-            @click="onMarkerClick(loc)"
-          >
-            <l-icon
-              :icon-url="getPin(loc)"
-              :class-name="pinClass(loc)"
-              :icon-size="[28, 39]"
-              :icon-anchor="[14, 39]"
-            ></l-icon>
-            <l-tooltip v-if="zoom > 7">
+            <l-tooltip v-if="zoom > TOOLTIP_MIN_ZOOM">
               <span>{{ loc.name }}</span>
               <span v-if="loc.state !== PROJECT_STATES.FINISHED"> ({{ loc.state }})</span>
             </l-tooltip>
@@ -353,6 +302,16 @@ const layerLabelProjectsUnderConstruction = computed(() =>
 const layerLabelProjectsPlanned = computed(() =>
   t("map.layerPlanned", { count: projectsPlanned.value.length }),
 );
+
+const markerLayers = computed(() =>
+  [
+    { id: "finished", projects: projectsFinished.value, label: layerLabelProjectsFinished.value },
+    { id: "under-construction", projects: projectsUnderConstruction.value, label: layerLabelProjectsUnderConstruction.value },
+    { id: "planned", projects: projectsPlanned.value, label: layerLabelProjectsPlanned.value },
+  ].filter((layer) => layer.projects.length > 0),
+);
+
+const TOOLTIP_MIN_ZOOM = 7;
 
 const selectedLocation = computed(() =>
   props.fullProjects.find((location) => location.id === selectedLocationId.value) ??
