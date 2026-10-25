@@ -373,28 +373,18 @@ const viewportSignature = computed(() => {
   return `${coords}::${filters}`;
 });
 
+function applyZoomControlA11yLabels(): void {
+  const zoomControl = map.value?.leafletObject?.zoomControl;
+  if (!zoomControl?.getContainer) return;
+  const container = zoomControl.getContainer();
+  const zoomIn = container?.querySelector(".leaflet-control-zoom-in");
+  const zoomOut = container?.querySelector(".leaflet-control-zoom-out");
+  if (zoomIn) zoomIn.setAttribute("aria-label", t("a11y.zoomIn"));
+  if (zoomOut) zoomOut.setAttribute("aria-label", t("a11y.zoomOut"));
+}
+
 const mapLoaded = () => {
-  if (map.value?.leafletObject) {
-    const zoomControl = map.value.leafletObject.zoomControl;
-    if (zoomControl?.getContainer) {
-      const container = zoomControl.getContainer();
-      const zoomIn = container?.querySelector(".leaflet-control-zoom-in");
-      const zoomOut = container?.querySelector(".leaflet-control-zoom-out");
-      if (zoomIn) zoomIn.setAttribute("aria-label", t("a11y.zoomIn"));
-      if (zoomOut) zoomOut.setAttribute("aria-label", t("a11y.zoomOut"));
-    }
-  }
-  if (map.value?.leafletObject) {
-    // Add aria-labels to zoom controls for accessibility
-    const zoomControl = map.value.leafletObject.zoomControl;
-    if (zoomControl?.getContainer) {
-      const container = zoomControl.getContainer();
-      const zoomIn = container?.querySelector(".leaflet-control-zoom-in");
-      const zoomOut = container?.querySelector(".leaflet-control-zoom-out");
-      if (zoomIn) zoomIn.setAttribute("aria-label", t("a11y.zoomIn"));
-      if (zoomOut) zoomOut.setAttribute("aria-label", t("a11y.zoomOut"));
-    }
-  }
+  applyZoomControlA11yLabels();
 
   if (locations.value.length > 0) {
     syncMapViewportIfNeeded();
