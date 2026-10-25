@@ -31,8 +31,10 @@ export function isValidProjectState(value: string): value is ProjectState {
 /**
  * Normalise a raw state string from NocoDB into a canonical ProjectState.
  *
- * Accepts common variants (e.g. "under_construction", "construction") and
- * falls back to PROJECT_STATES.FINISHED for unknown values.
+ * Accepts common variants (e.g. "under_construction", "construction").
+ * Unknown or empty values are normalised to FINISHED: the map renders
+ * projects with the default "finished" pin styling in that case, which is
+ * the historical and intended fallback for legacy records.
  */
 export function normaliseProjectState(raw: string): ProjectState {
   const trimmed = raw.trim().toLowerCase();
