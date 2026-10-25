@@ -11,6 +11,24 @@ import VueDevTools from "vite-plugin-vue-devtools";
 
 const pkg = JSON.parse(readFileSync(fileURLToPath(new URL("./package.json", import.meta.url)), "utf-8"));
 
+// The app only uses square (1x1) flags (CSS class "fis"). Every flag rule of
+// flag-icons references a 4x3 variant as well, which pulls all 4x3 SVGs
+// (~2.7 MB) into the build and the PWA precache. Serving a trimmed version
+// via load() ensures only the used 1x1 SVGs get bundled.
+function trimFlagIcons() {
+  const flagCssId = /flag-icons[\\/]css[\\/]flag-icons\.min\.css/;
+  return {
+    name: "trim-flag-icons",
+    enforce: "pre",
+    load(id: string) {
+      if (!flagCssId.test(id)) return;
+      const css = readFileSync(id, "utf-8");
+      const rules = css.match(/[^{}]+\{[^{}]*\}/g) ?? [];
+      return rules.filter((rule) => !rule.includes("4x3")).join("");
+    },
+  };
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
   define: {
@@ -18,6 +36,7 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(pkg.version),
   },
   plugins: [
+    trimFlagIcons(),
     // Plugin to inject version into window object
     {
       name: "inject-version-to-window",
@@ -87,7 +106,18 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        // Precache app shell only; flags are cached on demand via runtimeCaching
+        globPatterns: ["**/*.{js,css,html,ico,png,woff2}"],
+        runtimeCaching: [
+          {
+            urlPattern: /\.svg$/,
+            handler: "CacheFirst" as const,
+            options: {
+              cacheName: "flag-icons-svg",
+              expiration: { maxEntries: 64, maxAgeSeconds: 60 * 60 * 24 * 90 },
+            },
+          },
+        ],
         skipWaiting: true,
         clientsClaim: true,
       },
