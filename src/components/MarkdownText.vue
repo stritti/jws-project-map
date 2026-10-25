@@ -5,6 +5,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { marked } from "marked";
+import DOMPurify from "dompurify";
 
 interface Props {
   text?: string | null;
@@ -19,7 +20,8 @@ marked.setOptions({
 
 const compiled = computed(() => {
   if (!props.text) return "";
-  return marked.parse(props.text);
+  const html = marked.parse(props.text);
+  return typeof html === "string" ? DOMPurify.sanitize(html) : "";
 });
 </script>
 
