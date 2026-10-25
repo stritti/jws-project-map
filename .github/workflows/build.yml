@@ -41,5 +41,4 @@ jobs:
         run: bun run build
 
       - name: Run tests
-        if: github.event.inputs.run_tests == 'true'
-        run: bun test
+        run: bunx vitest run
