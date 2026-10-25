@@ -128,7 +128,7 @@ jobs:
 
             Core Web Vitals: 🟢 LCP ≤ 2500 ms · TBT ≤ 300 ms · CLS ≤ 0.1
 
-            📊 Full HTML report available in the workflow **Artifacts** section (`.lighthouseci`).`;
+            📊 Full HTML report available in the workflow **Artifacts** section (.lighthouseci).`;
 
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
