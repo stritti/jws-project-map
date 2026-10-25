@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/stritti/jws-project-map/compare/v1.3.0...v1.3.1) (2026-10-25)
+
+
+### Bug Fixes
+
+* **security:** sanitize markdown HTML with DOMPurify before v-html rendering ([#1032](https://github.com/stritti/jws-project-map/issues/1032)) ([a08f8de](https://github.com/stritti/jws-project-map/commit/a08f8de2aa24e313dd64e7475890d1260b7d1392))
+
 # [1.3.0](https://github.com/stritti/jws-project-map/compare/v1.2.3...v1.3.0) (2026-10-11)
 
 
