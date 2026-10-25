@@ -37,6 +37,19 @@ export default defineConfig({
   },
   plugins: [
     trimFlagIcons(),
+    // Plugin to inject version into window object
+    {
+      name: "inject-version-to-window",
+      transformIndexHtml(html: string) {
+        return html.replace(
+          /<head>/,
+          `<head>
+          <script>
+            window.__APP_VERSION__ = ${JSON.stringify(pkg.version)};
+          </script>`
+        );
+      },
+    },
     // Optimized Leaflet and MarkerCluster handling
     // 1. Force Vite to pre-bundle leaflet and leaflet.markercluster together
     // 2. Ensure window.L is available before markercluster IIFE executes
