@@ -17,9 +17,8 @@
     "generate-pwa-assets": "pwa-assets-generator --preset minimal-2023 public/img/cropped-joerg-wolff-stiftung.png",
     "optimize-images": "bun run scripts/optimize-images.mjs",
     "mcp": "bun run scripts/mcp-server.ts",
-    "semantic-release": "semantic-release",
-    "semantic-release:dry-run": "semantic-release --dry-run",
-    "semantic-release:debug": "semantic-release --debug",
+    "release:pr": "release-please release-pr --token=$GITHUB_TOKEN",
+    "release:manifest": "release-please manifest --token=$GITHUB_TOKEN",
     "commit": "git-cz"
   },
   "dependencies": {
@@ -38,7 +37,6 @@
     "marked": "^18.1.1",
     "pinia": "^4.1.0",
     "pinia-plugin-persistedstate": "^4.7.1",
-    "vite-plugin-package-version": "^1.1.0",
     "vue": "^3.5.43",
     "vue-i18n": "^11.4.14",
     "vue-leaflet-markercluster": "^0.6.1",
@@ -53,13 +51,6 @@
     "@modelcontextprotocol/sdk": "^1.31.0",
     "@netlify/plugin-lighthouse": "^6.0.4",
     "@rushstack/eslint-patch": "^1.16.1",
-    "@semantic-release/changelog": "^7.0.0",
-    "@semantic-release/commit-analyzer": "^13.0.0",
-    "@semantic-release/exec": "^7.1.0",
-    "@semantic-release/git": "^11.0.1",
-    "@semantic-release/github": "^12.0.10",
-    "@semantic-release/npm": "^13.2.0",
-    "@semantic-release/release-notes-generator": "^14.0.0",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/forms": "^0.5.9",
     "@tailwindcss/postcss": "^4.3.3",
@@ -86,7 +77,7 @@
     "postcss": "^8.5.28",
     "prettier": "^3.9.10",
     "rollup": "^4.64.7",
-    "semantic-release": "^25.0.9",
+    "release-please": "^17.1.0",
     "sharp": "^0.35.5",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.3",
@@ -113,18 +104,5 @@
         "@commitlint/config-conventional"
       ]
     }
-  },
-  "release": {
-    "branches": [
-      "main"
-    ],
-    "plugins": [
-      "@semantic-release/commit-analyzer",
-      "@semantic-release/release-notes-generator",
-      "@semantic-release/changelog",
-      "@semantic-release/npm",
-      "@semantic-release/git",
-      "@semantic-release/github"
-    ]
   }
 }
