@@ -45,55 +45,90 @@ jobs:
             echo "No Lighthouse report found"
             exit 1
           fi
+          SCORE=$(jq '.categories.performance.score' "$REPORT")
           LCP=$(jq '.audits["largest-contentful-paint"].numericValue' "$REPORT")
           TBT=$(jq '.audits["total-blocking-time"].numericValue' "$REPORT")
           CLS=$(jq '.audits["cumulative-layout-shift"].numericValue' "$REPORT")
           BYTE=$(jq '.audits["total-byte-weight"].numericValue' "$REPORT")
+          FCP=$(jq '.audits["first-contentful-paint"].numericValue' "$REPORT")
+          SPEEDINDEX=$(jq '.audits["speed-index"].numericValue' "$REPORT")
+          echo "SCORE=$SCORE" >> $GITHUB_OUTPUT
           echo "LCP=$LCP" >> $GITHUB_OUTPUT
           echo "TBT=$TBT" >> $GITHUB_OUTPUT
           echo "CLS=$CLS" >> $GITHUB_OUTPUT
           echo "BYTE=$BYTE" >> $GITHUB_OUTPUT
+          echo "FCP=$FCP" >> $GITHUB_OUTPUT
+          echo "SPEEDINDEX=$SPEEDINDEX" >> $GITHUB_OUTPUT
 
       - name: Publish Lighthouse summary
         run: |
-          echo "## 🚀 Lighthouse Performance Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|--------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| LCP (ms) | ${{ steps.lhmetrics.outputs.LCP }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| TBT (ms) | ${{ steps.lhmetrics.outputs.TBT }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| CLS | ${{ steps.lhmetrics.outputs.CLS }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Total Byte Weight | ${{ steps.lhmetrics.outputs.BYTE }} |" >> $GITHUB_STEP_SUMMARY
+          cat >> $GITHUB_STEP_SUMMARY <<'EOF'
+          ## 🚀 Lighthouse Performance Report
+
+          | Metric | Value |
+          |--------|-------|
+          | Performance Score | ${{ steps.lhmetrics.outputs.SCORE }} |
+          | LCP (Largest Contentful Paint) | ${{ steps.lhmetrics.outputs.LCP }} ms |
+          | TBT (Total Blocking Time) | ${{ steps.lhmetrics.outputs.TBT }} ms |
+          | CLS (Cumulative Layout Shift) | ${{ steps.lhmetrics.outputs.CLS }} |
+          | FCP (First Contentful Paint) | ${{ steps.lhmetrics.outputs.FCP }} ms |
+          | Speed Index | ${{ steps.lhmetrics.outputs.SPEEDINDEX }} ms |
+          | Total Byte Weight | ${{ steps.lhmetrics.outputs.BYTE }} bytes |
+
+          Core Web Vitals thresholds: LCP ≤ 2500 ms · TBT ≤ 300 ms · CLS ≤ 0.1
+          EOF
+
 
       - name: Comment or Update PR with Lighthouse metrics
         if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' && github.event.pull_request.head.repo.fork == false
         continue-on-error: true
         uses: actions/github-script@v9
         env:
+          SCORE: ${{ steps.lhmetrics.outputs.SCORE }}
           LCP: ${{ steps.lhmetrics.outputs.LCP }}
           TBT: ${{ steps.lhmetrics.outputs.TBT }}
           CLS: ${{ steps.lhmetrics.outputs.CLS }}
           BYTE: ${{ steps.lhmetrics.outputs.BYTE }}
+          FCP: ${{ steps.lhmetrics.outputs.FCP }}
+          SPEEDINDEX: ${{ steps.lhmetrics.outputs.SPEEDINDEX }}
         with:
           script: |-
+            const score = Number(process.env.SCORE || 0);
             const lcp = Number(process.env.LCP || 0);
             const tbt = Number(process.env.TBT || 0);
             const cls = Number(process.env.CLS || 0);
             const byte = Number(process.env.BYTE || 0);
+            const fcp = Number(process.env.FCP || 0);
+            const speedIndex = Number(process.env.SPEEDINDEX || 0);
 
-            const status = (value, max) => value <= max ? '✅' : '⚠️';
+            const formatBytes = (b) => b >= 1024 * 1024
+              ? `${(b / 1024 / 1024).toFixed(2)} MB`
+              : `${Math.round(b / 1024)} kB`;
+
+            const rating = (value, good, poor, unit = '') => {
+              if (value <= good) return `🟢 Good${unit ? ` (≤ ${good}${unit})` : ''}`;
+              if (value <= poor) return `🟡 Needs improvement (> ${good}${unit})`;
+              return `🔴 Poor (> ${poor}${unit})`;
+            };
+
+            const scoreEmoji = score >= 0.9 ? '🟢' : score >= 0.5 ? '🟡' : '🔴';
 
             const body = `<!-- lighthouse-report -->
-            ## 🚀 Lighthouse Performance Report
+            ## ${scoreEmoji} Lighthouse Performance Report — Score ${Math.round(score * 100)}/100
 
-            | Metric | Value | Status |
-            |--------|--------|--------|
-            | LCP (ms) | ${lcp} | ${status(lcp, 2500)} |
-            | TBT (ms) | ${tbt} | ${status(tbt, 300)} |
-            | CLS | ${cls} | ${status(cls, 0.1)} |
-            | Total Byte Weight | ${byte} | ${status(byte, 500000)} |
+            | Metric | Value | Rating |
+            |--------|-------|--------|
+            | Performance Score | **${Math.round(score * 100)}/100** | ${scoreEmoji} |
+            | LCP — Largest Contentful Paint | ${Math.round(lcp)} ms | ${rating(lcp, 2500, 4000, ' ms')} |
+            | TBT — Total Blocking Time | ${Math.round(tbt)} ms | ${rating(tbt, 300, 600, ' ms')} |
+            | CLS — Cumulative Layout Shift | ${cls.toFixed(3)} | ${rating(cls, 0.1, 0.25)} |
+            | FCP — First Contentful Paint | ${Math.round(fcp)} ms | ${rating(fcp, 1800, 3000, ' ms')} |
+            | Speed Index | ${Math.round(speedIndex)} ms | |
+            | Total Byte Weight | ${formatBytes(byte)} | ${rating(byte, 500000, 1500000)} |
 
-            Full HTML report available in workflow artifacts.`;
+            Core Web Vitals: 🟢 LCP ≤ 2500 ms · TBT ≤ 300 ms · CLS ≤ 0.1
+
+            📊 Full HTML report available in the workflow **Artifacts** section (`.lighthouseci`).`;
 
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
