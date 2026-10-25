@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { fileURLToPath, URL } from "node:url";
 
 import { defineConfig } from "vite";
@@ -6,14 +7,15 @@ import Components from "unplugin-vue-components/vite";
 import Icons from "unplugin-icons/vite";
 import IconsResolve from "unplugin-icons/resolver";
 import { VitePWA } from "vite-plugin-pwa";
-import version from "vite-plugin-package-version";
 import VueDevTools from "vite-plugin-vue-devtools";
+
+const pkg = JSON.parse(readFileSync(fileURLToPath(new URL("./package.json", import.meta.url)), "utf-8"));
 
 // https://vitejs.dev/config/
 export default defineConfig({
   define: {
     // Inject package version as global variable for client-side access
-    __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
+    __APP_VERSION__: JSON.stringify(pkg.version),
   },
   plugins: [
     // Plugin to inject version into window object
@@ -24,7 +26,7 @@ export default defineConfig({
           /<head>/,
           `<head>
           <script>
-            window.__APP_VERSION__ = ${JSON.stringify(process.env.npm_package_version)};
+            window.__APP_VERSION__ = ${JSON.stringify(pkg.version)};
           </script>`
         );
       },
@@ -54,7 +56,6 @@ export default defineConfig({
       resolvers: [IconsResolve()],
       dts: true,
     }),
-    version(),
     Icons({
       compiler: "vue3",
       autoInstall: true,

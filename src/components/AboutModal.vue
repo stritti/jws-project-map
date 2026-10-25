@@ -82,8 +82,10 @@
 import { nextTick, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { reloadAppWithCacheReset } from "@/utils/reloadApp";
+import { useAppVersion } from "@/composables/useAppVersion";
 
 const { t } = useI18n();
+const { version } = useAppVersion();
 
 const emit = defineEmits(['hidden']);
 
@@ -139,8 +141,6 @@ function handleEscape(e: KeyboardEvent) {
 }
 
 defineExpose({ show, hide });
-
-const version = import.meta.env.PACKAGE_VERSION;
 
 const reloadApp = async () => {
   await reloadAppWithCacheReset();

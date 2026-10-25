@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { reloadAppWithCacheReset } from "@/utils/reloadApp";
+import { useAppVersion } from "@/composables/useAppVersion";
 
-const version = import.meta.env.PACKAGE_VERSION;
+const { version } = useAppVersion();
 
 const reloadApp = async () => {
   await reloadAppWithCacheReset();
