@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ref } from "vue";
 import { useProjectSearch } from "@/composables/useProjectSearch";
+import { PROJECT_STATES } from "@/constants/projectStates";
 import type { Project } from "@/interfaces/Project";
 
 function makeProject(id: number, name: string, state: string, notes = ""): Project {
@@ -18,9 +19,9 @@ function makeProject(id: number, name: string, state: string, notes = ""): Proje
 }
 
 const projects = ref<Project[]>([
-  makeProject(1, "Solar Water Pump", "finished", "A pump for the village"),
-  makeProject(2, "School Building", "under construction", "New classrooms"),
-  makeProject(3, "Midwife Training", "planned", "Healthcare training"),
+  makeProject(1, "Solar Water Pump", PROJECT_STATES.FINISHED, "A pump for the village"),
+  makeProject(2, "School Building", PROJECT_STATES.UNDER_CONSTRUCTION, "New classrooms"),
+  makeProject(3, "Midwife Training", PROJECT_STATES.PLANNED, "Healthcare training"),
 ]);
 
 describe("useProjectSearch", () => {
@@ -50,7 +51,7 @@ describe("useProjectSearch", () => {
 
   it("applies the state filter", () => {
     const { stateFilter, results } = useProjectSearch(projects);
-    stateFilter.value = "planned";
+    stateFilter.value = PROJECT_STATES.PLANNED;
     expect(results.value).toHaveLength(1);
     expect(results.value[0]?.id).toBe(3);
   });
@@ -58,7 +59,7 @@ describe("useProjectSearch", () => {
   it("combines query and state filter", () => {
     const { query, stateFilter, results } = useProjectSearch(projects);
     query.value = "school";
-    stateFilter.value = "finished";
+    stateFilter.value = PROJECT_STATES.FINISHED;
     expect(results.value).toHaveLength(0);
   });
 
