@@ -223,6 +223,7 @@ import type { Project } from "@/interfaces/Project";
 import StateBadge from "@/components/StateBadge.vue";
 import { useGeoTags } from "@/composables/useGeoTags";
 import { useStructuredData } from "@/composables/useStructuredData";
+import { isScrollLocked } from "@/composables/useScrollLock";
 import { parseProjectId } from "@/utils/slug";
 import { readableTextColor } from "@/utils/color";
 import L from "leaflet";
@@ -238,6 +239,9 @@ const SCROLL_THRESHOLD = 20;
 const headerScrolled = ref(false);
 
 function onScroll() {
+  // A fullscreen overlay freezes the document, which reports scrollY 0. Reacting
+  // to it would expand this header and reflow the page under the overlay.
+  if (isScrollLocked()) return;
   headerScrolled.value = window.scrollY > SCROLL_THRESHOLD;
 }
 

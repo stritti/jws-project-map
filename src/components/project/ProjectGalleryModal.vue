@@ -94,14 +94,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, computed } from 'vue'
+import { ref, watch, nextTick, computed, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Attachment } from '@/interfaces/Attachment'
 import { useFocusRestore } from '@/composables/useAccessibility'
+import { useScrollLock } from '@/composables/useScrollLock'
 import { resolveSwipe } from '@/utils/swipe'
 
 const { t } = useI18n()
 const { setTrigger, restoreFocus } = useFocusRestore()
+const { lock: lockScroll, unlock: unlockScroll } = useScrollLock()
 
 const props = defineProps<{
   isVisible: boolean
@@ -321,16 +323,21 @@ watch(
   () => props.isVisible,
   async (visible) => {
     if (visible) {
+      lockScroll()
       setTrigger()
       await nextTick()
       // Focus close button first
       closeBtn.value?.focus()
     } else {
       resetSwipe()
+      unlockScroll()
       restoreFocus()
     }
   },
 )
+
+// Close via a route change while the gallery is open must not leave the body pinned.
+onBeforeUnmount(unlockScroll)
 </script>
 
 <style scoped lang="postcss">
