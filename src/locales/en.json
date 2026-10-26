@@ -60,14 +60,20 @@
       "since": "Since",
       "location": "Location",
       "description": "Description",
-      "more": "more \u2026"
+      "more": "more \u2026",
+      "website": "Visit project website",
+      "loading": "Loading project \u2026"
     },
     "state": {
       "finished": "Finished",
       "underConstruction": "Under Construction",
       "planned": "Planned"
     },
-    "unnamed": "Unnamed"
+    "unnamed": "Unnamed",
+    "notFound": {
+      "title": "Project not found",
+      "text": "This project does not exist or is no longer available. Take a look at the other projects on the map."
+    }
   },
   "about": {
     "title": "About this App",
@@ -128,6 +134,8 @@
     "viewProjectDetails": "View project details",
     "backToList": "Back to project list",
     "shareProject": "Share this project",
+    "projectActions": "Project actions",
+    "projectInformation": "Project information",
     "openMenu": "Open menu",
     "currentLocation": "Current location",
     "navigate": "Navigate",

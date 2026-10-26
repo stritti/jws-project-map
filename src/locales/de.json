@@ -60,14 +60,20 @@
       "since": "Seit",
       "location": "Standort",
       "description": "Beschreibung",
-      "more": "mehr \u2026"
+      "more": "mehr \u2026",
+      "website": "Projekt-Website besuchen",
+      "loading": "Projekt wird geladen \u2026"
     },
     "state": {
       "finished": "Abgeschlossen",
       "underConstruction": "Im Bau",
       "planned": "Geplant"
     },
-    "unnamed": "Unbenannt"
+    "unnamed": "Unbenannt",
+    "notFound": {
+      "title": "Projekt nicht gefunden",
+      "text": "Dieses Projekt existiert nicht oder ist nicht mehr verfügbar. Entdecken Sie die anderen Projekte auf der Karte."
+    }
   },
   "about": {
     "title": "\u00dcber diese App",
@@ -128,6 +134,8 @@
     "viewProjectDetails": "Projektdetails anzeigen",
     "backToList": "Zur\u00fcck zur Projektliste",
     "shareProject": "Projekt teilen",
+    "projectActions": "Projekt-Aktionen",
+    "projectInformation": "Projektinformationen",
     "openMenu": "Men\u00fc \u00f6ffnen",
     "currentLocation": "Aktueller Standort",
     "navigate": "Navigieren",

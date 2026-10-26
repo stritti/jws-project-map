@@ -43,10 +43,17 @@
       <span class="gallery-nav-icon gallery-nav-icon-next" aria-hidden="true" />
     </button>
 
-    <div class="gallery-carousel">
+    <div
+      class="gallery-carousel"
+      :class="{ 'is-dragging': isDragging }"
+      @pointerdown="onPointerDown"
+      @pointermove="onPointerMove"
+      @pointerup="onPointerUp"
+      @pointercancel="onPointerCancel"
+    >
       <Transition name="slide-fade" mode="out-in">
         <div :key="currentIndex" class="gallery-slide">
-          <div class="gallery-content">
+          <div class="gallery-content" :style="dragStyle">
             <template v-if="currentItem.mimetype.startsWith('image')">
               <img
                 :src="currentItem.signedUrl"
@@ -87,13 +94,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, computed } from 'vue'
+import { ref, watch, nextTick, computed, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Attachment } from '@/interfaces/Attachment'
 import { useFocusRestore } from '@/composables/useAccessibility'
+import { useScrollLock } from '@/composables/useScrollLock'
+import { resolveSwipe } from '@/utils/swipe'
 
 const { t } = useI18n()
 const { setTrigger, restoreFocus } = useFocusRestore()
+const { lock: lockScroll, unlock: unlockScroll } = useScrollLock()
 
 const props = defineProps<{
   isVisible: boolean
@@ -138,6 +148,106 @@ function goNext() {
 
 function announcePosition() {
   // This will be picked up by the aria-live region
+}
+
+/**
+ * Swipe handling.
+ *
+ * Only touch and pen pointers are tracked: a mouse drag is not a swipe, and
+ * tracking it would fight with selecting the caption. The vertical axis is left
+ * to the browser (`touch-action: pan-y`), so a scroll or a pinch cancels the
+ * gesture instead of flipping the image.
+ */
+interface SwipeStart {
+  id: number
+  x: number
+  y: number
+  time: number
+}
+
+const dragOffset = ref(0)
+const isDragging = ref(false)
+let swipeStart: SwipeStart | null = null
+
+const dragStyle = computed(() => ({
+  transform: `translate3d(${dragOffset.value}px, 0, 0)`,
+}))
+
+function resetSwipe() {
+  swipeStart = null
+  isDragging.value = false
+  dragOffset.value = 0
+}
+
+function isInteractiveTarget(target: EventTarget | null): boolean {
+  const element = target as Element | null
+  if (!element || typeof element.closest !== 'function') return false
+  // Let the video controls keep their own gestures.
+  return Boolean(element.closest('video, button, a, input'))
+}
+
+function onPointerDown(event: PointerEvent) {
+  if (props.galleryItems.length <= 1) return
+  if (event.pointerType === 'mouse') return
+  // A second finger means a pinch, not a swipe.
+  if (!event.isPrimary) {
+    resetSwipe()
+    return
+  }
+  if (isInteractiveTarget(event.target)) return
+
+  swipeStart = {
+    id: event.pointerId,
+    x: event.clientX,
+    y: event.clientY,
+    time: performance.now(),
+  }
+}
+
+function onPointerMove(event: PointerEvent) {
+  if (!swipeStart || event.pointerId !== swipeStart.id) return
+
+  const dx = event.clientX - swipeStart.x
+  const dy = event.clientY - swipeStart.y
+
+  if (!isDragging.value) {
+    // Wait until the gesture is clearly horizontal before taking it over, so a
+    // vertical scroll stays native.
+    if (Math.abs(dx) < 10 || Math.abs(dx) <= Math.abs(dy)) return
+    isDragging.value = true
+    const target = event.currentTarget as HTMLElement | null
+    try {
+      target?.setPointerCapture(event.pointerId)
+    } catch {
+      // Capture is an optimisation; the gesture still resolves without it.
+    }
+  }
+
+  dragOffset.value = dx
+}
+
+function onPointerUp(event: PointerEvent) {
+  if (!swipeStart || event.pointerId !== swipeStart.id) return
+
+  const wasDragging = isDragging.value
+  const start = swipeStart
+  const gesture = {
+    dx: event.clientX - start.x,
+    dy: event.clientY - start.y,
+    durationMs: performance.now() - start.time,
+  }
+  const direction = wasDragging ? resolveSwipe(gesture) : null
+
+  // Reset and switch in the same tick so the incoming slide mounts untranslated.
+  resetSwipe()
+
+  if (direction === 'next') goNext()
+  else if (direction === 'previous') goPrev()
+}
+
+function onPointerCancel(event: PointerEvent) {
+  if (swipeStart && event.pointerId !== swipeStart.id) return
+  resetSwipe()
 }
 
 function closeModal() {
@@ -213,15 +323,21 @@ watch(
   () => props.isVisible,
   async (visible) => {
     if (visible) {
+      lockScroll()
       setTrigger()
       await nextTick()
       // Focus close button first
       closeBtn.value?.focus()
     } else {
+      resetSwipe()
+      unlockScroll()
       restoreFocus()
     }
   },
 )
+
+// Close via a route change while the gallery is open must not leave the body pinned.
+onBeforeUnmount(unlockScroll)
 </script>
 
 <style scoped lang="postcss">
@@ -295,6 +411,9 @@ watch(
 /* Carousel */
 .gallery-carousel {
   @apply w-full h-full;
+  /* Horizontal gestures belong to the swipe handler; vertical panning and
+     pinch zoom stay native so photos can still be magnified. */
+  touch-action: pan-y pinch-zoom;
 }
 
 .gallery-slide {
@@ -303,6 +422,18 @@ watch(
 
 .gallery-content {
   @apply w-screen h-screen flex justify-center items-center p-[calc(var(--spacing-unit)*5)] box-border overflow-hidden;
+  transition: transform 200ms ease-out;
+  user-select: none;
+}
+
+.gallery-carousel.is-dragging .gallery-content {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery-content {
+    transition: none;
+  }
 }
 
 .gallery-image {
