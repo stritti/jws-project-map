@@ -39,7 +39,7 @@ jobs:
 
       - name: Restore Lighthouse baseline (main)
         if: github.event_name == 'pull_request'
-        uses: actions/cache/restore@v7
+        uses: actions/cache/restore@v4
         with:
           path: .lighthouse-baseline/baseline.json
           key: lighthouse-baseline-${{ github.run_id }}
@@ -125,7 +125,7 @@ jobs:
 
       - name: Save Lighthouse baseline (main)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/cache/save@v7
+        uses: actions/cache/save@v4
         with:
           path: .lighthouse-baseline/baseline.json
           key: lighthouse-baseline-${{ github.run_id }}
