@@ -43,10 +43,6 @@
     <link rel="dns-prefetch" href="https://basemaps.cartocdn.com">
     <link rel="dns-prefetch" href="https://server.arcgisonline.com">
     <link rel="dns-prefetch" href="https://tile.openstreetmap.org">
-    
-    <!-- Preload critical resources -->
-    <link rel="preload" href="/img/favicon.ico" as="image" type="image/x-icon">
-    <link rel="preload" href="/img/cropped-joerg-wolff-stiftung.png" as="image" type="image/png">
 
     <!-- Inline critical CSS for instant app shell -->
     <style>
@@ -54,8 +50,8 @@
         --jws-primary: rgb(61, 94, 158);
         --jws-bg: #f8fafc;
       }
-      body { 
-        margin: 0; 
+      body {
+        margin: 0;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         background-color: var(--jws-bg);
       }
@@ -119,13 +115,13 @@
     <noscript>
       <strong>We're sorry but this app doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
-    
+
     <!-- App shell that shows immediately -->
     <div id="app-shell" class="app-shell" role="status" aria-live="polite">
       <h1>JWF + Humanaktiv: Projects in Westafrica</h1>
       <div class="spinner"></div>
     </div>
-    
+
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
