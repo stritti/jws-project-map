@@ -2,9 +2,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const back = vi.fn();
 const push = vi.fn();
+const replace = vi.fn();
 
 vi.mock("vue-router", () => ({
-  useRouter: () => ({ back, push }),
+  useRouter: () => ({ back, push, replace }),
 }));
 
 import {
@@ -16,6 +17,7 @@ describe("back navigation", () => {
   beforeEach(() => {
     back.mockReset();
     push.mockReset();
+    replace.mockReset();
     window.history.replaceState(null, "");
   });
 
@@ -29,27 +31,44 @@ describe("back navigation", () => {
     useBackNavigation().goBack();
     expect(back).toHaveBeenCalledTimes(1);
     expect(push).not.toHaveBeenCalled();
+    expect(replace).not.toHaveBeenCalled();
   });
 
-  it("navigates to the home page on a direct deep link", () => {
+  it("replaces the entry on a direct deep link instead of pushing", () => {
     // Shape vue-router writes for the first entry of a fresh navigation.
     window.history.replaceState(
       {
         back: null,
         current: "/project/gui-boke-102",
         forward: null,
-        position: 6,
+        position: 0,
         replaced: true,
       },
       "",
     );
     useBackNavigation().goBack();
     expect(back).not.toHaveBeenCalled();
-    expect(push).toHaveBeenCalledWith("/");
+    // push would make the detail page the target of the system back gesture
+    // one tap later, which is the complaint this fix is about.
+    expect(push).not.toHaveBeenCalled();
+    expect(replace).toHaveBeenCalledWith("/");
   });
 
   it("accepts a custom fallback route", () => {
     useBackNavigation("/project/").goBack();
-    expect(push).toHaveBeenCalledWith("/project/");
+    expect(replace).toHaveBeenCalledWith("/project/");
+  });
+
+  // A native <button> turns Enter and Space into one click by itself. jsdom
+  // does not synthesise that click, so "one key press navigates once" is
+  // verified in the browser, not here.
+});
+
+describe("hasAppHistory", () => {
+  it("ignores a non-string or empty back entry", () => {
+    window.history.replaceState({ back: 42 }, "");
+    expect(hasAppHistory()).toBe(false);
+    window.history.replaceState({ back: "" }, "");
+    expect(hasAppHistory()).toBe(false);
   });
 });

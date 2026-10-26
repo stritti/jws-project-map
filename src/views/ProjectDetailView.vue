@@ -22,8 +22,8 @@
     <button
       v-if="!isIFrame && project"
       class="floating-back-btn md:hidden"
-      :aria-label="t('a11y.backToList')"
-      :title="t('a11y.backToList')"
+      :aria-label="t('a11y.back')"
+      :title="t('a11y.back')"
       @click="goBack"
     >
       <IBiArrowLeft class="floating-back-icon" aria-hidden="true" />
