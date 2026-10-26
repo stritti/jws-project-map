@@ -6,7 +6,7 @@
 package = "@netlify/plugin-lighthouse"
 
   [plugins.inputs]
-  audits = ["performance"]
+  audits = ["performance", "accessibility", "best-practices", "seo", "pwa"]
   output_path = "lighthouse"
   fail_deploy_on_score_thresholds = false
 

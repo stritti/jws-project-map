@@ -41,11 +41,22 @@ jobs:
         id: lhmetrics
         run: |
           REPORT=$(ls .lighthouseci/lhr-*.json 2>/dev/null | head -n 1)
+          # Prefer the report of the app entry page over other pages (e.g. iframe-preview)
+          for f in .lighthouseci/lhr-*.json; do
+            if grep -q '"finalDisplayedUrl": "http://localhost:[0-9]*/index.html"' "$f"; then
+              REPORT="$f"
+              break
+            fi
+          done
           if [ -z "$REPORT" ]; then
             echo "No Lighthouse report found"
             exit 1
           fi
           SCORE=$(jq '.categories.performance.score' "$REPORT")
+          A11Y=$(jq '.categories.accessibility.score' "$REPORT")
+          BP=$(jq '.categories["best-practices"].score' "$REPORT")
+          SEO=$(jq '.categories.seo.score' "$REPORT")
+          PWA=$(jq '.categories.pwa.score' "$REPORT")
           LCP=$(jq '.audits["largest-contentful-paint"].numericValue' "$REPORT")
           TBT=$(jq '.audits["total-blocking-time"].numericValue' "$REPORT")
           CLS=$(jq '.audits["cumulative-layout-shift"].numericValue' "$REPORT")
@@ -53,6 +64,10 @@ jobs:
           FCP=$(jq '.audits["first-contentful-paint"].numericValue' "$REPORT")
           SPEEDINDEX=$(jq '.audits["speed-index"].numericValue' "$REPORT")
           echo "SCORE=$SCORE" >> $GITHUB_OUTPUT
+          echo "A11Y=$A11Y" >> $GITHUB_OUTPUT
+          echo "BP=$BP" >> $GITHUB_OUTPUT
+          echo "SEO=$SEO" >> $GITHUB_OUTPUT
+          echo "PWA=$PWA" >> $GITHUB_OUTPUT
           echo "LCP=$LCP" >> $GITHUB_OUTPUT
           echo "TBT=$TBT" >> $GITHUB_OUTPUT
           echo "CLS=$CLS" >> $GITHUB_OUTPUT
@@ -68,6 +83,10 @@ jobs:
           | Metric | Value |
           |--------|-------|
           | Performance Score | ${{ steps.lhmetrics.outputs.SCORE }} |
+          | Accessibility Score | ${{ steps.lhmetrics.outputs.A11Y }} |
+          | Best Practices Score | ${{ steps.lhmetrics.outputs.BP }} |
+          | SEO Score | ${{ steps.lhmetrics.outputs.SEO }} |
+          | PWA Score | ${{ steps.lhmetrics.outputs.PWA }} |
           | LCP (Largest Contentful Paint) | ${{ steps.lhmetrics.outputs.LCP }} ms |
           | TBT (Total Blocking Time) | ${{ steps.lhmetrics.outputs.TBT }} ms |
           | CLS (Cumulative Layout Shift) | ${{ steps.lhmetrics.outputs.CLS }} |
@@ -85,6 +104,10 @@ jobs:
         uses: actions/github-script@v9
         env:
           SCORE: ${{ steps.lhmetrics.outputs.SCORE }}
+          A11Y: ${{ steps.lhmetrics.outputs.A11Y }}
+          BP: ${{ steps.lhmetrics.outputs.BP }}
+          SEO: ${{ steps.lhmetrics.outputs.SEO }}
+          PWA: ${{ steps.lhmetrics.outputs.PWA }}
           LCP: ${{ steps.lhmetrics.outputs.LCP }}
           TBT: ${{ steps.lhmetrics.outputs.TBT }}
           CLS: ${{ steps.lhmetrics.outputs.CLS }}
@@ -94,6 +117,10 @@ jobs:
         with:
           script: |-
             const score = Number(process.env.SCORE || 0);
+            const a11y = process.env.A11Y === 'null' ? null : Number(process.env.A11Y || 0);
+            const bp = process.env.BP === 'null' ? null : Number(process.env.BP || 0);
+            const seo = process.env.SEO === 'null' ? null : Number(process.env.SEO || 0);
+            const pwa = process.env.PWA === 'null' ? null : Number(process.env.PWA || 0);
             const lcp = Number(process.env.LCP || 0);
             const tbt = Number(process.env.TBT || 0);
             const cls = Number(process.env.CLS || 0);
@@ -113,12 +140,26 @@ jobs:
 
             const scoreEmoji = score >= 0.9 ? '🟢' : score >= 0.5 ? '🟡' : '🔴';
 
+            const catScore = (v) => v === null ? '—' : `${Math.round(v * 100)}/100`;
+            const catEmoji = (v) => v === null ? '⚪ not measured' : v >= 0.9 ? '🟢' : v >= 0.5 ? '🟡' : '🔴';
+
             const body = `<!-- lighthouse-report -->
-            ## ${scoreEmoji} Lighthouse Performance Report — Score ${Math.round(score * 100)}/100
+            ## ${scoreEmoji} Lighthouse Report — Performance Score ${Math.round(score * 100)}/100
+
+            ### Category Scores
+
+            | Category | Score | Rating |
+            |----------|-------|--------|
+            | Performance | **${catScore(score)}** | ${catEmoji(score)} |
+            | Accessibility | ${catScore(a11y)} | ${catEmoji(a11y)} |
+            | Best Practices | ${catScore(bp)} | ${catEmoji(bp)} |
+            | SEO | ${catScore(seo)} | ${catEmoji(seo)} |
+            | PWA | ${catScore(pwa)} | ${catEmoji(pwa)} |
+
+            ### Performance Metrics
 
             | Metric | Value | Rating |
             |--------|-------|--------|
-            | Performance Score | **${Math.round(score * 100)}/100** | ${scoreEmoji} |
             | LCP — Largest Contentful Paint | ${Math.round(lcp)} ms | ${rating(lcp, 2500, 4000, ' ms')} |
             | TBT — Total Blocking Time | ${Math.round(tbt)} ms | ${rating(tbt, 300, 600, ' ms')} |
             | CLS — Cumulative Layout Shift | ${cls.toFixed(3)} | ${rating(cls, 0.1, 0.25)} |
