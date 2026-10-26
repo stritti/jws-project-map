@@ -37,6 +37,15 @@ jobs:
           name: lighthouse-report
           path: .lighthouseci
 
+      - name: Restore Lighthouse baseline (main)
+        if: github.event_name == 'pull_request'
+        uses: actions/cache/restore@v7
+        with:
+          path: .lighthouse-baseline/baseline.json
+          key: lighthouse-baseline-${{ github.run_id }}
+          restore-keys: |
+            lighthouse-baseline-
+
       - name: Extract Lighthouse metrics
         id: lhmetrics
         run: |
@@ -74,6 +83,52 @@ jobs:
           echo "BYTE=$BYTE" >> $GITHUB_OUTPUT
           echo "FCP=$FCP" >> $GITHUB_OUTPUT
           echo "SPEEDINDEX=$SPEEDINDEX" >> $GITHUB_OUTPUT
+
+          BASELINE_FILE=".lighthouse-baseline/baseline.json"
+          BASE_SCORE="none"; BASE_A11Y="none"; BASE_BP="none"; BASE_SEO="none"; BASE_PWA="none"
+          BASE_LCP="none"; BASE_TBT="none"; BASE_CLS="none"; BASE_FCP="none"; BASE_SI="none"; BASE_BYTE="none"
+          if [ -f "$BASELINE_FILE" ]; then
+            BASE_SCORE=$(jq -r '.score' "$BASELINE_FILE")
+            BASE_A11Y=$(jq -r '.a11y' "$BASELINE_FILE")
+            BASE_BP=$(jq -r '.bp' "$BASELINE_FILE")
+            BASE_SEO=$(jq -r '.seo' "$BASELINE_FILE")
+            BASE_PWA=$(jq -r '.pwa' "$BASELINE_FILE")
+            BASE_LCP=$(jq -r '.lcp' "$BASELINE_FILE")
+            BASE_TBT=$(jq -r '.tbt' "$BASELINE_FILE")
+            BASE_CLS=$(jq -r '.cls' "$BASELINE_FILE")
+            BASE_FCP=$(jq -r '.fcp' "$BASELINE_FILE")
+            BASE_SI=$(jq -r '.si' "$BASELINE_FILE")
+            BASE_BYTE=$(jq -r '.byte' "$BASELINE_FILE")
+          fi
+          echo "BASE_SCORE=$BASE_SCORE" >> $GITHUB_OUTPUT
+          echo "BASE_A11Y=$BASE_A11Y" >> $GITHUB_OUTPUT
+          echo "BASE_BP=$BASE_BP" >> $GITHUB_OUTPUT
+          echo "BASE_SEO=$BASE_SEO" >> $GITHUB_OUTPUT
+          echo "BASE_PWA=$BASE_PWA" >> $GITHUB_OUTPUT
+          echo "BASE_LCP=$BASE_LCP" >> $GITHUB_OUTPUT
+          echo "BASE_TBT=$BASE_TBT" >> $GITHUB_OUTPUT
+          echo "BASE_CLS=$BASE_CLS" >> $GITHUB_OUTPUT
+          echo "BASE_FCP=$BASE_FCP" >> $GITHUB_OUTPUT
+          echo "BASE_SI=$BASE_SI" >> $GITHUB_OUTPUT
+          echo "BASE_BYTE=$BASE_BYTE" >> $GITHUB_OUTPUT
+
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            mkdir -p .lighthouse-baseline
+            jq -n \
+              --argjson score "$SCORE" --argjson a11y "$A11Y" --argjson bp "$BP" \
+              --argjson seo "$SEO" --argjson pwa "$PWA" \
+              --argjson lcp "$LCP" --argjson tbt "$TBT" --argjson cls "$CLS" \
+              --argjson fcp "$FCP" --argjson si "$SPEEDINDEX" --argjson byte "$BYTE" \
+              '{score:$score, a11y:$a11y, bp:$bp, seo:$seo, pwa:$pwa, lcp:$lcp, tbt:$tbt, cls:$cls, fcp:$fcp, si:$si, byte:$byte}' \
+              > "$BASELINE_FILE"
+          fi
+
+      - name: Save Lighthouse baseline (main)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@v7
+        with:
+          path: .lighthouse-baseline/baseline.json
+          key: lighthouse-baseline-${{ github.run_id }}
 
       - name: Publish Lighthouse summary
         run: |
@@ -114,6 +169,17 @@ jobs:
           BYTE: ${{ steps.lhmetrics.outputs.BYTE }}
           FCP: ${{ steps.lhmetrics.outputs.FCP }}
           SPEEDINDEX: ${{ steps.lhmetrics.outputs.SPEEDINDEX }}
+          BASE_SCORE: ${{ steps.lhmetrics.outputs.BASE_SCORE }}
+          BASE_A11Y: ${{ steps.lhmetrics.outputs.BASE_A11Y }}
+          BASE_BP: ${{ steps.lhmetrics.outputs.BASE_BP }}
+          BASE_SEO: ${{ steps.lhmetrics.outputs.BASE_SEO }}
+          BASE_PWA: ${{ steps.lhmetrics.outputs.BASE_PWA }}
+          BASE_LCP: ${{ steps.lhmetrics.outputs.BASE_LCP }}
+          BASE_TBT: ${{ steps.lhmetrics.outputs.BASE_TBT }}
+          BASE_CLS: ${{ steps.lhmetrics.outputs.BASE_CLS }}
+          BASE_FCP: ${{ steps.lhmetrics.outputs.BASE_FCP }}
+          BASE_SI: ${{ steps.lhmetrics.outputs.BASE_SI }}
+          BASE_BYTE: ${{ steps.lhmetrics.outputs.BASE_BYTE }}
         with:
           script: |-
             const score = Number(process.env.SCORE || 0);
@@ -122,6 +188,22 @@ jobs:
             const seo = process.env.SEO === 'null' ? null : Number(process.env.SEO || 0);
             const pwa = process.env.PWA === 'null' ? null : Number(process.env.PWA || 0);
             const lcp = Number(process.env.LCP || 0);
+            const base = (name) => {
+              const raw = process.env[name];
+              return raw && raw !== 'none' && raw !== 'null' ? Number(raw) : null;
+            };
+            const baseScore = base('BASE_SCORE');
+            const baseA11y = base('BASE_A11Y');
+            const baseBp = base('BASE_BP');
+            const baseSeo = base('BASE_SEO');
+            const basePwa = base('BASE_PWA');
+            const baseLcp = base('BASE_LCP');
+            const baseTbt = base('BASE_TBT');
+            const baseCls = base('BASE_CLS');
+            const baseFcp = base('BASE_FCP');
+            const baseSi = base('BASE_SI');
+            const baseByte = base('BASE_BYTE');
+            const hasBaseline = baseScore !== null;
             const tbt = Number(process.env.TBT || 0);
             const cls = Number(process.env.CLS || 0);
             const byte = Number(process.env.BYTE || 0);
@@ -143,29 +225,52 @@ jobs:
             const catScore = (v) => v === null ? '—' : `${Math.round(v * 100)}/100`;
             const catEmoji = (v) => v === null ? '⚪ not measured' : v >= 0.9 ? '🟢' : v >= 0.5 ? '🟡' : '🔴';
 
+            // Delta vs main baseline: higherIsBetter for scores, lowerIsBetter for metrics
+            const delta = (value, baseValue, higherIsBetter, opts = {}) => {
+              if (!hasBaseline || baseValue === null || value === null) return '';
+              const diff = value - baseValue;
+              if (Math.abs(diff) < (opts.epsilon ?? 0.0005)) return ' (=)';
+              const better = higherIsBetter ? diff > 0 : diff < 0;
+              const arrow = better ? '📈' : '📉';
+              let formatted;
+              if (opts.percent) {
+                formatted = `${diff > 0 ? '+' : '−'}${Math.round(Math.abs(diff) * 100)} pp`;
+              } else if (opts.round) {
+                formatted = `${diff > 0 ? '+' : ''}${Math.round(Math.abs(diff))} ms${diff < 0 ? '' : ''}`;
+                formatted = `${diff > 0 ? '+' : '−'}${Math.round(Math.abs(diff))} ms`;
+              } else if (opts.fixed) {
+                formatted = `${diff > 0 ? '+' : '−'}${Math.abs(diff).toFixed(opts.fixed)}`;
+              } else {
+                formatted = `${diff > 0 ? '+' : '−'}${formatBytes(Math.abs(diff))}`;
+              }
+              return ` ${arrow} ${formatted} vs main`;
+            };
+
             const body = `<!-- lighthouse-report -->
             ## ${scoreEmoji} Lighthouse Report — Performance Score ${Math.round(score * 100)}/100
 
             ### Category Scores
 
-            | Category | Score | Rating |
-            |----------|-------|--------|
-            | Performance | **${catScore(score)}** | ${catEmoji(score)} |
-            | Accessibility | ${catScore(a11y)} | ${catEmoji(a11y)} |
-            | Best Practices | ${catScore(bp)} | ${catEmoji(bp)} |
-            | SEO | ${catScore(seo)} | ${catEmoji(seo)} |
-            | PWA | ${catScore(pwa)} | ${catEmoji(pwa)} |
+            | Category | Score | Rating | Δ vs main |
+            |----------|-------|--------|-----------|
+            | Performance | **${catScore(score)}** | ${catEmoji(score)} |${delta(score, baseScore, true, {percent: true})} |
+            | Accessibility | ${catScore(a11y)} | ${catEmoji(a11y)} |${delta(a11y, baseA11y, true, {percent: true})} |
+            | Best Practices | ${catScore(bp)} | ${catEmoji(bp)} |${delta(bp, baseBp, true, {percent: true})} |
+            | SEO | ${catScore(seo)} | ${catEmoji(seo)} |${delta(seo, baseSeo, true, {percent: true})} |
+            | PWA | ${catScore(pwa)} | ${catEmoji(pwa)} |${delta(pwa, basePwa, true, {percent: true})} |
 
             ### Performance Metrics
 
-            | Metric | Value | Rating |
-            |--------|-------|--------|
-            | LCP — Largest Contentful Paint | ${Math.round(lcp)} ms | ${rating(lcp, 2500, 4000, ' ms')} |
-            | TBT — Total Blocking Time | ${Math.round(tbt)} ms | ${rating(tbt, 300, 600, ' ms')} |
-            | CLS — Cumulative Layout Shift | ${cls.toFixed(3)} | ${rating(cls, 0.1, 0.25)} |
-            | FCP — First Contentful Paint | ${Math.round(fcp)} ms | ${rating(fcp, 1800, 3000, ' ms')} |
-            | Speed Index | ${Math.round(speedIndex)} ms | |
-            | Total Byte Weight | ${formatBytes(byte)} | ${rating(byte, 500000, 1500000)} |
+            | Metric | Value | Rating | Δ vs main |
+            |--------|-------|--------|-----------|
+            | LCP — Largest Contentful Paint | ${Math.round(lcp)} ms | ${rating(lcp, 2500, 4000, ' ms')} |${delta(lcp, baseLcp, false, {round: true})} |
+            | TBT — Total Blocking Time | ${Math.round(tbt)} ms | ${rating(tbt, 300, 600, ' ms')} |${delta(tbt, baseTbt, false, {round: true})} |
+            | CLS — Cumulative Layout Shift | ${cls.toFixed(3)} | ${rating(cls, 0.1, 0.25)} |${delta(cls, baseCls, false, {fixed: 3})} |
+            | FCP — First Contentful Paint | ${Math.round(fcp)} ms | ${rating(fcp, 1800, 3000, ' ms')} |${delta(fcp, baseFcp, false, {round: true})} |
+            | Speed Index | ${Math.round(speedIndex)} ms | |${delta(speedIndex, baseSi, false, {round: true})} |
+            | Total Byte Weight | ${formatBytes(byte)} | ${rating(byte, 500000, 1500000)} |${delta(byte, baseByte, false)} |
+
+            ${hasBaseline ? 'Deltas (Δ) compare against the last measured **main** branch run. 📈 = improved, 📉 = regressed.' : 'ℹ️ No main baseline available yet — deltas will show once the performance workflow has run on main.'}
 
             Core Web Vitals: 🟢 LCP ≤ 2500 ms · TBT ≤ 300 ms · CLS ≤ 0.1
 
