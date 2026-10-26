@@ -67,7 +67,12 @@
       "underConstruction": "Im Bau",
       "planned": "Geplant"
     },
-    "unnamed": "Unbenannt"
+    "unnamed": "Unbenannt",
+    "loadError": {
+      "title": "Projekte konnten nicht geladen werden",
+      "text": "Die Projektdaten sind nicht angekommen. Bitte Verbindung prüfen und erneut versuchen.",
+      "retry": "Erneut versuchen"
+    }
   },
   "about": {
     "title": "\u00dcber diese App",

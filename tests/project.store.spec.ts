@@ -77,4 +77,63 @@ describe("project store", () => {
     await store.load();
     expect(getAll).toHaveBeenCalledTimes(1);
   });
+
+  it("shares one in-flight request between concurrent callers", async () => {
+    let resolveAll!: (value: Project[]) => void;
+    getAll.mockImplementation(
+      () => new Promise<Project[]>((resolve) => (resolveAll = resolve)),
+    );
+    const store = useProjectStore();
+    const first = store.load();
+    const second = store.load();
+    expect(getAll).toHaveBeenCalledTimes(1);
+    expect(store.loading).toBe(true);
+    resolveAll([makeProject(1)]);
+    await Promise.all([first, second]);
+    expect(store.projects).toHaveLength(1);
+    expect(store.loading).toBe(false);
+  });
+
+  it("does not drop a load requested while the map data is loading", async () => {
+    let resolveMap!: (value: Project[]) => void;
+    getMapData.mockImplementation(
+      () => new Promise<Project[]>((resolve) => (resolveMap = resolve)),
+    );
+    getAll.mockResolvedValue([makeProject(1)]);
+    const store = useProjectStore();
+    const mapLoad = store.loadMapData();
+    expect(store.mapLoading).toBe(true);
+    await store.load();
+    expect(getAll).toHaveBeenCalledTimes(1);
+    expect(store.initialized).toBe(true);
+    resolveMap([makeProject(1)]);
+    await mapLoad;
+  });
+
+  it("shares one in-flight map request", async () => {
+    let resolveMap!: (value: Project[]) => void;
+    getMapData.mockImplementation(
+      () => new Promise<Project[]>((resolve) => (resolveMap = resolve)),
+    );
+    const store = useProjectStore();
+    const first = store.loadMapData();
+    const second = store.loadMapData();
+    expect(getMapData).toHaveBeenCalledTimes(1);
+    resolveMap([makeProject(1)]);
+    await Promise.all([first, second]);
+    expect(store.mapProjects).toHaveLength(1);
+  });
+
+  it("recovers on a forced retry after a failure", async () => {
+    getAll.mockRejectedValueOnce(new Error("timeout of 30000ms exceeded"));
+    getAll.mockResolvedValueOnce([makeProject(7)]);
+    const store = useProjectStore();
+    await store.load();
+    expect(store.error?.message).toContain("timeout");
+    expect(store.initialized).toBe(false);
+    await store.load({ force: true });
+    expect(store.error).toBeNull();
+    expect(store.initialized).toBe(true);
+    expect(store.projects).toHaveLength(1);
+  });
 });

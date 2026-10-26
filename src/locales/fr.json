@@ -67,7 +67,12 @@
       "underConstruction": "En construction",
       "planned": "Planifi\u00e9"
     },
-    "unnamed": "Sans nom"
+    "unnamed": "Sans nom",
+    "loadError": {
+      "title": "Impossible de charger les projets",
+      "text": "Les données du projet ne sont pas arrivées. Vérifiez votre connexion et réessayez.",
+      "retry": "Réessayer"
+    }
   },
   "about": {
     "title": "\u00c0 propos de cette app",

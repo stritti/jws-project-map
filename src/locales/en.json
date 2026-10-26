@@ -67,7 +67,12 @@
       "underConstruction": "Under Construction",
       "planned": "Planned"
     },
-    "unnamed": "Unnamed"
+    "unnamed": "Unnamed",
+    "loadError": {
+      "title": "Projects could not be loaded",
+      "text": "The project data did not arrive. Check your connection and try again.",
+      "retry": "Try again"
+    }
   },
   "about": {
     "title": "About this App",

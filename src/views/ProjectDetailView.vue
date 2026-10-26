@@ -160,6 +160,21 @@
           <project-gallery v-if="project.gallery && project.gallery.length > 0" :project="project" :title="t('gallery.title')" />
           </template>
         </div>
+
+        <!-- A stalled or rejected request must not leave the page on a skeleton -->
+        <div v-if="loadFailed" class="py-5 text-center" role="alert">
+          <IBiExclamationCircle class="text-[2.5rem] text-primary" aria-hidden="true" />
+          <h2 class="section-title mt-3 mb-3">{{ t("project.loadError.title") }}</h2>
+          <p class="mb-4">{{ t("project.loadError.text") }}</p>
+          <button
+            type="button"
+            class="btn btn-primary border-0 font-bold shadow-sm"
+            @click="retryLoad"
+          >
+            <IBiArrowClockwise aria-hidden="true" />
+            {{ t("project.loadError.retry") }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -239,8 +254,19 @@ onBeforeMount(() => {
 
 const loading = computed(() => {
   if (project.value) return false;
+  // A failed load must surface as an error with a retry, not as an endless
+  // skeleton (the request may have timed out or been rejected).
+  if (projectStore.error) return false;
   return loadingStore.showLoadingSpinner || projectStore.loading || projectStore.projects.length === 0;
 });
+
+const loadFailed = computed(
+  () => !project.value && projectStore.error !== null,
+);
+
+function retryLoad() {
+  void projectStore.load({ force: true });
+}
 
 const project = computed((): Project | undefined => {
   const id = parseProjectId(route.params.projectId as string);
