@@ -9,6 +9,7 @@ import { computed, onMounted, onUnmounted, watch, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useProjectPageTitle } from "./composables/useProjectPageTitle";
 import { useCanonicalUrl } from "./composables/useCanonicalUrl";
+import { isScrollLocked } from "./composables/useScrollLock";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -38,6 +39,11 @@ const isMainHidden = computed(() => (isSearchVisible.value ? "true" : undefined)
 const shouldRenderSearchModal = computed(() => isSearchVisible.value || searchModalRef.value !== null);
 
 function handleGlobalShortcut(event: KeyboardEvent) {
+  // A fullscreen dialog owns the keyboard while it is open. Opening search
+  // behind it would put focus outside the dialog and fight over the scroll
+  // lock.
+  if (isScrollLocked()) return;
+
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
     const activeElement = document.activeElement;
     const isContentEditable = activeElement instanceof HTMLElement && activeElement.isContentEditable;

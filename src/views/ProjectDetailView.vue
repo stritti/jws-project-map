@@ -36,9 +36,15 @@
         <div
           class="teaser-card"
           :style="{ backgroundImage: `url(${teaserImage})` }"
-          role="img"
-          :aria-label="project.name"
         >
+          <!-- The image role sits on its own element: role="img" makes every
+               descendant presentational, which would hide the action buttons
+               below from assistive technology. -->
+          <div
+            class="teaser-visual"
+            role="img"
+            :aria-label="project.name"
+          ></div>
           <div class="action-bar" role="group" :aria-label="t('a11y.projectActions')">
             <share-button
               class="action-btn share glass-btn"
@@ -430,7 +436,24 @@ const detailMarkerIcon = computed(() => {
 }
 
 .teaser-skeleton {
-  @apply mx-4 mt-1 h-[40vh] min-h-[280px] animate-pulse rounded-round-xl bg-outline-variant/20 md:mx-0;
+  /* Same box as .teaser-card below, so the hero does not resize when the
+     image arrives. */
+  @apply mt-1 w-full animate-pulse bg-outline-variant/20;
+  height: 52vh;
+  min-height: 320px;
+  max-height: 460px;
+
+  @media (min-width: 768px) {
+    height: 60vh;
+    min-height: 400px;
+    max-height: 700px;
+  }
+}
+
+.teaser-visual {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
 .teaser-card {

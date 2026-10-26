@@ -4,8 +4,6 @@
     :aria-label="t('a11y.backToList')"
     class="back-button-inner flex items-center justify-center focus:outline-2 focus:outline-secondary focus:outline-offset-2"
     @click="goBack"
-    @keydown.enter="goBack"
-    @keydown.space.prevent="goBack"
   >
     <IBiArrowLeft aria-hidden="true" />
   </button>

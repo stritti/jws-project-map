@@ -8,20 +8,23 @@
 
 export type Rgb = readonly [number, number, number];
 
-const HEX_PATTERN = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i;
+const HEX_PATTERN = /^#?([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+const RGB_PATTERN = /^rgba?\(([^)]+)\)$/i;
 
-/** Parse `#rgb` or `#rrggbb` (with or without `#`) into 0-255 channels. */
-export function hexToRgb(value: string): Rgb | null {
+function parseHex(value: string): Rgb | null {
   const match = HEX_PATTERN.exec(value.trim());
   if (!match) return null;
 
-  const hex =
-    match[1].length === 3
-      ? match[1]
-          .split("")
-          .map((channel) => channel + channel)
-          .join("")
-      : match[1];
+  let hex = match[1];
+  // Shorthand: #rgb / #rgba — every channel is one repeated digit.
+  if (hex.length === 3 || hex.length === 4) {
+    hex = hex
+      .split("")
+      .map((channel) => channel + channel)
+      .join("");
+  }
+  // #rrggbbaa carries an alpha channel that does not affect contrast.
+  hex = hex.slice(0, 6);
 
   const channels = [0, 2, 4].map((offset) =>
     parseInt(hex.slice(offset, offset + 2), 16),
@@ -30,9 +33,35 @@ export function hexToRgb(value: string): Rgb | null {
   return channels.some((channel) => Number.isNaN(channel)) ? null : channels;
 }
 
+function parseRgbFunction(value: string): Rgb | null {
+  const match = RGB_PATTERN.exec(value.trim());
+  if (!match) return null;
+
+  const parts = match[1].split(/[\s,/]+/).filter(Boolean);
+  if (parts.length < 3) return null;
+
+  const channels = parts.slice(0, 3).map((part) => {
+    const numeric = part.endsWith("%")
+      ? (parseFloat(part) / 100) * 255
+      : parseFloat(part);
+    return Math.round(numeric);
+  });
+
+  if (channels.some((channel) => Number.isNaN(channel))) return null;
+  return channels as unknown as Rgb;
+}
+
+/**
+ * Parse a CSS colour into 0-255 channels. Understands `#rgb`, `#rgba`,
+ * `#rrggbb`, `#rrggbbaa` (hash optional) and `rgb()`/`rgba()`.
+ */
+export function cssColorToRgb(value: string): Rgb | null {
+  return parseHex(value) ?? parseRgbFunction(value);
+}
+
 /** WCAG relative luminance of a colour, or `null` for unparseable input. */
 export function relativeLuminance(value: string): number | null {
-  const rgb = hexToRgb(value);
+  const rgb = cssColorToRgb(value);
   if (!rgb) return null;
 
   const [r, g, b] = rgb.map((channel) => {
@@ -60,6 +89,11 @@ export function contrastRatio(a: string, b: string): number | null {
  * Pick whichever of the two candidate foregrounds is more readable on
  * `background`. Falls back to the light foreground when the background cannot
  * be parsed, which matches the previous behaviour for missing colours.
+ *
+ * Note the guarantee is "the better of the two", not "at least 4.5:1". Around
+ * a luminance of 0.217 both candidates land at ~3.9:1 — no foreground can do
+ * better there without changing the background, which is the category's own
+ * colour and not ours to change.
  */
 export function readableTextColor(
   background: string,

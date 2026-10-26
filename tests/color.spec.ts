@@ -1,24 +1,45 @@
 import { describe, expect, it } from "vitest";
 import {
   contrastRatio,
-  hexToRgb,
+  cssColorToRgb,
   readableTextColor,
   relativeLuminance,
 } from "@/utils/color";
 
-describe("hexToRgb", () => {
+describe("cssColorToRgb", () => {
   it("parses six-digit hex with and without a leading hash", () => {
-    expect(hexToRgb("#3d5e9e")).toEqual([61, 94, 158]);
-    expect(hexToRgb("3d5e9e")).toEqual([61, 94, 158]);
+    expect(cssColorToRgb("#3d5e9e")).toEqual([61, 94, 158]);
+    expect(cssColorToRgb("3d5e9e")).toEqual([61, 94, 158]);
   });
 
   it("expands three-digit hex", () => {
-    expect(hexToRgb("#fff")).toEqual([255, 255, 255]);
+    expect(cssColorToRgb("#fff")).toEqual([255, 255, 255]);
   });
 
   it("rejects unparseable values", () => {
-    expect(hexToRgb("rebeccapurple")).toBeNull();
-    expect(hexToRgb("#12345")).toBeNull();
+    expect(cssColorToRgb("rebeccapurple")).toBeNull();
+    expect(cssColorToRgb("#12345")).toBeNull();
+  });
+
+  it("parses rgb() and rgba()", () => {
+    expect(cssColorToRgb("rgb(255, 106, 0)")).toEqual([255, 106, 0]);
+    expect(cssColorToRgb("rgba(255, 106, 0, 0.5)")).toEqual([255, 106, 0]);
+    expect(cssColorToRgb("rgb(255 106 0 / 50%)")).toEqual([255, 106, 0]);
+  });
+
+  it("parses percentage channels", () => {
+    expect(cssColorToRgb("rgb(100%, 0%, 0%)")).toEqual([255, 0, 0]);
+  });
+
+  it("ignores the alpha channel of four- and eight-digit hex", () => {
+    expect(cssColorToRgb("#ff6a0080")).toEqual([255, 106, 0]);
+    expect(cssColorToRgb("#f008")).toEqual([255, 0, 0]);
+  });
+
+  it("returns null for values it cannot read", () => {
+    expect(cssColorToRgb("rebeccapurple")).toBeNull();
+    expect(cssColorToRgb("rgb(1, 2)")).toBeNull();
+    expect(cssColorToRgb("rgb(a, b, c)")).toBeNull();
   });
 });
 
@@ -26,6 +47,10 @@ describe("relativeLuminance", () => {
   it("matches the WCAG reference values", () => {
     expect(relativeLuminance("#ffffff")).toBeCloseTo(1, 5);
     expect(relativeLuminance("#000000")).toBeCloseTo(0, 5);
+  });
+
+  it("accepts rgb() notation", () => {
+    expect(relativeLuminance("rgb(255, 255, 255)")).toBeCloseTo(1, 5);
   });
 
   it("returns null for unparseable input", () => {
@@ -62,7 +87,19 @@ describe("readableTextColor", () => {
     expect(readableTextColor("#ff6a00")).toBe("#212529");
   });
 
-  it("defaults to the light foreground for unparseable colours", () => {
-    expect(readableTextColor("rgb(255, 255, 255)")).toBe("#ffffff");
+  it("reads the same colour written as rgb()", () => {
+    expect(readableTextColor("rgb(255, 106, 0)")).toBe("#212529");
+    expect(readableTextColor("rgb(61, 94, 158)")).toBe("#ffffff");
+  });
+
+  it("still fails AA-adjacent colours gracefully instead of throwing", () => {
+    // Mid grey: neither candidate reaches 4.5:1 — the better one still wins.
+    expect(contrastRatio("#ffffff", "#808080")).toBeCloseTo(3.95, 1);
+    expect(contrastRatio("#212529", "#808080")).toBeCloseTo(3.9, 1);
+    expect(readableTextColor("#808080")).toBe("#ffffff");
+  });
+
+  it("defaults to the light foreground for unreadable colours", () => {
+    expect(readableTextColor("rebeccapurple")).toBe("#ffffff");
   });
 });

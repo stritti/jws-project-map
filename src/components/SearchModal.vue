@@ -114,7 +114,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, onUnmounted } from "vue";
+import { ref, nextTick, onBeforeUnmount, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import { useSearchStore } from "@/stores/search.store";
@@ -132,6 +132,7 @@ import { useWebFrame } from "@/composables/useWebFrame";
 import MainMenu from "./MainMenu.vue";
 import StateBadge from "@/components/StateBadge.vue";
 import { useFocusRestore } from "@/composables/useAccessibility";
+import { useScrollLock } from "@/composables/useScrollLock";
 
 const projectStore = useProjectStore();
 const { projects } = storeToRefs(projectStore);
@@ -142,11 +143,15 @@ const { navigateToProject } = useWebFrame();
 const isVisible = ref(false);
 const searchBarRef = ref<InstanceType<typeof MainMenu> | null>(null);
 const { setTrigger, restoreFocus } = useFocusRestore();
+// Shares the document lock with the gallery instead of writing
+// `body.overflow` directly: a second writer cleared the gallery's lock when
+// the search closed while the gallery was still open.
+const { lock: lockScroll, unlock: unlockScroll } = useScrollLock();
 
 function show() {
   setTrigger();
   isVisible.value = true;
-  document.body.style.overflow = 'hidden';
+  lockScroll();
   nextTick(() => {
     searchBarRef.value?.focus();
   });
@@ -154,7 +159,7 @@ function show() {
 
 function hide() {
   isVisible.value = false;
-  document.body.style.overflow = '';
+  unlockScroll();
   reset();
   restoreFocus();
   emit("hidden");
@@ -223,6 +228,8 @@ function trapFocus(e: KeyboardEvent) {
 
 onMounted(() => window.addEventListener("keydown", handleKeydown));
 onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
+// Never leave the document locked when the modal is torn down while open.
+onBeforeUnmount(unlockScroll);
 
 defineExpose({ show, hide });
 </script>

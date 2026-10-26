@@ -10,6 +10,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useCategoryStore } from "@/stores/category.store";
+import { readableTextColor } from "@/utils/color";
 
 const props = defineProps<{
   categoryId: number;
@@ -22,10 +23,12 @@ const displayName = computed(() => categoryStore.getDisplayName(props.categoryId
 const categoryStyle = computed(() => {
   const category = categoryStore.getById(props.categoryId);
   if (category && category.color) {
-    // Active state: use category color for background, On Secondary for text
+    // Category colours come from NocoDB and are not curated, so the foreground
+    // is chosen by measured contrast — hard-coded white is unreadable on light
+    // category colours (white on #ff6a00 is 2.9:1).
     return `
       background-color: ${category.color};
-      color: #ffffff;
+      color: ${readableTextColor(category.color)};
       border-radius: var(--shape-round-full);
       padding: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit));
       font-size: var(--font-size-label-sm);
