@@ -134,6 +134,7 @@ function toggleMore() {
   moreOpen.value = !moreOpen.value;
   if (moreOpen.value) {
     nextTick(() => {
+      updatePanelPosition();
       const firstOption = morePanelRef.value?.querySelector<HTMLElement>('.more-option');
       firstOption?.focus();
     });
@@ -161,16 +162,18 @@ function updatePanelPosition() {
   if (!trigger) return;
   const triggerRect = trigger.getBoundingClientRect();
   const viewportHeight = window.innerHeight;
+  const viewportWidth = window.innerWidth;
   const panelHeight = 200;
+  const rightOffset = Math.max(0, viewportWidth - triggerRect.right);
   if (triggerRect.bottom + panelHeight > viewportHeight) {
     panelPosition.value = {
-      right: "0px",
+      right: `${rightOffset}px`,
       bottom: `${viewportHeight - triggerRect.top + 8}px`,
       top: "",
     };
   } else {
     panelPosition.value = {
-      right: "0px",
+      right: `${rightOffset}px`,
       bottom: "",
       top: `${triggerRect.bottom + 8}px`,
     };
