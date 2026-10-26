@@ -30,7 +30,6 @@
     "resultsCount": "{count} projets trouv\u00e9s",
     "resetFilters": "R\u00e9initialiser les filtres",
     "stats": "{total} projets ({ub} en construction, {pl} planifi\u00e9s)",
-    "more": "plus de projets",
     "loadingMap": "Chargement de la carte\u2026",
     "resultsLabel": "R\u00e9sultats de recherche",
     "viewToggleLabel": "Vue : Carte ou Liste",
@@ -60,14 +59,20 @@
       "since": "Depuis",
       "location": "Emplacement",
       "description": "Description",
-      "more": "plus \u2026"
+      "more": "plus \u2026",
+      "website": "Visiter le site du projet",
+      "loading": "Chargement du projet \u2026"
     },
     "state": {
       "finished": "Termin\u00e9",
       "underConstruction": "En construction",
       "planned": "Planifi\u00e9"
     },
-    "unnamed": "Sans nom"
+    "unnamed": "Sans nom",
+    "notFound": {
+      "title": "Projet introuvable",
+      "text": "Ce projet n\u2019existe pas ou n\u2019est plus disponible. Découvrez les autres projets sur la carte."
+    }
   },
   "about": {
     "title": "\u00c0 propos de cette app",
@@ -128,6 +133,8 @@
     "viewProjectDetails": "Voir les d\u00e9tails du projet",
     "backToList": "Retour \u00e0 la liste des projets",
     "shareProject": "Partager ce projet",
+    "projectActions": "Actions du projet",
+    "projectInformation": "Informations du projet",
     "openMenu": "Ouvrir le menu",
     "currentLocation": "Emplacement actuel",
     "navigate": "Naviguer",
