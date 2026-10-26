@@ -49,14 +49,16 @@ export const useProjectStore = defineStore("project", () => {
   );
 
   async function loadMapData(options?: { force?: boolean }): Promise<void> {
-    if (!options?.force && (mapInitialized.value || loading.value)) {
-      return;
-    }
     // Share the in-flight request instead of firing a second one or dropping
     // the caller: whoever asks while a load is running must still be able to
     // await its outcome.
     if (mapLoadPromise) {
       return mapLoadPromise;
+    }
+    // A full load is running: it fills mapProjects as well, so a separate map
+    // request would be redundant. main.ts retries the map tier afterwards.
+    if (!options?.force && (mapInitialized.value || loading.value)) {
+      return;
     }
     mapLoadPromise = runLoadMapData();
     try {
@@ -73,7 +75,12 @@ export const useProjectStore = defineStore("project", () => {
       const result = await projectService.getMapData();
       if (result && Array.isArray(result)) {
         mapProjects.value = result;
-        filteredList.value = result;
+        // The full load carries more fields and respects the active filters.
+        // A map request that resolves after it must not downgrade what is
+        // already on screen.
+        if (!initialized.value) {
+          filteredList.value = result;
+        }
         mapInitialized.value = true;
       }
     } catch (cause) {

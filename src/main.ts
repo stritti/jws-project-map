@@ -46,10 +46,19 @@ async function initializeApp() {
     app.mount("#app");
     useHtmlLang(i18n);
 
-    async function loadWithStartupRetry(load: () => Promise<void>, isInitialized: () => boolean, isLoading: () => boolean) {
+    async function loadWithStartupRetry(
+      load: () => Promise<void>,
+      isInitialized: () => boolean,
+      isLoading: () => boolean,
+      hasError: () => boolean = () => false,
+    ) {
       await load();
 
-      if (isInitialized()) {
+      // A rejected request already owns the UI: the error panel explains what
+      // happened and offers a retry. Loading again behind the user's back would
+      // clear that panel and replace it with another skeleton for the same
+      // timeout, so stop here and let the retry button win.
+      if (isInitialized() || hasError()) {
         return;
       }
 
@@ -58,7 +67,7 @@ async function initializeApp() {
           const stop = watch(
             isLoading,
             (loading: boolean) => {
-              if (!loading || isInitialized()) {
+              if (!loading || isInitialized() || hasError()) {
                 stop();
                 resolve();
               }
@@ -68,7 +77,7 @@ async function initializeApp() {
         });
       }
 
-      if (!isInitialized()) {
+      if (!isInitialized() && !hasError()) {
         await load();
       }
     }
@@ -78,6 +87,7 @@ async function initializeApp() {
         () => projectStore.loadMapData(),
         () => projectStore.mapInitialized,
         () => projectStore.mapLoading || projectStore.loading,
+        () => projectStore.mapError !== null,
       );
     }
 
@@ -86,6 +96,7 @@ async function initializeApp() {
         () => projectStore.load(),
         () => projectStore.initialized,
         () => projectStore.loading,
+        () => projectStore.error !== null,
       );
     }
 
