@@ -411,8 +411,9 @@ onBeforeUnmount(unlockScroll)
 /* Carousel */
 .gallery-carousel {
   @apply w-full h-full;
-  /* Horizontal gestures belong to the swipe handler, vertical stays native. */
-  touch-action: pan-y;
+  /* Horizontal gestures belong to the swipe handler; vertical panning and
+     pinch zoom stay native so photos can still be magnified. */
+  touch-action: pan-y pinch-zoom;
 }
 
 .gallery-slide {

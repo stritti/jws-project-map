@@ -27,7 +27,7 @@
           </template>
           <div v-else class="image-fallback">
             <IBiImage class="fallback-icon" />
-            <span class="fallback-text">{{ t('gallery.imageNotAvailable') || 'Bild nicht verfügbar' }}</span>
+            <span class="fallback-text">{{ t('a11y.imageNotAvailable') }}</span>
           </div>
         </template>
         <div

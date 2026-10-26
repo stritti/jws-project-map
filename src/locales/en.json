@@ -30,6 +30,7 @@
     "resultsCount": "{count} projects found",
     "resetFilters": "Reset filters",
     "stats": "{total} projects ({ub} under construction, {pl} planned)",
+    "more": "more projects",
     "loadingMap": "Loading map\u2026",
     "resultsLabel": "Search results",
     "viewToggleLabel": "View: Map or List",
