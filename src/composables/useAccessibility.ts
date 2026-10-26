@@ -48,7 +48,9 @@ export function useFocusRestore() {
       document.body.contains(triggerElement.value) &&
       typeof triggerElement.value.focus === "function"
     ) {
-      triggerElement.value.focus()
+      // Never scroll the page: the trigger usually sits where the user left it
+      // and a plain focus() would jump it into view.
+      triggerElement.value.focus({ preventScroll: true })
     }
     triggerElement.value = null
   }

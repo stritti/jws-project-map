@@ -1,16 +1,16 @@
 <template>
-  <div class="project-page" role="main" aria-label="Project details">
+  <div class="project-page">
     <!-- Sticky header bar: back button + project title -->
     <header class="page-header-sticky" :class="{ 'header-scrolled': headerScrolled }">
-      <div class="container mx-auto px-4">
-        <div v-if="loading" class="flex items-center py-2" role="status" aria-live="polite">
-          <div class="w-11 h-11 rounded-full animate-pulse bg-outline-variant/20" aria-hidden="true"></div>
+      <div class="container mx-auto px-4 md:px-6">
+        <div v-if="loading" class="flex items-center py-2" aria-hidden="true">
+          <div class="w-11 h-11 rounded-full animate-pulse bg-outline-variant/20"></div>
           <div class="ml-4 flex-1">
-            <h2 class="w-1/2 h-8 animate-pulse bg-outline-variant/20 rounded" aria-hidden="true"></h2>
+            <div class="w-1/2 h-8 animate-pulse bg-outline-variant/20 rounded"></div>
           </div>
         </div>
         <div v-if="project" class="page-header flex flex-wrap items-center gap-3 py-2">
-          <back-button v-if="!isIFrame" class="back-btn shadow-sm hidden md:flex" />
+          <back-button v-if="!isIFrame" class="back-btn shadow-sm" />
           <h1 class="title mb-0 flex-grow-1 font-bold" id="project-title">
             {{ project.name }}
           </h1>
@@ -21,26 +21,25 @@
     <!-- Floating back button for mobile -->
     <button
       v-if="!isIFrame && project"
-      class="floating-back-btn md:hidden"
+      type="button"
+      class="floating-back-btn"
       :aria-label="t('a11y.backToList')"
       :title="t('a11y.backToList')"
       @click="goBack"
-      @keydown.enter="goBack"
-      @keydown.space.prevent="goBack"
     >
       <IBiArrowLeft class="floating-back-icon" aria-hidden="true" />
     </button>
 
-    <div class="container mx-auto px-0 md:px-3">
-      <div v-if="loading" class="w-full h-[40vh] rounded-round-xl mb-4 animate-pulse bg-outline-variant/20" role="status" aria-live="polite" aria-busy="true"></div>
+    <div class="container mx-auto px-0 md:px-6">
+      <div v-if="loading" class="teaser-skeleton" aria-hidden="true"></div>
       <div v-if="project" class="teaser-wrapper">
         <div
           class="teaser-card"
           :style="{ backgroundImage: `url(${teaserImage})` }"
           role="img"
-          :aria-label="`${project.name} ${t('project.detail.location')}`"
+          :aria-label="project.name"
         >
-          <div class="action-bar flex gap-2" role="group" :aria-label="t('a11y.shareProject')">
+          <div class="action-bar" role="group" :aria-label="t('a11y.projectActions')">
             <share-button
               class="action-btn share glass-btn"
               :title="project.name"
@@ -58,123 +57,162 @@
       </div>
     </div>
 
-    <div class="container mx-auto mt-5 px-4">
-      <div class="project-details">
-        <div v-if="loading" class="info-grid mb-5" role="status" aria-live="polite">
-          <div v-for="i in 3" :key="i" class="h-20 rounded-round-large animate-pulse bg-outline-variant/20" aria-hidden="true"></div>
+    <div class="container mx-auto px-4 md:px-6">
+      <!-- Single live region for the whole skeleton: one status, not four -->
+      <div
+        v-if="loading"
+        class="loading-stack"
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+      >
+        <span class="sr-only">{{ t("project.detail.loading") }}</span>
+        <div class="skeleton-row" aria-hidden="true">
+          <div v-for="i in 3" :key="i" class="skeleton-cell"></div>
         </div>
-        <div v-if="loading" class="space-y-2" role="status" aria-live="polite">
-          <div class="w-4/5 h-6 animate-pulse bg-outline-variant/20 rounded mb-2" aria-hidden="true"></div>
-          <div class="w-2/3 h-6 animate-pulse bg-outline-variant/20 rounded mb-2" aria-hidden="true"></div>
-          <div class="w-3/4 h-6 animate-pulse bg-outline-variant/20 rounded" aria-hidden="true"></div>
+        <div class="mt-8 space-y-3" aria-hidden="true">
+          <div class="h-4 w-4/5 animate-pulse rounded bg-outline-variant/20"></div>
+          <div class="h-4 w-2/3 animate-pulse rounded bg-outline-variant/20"></div>
+          <div class="h-4 w-3/4 animate-pulse rounded bg-outline-variant/20"></div>
         </div>
+      </div>
 
-        <div v-if="project">
-          <template v-if="project">
-          <!-- Category tiles -->
-          <div v-if="project.category?.length" class="category-tiles mb-4" role="list" :aria-label="t('a11y.categoriesFilter')">
-            <div
-              v-for="category in project.category"
-              :key="category.id"
-              class="category-tile"
-              :style="categoryTileStyle(category.id)"
-              role="listitem"
-            >
-              {{ categoryName(category.id) }}
-            </div>
-          </div>
+      <!-- A rejected or timed-out request gets a message and a retry instead
+           of an endless skeleton, and it wins over "not found": the project
+           may well exist, we just could not hear back. -->
+      <div v-else-if="loadFailed" class="not-found not-found--error" role="alert">
+        <IBiExclamationCircle class="not-found__icon" aria-hidden="true" />
+        <h1 class="not-found__title">{{ t("project.loadError.title") }}</h1>
+        <p class="not-found__text">{{ t("project.loadError.text") }}</p>
+        <button type="button" class="btn btn-primary" @click="retryLoad">
+          <IBiArrowClockwise aria-hidden="true" />
+          {{ t("project.loadError.retry") }}
+        </button>
+      </div>
 
-          <div class="info-grid mb-5" role="region" aria-label="Project information">
-            <div class="info-card" v-if="project.country">
-              <div class="info-icon" aria-hidden="true">
-                <IBiGlobe2 />
-              </div>
-              <div class="info-content">
-                <span class="info-label">{{ t("project.detail.country") }}</span>
-                <strong class="info-value"><country-label :country-id="project.country.id" /></strong>
-              </div>
-            </div>
-            
-            <div class="info-card">
-              <div class="info-icon" aria-hidden="true">
-                <IBiCheck2Circle />
-              </div>
-              <div class="info-content">
-                <span class="info-label">{{ t("project.detail.state") }}</span>
-                <StateBadge :state="project.state" />
-              </div>
-            </div>
+      <div v-else-if="!project" class="not-found">
+        <IBiExclamationCircle class="not-found__icon" aria-hidden="true" />
+        <h1 class="not-found__title">{{ t("project.notFound.title") }}</h1>
+        <p class="not-found__text">{{ t("project.notFound.text") }}</p>
+        <button type="button" class="btn btn-primary" @click="goToList">
+          <IBiArrowLeft aria-hidden="true" />
+          {{ t("a11y.backToList") }}
+        </button>
+      </div>
 
-            <div class="info-card" v-if="project.since">
-              <div class="info-icon">
-                <IBiCalendar3 />
-              </div>
-              <div class="info-content">
-                <span class="info-label">{{ t("project.detail.since") }}</span>
-                <strong class="info-value">{{ formattedSince }}</strong>
-              </div>
-            </div>
-          </div>
-
-          <!-- Mini location map -->
-          <div v-if="project.latitude && project.longitude" class="location-section mb-5">
-            <h2 class="section-title mb-4">{{ t("project.detail.location") }}</h2>
-            <div class="mini-map rounded-round-large overflow-hidden shadow-sm">
-              <l-map
-                :zoom="13"
-                :center="[project.latitude, project.longitude]"
-                :options="mapOptions"
-                :use-global-leaflet="true"
-                style="height: 300px; width: 100%"
-              >
-                <l-tile-layer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  layer-type="base"
-                  name="OpenStreetMap"
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                />
-                <l-marker
-                  :lat-lng="[project.latitude, project.longitude]"
-                  :icon="detailMarkerIcon"
-                />
-              </l-map>
-            </div>
-          </div>
-
-          <div v-if="project.notes" class="project-details__description mb-5">
-            <h2 class="section-title mb-4">{{ t("project.detail.description") }}</h2>
-            <div class="notes-content">
-              <markdown-text
-                 class="project-details__notes"
-                 :text="project.notes"
-              />
-            </div>
-          </div>
-
-          <div v-if="project.link" class="mb-5">
-            <a :href="project.link" class="btn btn-primary shadow-sm font-bold border-0" target="_blank" rel="noopener noreferrer">
-              {{ t("project.detail.more") }}
-            </a>
-          </div>
-
-          <project-gallery v-if="project.gallery && project.gallery.length > 0" :project="project" :title="t('gallery.title')" />
-          </template>
-        </div>
-
-        <!-- A stalled or rejected request must not leave the page on a skeleton -->
-        <div v-if="loadFailed" class="py-5 text-center" role="alert">
-          <IBiExclamationCircle class="text-[2.5rem] text-primary" aria-hidden="true" />
-          <h2 class="section-title mt-3 mb-3">{{ t("project.loadError.title") }}</h2>
-          <p class="mb-4">{{ t("project.loadError.text") }}</p>
-          <button
-            type="button"
-            class="btn btn-primary border-0 font-bold shadow-sm"
-            @click="retryLoad"
+      <div v-else class="project-details">
+        <!-- Category tiles -->
+        <div
+          v-if="project.category?.length"
+          class="category-tiles mb-6"
+          role="list"
+          :aria-label="t('a11y.categoriesFilter')"
+        >
+          <div
+            v-for="category in project.category"
+            :key="category.id"
+            class="category-tile"
+            :style="categoryTileStyle(category.id)"
+            role="listitem"
           >
-            <IBiArrowClockwise aria-hidden="true" />
-            {{ t("project.loadError.retry") }}
-          </button>
+            {{ categoryName(category.id) }}
+          </div>
         </div>
+
+        <!-- Metadata: one grouped panel, hairline dividers instead of three cards -->
+        <dl class="meta-panel mb-8" :aria-label="t('a11y.projectInformation')">
+          <div v-if="project.country" class="meta-cell">
+            <dt class="meta-label">
+              <IBiGlobe2 class="meta-icon" aria-hidden="true" />
+              {{ t("project.detail.country") }}
+            </dt>
+            <dd class="meta-value">
+              <country-label :country-id="project.country.id" />
+            </dd>
+          </div>
+
+          <div class="meta-cell">
+            <dt class="meta-label">
+              <IBiCheck2Circle class="meta-icon" aria-hidden="true" />
+              {{ t("project.detail.state") }}
+            </dt>
+            <dd class="meta-value">
+              <StateBadge :state="project.state" />
+            </dd>
+          </div>
+
+          <div v-if="project.since" class="meta-cell">
+            <dt class="meta-label">
+              <IBiCalendar3 class="meta-icon" aria-hidden="true" />
+              {{ t("project.detail.since") }}
+            </dt>
+            <dd class="meta-value">{{ formattedSince }}</dd>
+          </div>
+        </dl>
+
+        <div v-if="project.link" class="mb-8">
+          <a
+            :href="project.link"
+            class="btn btn-primary website-cta"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <IBiBoxArrowUpRight aria-hidden="true" />
+            {{ t("project.detail.website") }}
+          </a>
+        </div>
+
+        <section
+          v-if="project.notes"
+          class="mb-8"
+          aria-labelledby="project-description-title"
+        >
+          <h2 id="project-description-title" class="section-title">
+            {{ t("project.detail.description") }}
+          </h2>
+          <div class="notes-content">
+            <markdown-text :text="project.notes" />
+          </div>
+        </section>
+
+        <!-- Mini location map -->
+        <section
+          v-if="project.latitude && project.longitude"
+          class="mb-8"
+          aria-labelledby="project-location-title"
+        >
+          <h2 id="project-location-title" class="section-title">
+            {{ t("project.detail.location") }}
+          </h2>
+          <div class="mini-map rounded-round-large overflow-hidden shadow-sm">
+            <l-map
+              :zoom="13"
+              :center="[project.latitude, project.longitude]"
+              :options="mapOptions"
+              :use-global-leaflet="true"
+              style="height: 300px; width: 100%"
+            >
+              <l-tile-layer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                layer-type="base"
+                name="OpenStreetMap"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
+              <l-marker
+                :lat-lng="[project.latitude, project.longitude]"
+                :icon="detailMarkerIcon"
+              />
+            </l-map>
+          </div>
+        </section>
+
+        <template v-if="project">
+          <project-gallery
+            v-if="project.gallery && project.gallery.length > 0"
+            :project="project"
+            :title="t('gallery.title')"
+          />
+        </template>
       </div>
     </div>
   </div>
@@ -187,7 +225,6 @@ import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useCategoryStore } from "@/stores/category.store";
 import { useCountryStore } from "@/stores/country.store";
 import CountryLabel from "@/components/CountryLabel.vue";
-import CategoryBadge from "@/components/CategoryBadge.vue";
 import { useWebFrame } from "@/composables/useWebFrame";
 import { useLoadingStore } from "@/stores/loading.store";
 import BackButton from "@/components/actions/BackButton.vue";
@@ -199,7 +236,9 @@ import type { Project } from "@/interfaces/Project";
 import StateBadge from "@/components/StateBadge.vue";
 import { useGeoTags } from "@/composables/useGeoTags";
 import { useStructuredData } from "@/composables/useStructuredData";
+import { isScrollLocked } from "@/composables/useScrollLock";
 import { parseProjectId } from "@/utils/slug";
+import { readableTextColor } from "@/utils/color";
 import L from "leaflet";
 import { LMap, LTileLayer, LMarker } from "@vue-leaflet/vue-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -213,6 +252,9 @@ const SCROLL_THRESHOLD = 20;
 const headerScrolled = ref(false);
 
 function onScroll() {
+  // A fullscreen overlay freezes the document, which reports scrollY 0. Reacting
+  // to it would expand this header and reflow the page under the overlay.
+  if (isScrollLocked()) return;
   headerScrolled.value = window.scrollY > SCROLL_THRESHOLD;
 }
 
@@ -247,22 +289,31 @@ function goBack() {
   router.go(-1);
 }
 
+// Deep links to an unknown project must not leave an empty page behind.
+function goToList() {
+  router.push({ name: "ProjectList" });
+}
+
 // Load data before mount to start fetching earlier
 onBeforeMount(() => {
   Promise.all([projectStore.load(), categoryStore.load(), countryStore.load()]);
 });
 
+const loadFailed = computed(
+  () => !project.value && projectStore.error !== null,
+);
+
 const loading = computed(() => {
   if (project.value) return false;
   // A failed load must surface as an error with a retry, not as an endless
   // skeleton (the request may have timed out or been rejected).
-  if (projectStore.error) return false;
-  return loadingStore.showLoadingSpinner || projectStore.loading || projectStore.projects.length === 0;
+  if (loadFailed.value) return false;
+  // `projects.length === 0` is not a loading signal: the store marks itself
+  // `initialized` even for an empty or unexpected payload, so that term stayed
+  // true forever and the page sat on its skeleton with no way out.
+  if (projectStore.initialized) return false;
+  return loadingStore.showLoadingSpinner || projectStore.loading;
 });
-
-const loadFailed = computed(
-  () => !project.value && projectStore.error !== null,
-);
 
 function retryLoad() {
   void projectStore.load({ force: true });
@@ -304,10 +355,19 @@ function categoryName(id: number): string {
   return categoryStore.getDisplayName(id);
 }
 
+// Category colors come from NocoDB, so the foreground is picked by measured
+// contrast: white wins on the brand blue, dark text wins on mid-tone colors
+// such as #ff6a00 where white only reaches 2.9:1.
+const DARK_TEXT = "#212529"; // --jws-text-main
+const LIGHT_TEXT = "#ffffff";
+
 function categoryTileStyle(id: number): Record<string, string> {
   const cat = categoryStore.getById(id);
   if (cat?.color) {
-    return { backgroundColor: cat.color, color: "#fff" };
+    return {
+      backgroundColor: cat.color,
+      color: readableTextColor(cat.color, LIGHT_TEXT, DARK_TEXT),
+    };
   }
   return { backgroundColor: "var(--jws-bg-subtle)", color: "var(--jws-text-main)" };
 }
@@ -315,13 +375,7 @@ function categoryTileStyle(id: number): Record<string, string> {
 const detailMarkerIcon = computed(() => {
   return L.divIcon({
     className: "detail-marker-icon",
-    html: `<div style="
-      width: 28px; height: 28px;
-      background: #3d5e9e;
-      border: 3px solid white;
-      border-radius: 50%;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    "></div>`,
+    html: '<div class="detail-marker-dot"></div>',
     iconSize: [28, 28],
     iconAnchor: [14, 14],
   }) as unknown as L.Icon;
@@ -368,10 +422,17 @@ const detailMarkerIcon = computed(() => {
 }
 
 :deep(.back-btn) {
+  display: none;
+
   .back-button-inner {
     width: 2.5rem;
     height: 2.5rem;
     font-size: 1.25rem;
+  }
+
+  /* Desktop keeps the in-header back button; mobile gets the floating one */
+  @media (min-width: 768px) {
+    display: flex;
   }
 }
 
@@ -382,6 +443,10 @@ const detailMarkerIcon = computed(() => {
     @apply bg-white/90 shadow-[0_4px_20px_rgba(0,0,0,0.12)] text-secondary;
   }
 
+  @media (min-width: 768px) {
+    display: none;
+  }
+
   .floating-back-icon {
     @apply text-[1.35rem] leading-none;
   }
@@ -390,18 +455,17 @@ const detailMarkerIcon = computed(() => {
 .teaser-wrapper {
   padding: 0;
   margin-top: 0.25rem;
+}
 
-  @media (min-width: 768px) {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
+.teaser-skeleton {
+  @apply mx-4 mt-1 h-[40vh] min-h-[280px] animate-pulse rounded-round-xl bg-outline-variant/20 md:mx-0;
 }
 
 .teaser-card {
   position: relative;
-  height: 60vh;
-  min-height: 400px;
-  max-height: 700px;
+  height: 52vh;
+  min-height: 320px;
+  max-height: 460px;
   width: 100%;
   border-radius: 0;
   background-position: center;
@@ -413,6 +477,9 @@ const detailMarkerIcon = computed(() => {
   animation: revealImage 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 
   @media (min-width: 768px) {
+    height: 60vh;
+    min-height: 400px;
+    max-height: 700px;
     border-radius: 1rem;
   }
 
@@ -426,7 +493,7 @@ const detailMarkerIcon = computed(() => {
 }
 
 .action-bar {
-  @apply absolute bottom-[2rem] right-[2rem] z-10 flex gap-[1rem];
+  @apply absolute bottom-8 right-4 z-10 flex flex-wrap gap-3 md:right-8;
 }
 
 :deep(.glass-btn) {
@@ -451,86 +518,103 @@ const detailMarkerIcon = computed(() => {
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
 }
 
-.info-grid {
-  @apply grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-[2rem];
+/* Metadata: one panel whose 1px gaps reveal the divider tone beneath */
+.meta-panel {
+  @apply grid gap-px overflow-hidden rounded-round-large border border-outline-variant/60 bg-outline-variant/60;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  margin: 0;
 }
 
-.info-card {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  padding: 1.5rem;
-  background-color: white;
-  border-radius: 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition-property: all;
-  transition-duration: 300ms;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+.meta-cell {
+  @apply flex flex-col gap-[0.375rem] bg-white px-6 py-5;
 }
 
-.info-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-  border-color: #6a8fd4;
+.meta-label {
+  @apply flex items-center gap-2 text-label-md font-semibold uppercase tracking-[0.08em] text-onSurface-variant;
 }
 
-.info-icon {
-  @apply text-[1.5rem] bg-surface w-[56px] h-[56px] flex items-center justify-center rounded-round-xl text-primary flex-shrink-0;
+.meta-icon {
+  @apply text-[1rem] text-primary;
 }
 
-.info-content {
-  @apply flex flex-col;
+.meta-value {
+  @apply m-0 text-body-lg font-semibold text-onSurface;
 }
 
-.info-label {
-  @apply text-[0.75rem] font-bold uppercase tracking-[0.1em] text-onSurface-variant mb-[0.25rem];
+.meta-value :deep(.country-label) {
+  @apply text-body-lg font-semibold;
 }
 
-.info-value {
-  @apply text-[1.2rem] font-bold text-onSurface flex items-center;
+.website-cta {
+  @apply inline-flex items-center gap-2 font-semibold;
 }
 
 .section-title {
-  @apply text-[2rem] font-extrabold text-onSurface mb-[2rem] flex items-center gap-[0.75rem];
+  @apply flex items-center gap-3 text-[clamp(1.375rem,1.15rem+0.8vw,1.625rem)] font-extrabold leading-tight text-onSurface;
+  margin-bottom: 1rem;
 
   &::before {
     content: '';
+    flex: none;
     width: 6px;
-    height: 1.5em;
-    background-color: #3d5e9e;
-    border-radius: 3px;
+    height: 1.35em;
+    @apply rounded-[3px] bg-primary;
   }
 }
 
-:deep(.notes-content) {
-  font-size: 1.5rem;
-  line-height: 1.8;
-  color: #191c1d;
-  opacity: 0.9;
+/* Reading column: documented body step, comfortable measure, no dead 1.5rem wrapper rule */
+.notes-content {
+  @apply max-w-[68ch] text-body-lg text-onSurface;
+  line-height: 1.7;
 }
 
-:deep(.notes-content p) {
-  margin-bottom: 2rem;
+.notes-content :deep(.markdown-text) {
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+.notes-content :deep(p:last-child) {
+  margin-bottom: 0;
+}
+
+.loading-stack {
+  margin-top: 1.5rem;
+}
+
+.skeleton-row {
+  @apply grid gap-4;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+.skeleton-cell {
+  @apply h-[5.5rem] animate-pulse rounded-round-large bg-outline-variant/20;
+}
+
+.not-found {
+  @apply mx-auto mt-16 flex max-w-[34rem] flex-col items-center gap-4 text-center;
+}
+
+.not-found__icon {
+  @apply text-[2.5rem] text-onSurface-variant;
+}
+
+.not-found__title {
+  @apply m-0 text-headline-md font-bold tracking-tight text-onSurface;
+}
+
+.not-found__text {
+  @apply m-0 text-body-lg text-onSurface-variant;
 }
 
 .category-tiles {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .category-tile {
-  padding-left: 1.25rem;
-  padding-right: 1.25rem;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  @apply rounded-round-full px-3 py-1.5 text-label-md font-semibold uppercase tracking-[0.03em];
 }
 
 .mini-map {
@@ -541,6 +625,24 @@ const detailMarkerIcon = computed(() => {
 .mini-map :deep(.leaflet-control-attribution) {
   font-size: 9px;
 }
+
+/* One authored moment: the hero reveal. Everything else stays still. */
+@media (prefers-reduced-motion: reduce) {
+  .teaser-card {
+    animation: none;
+  }
+
+  .floating-back-btn,
+  .page-header-sticky,
+  .page-header .title,
+  :deep(.glass-btn) {
+    transition: none;
+  }
+
+  :deep(.glass-btn:hover) {
+    transform: none;
+  }
+}
 </style>
 
 /* Unscoped: Leaflet renders its DOM outside Vue's scope */
@@ -549,6 +651,10 @@ const detailMarkerIcon = computed(() => {
 
 .detail-marker-icon {
   @apply bg-transparent border-none;
+}
+
+.detail-marker-dot {
+  @apply h-7 w-7 rounded-full border-[3px] border-white bg-primary shadow-[0_2px_8px_rgba(0,0,0,0.3)];
 }
 
 /* Custom animations */
@@ -563,9 +669,5 @@ const detailMarkerIcon = computed(() => {
     opacity: 1;
     filter: blur(0);
   }
-}
-
-.animate-reveal-image {
-  animation: revealImage 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 </style>

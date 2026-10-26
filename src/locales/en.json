@@ -60,7 +60,9 @@
       "since": "Since",
       "location": "Location",
       "description": "Description",
-      "more": "more \u2026"
+      "more": "more \u2026",
+      "website": "Visit project website",
+      "loading": "Loading project \u2026"
     },
     "state": {
       "finished": "Finished",
@@ -69,9 +71,13 @@
     },
     "unnamed": "Unnamed",
     "loadError": {
-      "title": "Projects could not be loaded",
+      "title": "This project could not be loaded",
       "text": "The project data did not arrive. Check your connection and try again.",
       "retry": "Try again"
+    },
+    "notFound": {
+      "title": "Project not found",
+      "text": "This project does not exist or is no longer available. Take a look at the other projects on the map."
     }
   },
   "about": {
@@ -133,6 +139,8 @@
     "viewProjectDetails": "View project details",
     "backToList": "Back to project list",
     "shareProject": "Share this project",
+    "projectActions": "Project actions",
+    "projectInformation": "Project information",
     "openMenu": "Open menu",
     "currentLocation": "Current location",
     "navigate": "Navigate",

@@ -20,6 +20,7 @@ declare module 'vue' {
     IBiArrowClockwise: typeof import('~icons/bi/arrow-clockwise')['default']
     IBiArrowLeft: typeof import('~icons/bi/arrow-left')['default']
     IBiArrowRepeat: typeof import('~icons/bi/arrow-repeat')['default']
+    IBiBoxArrowUpRight: typeof import('~icons/bi/box-arrow-up-right')['default']
     IBiCalendar3: typeof import('~icons/bi/calendar3')['default']
     IBiCheck2Circle: typeof import('~icons/bi/check2-circle')['default']
     IBiChevronRight: typeof import('~icons/bi/chevron-right')['default']

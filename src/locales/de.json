@@ -60,7 +60,9 @@
       "since": "Seit",
       "location": "Standort",
       "description": "Beschreibung",
-      "more": "mehr \u2026"
+      "more": "mehr \u2026",
+      "website": "Projekt-Website besuchen",
+      "loading": "Projekt wird geladen \u2026"
     },
     "state": {
       "finished": "Abgeschlossen",
@@ -69,9 +71,13 @@
     },
     "unnamed": "Unbenannt",
     "loadError": {
-      "title": "Projekte konnten nicht geladen werden",
+      "title": "Dieses Projekt konnte nicht geladen werden",
       "text": "Die Projektdaten sind nicht angekommen. Bitte Verbindung prüfen und erneut versuchen.",
       "retry": "Erneut versuchen"
+    },
+    "notFound": {
+      "title": "Projekt nicht gefunden",
+      "text": "Dieses Projekt existiert nicht oder ist nicht mehr verfügbar. Entdecken Sie die anderen Projekte auf der Karte."
     }
   },
   "about": {
@@ -133,6 +139,8 @@
     "viewProjectDetails": "Projektdetails anzeigen",
     "backToList": "Zur\u00fcck zur Projektliste",
     "shareProject": "Projekt teilen",
+    "projectActions": "Projekt-Aktionen",
+    "projectInformation": "Projektinformationen",
     "openMenu": "Men\u00fc \u00f6ffnen",
     "currentLocation": "Aktueller Standort",
     "navigate": "Navigieren",
