@@ -224,6 +224,7 @@ import StateBadge from "@/components/StateBadge.vue";
 import { useGeoTags } from "@/composables/useGeoTags";
 import { useStructuredData } from "@/composables/useStructuredData";
 import { parseProjectId } from "@/utils/slug";
+import { readableTextColor } from "@/utils/color";
 import L from "leaflet";
 import { LMap, LTileLayer, LMarker } from "@vue-leaflet/vue-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -322,31 +323,18 @@ function categoryName(id: number): string {
   return categoryStore.getDisplayName(id);
 }
 
-// Category colors come from NocoDB, so pick the text color that stays legible on them.
-function prefersDarkText(hexColor: string): boolean {
-  const hex = hexColor.replace("#", "").trim();
-  const full =
-    hex.length === 3
-      ? hex
-          .split("")
-          .map((c) => c + c)
-          .join("")
-      : hex;
-  if (full.length !== 6) return false;
-
-  const channels = [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16));
-  if (channels.some((c) => Number.isNaN(c))) return false;
-
-  const [r, g, b] = channels;
-  return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.6;
-}
+// Category colors come from NocoDB, so the foreground is picked by measured
+// contrast: white wins on the brand blue, dark text wins on mid-tone colors
+// such as #ff6a00 where white only reaches 2.9:1.
+const DARK_TEXT = "#212529"; // --jws-text-main
+const LIGHT_TEXT = "#ffffff";
 
 function categoryTileStyle(id: number): Record<string, string> {
   const cat = categoryStore.getById(id);
   if (cat?.color) {
     return {
       backgroundColor: cat.color,
-      color: prefersDarkText(cat.color) ? "var(--jws-text-main)" : "white",
+      color: readableTextColor(cat.color, LIGHT_TEXT, DARK_TEXT),
     };
   }
   return { backgroundColor: "var(--jws-bg-subtle)", color: "var(--jws-text-main)" };
