@@ -25,8 +25,6 @@
       :aria-label="t('a11y.backToList')"
       :title="t('a11y.backToList')"
       @click="goBack"
-      @keydown.enter="goBack"
-      @keydown.space.prevent="goBack"
     >
       <IBiArrowLeft class="floating-back-icon" aria-hidden="true" />
     </button>
@@ -167,13 +165,14 @@
 
 <script setup lang="ts">
 import { computed, onBeforeMount, onMounted, onUnmounted, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useCategoryStore } from "@/stores/category.store";
 import { useCountryStore } from "@/stores/country.store";
 import CountryLabel from "@/components/CountryLabel.vue";
 import CategoryBadge from "@/components/CategoryBadge.vue";
 import { useWebFrame } from "@/composables/useWebFrame";
+import { useBackNavigation } from "@/composables/useBackNavigation";
 import { useLoadingStore } from "@/stores/loading.store";
 import BackButton from "@/components/actions/BackButton.vue";
 import ShareButton from "@/components/actions/ShareButton.vue";
@@ -191,7 +190,6 @@ import "leaflet/dist/leaflet.css";
 
 const { isIFrame } = useWebFrame();
 const { t, locale } = useI18n();
-const router = useRouter();
 
 // Collapse the sticky header when scrolled past the heading
 const SCROLL_THRESHOLD = 20;
@@ -228,9 +226,7 @@ const projectStore = useProjectStore();
 const categoryStore = useCategoryStore();
 const countryStore = useCountryStore();
 
-function goBack() {
-  router.go(-1);
-}
+const { goBack } = useBackNavigation();
 
 // Load data before mount to start fetching earlier
 onBeforeMount(() => {
