@@ -7,7 +7,7 @@ import { useSearchStore } from "@/stores/search.store";
 import { storeToRefs } from "pinia";
 import { computed, onMounted, onUnmounted, watch, ref } from "vue";
 import { useRouter } from "vue-router";
-import { usePageTitle } from "./composables/useAccessibility";
+import { useProjectPageTitle } from "./composables/useProjectPageTitle";
 import { useCanonicalUrl } from "./composables/useCanonicalUrl";
 import { useI18n } from "vue-i18n";
 
@@ -26,7 +26,7 @@ const SearchModal = defineAsyncComponent(() => import("@/components/SearchModal.
 const searchModalRef = ref<{ show: () => void; hide: () => void } | null>(null);
 
 // Update page title on route changes
-usePageTitle(router);
+useProjectPageTitle(router);
 
 // Canonical URL to prevent duplicate content
 useCanonicalUrl(router);
