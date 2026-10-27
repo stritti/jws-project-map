@@ -70,6 +70,11 @@
       "planned": "Geplant"
     },
     "unnamed": "Unbenannt",
+    "loadError": {
+      "title": "Dieses Projekt konnte nicht geladen werden",
+      "text": "Die Projektdaten sind nicht angekommen. Bitte Verbindung prüfen und erneut versuchen.",
+      "retry": "Erneut versuchen"
+    },
     "notFound": {
       "title": "Projekt nicht gefunden",
       "text": "Dieses Projekt existiert nicht oder ist nicht mehr verfügbar. Entdecken Sie die anderen Projekte auf der Karte."

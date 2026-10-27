@@ -70,6 +70,11 @@
       "planned": "Planned"
     },
     "unnamed": "Unnamed",
+    "loadError": {
+      "title": "This project could not be loaded",
+      "text": "The project data did not arrive. Check your connection and try again.",
+      "retry": "Try again"
+    },
     "notFound": {
       "title": "Project not found",
       "text": "This project does not exist or is no longer available. Take a look at the other projects on the map."

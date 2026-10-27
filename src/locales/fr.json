@@ -70,6 +70,11 @@
       "planned": "Planifi\u00e9"
     },
     "unnamed": "Sans nom",
+    "loadError": {
+      "title": "Impossible de charger ce projet",
+      "text": "Les données du projet ne sont pas arrivées. Vérifiez votre connexion et réessayez.",
+      "retry": "Réessayer"
+    },
     "notFound": {
       "title": "Projet introuvable",
       "text": "Ce projet n\u2019existe pas ou n\u2019est plus disponible. Découvrez les autres projets sur la carte."

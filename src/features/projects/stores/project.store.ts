@@ -16,6 +16,11 @@ export const useProjectStore = defineStore("project", () => {
   const error = ref<Error | null>(null);
   const mapError = ref<Error | null>(null);
 
+  // In-flight requests, so concurrent callers await the same fetch instead of
+  // being dropped or triggering a duplicate.
+  let loadPromise: Promise<void> | null = null;
+  let mapLoadPromise: Promise<void> | null = null;
+
   const getAll = computed(() => projects.value);
   const getMapAll = computed(() => mapProjects.value);
   const getById = (id: number): Project | undefined =>
@@ -44,9 +49,24 @@ export const useProjectStore = defineStore("project", () => {
   );
 
   async function loadMapData(options?: { force?: boolean }): Promise<void> {
-    if (!options?.force && (mapInitialized.value || loading.value || mapLoading.value)) {
+    if (!options?.force && (mapInitialized.value || loading.value)) {
       return;
     }
+    // Share the in-flight request instead of firing a second one or dropping
+    // the caller: whoever asks while a load is running must still be able to
+    // await its outcome.
+    if (mapLoadPromise) {
+      return mapLoadPromise;
+    }
+    mapLoadPromise = runLoadMapData();
+    try {
+      await mapLoadPromise;
+    } finally {
+      mapLoadPromise = null;
+    }
+  }
+
+  async function runLoadMapData(): Promise<void> {
     mapLoading.value = true;
     mapError.value = null;
     try {
@@ -68,9 +88,18 @@ export const useProjectStore = defineStore("project", () => {
     if (!options?.force && initialized.value && projects.value.length > 0) {
       return;
     }
-    if (loading.value || mapLoading.value) {
-      return;
+    if (loadPromise) {
+      return loadPromise;
     }
+    loadPromise = runLoad();
+    try {
+      await loadPromise;
+    } finally {
+      loadPromise = null;
+    }
+  }
+
+  async function runLoad(): Promise<void> {
     loading.value = true;
     const loadingStore = useLoadingStore();
     loadingStore.updateLoading(true);

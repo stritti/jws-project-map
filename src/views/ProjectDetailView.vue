@@ -77,6 +77,19 @@
         </div>
       </div>
 
+      <!-- A rejected or timed-out request gets a message and a retry instead
+           of an endless skeleton, and it wins over "not found": the project
+           may well exist, we just could not hear back. -->
+      <div v-else-if="loadFailed" class="not-found not-found--error" role="alert">
+        <IBiExclamationCircle class="not-found__icon" aria-hidden="true" />
+        <h1 class="not-found__title">{{ t("project.loadError.title") }}</h1>
+        <p class="not-found__text">{{ t("project.loadError.text") }}</p>
+        <button type="button" class="btn btn-primary" @click="retryLoad">
+          <IBiArrowClockwise aria-hidden="true" />
+          {{ t("project.loadError.retry") }}
+        </button>
+      </div>
+
       <div v-else-if="!project" class="not-found">
         <IBiExclamationCircle class="not-found__icon" aria-hidden="true" />
         <h1 class="not-found__title">{{ t("project.notFound.title") }}</h1>
@@ -286,10 +299,25 @@ onBeforeMount(() => {
   Promise.all([projectStore.load(), categoryStore.load(), countryStore.load()]);
 });
 
+const loadFailed = computed(
+  () => !project.value && projectStore.error !== null,
+);
+
 const loading = computed(() => {
   if (project.value) return false;
-  return loadingStore.showLoadingSpinner || projectStore.loading || projectStore.projects.length === 0;
+  // A failed load must surface as an error with a retry, not as an endless
+  // skeleton (the request may have timed out or been rejected).
+  if (loadFailed.value) return false;
+  // `projects.length === 0` is not a loading signal: the store marks itself
+  // `initialized` even for an empty or unexpected payload, so that term stayed
+  // true forever and the page sat on its skeleton with no way out.
+  if (projectStore.initialized) return false;
+  return loadingStore.showLoadingSpinner || projectStore.loading;
 });
+
+function retryLoad() {
+  void projectStore.load({ force: true });
+}
 
 const project = computed((): Project | undefined => {
   const id = parseProjectId(route.params.projectId as string);
