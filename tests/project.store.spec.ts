@@ -136,4 +136,23 @@ describe("project store", () => {
     expect(store.initialized).toBe(true);
     expect(store.projects).toHaveLength(1);
   });
+
+  it("keeps the full project list when the map request resolves last", async () => {
+    let resolveMap!: (value: Project[]) => void;
+    getMapData.mockImplementation(
+      () => new Promise<Project[]>((resolve) => (resolveMap = resolve)),
+    );
+    getAll.mockResolvedValue([makeProject(1), makeProject(2)]);
+    const store = useProjectStore();
+
+    const mapLoad = store.loadMapData();
+    await store.load();
+    // The map payload arrives after the full load has already landed.
+    resolveMap([makeProject(9)]);
+    await mapLoad;
+
+    expect(store.mapProjects).toEqual([makeProject(9)]);
+    expect(store.projects).toEqual([makeProject(1), makeProject(2)]);
+    expect(store.filteredList).toEqual([makeProject(1), makeProject(2)]);
+  });
 });
