@@ -12,6 +12,32 @@
 
 * **a11y:** comprehensive accessibility improvements with axe-core checks ([#892](https://github.com/stritti/jws-project-map/issues/892)) ([15f5010](https://github.com/stritti/jws-project-map/commit/15f50109aba42d896c697818e453b8750ebedfb6))
 
+## [1.4.0](https://github.com/stritti/jws-project-map/compare/v1.3.1...v1.4.0) (2026-10-27)
+
+
+### Features
+
+* **ci:** improve Lighthouse report readability in PR comments ([#1042](https://github.com/stritti/jws-project-map/issues/1042)) ([fce3a34](https://github.com/stritti/jws-project-map/commit/fce3a34f30fbd9e52c855608b32d0d0b3525f4f5))
+* **ci:** show all Lighthouse category scores in PR report ([#1048](https://github.com/stritti/jws-project-map/issues/1048)) ([61fb97a](https://github.com/stritti/jws-project-map/commit/61fb97abe08d4408ca3bba8a38ae3ac44a174c93))
+* implement map-based project creation, i18n unnamed fallback, named magic values ([#1039](https://github.com/stritti/jws-project-map/issues/1039)) ([55f58ed](https://github.com/stritti/jws-project-map/commit/55f58ed403601054631055be27aa8cc4e7f3d22d))
+* **ui:** refine project detail page ([#1051](https://github.com/stritti/jws-project-map/issues/1051)) ([f75feb7](https://github.com/stritti/jws-project-map/commit/f75feb772bf5e95f3d6c85efdc6ff54e5dee806a))
+
+
+### Bug Fixes
+
+* **detail:** land the review follow-ups on the refined detail page ([#1056](https://github.com/stritti/jws-project-map/issues/1056)) ([641cfd4](https://github.com/stritti/jws-project-map/commit/641cfd4d799305fdb1406f2595b6971b049c9c47))
+* **nav:** fall back to the map when there is no in-app history ([#1053](https://github.com/stritti/jws-project-map/issues/1053)) ([fcefba7](https://github.com/stritti/jws-project-map/commit/fcefba7e207086cd0afeb03bfac9549d4b2d644d))
+* **projects:** recover from a stalled project request ([#1052](https://github.com/stritti/jws-project-map/issues/1052)) ([45e235a](https://github.com/stritti/jws-project-map/commit/45e235a4ab834b1be9f7307ada91f27a2ec81d46))
+* **projects:** register router in ProjectDetailView and run CI on all pull requests ([#1059](https://github.com/stritti/jws-project-map/issues/1059)) ([39f5807](https://github.com/stritti/jws-project-map/commit/39f580715883d8713994898102872d2f99c89aa0))
+* **reliability:** propagate NocoDB errors and add store error state ([#1033](https://github.com/stritti/jws-project-map/issues/1033)) ([be4d89b](https://github.com/stritti/jws-project-map/commit/be4d89b17bf38e5084ab9f21de7c51e80a165209))
+* **ui:** position MoreMenu popup directly below the "..." action button ([#1049](https://github.com/stritti/jws-project-map/issues/1049)) ([78f9717](https://github.com/stritti/jws-project-map/commit/78f9717e273728415c9194a4572d2f927b65ec2e))
+
+
+### Performance Improvements
+
+* **a11y:** split usePageTitle out of useAccessibility and enforce Lighthouse budgets ([#1046](https://github.com/stritti/jws-project-map/issues/1046)) ([03edce3](https://github.com/stritti/jws-project-map/commit/03edce36e3547885581138d8578842592dcd3f80))
+* **build:** strip unused 4x3 flag variants from bundle and PWA precache ([#1045](https://github.com/stritti/jws-project-map/issues/1045)) ([55eec6e](https://github.com/stritti/jws-project-map/commit/55eec6ea032ddede9aee1a5da22b410b11b19b9b))
+
 ## [1.2.3](https://github.com/stritti/jws-project-map/compare/v1.2.2...v1.2.3) (2026-10-07)
 
 
