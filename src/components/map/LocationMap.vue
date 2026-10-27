@@ -22,65 +22,64 @@
       ></button>
     </div>
 
-    <client-only>
-      <l-map
-        v-if="isLeafletLoaded"
-        ref="map"
-        v-model:zoom="zoom"
-        class="map"
-        crs="EPSG:4326"
-        :min-zoom="4"
-        :max-zoom="17"
-        :center="center"
-        :use-global-leaflet="true"
-        :options="mapOptions"
-        @click="addMarker"
-        @ready="mapLoaded"
+    <l-map
+      v-if="isLeafletLoaded"
+      ref="map"
+      v-model:zoom="zoom"
+      class="map"
+      crs="EPSG:4326"
+      :min-zoom="4"
+      :max-zoom="17"
+      :center="center"
+      :use-global-leaflet="false"
+      :options="mapOptions"
+      @click="addMarker"
+      @ready="mapLoaded"
+    >
+      <l-tile-layer
+        v-if="baseLayer === 'satellite'"
+        url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+        layer-type="base"
+        name="Satellite"
+        attribution="Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
+      ></l-tile-layer>
+
+      <l-tile-layer
+        v-if="baseLayer === 'osm'"
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        layer-type="base"
+        name="OpenStreetMap"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      ></l-tile-layer>
+
+      <component
+        :is="LayerComponent"
+        v-for="layer in markerLayers"
+        :key="layer.id"
+        layer-type="overlay"
+        :name="layer.label"
       >
-        <l-tile-layer
-          v-if="baseLayer === 'satellite'"
-          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-          layer-type="base"
-          name="Satellite"
-          attribution="Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
-        ></l-tile-layer>
-
-        <l-tile-layer
-          v-if="baseLayer === 'osm'"
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          layer-type="base"
-          name="OpenStreetMap"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        ></l-tile-layer>
-
-        <component :is="LayerComponent"
-          v-for="layer in markerLayers"
-          :key="layer.id"
-          layer-type="overlay"
-          :name="layer.label"
+        <l-marker
+          v-for="loc in layer.projects"
+          :id="loc.id"
+          :key="loc.id"
+          :lat-lng="[loc.latitude, loc.longitude]"
+          :title="markerTitle(loc)"
+          @click="onMarkerClick(loc)"
         >
-          <l-marker
-            v-for="loc in layer.projects"
-            :id="loc.id"
-            :key="loc.id"
-            :lat-lng="[loc.latitude, loc.longitude]"
-            :title="markerTitle(loc)"
-            @click="onMarkerClick(loc)"
-          >
-            <l-icon
-              :icon-url="getPin(loc)"
-              :class-name="pinClass(loc)"
-              :icon-size="[28, 39]"
-              :icon-anchor="[14, 39]"
-            ></l-icon>
-            <l-tooltip v-if="zoom > TOOLTIP_MIN_ZOOM">
-              <span>{{ loc.name }}</span>
-              <span v-if="loc.state !== PROJECT_STATES.FINISHED"> ({{ loc.state }})</span>
-            </l-tooltip>
-          </l-marker>
-        </component>
-      </l-map>
-    </client-only>
+          <l-icon
+            :icon-url="getPin(loc)"
+            :class-name="pinClass(loc)"
+            :icon-size="[28, 39]"
+            :icon-anchor="[14, 39]"
+          ></l-icon>
+          <l-tooltip v-if="zoom > TOOLTIP_MIN_ZOOM">
+            <span>{{ loc.name }}</span>
+            <span v-if="loc.state !== PROJECT_STATES.FINISHED"> ({{ loc.state }})</span>
+          </l-tooltip>
+        </l-marker>
+      </component>
+    </l-map>
 
     <project-details
       :project="selectedLocation"
@@ -136,22 +135,22 @@ onMounted(async () => {
     markerClusterDefaultCSS.href = 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css';
     document.head.appendChild(markerClusterDefaultCSS);
 
-    // Load Leaflet and vue-leaflet dynamically
-    const [leafletModule, vueLeafletModule, markerClusterModule] = await Promise.all([
-      import('leaflet'),
-      import('@vue-leaflet/vue-leaflet'),
-      import('vue-leaflet-markercluster'),
+    // Load Leaflet first and expose it globally before loading markercluster
+    const leafletModule = await import("leaflet");
+    L = leafletModule;
+
+    const leafletGlobal = globalThis as typeof globalThis & {
+      L?: typeof import("leaflet");
+    };
+    leafletGlobal.L = L;
+
+    const [vueLeafletModule, markerClusterModule] = await Promise.all([
+      import("@vue-leaflet/vue-leaflet"),
+      import("vue-leaflet-markercluster"),
     ]);
 
-    L = leafletModule.default;
     ({ LMap, LLayerGroup, LTileLayer, LMarker, LIcon, LTooltip } = vueLeafletModule);
     ({ LMarkerClusterGroup } = markerClusterModule);
-
-    // Set global L for compatibility
-    const leafletGlobal = globalThis as typeof globalThis & { L?: typeof L };
-    if (!leafletGlobal.L) {
-      leafletGlobal.L = L;
-    }
 
     isLeafletLoaded.value = true;
   } catch (error) {
@@ -498,26 +497,25 @@ function getHeadingOffset(): number {
 }
 
 const updateBounds = () => {
-  if (!locations.value.length || !map.value?.leafletObject) return;
+  if (typeof L === "undefined" || !locations.value.length || !map.value?.leafletObject) return;
 
   try {
-    let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
-    let validPoints = 0;
+    const points: [number, number][] = locations.value
+      .filter((loc) =>
+        typeof loc.latitude === "number" &&
+        typeof loc.longitude === "number" &&
+        !isNaN(loc.latitude) &&
+        !isNaN(loc.longitude)
+      )
+      .map((loc) => [loc.latitude, loc.longitude] as [number, number]);
 
-    for (const loc of locations.value) {
-      const lat = loc.latitude;
-      const lng = loc.longitude;
-      if (typeof lat === "number" && typeof lng === "number" && !isNaN(lat) && !isNaN(lng)) {
-        minLat = Math.min(minLat, lat);
-        maxLat = Math.max(maxLat, lat);
-        minLng = Math.min(minLng, lng);
-        maxLng = Math.max(maxLng, lng);
-        validPoints++;
+    if (points.length > 1) {
+      const calculatedBounds = L.latLngBounds(points);
+      if (!calculatedBounds.isValid()) {
+        console.warn("Calculated bounds are invalid, skipping fitBounds");
+        return;
       }
-    }
 
-    if (validPoints > 0) {
-      const calculatedBounds = L.latLngBounds([minLat, minLng], [maxLat, maxLng]);
       const topPad = getHeadingOffset();
       map.value.leafletObject.fitBounds(calculatedBounds, {
         paddingTopLeft: [50, topPad],
