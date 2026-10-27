@@ -22,23 +22,19 @@
     </button>
 
     <button
+      v-if="hasMultipleItems"
       class="gallery-nav gallery-nav-prev"
-      :class="{ 'gallery-nav-hidden': props.galleryItems.length <= 1 }"
       :aria-label="t('a11y.previousImage')"
       @click="goPrev"
-      @keydown.enter="goPrev"
-      @keydown.space.prevent="goPrev"
     >
       <span class="gallery-nav-icon gallery-nav-icon-prev" aria-hidden="true" />
     </button>
 
     <button
+      v-if="hasMultipleItems"
       class="gallery-nav gallery-nav-next"
-      :class="{ 'gallery-nav-hidden': props.galleryItems.length <= 1 }"
       :aria-label="t('a11y.nextImage')"
       @click="goNext"
-      @keydown.enter="goNext"
-      @keydown.space.prevent="goNext"
     >
       <span class="gallery-nav-icon gallery-nav-icon-next" aria-hidden="true" />
     </button>
@@ -123,6 +119,15 @@ const closeBtn = ref<HTMLElement | null>(null)
 const currentItem = computed(() => {
   return props.galleryItems[currentIndex.value] || props.galleryItems[0]
 })
+
+/**
+ * A single-image gallery has no previous or next, so its nav buttons are not
+ * rendered at all. Hiding them with `display: none` left them in the focus
+ * trap's list of focusable elements, where the trap grabbed an invisible button
+ * as "last" and let Tab escape behind the dialog — after which Escape no longer
+ * closed it either.
+ */
+const hasMultipleItems = computed(() => props.galleryItems.length > 1)
 
 function goPrev() {
   if (props.galleryItems.length <= 1) return
@@ -371,10 +376,6 @@ onBeforeUnmount(unlockScroll)
 
 .gallery-nav-next {
   @apply right-0;
-}
-
-.gallery-nav-hidden {
-  @apply hidden;
 }
 
 .gallery-nav:hover,
