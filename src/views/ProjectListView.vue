@@ -115,6 +115,7 @@ import type { ProjectState } from "@/composables/useProjectSearch";
 import FilterPanel from "@/components/FilterPanel.vue";
 import MainMenu from "../components/MainMenu.vue";
 import { projectRoute } from "@/utils/slug";
+import { isScrollLocked } from "@/composables/useScrollLock";
 
 const { t } = useI18n();
 const loadingStore = useLoadingStore();
@@ -158,6 +159,9 @@ const SCROLL_THRESHOLD = 20;
 const headerScrolled = ref(false);
 
 function onScroll() {
+  // A fullscreen overlay freezes the document, which reports scrollY 0. Reacting
+  // to it would expand this header and reflow the page under the overlay.
+  if (isScrollLocked()) return;
   headerScrolled.value = window.scrollY > SCROLL_THRESHOLD;
 }
 
