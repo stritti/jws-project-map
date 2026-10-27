@@ -220,7 +220,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeMount, onMounted, onUnmounted, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useCategoryStore } from "@/stores/category.store";
 import { useCountryStore } from "@/stores/country.store";
@@ -280,6 +280,7 @@ const props = defineProps({
 });
 
 const route = useRoute();
+const router = useRouter();
 const loadingStore = useLoadingStore();
 const projectStore = useProjectStore();
 const categoryStore = useCategoryStore();
