@@ -220,7 +220,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeMount, onMounted, onUnmounted, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useCategoryStore } from "@/stores/category.store";
 import { useCountryStore } from "@/stores/country.store";
@@ -280,6 +280,7 @@ const props = defineProps({
 });
 
 const route = useRoute();
+const router = useRouter();
 const loadingStore = useLoadingStore();
 const projectStore = useProjectStore();
 const categoryStore = useCategoryStore();
@@ -435,7 +436,7 @@ const detailMarkerIcon = computed(() => {
 }
 
 .floating-back-btn {
-  @apply fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-[calc(1rem+env(safe-area-inset-left,0px))] z-[999] w-11 h-11 rounded-full border border-black/10 bg-white/90 backdrop-blur-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] cursor-pointer flex items-center justify-center text-onSurface transition-[color,box-shadow] duration-200 ease-in-out;
+  @apply fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-[calc(1rem+env(safe-area-inset-left,0px))] z-[999] w-11 h-11 rounded-full border border-black/10 bg-white/90 backdrop-blur-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] cursor-pointer flex items-center justify-content text-onSurface transition-[color,box-shadow] duration-200 ease-in-out;
 
   &:hover {
     @apply bg-white/90 shadow-[0_4px_20px_rgba(0,0,0,0.12)] text-secondary;
