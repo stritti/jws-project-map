@@ -41,5 +41,7 @@ jobs:
         run: bun run build
 
       - name: Run tests
-        if: github.event.inputs.run_tests == 'true'
-        run: bun test
+        # `github.event.inputs` is empty outside workflow_dispatch, so this
+        # runs on every push and pull request and can only be skipped by hand.
+        if: github.event.inputs.run_tests != 'false'
+        run: bun run test

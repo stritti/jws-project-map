@@ -13,6 +13,8 @@
     "dev": "vite",
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "update:browserlist": "bunx browserslist@latest --update-db",
     "generate-pwa-assets": "pwa-assets-generator --preset minimal-2023 public/img/cropped-joerg-wolff-stiftung.png",
     "optimize-images": "bun run scripts/optimize-images.mjs",
