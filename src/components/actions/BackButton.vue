@@ -1,7 +1,7 @@
 <template>
   <button
-    :title="t('a11y.backToList')"
-    :aria-label="t('a11y.backToList')"
+    :title="t('a11y.back')"
+    :aria-label="t('a11y.back')"
     class="back-button-inner flex items-center justify-center focus:outline-2 focus:outline-secondary focus:outline-offset-2"
     @click="goBack"
   >

@@ -4,9 +4,10 @@ const HOME_ROUTE = "/";
 
 /**
  * Vue Router stores the previous in-app entry in `history.state.back`. It is
- * `null` for the first app entry — a direct deep link, a bookmark or a hard
- * reload — where `window.history.length > 1` only reflects earlier browser
- * entries outside the app.
+ * `null` for the first entry of a navigation the app started itself — a direct
+ * deep link, a bookmark or a URL typed into the address bar — where
+ * `window.history.length > 1` only reflects earlier browser entries outside
+ * the app. A reload keeps the state of the entry it reloads.
  */
 export function hasAppHistory(): boolean {
   const state = window.history.state as { back?: unknown } | null;
@@ -15,8 +16,9 @@ export function hasAppHistory(): boolean {
 
 /**
  * Back navigation that never leaves the app: without an in-app predecessor it
- * navigates to `fallback` (the home page with the map) instead of going back
- * to whatever page the browser had before.
+ * replaces the current entry with `fallback` (the home page with the map).
+ * `replace` rather than `push`, so the page the user wanted to leave does not
+ * become the target of the system back gesture one tap later.
  */
 export function useBackNavigation(fallback: string = HOME_ROUTE) {
   const router = useRouter();
@@ -25,9 +27,9 @@ export function useBackNavigation(fallback: string = HOME_ROUTE) {
     if (hasAppHistory()) {
       router.back();
     } else {
-      void router.push(fallback);
+      void router.replace(fallback);
     }
   }
 
-  return { goBack, hasAppHistory };
+  return { goBack };
 }
