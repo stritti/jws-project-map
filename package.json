@@ -36,7 +36,7 @@
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
     "leaflet.path.drag": "^0.0.6",
-    "marked": "^18.1.1",
+    "marked": "^18.1.2",
     "pinia": "^4.1.0",
     "pinia-plugin-persistedstate": "^4.7.1",
     "vue": "^3.5.43",
