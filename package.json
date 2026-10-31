@@ -95,7 +95,7 @@
     "workbox-build": "^7.1.0"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "^4.64.5"
+    "@rollup/rollup-linux-x64-gnu": "^4.65.1"
   },
   "config": {
     "commitizen": {
