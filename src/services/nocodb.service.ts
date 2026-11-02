@@ -39,16 +39,19 @@ export class NocoDBService {
     }
 
     return httpClient
-      .get(`/api/v3/data/${this.baseId}/${this.tableId}/records`, {
-        params: {
-          where: params?.where,
-          page,
-          pageSize,
-          viewId: params?.viewId,
-          sort: params?.sort,
-          fields: params?.fields?.join(","),
+      .get<{ list?: unknown[]; records?: unknown[] }>(
+        `/api/v3/data/${this.baseId}/${this.tableId}/records`,
+        {
+          params: {
+            where: params?.where,
+            page,
+            pageSize,
+            viewId: params?.viewId,
+            sort: params?.sort,
+            fields: params?.fields?.join(","),
+          },
         },
-      })
+      )
       .then((response) => {
         const data = response.data;
 

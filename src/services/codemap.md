@@ -9,7 +9,7 @@ Three services:
 - **category.service.ts** — Extends NocoDBService for the Categories table. Fetches locale-aware category list.
 - **country.service.ts** — Extends NocoDBService for the Countries table. Fetches locale-aware country list.
 
-All use the shared Axios `httpClient` instance.
+All use the shared native-fetch `httpClient` instance.
 
 ## Flow
 ```
@@ -17,5 +17,5 @@ Store → Service (this dir) → httpClient (api/) → NocoDB REST API
 ```
 
 ## Integration
-- Depends on: `src/services/api/http.client.ts` (Axios instance)
+- Depends on: `src/services/api/http.client.ts` (native fetch wrapper)
 - Consumed by: `project.store.ts` (via project.repository.ts), `category.store.ts`, `country.store.ts`
