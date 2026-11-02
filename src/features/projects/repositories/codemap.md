@@ -18,11 +18,11 @@ Pagination uses NocoDB's offset/limit model (offset must be a multiple of limit)
 1. Store calls a fetch method on the repository instance
 2. Repository builds NocoDB v3 REST URL: `/api/v3/data/{baseId}/{tableId}/records`
 3. Applies query params: `fields`, `sort`, `limit`, `offset`, `viewId`
-4. Axios HTTP client executes GET with `xc-token` header
+4. Native fetch HTTP client executes GET with `xc-token` header
 5. Returns `RawProjectRecord[]` (v2-style wrapper: `{ id, fields: { ... } }`)
 6. Response flows back to store → service layer for transformation
 
 ## Integration
 - Extends: `NocoDBService` (generic CRUD in `src/services/nocodb.service.ts`)
-- Uses: `httpClient` (Axios instance from `src/services/api/http.client.ts`)
+- Uses: `httpClient` (native fetch wrapper from `src/services/api/http.client.ts`)
 - Consumed by: `project.store.ts`
