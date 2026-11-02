@@ -46,6 +46,17 @@ describe("http client", () => {
     expect(new Headers(init.headers).get("xc-token")).toBeDefined();
   });
 
+  it("normalizes trailing slashes in the API base URL", async () => {
+    vi.stubEnv("VITE_APP_NOCODB_URL", "https://nocodb.example/");
+    vi.stubEnv("VITE_APP_NOCODB_TOKEN", "token-123");
+    fetchMock.mockResolvedValue(new Response("{}", { status: 200 }));
+    await httpClient.get("/api/v3/data/base/table/records");
+    const [url] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe(
+      "https://nocodb.example/api/v3/data/base/table/records",
+    );
+  });
+
   it("sends the request body as JSON", async () => {
     fetchMock.mockResolvedValue(new Response("{}", { status: 200 }));
     await httpClient.post("/records", [{ Id: 1 }]);

@@ -5,7 +5,6 @@
  */
 export const REQUEST_TIMEOUT_MS = 30_000;
 
-const baseURL = import.meta.env.VITE_APP_NOCODB_URL;
 const token = import.meta.env.VITE_APP_NOCODB_TOKEN;
 
 type QueryValue =
@@ -47,6 +46,10 @@ function appendQueryValue(
 }
 
 function buildUrl(url: string, params?: QueryParams): string {
+  const baseURL = (import.meta.env.VITE_APP_NOCODB_URL ?? "").replace(
+    /\/+$/,
+    "",
+  );
   const requestUrl = baseURL
     ? new URL(`${baseURL}${url}`)
     : new URL(url, globalThis.location?.origin);
