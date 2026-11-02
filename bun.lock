@@ -9,7 +9,7 @@
         "@types/leaflet.markercluster": "^1.5.6",
         "@vue-leaflet/vue-leaflet": "^0.10.1",
         "axios": "^1.20.0",
-        "baseline-browser-mapping": "^2.11.33",
+        "baseline-browser-mapping": "^2.11.34",
         "caniuse-lite": "^1.0.30001814",
         "dompurify": "^3.4.17",
         "flag-icons": "^7.5.0",
@@ -64,7 +64,7 @@
         "sharp": "^0.35.5",
         "tailwindcss": "^4.3.3",
         "typescript": "~6.0.3",
-        "typescript-eslint": "^8.72.1",
+        "typescript-eslint": "^8.71.0",
         "unplugin-icons": "^24.0.0",
         "unplugin-vue-components": "^32.1.0",
         "vite": "^8.3.4",
@@ -945,7 +945,7 @@
 
     "base64-js": ["base64-js@1.5.1", "", {}, "sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA=="],
 
-    "baseline-browser-mapping": ["baseline-browser-mapping@2.11.33", "", { "bin": { "baseline-browser-mapping": "dist/cli.cjs" } }, "sha512-yiVKDX+qCMRKBE084lXvq9EcwFUhKZ2nU8TK1EQQuOgPNR/lmbGxXOeDdlGUqC2Zz11Cs9rk1d/8NfgBmlkt0w=="],
+    "baseline-browser-mapping": ["baseline-browser-mapping@2.11.34", "", { "bin": { "baseline-browser-mapping": "dist/cli.cjs" } }, "sha512-Aqr8mA1kIvyJ3UY5YAY7ib8LSo1DmDMbMnVqGPtsKW1LxaFQFwn9Eb3yvq2fUKJsRvaXjnAV7R5osqETapzNiA=="],
 
     "basic-ftp": ["basic-ftp@5.3.1", "", {}, "sha512-bopVNp6ugyA150DDuZfPFdt1KZ5a94ZDiwX4hMgZDzF+GttD80lEy8kj98kbyhLXnPvhtIo93mdnLIjpCAeeOw=="],
 
