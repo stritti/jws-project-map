@@ -75,7 +75,7 @@
             ></l-icon>
             <l-tooltip v-if="zoom > TOOLTIP_MIN_ZOOM">
               <span>{{ loc.name }}</span>
-              <span v-if="loc.state !== PROJECT_STATES.FINISHED"> ({{ loc.state }})</span>
+              <span v-if="!isFinished(loc)"> ({{ loc.state }})</span>
             </l-tooltip>
           </l-marker>
         </component>
@@ -475,6 +475,9 @@ const canHover =
 
 const markerTitle = (location: Project): string | undefined =>
   canHover ? location.name : undefined;
+
+const isFinished = (location: Project): boolean =>
+  location.state === PROJECT_STATES.FINISHED;
 
 const pinClass = (current: Project): string => {
   const isSelected = selectedLocation.value?.id === current.id;
