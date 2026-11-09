@@ -16,7 +16,7 @@ const LocationMap = defineAsyncComponent(() => import("../components/map/Locatio
 
 const { t } = useI18n();
 const router = useRouter();
-const { navigateToProject } = useWebFrame();
+const { navigateToProject, isIFrame } = useWebFrame();
 const projectStore = useProjectStore();
 
 const { mapProjects } = storeToRefs(projectStore);
@@ -52,6 +52,7 @@ function clearAllFilters() {
   clearSharedFilters();
 }
 
+const isSearchActive = ref(false);
 // Set as soon as a result is tapped (pointerdown fires before the input blur),
 // so the overlay must not snap back to the bottom while the route changes.
 const isNavigating = ref(false);
@@ -64,10 +65,14 @@ function handleProjectClick(project: { id: number; name: string }) {
     document.activeElement.blur();
   }
   navigateToProject(project);
+  // In an embedded iframe the detail page opens in a new tab and this view
+  // stays mounted — release the guard so keyboard dismissal can collapse the
+  // overlay again instead of leaving it stuck in the top-aligned layout.
+  if (isIFrame.value) {
+    isNavigating.value = false;
+    isSearchActive.value = false;
+  }
 }
-
-// ── Keep search bar visible on mobile when the keyboard opens ──────────
-const isSearchActive = ref(false);
 
 function focusMap() {
   const mapEl = document.querySelector(".project-map .map") as HTMLElement;
