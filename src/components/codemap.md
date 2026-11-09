@@ -13,12 +13,12 @@ Root-level shared components:
 - **MainMenu.vue** — Bottom-fixed navigation bar with icons. Uses `useRouter()`, highlights active route, includes language switcher. `role="navigation"` with `aria-label="Main navigation"`.
 - **SiteFooter.vue** — Footer with copyright, about link. `role="contentinfo"`.
 - **MainMenu.vue** — Input + view toggle (map/list) for the map page. Handles keyboard visibility on mobile via composable.
-- **SearchModal.vue** — Full-text search dialog triggered by Ctrl+K / Cmd+K. Uses `b-modal` with keyboard navigation, results as `role="listbox"`.
+- **SearchModal.vue** — Full-text search dialog triggered by Ctrl+K / Cmd+K. Uses `b-modal` with keyboard navigation, results as `role="listbox"` rendered with `project/ProjectSearchResult.vue` (compact pin-preview card layout).
 - **FilterPanel.vue** — Slide-out filter drawer with `b-form-checkbox-group` for state, category, country filters. `role="complementary"`.
 - **FloatingMeta.vue** — Bottom-sheet expandable panel for metadata and language switching.
 - **AboutModal.vue** — `b-modal` with app info, version, reload button.
 - **CategoryBadge.vue** — Colored badge for project category.
-- **CountryLabel.vue** — Flag icon + country name.
+- **CountryLabel.vue** — Flag icon + country name. `compact` prop renders a smaller flag/label for dense rows (search suggestions).
 - **MarkdownText.vue** — Renders markdown strings via `vue3-markdown-it`.
 
 ## Flow

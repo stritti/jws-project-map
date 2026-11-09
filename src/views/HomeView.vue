@@ -11,11 +11,12 @@ import { useSearchFilters } from "@/composables/useSearchFilters";
 import type { ProjectState } from "@/composables/useProjectSearch";
 import FilterPanel from "@/components/FilterPanel.vue";
 import MainMenu from "../components/MainMenu.vue";
+import ProjectSearchResult from "@/components/project/ProjectSearchResult.vue";
 const LocationMap = defineAsyncComponent(() => import("../components/map/LocationMap.vue"));
 
 const { t } = useI18n();
 const router = useRouter();
-const { navigateToProject } = useWebFrame();
+const { navigateToProject, isIFrame } = useWebFrame();
 const projectStore = useProjectStore();
 
 const { mapProjects } = storeToRefs(projectStore);
@@ -51,12 +52,27 @@ function clearAllFilters() {
   clearSharedFilters();
 }
 
-function handleProjectClick(project: { id: number; name: string }) {
-  navigateToProject(project);
-}
-
-// ── Keep search bar visible on mobile when the keyboard opens ──────────
 const isSearchActive = ref(false);
+// Set as soon as a result is tapped (pointerdown fires before the input blur),
+// so the overlay must not snap back to the bottom while the route changes.
+const isNavigating = ref(false);
+
+function handleProjectClick(project: { id: number; name: string }) {
+  isNavigating.value = true;
+  // Dismiss the on-screen keyboard before the route change, so the viewport
+  // does not resize under the incoming page (the "jumping" on smartphones).
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
+  navigateToProject(project);
+  // In an embedded iframe the detail page opens in a new tab and this view
+  // stays mounted — release the guard so keyboard dismissal can collapse the
+  // overlay again instead of leaving it stuck in the top-aligned layout.
+  if (isIFrame.value) {
+    isNavigating.value = false;
+    isSearchActive.value = false;
+  }
+}
 
 function focusMap() {
   const mapEl = document.querySelector(".project-map .map") as HTMLElement;
@@ -70,12 +86,14 @@ function onSearchFocus() {
 }
 
 function onSearchBlur() {
+  if (isNavigating.value) return;
   isSearchActive.value = false;
 }
 
 // Backup: detect keyboard dismissal via visualViewport.resize
 function onViewportResize() {
   if (!window.visualViewport) return;
+  if (isNavigating.value) return;
   if (window.visualViewport.height >= window.innerHeight - 5) {
     isSearchActive.value = false;
   }
@@ -187,22 +205,15 @@ onUnmounted(() => {
       
       <!-- Search results dropdown -->
       <div v-if="searchResults.length > 0 && searchQuery.trim().length >= 2" class="search-results-dropdown" role="listbox" :aria-label="t('search.resultsLabel')">
-        <div
+        <project-search-result
           v-for="project in searchResults.slice(0, 10)"
           :key="project.id"
-          class="search-result-item"
-          role="option"
+          :project="project"
           tabindex="0"
-          @click="handleProjectClick(project)"
-          @keydown.enter="handleProjectClick(project)"
-          @keydown.space.prevent="handleProjectClick(project)"
-        >
-          <div class="result-name">{{ project.name }}</div>
-          <div class="result-meta">
-            <span class="result-state">{{ project.state }}</span>
-            <span v-if="project.country" class="result-country">{{ project.country.fields.Name }}</span>
-          </div>
-        </div>
+          @pointerdown="isNavigating = true"
+          @pointercancel="isNavigating = false"
+          @select="handleProjectClick"
+        />
         <div v-if="searchResults.length > 10" class="search-result-more">
           +{{ searchResults.length - 10 }} {{ t("search.more") }}
         </div>
@@ -319,31 +330,7 @@ onUnmounted(() => {
   }
 
   .search-results-dropdown {
-    @apply bg-surface border border-outline-variant rounded-round-default mt-[0.5rem] max-h-[300px] overflow-y-auto shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)];
-  }
-
-  .search-result-item {
-    @apply p-[0.75rem_1rem] cursor-pointer border-b border-outline-variant transition-colors duration-150 last:border-b-0 hover:bg-surface-variant;
-
-    &:focus-visible {
-      @apply outline-2 outline-secondary outline-offset-[-2px] bg-surface-variant;
-    }
-  }
-
-  .result-name {
-    @apply font-medium text-onSurface text-body-md;
-  }
-
-  .result-meta {
-    @apply flex gap-[0.5rem] mt-[0.25rem] text-label-sm;
-  }
-
-  .result-state {
-    @apply text-onSurface-variant capitalize;
-  }
-
-  .result-country {
-    @apply text-onSurface-variant;
+    @apply bg-surface border border-outline-variant rounded-round-default mt-[0.5rem] max-h-[300px] overflow-y-auto shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)] divide-y divide-outline-variant;
   }
 
   .search-result-more {

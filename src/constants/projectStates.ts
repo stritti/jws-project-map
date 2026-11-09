@@ -29,6 +29,23 @@ export function isValidProjectState(value: string): value is ProjectState {
 }
 
 /**
+ * Map a project state to its i18n label key suffix (`project.state.<key>`).
+ * Returns undefined for unknown states so callers can fall back to the raw value.
+ */
+export function stateLabelKey(state: string): string | undefined {
+  switch (state) {
+    case PROJECT_STATES.FINISHED:
+      return "finished";
+    case PROJECT_STATES.UNDER_CONSTRUCTION:
+      return "underConstruction";
+    case PROJECT_STATES.PLANNED:
+      return "planned";
+    default:
+      return undefined;
+  }
+}
+
+/**
  * Normalise a raw state string from NocoDB into a canonical ProjectState.
  *
  * Accepts common variants (e.g. "under_construction", "construction").
