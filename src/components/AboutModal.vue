@@ -22,7 +22,7 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body pt-2 px-4 pb-4 max-h-[80vh] overflow-y-auto">
+        <div class="modal-body pt-2 px-4 pb-4 overflow-y-auto">
           <div class="about-content">
             <!-- Description -->
             <p class="about-description">
@@ -72,6 +72,14 @@
               </li>
             </ul>
           </div>
+        </div>
+        <div class="modal-footer border-0 flex items-center justify-end px-4 pb-4 pt-0">
+          <button
+            class="close-action-btn"
+            @click="hide"
+          >
+            {{ t('a11y.close') }}
+          </button>
         </div>
       </div>
     </div>
@@ -235,7 +243,8 @@ onUnmounted(() => {
 }
 
 .modal-content {
-  @apply w-full max-w-md mx-4 my-8;
+  @apply w-full max-w-md mx-4 my-8 flex flex-col;
+  max-height: calc(100vh - 4rem);
 }
 
 .modal-header {
@@ -256,12 +265,27 @@ onUnmounted(() => {
   padding-left: 1rem;
   padding-right: 1rem;
   padding-bottom: 1rem;
-  max-height: 80vh;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
 
   @media (max-width: 575.98px) {
     padding: 0.75rem 1rem;
   }
+}
+
+.modal-footer {
+  border: none;
+  flex-shrink: 0;
+  padding: 0 1rem 1rem;
+
+  @media (max-width: 575.98px) {
+    padding: 0 1rem 0.75rem;
+  }
+}
+
+.close-action-btn {
+  @apply rounded-full px-4 py-2 border-0 font-semibold text-sm bg-primary text-white cursor-pointer transition-colors duration-200 hover:bg-primary-dark focus:outline-2 focus:outline-secondary focus:outline-offset-2;
 }
 
 .close-btn {
