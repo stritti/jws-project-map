@@ -5,6 +5,23 @@ import projectService from "@/features/projects/services/project.service";
 import { useLoadingStore } from "@/stores/loading.store";
 import type { Project } from "@/interfaces/Project";
 
+// Merge the freshly loaded projects into an existing list in place: projects
+// that are already present keep their object identity and only get their
+// fields updated, so consumers keyed by id (e.g. map markers) are patched
+// instead of being destroyed and recreated.
+function mergeProjects(target: Project[], source: Project[]): void {
+  const existingById = new Map(target.map((project) => [project.id, project]));
+  const merged = source.map((project) => {
+    const existing = existingById.get(project.id);
+    if (existing) {
+      Object.assign(existing, project);
+      return existing;
+    }
+    return project;
+  });
+  target.splice(0, target.length, ...merged);
+}
+
 export const useProjectStore = defineStore("project", () => {
   const projects = ref<Project[]>([]);
   const mapProjects = ref<Project[]>([]);
@@ -108,7 +125,10 @@ export const useProjectStore = defineStore("project", () => {
       const result = await projectService.getAll();
       if (result && Array.isArray(result)) {
         projects.value = result;
-        mapProjects.value = result;
+        // Keep the existing map project objects (already rendered as pins)
+        // and only update their fields, so the map replaces pins in place
+        // instead of removing and re-adding all of them.
+        mergeProjects(mapProjects.value, result);
         filteredList.value = result;
         mapInitialized.value = true;
         initialized.value = true;
