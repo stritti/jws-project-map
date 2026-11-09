@@ -60,42 +60,13 @@
           id="search-results-list" 
           :aria-label="t('a11y.searchResultsLabel')"
         >
-          <button
+          <project-search-result
             v-for="(project, index) in results"
             :key="project.id"
-            role="option"
-            :aria-label="`${project.name}, ${t('a11y.viewProjectDetails')}`"
-            class="result-item flex items-start gap-3 py-3 px-4 w-full text-left"
-            @click="navigate(project)"
-            @keydown.enter="navigate(project)"
-            @keydown.space.prevent="navigate(project)"
+            :project="project"
             :tabindex="index === 0 ? 0 : -1"
-          >
-            <!-- Thumbnail -->
-            <img
-              v-if="getTeaserImage(project)"
-              :src="getTeaserImage(project)"
-              :alt="project.name"
-              class="result-thumb rounded-round-default" 
-              loading="lazy"
-            />
-            <div v-else class="result-thumb-placeholder rounded-round-default flex items-center justify-center">
-              <IBiGlobe2 class="text-onSurface-variant" aria-hidden="true" />
-            </div>
-
-            <div class="flex-grow-1 overflow-hidden">
-              <div class="font-semibold text-truncate">{{ project.name }}</div>
-              <div class="flex items-center gap-2 mt-1 flex-wrap">
-                <StateBadge :state="project.state" />
-                <span v-if="project.country" class="text-label-sm text-onSurface-variant flex items-center gap-1">
-                  <IBiGeoAlt aria-hidden="true" />
-                  {{ project.country.fields.Name }}
-                </span>
-              </div>
-            </div>
-
-            <IBiChevronRight class="text-onSurface-variant self-center" aria-hidden="true" />
-          </button>
+            @select="navigate"
+          />
         </div>
       </div>
 
@@ -126,11 +97,10 @@ const emit = defineEmits<{
 }>();
 
 import { useProjectStore } from "@/features/projects/stores/project.store";
-import type { Project } from "@/interfaces/Project";
 import { useProjectSearch } from "@/composables/useProjectSearch";
 import { useWebFrame } from "@/composables/useWebFrame";
 import MainMenu from "./MainMenu.vue";
-import StateBadge from "@/components/StateBadge.vue";
+import ProjectSearchResult from "@/components/project/ProjectSearchResult.vue";
 import { useFocusRestore } from "@/composables/useAccessibility";
 import { useScrollLock } from "@/composables/useScrollLock";
 
@@ -168,23 +138,6 @@ function hide() {
 function navigate(project: { id: number; name: string }) {
   hide();
   navigateToProject(project);
-}
-
-function getTeaserImage(project: Project) {
-  if (project.teaserImg && project.teaserImg.length > 0) {
-    const img = project.teaserImg[0];
-    // Use small thumbnail for the search list to save bandwidth, fallback to card_cover or original signedUrl
-    return img.thumbnails?.small?.signedUrl || img.thumbnails?.card_cover?.signedUrl || img.signedUrl || "/img/placeholder.png";
-  }
-  return "/img/placeholder.png";
-}
-
-// Handle keyboard navigation in results
-function handleResultKeydown(e: KeyboardEvent, project: Project) {
-  if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault();
-    navigate(project);
-  }
 }
 
 // Ctrl+K / Cmd+K keyboard shortcut
@@ -243,22 +196,6 @@ defineExpose({ show, hide });
 
 .result-list {
   @apply divide-y divide-outline-variant;
-}
-
-.result-item {
-  @apply cursor-pointer bg-surface rounded-round-default transition-[background-color,transform] duration-150 hover:bg-surface-variant hover:-translate-y-0.5 active:translate-y-0 focus:outline-2 focus:outline-secondary focus:outline-offset-2;
-}
-
-.result-item:focus-visible {
-  @apply outline-2 outline-secondary outline-offset-2;
-}
-
-.result-thumb {
-  @apply w-[calc(var(--spacing-unit)*8)] h-[calc(var(--spacing-unit)*8)] object-cover flex-shrink-0 rounded-round-default;
-}
-
-.result-thumb-placeholder {
-  @apply w-[calc(var(--spacing-unit)*8)] h-[calc(var(--spacing-unit)*8)] flex-shrink-0 bg-surface-variant rounded-round-default flex items-center justify-center text-onSurface-variant text-[calc(var(--font-size-body-md)*1.2)];
 }
 
 .search-footer {

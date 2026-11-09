@@ -86,6 +86,7 @@ import CategoryBadge from "../CategoryBadge.vue";
 import CountryLabel from "../CountryLabel.vue";
 import StateBadge from "@/components/StateBadge.vue";
 import { PROJECT_STATES } from "@/constants/projectStates";
+import { PLACEHOLDER_IMAGE, teaserImageUrl } from "@/utils/image";
 
 const { t } = useI18n();
 const { isIFrame, notifyNavigate } = useWebFrame();
@@ -106,7 +107,6 @@ const props = withDefaults(defineProps<{
 
 const EAGER_IMAGE_COUNT = 6;
 const IMAGE_PRELOAD_MARGIN = "600px 0px";
-const PLACEHOLDER_IMAGE = "/img/placeholder.png";
 
 const cardElement = ref<HTMLElement | null>(null);
 const shouldLoadImage = ref((props.imageIndex ?? 0) < EAGER_IMAGE_COUNT);
@@ -118,14 +118,7 @@ const emit = defineEmits<{
   (e: 'click'): void;
 }>();
 
-const teaserImage = computed(() => {
-  if (props.project.teaserImg && props.project.teaserImg.length > 0) {
-    const img = props.project.teaserImg[0];
-    return img.thumbnails?.card_cover?.signedUrl || img.signedUrl || PLACEHOLDER_IMAGE;
-  }
-
-  return PLACEHOLDER_IMAGE;
-});
+const teaserImage = computed(() => teaserImageUrl(props.project, "card_cover"));
 
 const displayedImage = computed(() => {
   if (imageLoadFailed.value || !shouldLoadImage.value) {

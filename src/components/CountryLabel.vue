@@ -1,5 +1,5 @@
 <template>
-  <span v-if="countryId" class="country-label">
+  <span v-if="countryId" class="country-label" :class="{ compact }">
     <span :class="countryClass" aria-hidden="true"></span>&nbsp;{{ countryLabel }}
   </span>
 </template>
@@ -11,8 +11,9 @@ import { useCountryStore } from "@/stores/country.store";
 const props = withDefaults(
   defineProps<{
     countryId?: number | null;
+    compact?: boolean;
   }>(),
-  { countryId: null },
+  { countryId: null, compact: false },
 );
 
 const countryStore = useCountryStore();
@@ -52,5 +53,19 @@ const countryClass = computed(() => {
   width: 1.5rem;
   height: 1rem;
   content: '';
+}
+
+/* Compact variant for dense rows (e.g. search suggestions) */
+.country-label.compact {
+  @apply text-label-sm gap-[calc(var(--spacing-unit)*0.5)];
+}
+
+.country-label.compact [class^="fi-"] {
+  @apply w-[1.25rem];
+}
+
+.country-label.compact [class^="fi-"]::before {
+  width: 1rem;
+  height: 0.67rem;
 }
 </style>
