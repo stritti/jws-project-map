@@ -11,6 +11,14 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    groups:
+      official-actions:
+        patterns:
+          - "actions/*"
+      third-party-actions:
+        patterns:
+          - "oven-sh/*"
+          - "googleapis/*"
 
   # Maintain dependencies for Bun
   - package-ecosystem: "bun"
@@ -23,3 +31,80 @@ updates:
       # Re-evaluate once vue-tsc/typescript-eslint support TS 7.1+.
       - dependency-name: "typescript"
         versions: ["7.x", ">=7.0.0"]
+    # Groups only bundle minor/patch updates; major updates stay individual PRs.
+    # Order matters: the first matching group wins.
+    groups:
+      typescript-toolchain:
+        update-types: ["minor", "patch"]
+        patterns:
+          - "typescript"
+          - "vue-tsc"
+          - "typescript-eslint"
+      maps-leaflet:
+        update-types: ["minor", "patch"]
+        patterns:
+          - "leaflet*"
+          - "@vue-leaflet/*"
+          - "vue-leaflet*"
+      lint-format:
+        update-types: ["minor", "patch"]
+        patterns:
+          - "eslint*"
+          - "prettier"
+          - "@vue/eslint-*"
+          - "@rushstack/*"
+      vue-ecosystem:
+        update-types: ["minor", "patch"]
+        patterns:
+          - "vue*"
+          - "@vue/*"
+          - "pinia*"
+      build-tooling:
+        update-types: ["minor", "patch"]
+        patterns:
+          - "vite"
+          - "vite-*"
+          - "@vitejs/*"
+          - "@iconify-json/*"
+          - "rollup"
+          - "@rollup/*"
+          - "esbuild"
+          - "postcss"
+          - "autoprefixer"
+          - "tailwindcss"
+          - "@tailwindcss/*"
+          - "unplugin-*"
+          - "workbox-*"
+          - "npm-run-all"
+      testing:
+        update-types: ["minor", "patch"]
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+          - "jsdom"
+      ci-dev-tooling:
+        update-types: ["minor", "patch"]
+        patterns:
+          - "release-please"
+          - "@commitlint/*"
+          - "commitizen"
+          - "git-cz"
+          - "cz-conventional-changelog"
+          - "@lhci/*"
+          - "@netlify/*"
+          - "@modelcontextprotocol/*"
+          - "sharp"
+      types:
+        update-types: ["minor", "patch"]
+        patterns:
+          - "@types/*"
+      runtime-libs:
+        update-types: ["minor", "patch"]
+        patterns:
+          - "dompurify"
+          - "marked"
+          - "fuse.js"
+          - "flag-icons"
+          - "caniuse-lite"
+          - "baseline-browser-mapping"
+          - "@popperjs/core"
