@@ -57,7 +57,7 @@
           v-for="layer in markerLayers"
           :key="layer.id"
           layer-type="overlay"
-          :name="layer.label"
+          :name="layer.id"
         >
           <l-marker
             v-for="loc in layer.projects"
@@ -306,21 +306,13 @@ const projectsPlanned = computed(() =>
   locations.value.filter((p) => p.state === PROJECT_STATES.PLANNED),
 );
 
-const layerLabelProjectsFinished = computed(() =>
-  t("map.layerFinished", { count: projectsFinished.value.length }),
-);
-const layerLabelProjectsUnderConstruction = computed(() =>
-  t("map.layerUnderConstruction", { count: projectsUnderConstruction.value.length }),
-);
-const layerLabelProjectsPlanned = computed(() =>
-  t("map.layerPlanned", { count: projectsPlanned.value.length }),
-);
-
+// Layer names must stay stable across data updates: vue-leaflet removes and
+// re-adds a layer group (with all its pins) whenever its `name` prop changes.
 const markerLayers = computed(() =>
   [
-    { id: "finished", projects: projectsFinished.value, label: layerLabelProjectsFinished.value },
-    { id: "under-construction", projects: projectsUnderConstruction.value, label: layerLabelProjectsUnderConstruction.value },
-    { id: "planned", projects: projectsPlanned.value, label: layerLabelProjectsPlanned.value },
+    { id: "finished", projects: projectsFinished.value },
+    { id: "under-construction", projects: projectsUnderConstruction.value },
+    { id: "planned", projects: projectsPlanned.value },
   ].filter((layer) => layer.projects.length > 0),
 );
 
