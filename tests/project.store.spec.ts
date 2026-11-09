@@ -124,6 +124,35 @@ describe("project store", () => {
     expect(store.mapProjects).toHaveLength(1);
   });
 
+  it("merges full data into existing map projects instead of replacing them", async () => {
+    getMapData.mockResolvedValue([makeProject(1), makeProject(2)]);
+    const store = useProjectStore();
+    await store.loadMapData();
+    expect(store.mapProjects).toHaveLength(2);
+    const firstMapProject = store.mapProjects[0];
+    const secondMapProject = store.mapProjects[1];
+
+    const fullProjects = [
+      { ...makeProject(1), name: "Project 1 full", notes: "details" },
+      { ...makeProject(2), name: "Project 2 full" },
+      makeProject(3),
+    ];
+    getAll.mockResolvedValue(fullProjects);
+    await store.load();
+
+    expect(store.mapProjects).toHaveLength(3);
+    // existing pins keep their object identity and receive the full fields
+    expect(store.mapProjects[0]).toBe(firstMapProject);
+    expect(store.mapProjects[1]).toBe(secondMapProject);
+    expect(store.mapProjects[0].name).toBe("Project 1 full");
+    expect(store.mapProjects[0].notes).toBe("details");
+    // newly added projects are appended
+    expect(store.mapProjects[2].id).toBe(3);
+    // full list is stored separately
+    expect(store.projects).toHaveLength(3);
+    expect(store.projects[0]).not.toBe(firstMapProject);
+  });
+
   it("recovers on a forced retry after a failure", async () => {
     getAll.mockRejectedValueOnce(new Error("timeout of 30000ms exceeded"));
     getAll.mockResolvedValueOnce([makeProject(7)]);

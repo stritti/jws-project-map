@@ -130,17 +130,24 @@ window.addEventListener("vite:preloadError", (event) => {
   }
 });
 
-// When a new service worker activates and claims this page (skipWaiting +
-// clientsClaim), the page is still running old JavaScript that references old
-// chunk hashes. A controllerchange reload ensures we immediately get the new
-// SW's fresh assets instead of running a stale bundle under a new SW.
+// When a new service worker activates and claims the page (skipWaiting +
+// clientsClaim), the page may still be running old JavaScript that references
+// old chunk hashes. A controllerchange reload then ensures we immediately get
+// the new SW's fresh assets instead of running a stale bundle under a new SW.
+// Only the very first claim is exempt: on a fresh origin the page was served
+// from the network and is not stale, so reloading would just discard the
+// freshly loaded app a few seconds after the initial load. Later controller
+// changes (a new SW taking over a page that already has a controller) still
+// trigger the reload.
 if ("serviceWorker" in navigator) {
+  let hasController = Boolean(navigator.serviceWorker.controller);
   let hasReloadedOnController = false;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (!hasReloadedOnController) {
-      hasReloadedOnController = true;
-      window.location.reload();
-    }
+    const isInitialClaim = !hasController;
+    hasController = true;
+    if (hasReloadedOnController || isInitialClaim) return;
+    hasReloadedOnController = true;
+    window.location.reload();
   });
 }
 
