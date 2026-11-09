@@ -12,6 +12,21 @@
 
 * **a11y:** comprehensive accessibility improvements with axe-core checks ([#892](https://github.com/stritti/jws-project-map/issues/892)) ([15f5010](https://github.com/stritti/jws-project-map/commit/15f50109aba42d896c697818e453b8750ebedfb6))
 
+## [1.5.0](https://github.com/stritti/jws-project-map/compare/v1.4.0...v1.5.0) (2026-11-09)
+
+
+### Features
+
+* **search:** restyle suggestions like the pin preview, fix mobile selection jump ([#1090](https://github.com/stritti/jws-project-map/issues/1090)) ([46d6532](https://github.com/stritti/jws-project-map/commit/46d6532f17561b5ff2fbd3f0326247b8f7aed024))
+* **ui:** add labeled close button to about modal footer ([#1085](https://github.com/stritti/jws-project-map/issues/1085)) ([c1a757f](https://github.com/stritti/jws-project-map/commit/c1a757fa63bb7792317f95e4c8b5ece63b6005c7))
+
+
+### Bug Fixes
+
+* **map:** lift pin popup above bottom menu bar on mobile ([#1089](https://github.com/stritti/jws-project-map/issues/1089)) ([4f29133](https://github.com/stritti/jws-project-map/commit/4f291333dc076e8f5437fb5b00cc0752b9e5a1a1))
+* **map:** replace pins in place when full project data loads ([#1086](https://github.com/stritti/jws-project-map/issues/1086)) ([175e0f0](https://github.com/stritti/jws-project-map/commit/175e0f0a5cf510b36a2debd21d69ef3c749be933))
+* **ui:** anchor about modal close x to the top-right corner of the modal card ([#1091](https://github.com/stritti/jws-project-map/issues/1091)) ([fd52aaf](https://github.com/stritti/jws-project-map/commit/fd52aafd51155f6349950a2abd001e33c5cdf9f5))
+
 ## [1.4.0](https://github.com/stritti/jws-project-map/compare/v1.3.1...v1.4.0) (2026-10-31)
 
 
