@@ -65,7 +65,6 @@ jobs:
           A11Y=$(jq '.categories.accessibility.score' "$REPORT")
           BP=$(jq '.categories["best-practices"].score' "$REPORT")
           SEO=$(jq '.categories.seo.score' "$REPORT")
-          PWA=$(jq '.categories.pwa.score' "$REPORT")
           LCP=$(jq '.audits["largest-contentful-paint"].numericValue' "$REPORT")
           TBT=$(jq '.audits["total-blocking-time"].numericValue' "$REPORT")
           CLS=$(jq '.audits["cumulative-layout-shift"].numericValue' "$REPORT")
@@ -76,7 +75,6 @@ jobs:
           echo "A11Y=$A11Y" >> $GITHUB_OUTPUT
           echo "BP=$BP" >> $GITHUB_OUTPUT
           echo "SEO=$SEO" >> $GITHUB_OUTPUT
-          echo "PWA=$PWA" >> $GITHUB_OUTPUT
           echo "LCP=$LCP" >> $GITHUB_OUTPUT
           echo "TBT=$TBT" >> $GITHUB_OUTPUT
           echo "CLS=$CLS" >> $GITHUB_OUTPUT
@@ -85,14 +83,13 @@ jobs:
           echo "SPEEDINDEX=$SPEEDINDEX" >> $GITHUB_OUTPUT
 
           BASELINE_FILE=".lighthouse-baseline/baseline.json"
-          BASE_SCORE="none"; BASE_A11Y="none"; BASE_BP="none"; BASE_SEO="none"; BASE_PWA="none"
+          BASE_SCORE="none"; BASE_A11Y="none"; BASE_BP="none"; BASE_SEO="none"
           BASE_LCP="none"; BASE_TBT="none"; BASE_CLS="none"; BASE_FCP="none"; BASE_SI="none"; BASE_BYTE="none"
           if [ -f "$BASELINE_FILE" ]; then
             BASE_SCORE=$(jq -r '.score' "$BASELINE_FILE")
             BASE_A11Y=$(jq -r '.a11y' "$BASELINE_FILE")
             BASE_BP=$(jq -r '.bp' "$BASELINE_FILE")
             BASE_SEO=$(jq -r '.seo' "$BASELINE_FILE")
-            BASE_PWA=$(jq -r '.pwa' "$BASELINE_FILE")
             BASE_LCP=$(jq -r '.lcp' "$BASELINE_FILE")
             BASE_TBT=$(jq -r '.tbt' "$BASELINE_FILE")
             BASE_CLS=$(jq -r '.cls' "$BASELINE_FILE")
@@ -104,7 +101,6 @@ jobs:
           echo "BASE_A11Y=$BASE_A11Y" >> $GITHUB_OUTPUT
           echo "BASE_BP=$BASE_BP" >> $GITHUB_OUTPUT
           echo "BASE_SEO=$BASE_SEO" >> $GITHUB_OUTPUT
-          echo "BASE_PWA=$BASE_PWA" >> $GITHUB_OUTPUT
           echo "BASE_LCP=$BASE_LCP" >> $GITHUB_OUTPUT
           echo "BASE_TBT=$BASE_TBT" >> $GITHUB_OUTPUT
           echo "BASE_CLS=$BASE_CLS" >> $GITHUB_OUTPUT
@@ -116,10 +112,10 @@ jobs:
             mkdir -p .lighthouse-baseline
             jq -n \
               --argjson score "$SCORE" --argjson a11y "$A11Y" --argjson bp "$BP" \
-              --argjson seo "$SEO" --argjson pwa "$PWA" \
+              --argjson seo "$SEO" \
               --argjson lcp "$LCP" --argjson tbt "$TBT" --argjson cls "$CLS" \
               --argjson fcp "$FCP" --argjson si "$SPEEDINDEX" --argjson byte "$BYTE" \
-              '{score:$score, a11y:$a11y, bp:$bp, seo:$seo, pwa:$pwa, lcp:$lcp, tbt:$tbt, cls:$cls, fcp:$fcp, si:$si, byte:$byte}' \
+              '{score:$score, a11y:$a11y, bp:$bp, seo:$seo, lcp:$lcp, tbt:$tbt, cls:$cls, fcp:$fcp, si:$si, byte:$byte}' \
               > "$BASELINE_FILE"
           fi
 
@@ -141,7 +137,6 @@ jobs:
           | Accessibility Score | ${{ steps.lhmetrics.outputs.A11Y }} |
           | Best Practices Score | ${{ steps.lhmetrics.outputs.BP }} |
           | SEO Score | ${{ steps.lhmetrics.outputs.SEO }} |
-          | PWA Score | ${{ steps.lhmetrics.outputs.PWA }} |
           | LCP (Largest Contentful Paint) | ${{ steps.lhmetrics.outputs.LCP }} ms |
           | TBT (Total Blocking Time) | ${{ steps.lhmetrics.outputs.TBT }} ms |
           | CLS (Cumulative Layout Shift) | ${{ steps.lhmetrics.outputs.CLS }} |
@@ -162,7 +157,6 @@ jobs:
           A11Y: ${{ steps.lhmetrics.outputs.A11Y }}
           BP: ${{ steps.lhmetrics.outputs.BP }}
           SEO: ${{ steps.lhmetrics.outputs.SEO }}
-          PWA: ${{ steps.lhmetrics.outputs.PWA }}
           LCP: ${{ steps.lhmetrics.outputs.LCP }}
           TBT: ${{ steps.lhmetrics.outputs.TBT }}
           CLS: ${{ steps.lhmetrics.outputs.CLS }}
@@ -173,7 +167,6 @@ jobs:
           BASE_A11Y: ${{ steps.lhmetrics.outputs.BASE_A11Y }}
           BASE_BP: ${{ steps.lhmetrics.outputs.BASE_BP }}
           BASE_SEO: ${{ steps.lhmetrics.outputs.BASE_SEO }}
-          BASE_PWA: ${{ steps.lhmetrics.outputs.BASE_PWA }}
           BASE_LCP: ${{ steps.lhmetrics.outputs.BASE_LCP }}
           BASE_TBT: ${{ steps.lhmetrics.outputs.BASE_TBT }}
           BASE_CLS: ${{ steps.lhmetrics.outputs.BASE_CLS }}
@@ -186,7 +179,6 @@ jobs:
             const a11y = process.env.A11Y === 'null' ? null : Number(process.env.A11Y || 0);
             const bp = process.env.BP === 'null' ? null : Number(process.env.BP || 0);
             const seo = process.env.SEO === 'null' ? null : Number(process.env.SEO || 0);
-            const pwa = process.env.PWA === 'null' ? null : Number(process.env.PWA || 0);
             const lcp = Number(process.env.LCP || 0);
             const base = (name) => {
               const raw = process.env[name];
@@ -196,7 +188,6 @@ jobs:
             const baseA11y = base('BASE_A11Y');
             const baseBp = base('BASE_BP');
             const baseSeo = base('BASE_SEO');
-            const basePwa = base('BASE_PWA');
             const baseLcp = base('BASE_LCP');
             const baseTbt = base('BASE_TBT');
             const baseCls = base('BASE_CLS');
@@ -257,7 +248,6 @@ jobs:
             | Accessibility | ${catScore(a11y)} | ${catEmoji(a11y)} |${delta(a11y, baseA11y, true, {percent: true})} |
             | Best Practices | ${catScore(bp)} | ${catEmoji(bp)} |${delta(bp, baseBp, true, {percent: true})} |
             | SEO | ${catScore(seo)} | ${catEmoji(seo)} |${delta(seo, baseSeo, true, {percent: true})} |
-            | PWA | ${catScore(pwa)} | ${catEmoji(pwa)} |${delta(pwa, basePwa, true, {percent: true})} |
 
             ### Performance Metrics
 
