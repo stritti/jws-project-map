@@ -28,7 +28,7 @@
     "@types/leaflet.markercluster": "^1.5.6",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "baseline-browser-mapping": "^2.11.35",
-    "caniuse-lite": "^1.0.30001820",
+    "caniuse-lite": "^1.0.30001823",
     "dompurify": "^3.4.17",
     "flag-icons": "^7.5.0",
     "fuse.js": "^7.5.0",
