@@ -245,6 +245,7 @@ onUnmounted(() => {
 .modal-content {
   @apply w-full max-w-md mx-4 my-8 flex flex-col;
   max-height: calc(100vh - 4rem);
+  position: relative;
 }
 
 .modal-header {
@@ -253,10 +254,10 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem;
+  padding: 1rem 3rem 1rem 1rem;
 
   @media (max-width: 575.98px) {
-    padding: 0.75rem 1rem 0;
+    padding: 0.75rem 3rem 0.75rem 1rem;
   }
 }
 
@@ -289,7 +290,7 @@ onUnmounted(() => {
 }
 
 .close-btn {
-  @apply w-8 h-8 rounded-full border-none bg-transparent text-onSurface flex items-center justify-center text-[22px] cursor-pointer leading-none transition-all duration-200 hover:bg-black/10 focus:outline-2 focus:outline-secondary focus:outline-offset-2;
+  @apply absolute top-[0.75rem] right-[0.75rem] w-8 h-8 rounded-full border-none bg-transparent text-onSurface flex items-center justify-center text-[22px] cursor-pointer leading-none transition-all duration-200 hover:bg-black/10 focus:outline-2 focus:outline-secondary focus:outline-offset-2;
 }
 
 .close-btn:focus-visible {
