@@ -14,6 +14,7 @@ declare module 'vue' {
     AboutModal: typeof import('./src/components/AboutModal.vue')['default']
     BackButton: typeof import('./src/components/actions/BackButton.vue')['default']
     CategoryBadge: typeof import('./src/components/CategoryBadge.vue')['default']
+    ClientOnly: typeof import('./src/components/ClientOnly.vue')['default']
     CountryLabel: typeof import('./src/components/CountryLabel.vue')['default']
     FilterPanel: typeof import('./src/components/FilterPanel.vue')['default']
     FloatingMeta: typeof import('./src/components/FloatingMeta.vue')['default']

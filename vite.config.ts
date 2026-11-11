@@ -11,6 +11,25 @@ import VueDevTools from "vite-plugin-vue-devtools";
 
 const pkg = JSON.parse(readFileSync(fileURLToPath(new URL("./package.json", import.meta.url)), "utf-8"));
 
+// vite-ssg runs a second, server-side build (with process.env.VITE_SSG set) to
+// render the pages in Node. In that build Vite's own postcss-import tries to
+// inline the bare `@import "tailwindcss"` from src/assets/main.css as a file
+// and fails, because Tailwind v4 is meant to be expanded by the
+// @tailwindcss/postcss plugin (which the client build runs via
+// postcss.config.js). Alias the bare specifier to the real CSS entry only in
+// the SSG server build so the import resolves there too.
+const isSSGServerBuild = process.env.VITE_SSG === "true";
+
+if (isSSGServerBuild) {
+  // The SSG server bundle executes module scope in Node, where the NocoDB
+  // service singletons throw without a baseId. No API calls happen during
+  // SSG (data loads are client-only), so dummy values keep the render build
+  // hermetic when the real env vars are absent (e.g. local builds).
+  process.env.VITE_APP_NOCODB_URL ??= "https://nocodb.invalid";
+  process.env.VITE_APP_NOCODB_TOKEN ??= "ssg";
+  process.env.VITE_APP_NOCODB_BASE_ID ??= "ssg";
+}
+
 // The app only uses square (1x1) flags (CSS class "fis"). Every flag rule of
 // flag-icons references a 4x3 variant as well, which pulls all 4x3 SVGs
 // (~2.7 MB) into the build and the PWA precache. Serving a trimmed version
@@ -34,6 +53,17 @@ export default defineConfig({
   define: {
     // Inject package version as global variable for client-side access
     __APP_VERSION__: JSON.stringify(pkg.version),
+  },
+  // Consumed by the `vite-ssg build` CLI (see the build-only script).
+  // Static routes are prerendered to dist; dynamic routes like
+  // /project/:projectId are skipped by default and stay client-rendered
+  // via the Netlify SPA fallback. `/about` only redirects to `/` and is
+  // excluded to avoid duplicate prerendered content.
+  ssgOptions: {
+    entry: "src/main.ts",
+    dirStyle: "nested",
+    includedRoutes: (paths) =>
+      paths.filter((p) => !p.includes(":") && !p.includes("*") && p !== "/about"),
   },
   plugins: [
     trimFlagIcons(),
@@ -126,6 +156,13 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
+      ...(isSSGServerBuild
+        ? {
+            tailwindcss: fileURLToPath(
+              new URL("./node_modules/tailwindcss/index.css", import.meta.url),
+            ),
+          }
+        : {}),
     },
   },
   build: {
@@ -143,7 +180,7 @@ export default defineConfig({
           if (id.includes("node_modules")) {
             if (id.includes("vue-router")) return "vendor-vue-router";
             if (id.includes("pinia")) return "vendor-pinia";
-            if (id.includes("/vue/")) return "vendor-vue-core";
+            if (id.includes("/vue/") || id.includes("unhead") || id.includes("vite-ssg")) return "vendor-vue-core";
             // Combine leaflet and markercluster into single chunk
             if (id.includes("leaflet")) return "vendor-leaflet";
             if (id.includes("axios")) return "vendor-axios";

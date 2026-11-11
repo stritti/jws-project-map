@@ -1,15 +1,16 @@
-import { onUnmounted, watch, type Ref } from "vue";
+import { computed, type Ref } from "vue";
+import { useHead } from "@unhead/vue";
 import type { Project } from "@/interfaces/Project";
 import { projectRoute } from "@/utils/slug";
 
 /**
- * Injects/removes `<script type="application/ld+json">` (JSON‑LD structured
+ * Injects `<script type="application/ld+json">` (JSON‑LD structured
  * data) into the document head for a project detail page.
  *
- * Uses schema.org `Place` — a good fit for geo‑located projects.
+ * Uses unhead (keyed, so it replaces instead of duplicating) and schema.org
+ * `Place` — a good fit for geo‑located projects.
  */
 export function useStructuredData(project: Ref<Project | undefined>) {
-  const SCRIPT_ID = "jsonld-structured-data";
   const siteUrl =
     import.meta.env.VITE_SITE_URL ??
     "https://jws-projects-map.netlify.app";
@@ -44,34 +45,20 @@ export function useStructuredData(project: Ref<Project | undefined>) {
     if (image) schema.image = image;
     if (geo) schema.geo = geo;
 
-    return JSON.stringify(schema, null, 2);
+    return JSON.stringify(schema);
   }
 
-  function inject(json: string) {
-    remove(); // clean up any previous injection
-    const script = document.createElement("script");
-    script.id = SCRIPT_ID;
-    script.type = "application/ld+json";
-    script.textContent = json;
-    document.head.appendChild(script);
-  }
+  const script = computed(() => {
+    const p = project.value;
+    if (!p) return [];
+    return [
+      {
+        key: "jsonld-structured-data",
+        type: "application/ld+json",
+        innerHTML: buildJsonLd(p),
+      },
+    ];
+  });
 
-  function remove() {
-    const existing = document.getElementById(SCRIPT_ID);
-    if (existing) existing.remove();
-  }
-
-  watch(
-    project,
-    (p) => {
-      if (p) {
-        inject(buildJsonLd(p));
-      } else {
-        remove();
-      }
-    },
-    { immediate: true },
-  );
-
-  onUnmounted(() => remove());
+  useHead({ script });
 }

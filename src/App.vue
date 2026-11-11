@@ -105,7 +105,9 @@ router.afterEach((to) => {
     <div class="loader-bar" aria-hidden="true"></div>
   </div>
 
-  <div class="app-wrapper" role="application" aria-label="JWS Project Map">
+  <!-- No role="application" here: it would turn the wrapper into a landmark and
+       make the nested <main>/<footer> violate axe's top-level landmark rules. -->
+  <div class="app-wrapper">
     <main id="main-content" class="content" aria-label="Main content" role="main" :aria-hidden="isMainHidden">
       <router-view />
     </main>

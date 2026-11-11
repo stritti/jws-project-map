@@ -23,6 +23,8 @@ export function useWebFrame() {
 
   // ── Synchronous detection ────────────────────────────
   function detectIFrame(): boolean {
+    // No window during SSG — a prerendered page is never framed
+    if (typeof window === 'undefined') return false;
     // 1. URL param override (allows testing without actual iframe)
     const params = new URLSearchParams(window.location.search);
     if (params.get('embed') === '1' || params.get('iframe') === '1') {
@@ -39,7 +41,7 @@ export function useWebFrame() {
   isIFrame.value = detectIFrame();
 
   // ── Apply CSS class to <html> ────────────────────────
-  if (isIFrame.value) {
+  if (isIFrame.value && typeof document !== 'undefined') {
     document.documentElement.classList.add('is-iframe');
     // Prevent overscroll/bounce in iframe
     document.documentElement.style.overscrollBehavior = 'none';

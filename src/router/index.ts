@@ -1,7 +1,9 @@
-import { createRouter, createWebHistory } from "vue-router";
+import type { RouteRecordRaw } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 
-const routes = [
+// Plain route records: the router instance itself is created by vite-ssg
+// (see src/main.ts), which swaps in a memory history during SSG.
+export const routes: RouteRecordRaw[] = [
   {
     path: "/",
     name: "home",
@@ -29,10 +31,3 @@ const routes = [
     redirect: "/",
   },
 ];
-
-const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes,
-});
-
-export default router;
