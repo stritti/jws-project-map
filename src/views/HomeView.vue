@@ -10,6 +10,7 @@ import { useProjectSearch } from "@/composables/useProjectSearch";
 import { useSearchFilters } from "@/composables/useSearchFilters";
 import type { ProjectState } from "@/composables/useProjectSearch";
 import FilterPanel from "@/components/FilterPanel.vue";
+import ClientOnly from "@/components/ClientOnly.vue";
 import MainMenu from "../components/MainMenu.vue";
 import ProjectSearchResult from "@/components/project/ProjectSearchResult.vue";
 const LocationMap = defineAsyncComponent(() => import("../components/map/LocationMap.vue"));
@@ -221,12 +222,16 @@ onUnmounted(() => {
     </div>
     
     <div class="project-map" id="project-map">
-      <LocationMap
-        :filtered-projects="filteredMapProjects"
-        :full-projects="projectStore.projects"
-        :base-layer="baseLayer"
-        :cluster-enabled="clusterEnabled"
-      />
+      <!-- Leaflet needs a real DOM, so the map is client-only and never
+           part of the prerendered (SSG) HTML -->
+      <ClientOnly>
+        <LocationMap
+          :filtered-projects="filteredMapProjects"
+          :full-projects="projectStore.projects"
+          :base-layer="baseLayer"
+          :cluster-enabled="clusterEnabled"
+        />
+      </ClientOnly>
     </div>
   </div>
 </template>

@@ -10,7 +10,7 @@ Compact guide for AI agents working in this repository. Only repo-specific facts
 | Language | TypeScript 5.9 (strict) |
 | Build | Vite 7 |
 | Package manager | **Bun** (lockfile: `bun.lock`) |
-| Router | Vue Router 5 (not v4) |
+| Router | vite-ssg (SSG) on Vue Router 5 (not v4) |
 | State | Pinia 3 + `pinia-plugin-persistedstate` |
 | UI | Bootstrap 5.3 + BootstrapVueNext 0.44 (auto-imported) |
 | Maps | Leaflet 1.9 + `@vue-leaflet/vue-leaflet` 0.10 |
@@ -35,7 +35,9 @@ bun run generate-pwa-assets  # regenerate PWA icons from source image
 bun run mcp              # run the stdio MCP server (for AI tooling)
 ```
 
-**Build order matters:** CI runs `bun run lint` → `bun run build` → `bun test`. No test infrastructure exists today — `bun test` is a no-op unless tests are added.
+**Build order matters:** CI runs `bun run lint` → `bun run build` → `bun test`.
+
+**SSG:** `bun run build-only` runs `vite-ssg build` (not plain `vite build`). It prerenders the static routes (`/`, `/project/`) into `dist/`; dynamic routes (`/project/:projectId`) are excluded and stay client-rendered via the Netlify SPA fallback. `ssgOptions` lives in `vite.config.ts`. During SSG (`import.meta.env.SSR`) there is no `window`/`document` — guard browser-only code accordingly (see `src/main.ts`, `useWebFrame`, `ClientOnly.vue`). Head/SEO tags are managed with unhead (`useHead`/`useSeoMeta` from `@unhead/vue`), not by touching `document.head` directly.
 
 **Performance CI** (`.github/workflows/performance.yml`) uses Bun throughout (`bun install`, `bun run build:prod`, `bunx lhci autorun`).
 
@@ -109,7 +111,7 @@ These are required at build time. No defaults.
 
 ## Deployment
 
-- **Netlify** — SPA with `/* → /index.html 200` redirect (both `public/_redirects` and `netlify.toml`).
+- **Netlify** — prerendered static pages (`/`, `/project/`) served as files, everything else falls back to the SPA redirect `/* → /index.html 200` (both `public/_redirects` and `netlify.toml`). `/sitemap.xml` is a live Netlify function backed by NocoDB.
 - Build command: `bun run build:prod` (build + bundle budget check).
 - Bundle budget thresholds (in `scripts/check-bundle-budget.cjs`): initial JS ≤ 300 kB gzipped, async chunks ≤ 150 kB, total CSS ≤ 150 kB.
 - Lighthouse CI runs on every PR via `@netlify/plugin-lighthouse` and GitHub Actions (`performance.yml`), with metrics posted as PR comments.
