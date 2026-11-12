@@ -19,14 +19,31 @@ interface VitePreloadErrorEvent extends Event {
 // Client-only entry: Vike runs this hook exclusively in the browser, so all
 // browser globals (window/document/service worker) are safe here.
 async function onRenderClient(_pageContext: PageContextClient) {
+  // Vite preload errors occur when a dynamic import's dependency chunk cannot be
+  // fetched — typically because the PWA service worker is serving stale cached
+  // chunks after a new deployment (new file hashes, old SW cache). Reloading the
+  // page forces the new SW to serve the freshly cached files. The listener must
+  // be installed before createApp()/router.isReady(): the initial navigation
+  // already lazy-imports the route chunk, and a startup preload error would
+  // otherwise be missed, leaving the loading shell without the reload recovery.
+  let hasReloadedOnPreloadError = false;
+  window.addEventListener("vite:preloadError", (event) => {
+    console.warn("Vite preload error — reloading to pick up fresh assets:", (event as VitePreloadErrorEvent).payload);
+    if (!hasReloadedOnPreloadError) {
+      hasReloadedOnPreloadError = true;
+      window.location.reload();
+    }
+  });
+
   // Static hosts serve directory URLs (e.g. /project/) via /project/index.html
   // files. When such a file URL is opened directly, the client router would
   // resolve /project/:projectId instead of the prerendered /project/ route and
   // swap the prerendered content for a different view (layout shift). Normalize
-  // the URL to the directory form before the router reads it.
-  const { pathname } = window.location;
+  // only the pathname to the directory form before the router reads it; query
+  // parameters (e.g. ?iframe=1 embed override) and fragments must be preserved.
+  const { pathname, search, hash } = window.location;
   if (pathname.endsWith("/index.html")) {
-    window.history.replaceState(null, "", pathname.slice(0, -"index.html".length));
+    window.history.replaceState(null, "", pathname.slice(0, -"index.html".length) + search + hash);
   }
 
   const { app, pinia, router } = await createApp();
@@ -104,19 +121,6 @@ async function onRenderClient(_pageContext: PageContextClient) {
         void loadProjectDetails();
       });
     }, 0);
-  });
-
-  // Vite preload errors occur when a dynamic import's dependency chunk cannot be
-  // fetched — typically because the PWA service worker is serving stale cached
-  // chunks after a new deployment (new file hashes, old SW cache). Reloading the
-  // page forces the new SW to serve the freshly cached files.
-  let hasReloadedOnPreloadError = false;
-  window.addEventListener("vite:preloadError", (event) => {
-    console.warn("Vite preload error — reloading to pick up fresh assets:", (event as VitePreloadErrorEvent).payload);
-    if (!hasReloadedOnPreloadError) {
-      hasReloadedOnPreloadError = true;
-      window.location.reload();
-    }
   });
 
   // When a new service worker activates and claims the page (skipWaiting +
