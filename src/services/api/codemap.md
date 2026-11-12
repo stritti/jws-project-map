@@ -4,7 +4,7 @@
 HTTP client configuration for all API communication. Creates and exports a pre-configured Axios instance.
 
 ## Design
-Single file: `http.client.ts`. Creates an Axios instance with:
+Single file: `http.ts`. Creates an Axios instance with:
 - `baseURL` from `VITE_APP_NOCODB_URL` env var
 - `xc-token` header from `VITE_APP_NOCODB_TOKEN` env var
 - Default `Content-Type: application/json`

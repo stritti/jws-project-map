@@ -17,5 +17,5 @@ Store → Service (this dir) → httpClient (api/) → NocoDB REST API
 ```
 
 ## Integration
-- Depends on: `src/services/api/http.client.ts` (native fetch wrapper)
+- Depends on: `src/services/api/http.ts` (native fetch wrapper)
 - Consumed by: `project.store.ts` (via project.repository.ts), `category.store.ts`, `country.store.ts`

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import httpClient, { REQUEST_TIMEOUT_MS } from "@/services/api/http.client";
+import httpClient, { REQUEST_TIMEOUT_MS } from "@/services/api/http";
 
 const fetchMock = vi.fn();
 

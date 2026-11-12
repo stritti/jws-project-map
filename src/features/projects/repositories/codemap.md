@@ -24,5 +24,5 @@ Pagination uses NocoDB's offset/limit model (offset must be a multiple of limit)
 
 ## Integration
 - Extends: `NocoDBService` (generic CRUD in `src/services/nocodb.service.ts`)
-- Uses: `httpClient` (native fetch wrapper from `src/services/api/http.client.ts`)
+- Uses: `httpClient` (native fetch wrapper from `src/services/api/http.ts`)
 - Consumed by: `project.store.ts`

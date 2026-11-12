@@ -1,4 +1,4 @@
-import httpClient from "@/services/api/http.client";
+import httpClient from "@/services/api/http";
 
 export type SortEntry = { direction: "asc" | "desc"; field: string };
 

@@ -8,9 +8,9 @@ Compact guide for AI agents working in this repository. Only repo-specific facts
 |---|---|
 | Framework | Vue 3.5 + Composition API + `<script setup>` |
 | Language | TypeScript 5.9 (strict) |
-| Build | Vite 7 |
+| Build | Vite 8 + Vike 0.4 (CLI: `vike dev/build/preview`) |
 | Package manager | **Bun** (lockfile: `bun.lock`) |
-| Router | vite-ssg (SSG) on Vue Router 5 (not v4) |
+| Router | Vike (SSR/SSG shell) + Vue Router 5 (not v4) for client-side routing |
 | State | Pinia 3 + `pinia-plugin-persistedstate` |
 | UI | Bootstrap 5.3 + BootstrapVueNext 0.44 (auto-imported) |
 | Maps | Leaflet 1.9 + `@vue-leaflet/vue-leaflet` 0.10 |
@@ -24,20 +24,20 @@ Compact guide for AI agents working in this repository. Only repo-specific facts
 
 ```sh
 bun install              # install deps
-bun run dev              # dev server
+bun run dev              # vike dev server
 bun run build            # type-check + build (parallel via npm-run-all)
 bun run build:prod       # build + bundle budget check
 bun run type-check       # vue-tsc --noEmit
 bun run lint             # eslint .
-bun run preview          # vite preview (built output)
-bun run budget           # bundle budget check script
+bun run preview          # vike preview (built output, port 4173)
+bun run budget           # bundle budget check script (scans dist/client/assets)
 bun run generate-pwa-assets  # regenerate PWA icons from source image
 bun run mcp              # run the stdio MCP server (for AI tooling)
 ```
 
 **Build order matters:** CI runs `bun run lint` → `bun run build` → `bun test`.
 
-**SSG:** `bun run build-only` runs `vite-ssg build` (not plain `vite build`). It prerenders the static routes (`/`, `/project/`) into `dist/`; dynamic routes (`/project/:projectId`) are excluded and stay client-rendered via the Netlify SPA fallback. `ssgOptions` lives in `vite.config.ts`. During SSG (`import.meta.env.SSR`) there is no `window`/`document` — guard browser-only code accordingly (see `src/main.ts`, `useWebFrame`, `ClientOnly.vue`). Head/SEO tags are managed with unhead (`useHead`/`useSeoMeta` from `@unhead/vue`), not by touching `document.head` directly.
+**Vike (SSR/SSG shell):** `bun run build-only` runs `vike build` (not plain `vite build`). Vike renders the HTML shell via `pages/+onRenderHtml.ts` and prerenders the static routes (`/`, `/project/`) into `dist/client/`; the parameterized route (`/project/:projectId`) opts out via `pages/project/@projectId/+prerender.ts` and stays client-rendered via the Netlify SPA fallback. `index.html` is only the shell template (read as `?raw` by `+onRenderHtml.ts`) — Vike does not use it as a build entry and injects the client entry script (`pages/+onRenderClient.ts`) itself. Routing config lives in `pages/+config.ts`; the shared app factory is `src/app.ts`; vue-router (memory history during SSR) is created in `src/router/index.ts`. During SSR (`import.meta.env.SSR`) there is no `window`/`document` — guard browser-only code accordingly (see `pages/+onRenderHtml.ts`, `useWebFrame`, `ClientOnly.vue`). Head/SEO tags are managed with unhead (`useHead`/`useSeoMeta` from `@unhead/vue`); the head instance is created in `src/app.ts` and merged into the shell in `+onRenderHtml.ts` via `transformHtmlTemplate` (dedupes against the static tags in `index.html`), not by touching `document.head` directly. PWA: `vite-plugin-pwa` runs with `injectRegister: null` (client build only) — the SW is registered manually in `pages/+onRenderClient.ts` via `virtual:pwa-register`, and `devOptions.enabled` is false (incompatible with Vike's dev server, see vikejs/vike#388).
 
 **Performance CI** (`.github/workflows/performance.yml`) uses Bun throughout (`bun install`, `bun run build:prod`, `bunx lhci autorun`).
 
@@ -59,16 +59,23 @@ Rules:
 ## Architecture
 
 ```
+pages/                   # Vike hooks & pages (render shell, prerender config, client entry)
+├── +config.ts           # prerender: true (static routes / and /project)
+├── +onRenderHtml.ts     # server/prerender: render app, merge unhead tags into index.html shell
+├── +onRenderClient.ts   # browser: mount app, preload stores, register PWA service worker
+├── index/+Page.vue      # /            (wraps src/App.vue)
+├── project/+Page.vue    # /project     (wraps src/App.vue)
+└── project/@projectId/  # /project/:projectId — +prerender.ts: false (client-rendered)
 src/
+├── app.ts               # Shared app factory (Pinia, i18n, unhead, vue-router) for both render hooks
 ├── App.vue              # Root layout: router-view, MainMenu (bottom-fixed), SiteFooter, SearchModal
-├── main.ts              # Pinia init, store preloading, app mount, shell fade-out
 ├── features/projects/   # The only feature module
 │   ├── repositories/    # NocoDB data access (RawProjectRecord)
 │   ├── services/        # Domain service (transform RawProjectRecord → Project interface)
 │   ├── stores/          # Pinia store with persisted state + cache logic
 │   └── types/           # (empty — types in src/interfaces/)
 ├── services/            # Shared services
-│   ├── api/http.client.ts   # Axios instance (baseURL + xc-token from env)
+│   ├── api/http.ts          # fetch wrapper (baseURL + xc-token from env; not *.client.ts — Vike reserves that suffix for client-only files)
 │   ├── nocodb.service.ts    # Generic NocoDB v3 CRUD
 │   ├── category.service.ts
 │   └── country.service.ts
@@ -84,9 +91,9 @@ src/
 
 - **No global Bootstrap component registration.** All Bootstrap components are auto-imported at build time by `unplugin-vue-components` with `BootstrapVueNextResolver`. Import paths are never needed. This generates `components.d.ts` — never edit it manually.
 - **Icons** are auto-imported by `unplugin-icons`. Usage: `<IconBiList />` for Bootstrap Icons, `<IconMdiAccount />` for Material Design Icons, etc. Icons resolve automatically from `@iconify-json/bi` (already installed).
-- **`@` path alias** → `src/` (configured in both Vite and tsconfig).
+- **`@` path alias** → `src/` (configured in both Vite and tsconfig; `pages/` is included in tsconfig too).
 - **NocoDB API is v3.** All requests go to `/api/v3/data/{baseId}/{tableId}/records`. The `baseId` is from `VITE_APP_NOCODB_BASE_ID` env var (or passed to constructor). Table IDs (`mdctuswlmsfvi8i`) are hardcoded in the repository layer.
-- **Store preloading in `main.ts`** — `useProjectStore().preloadMapData()`, `useCategoryStore().load()`, `useCountryStore().load()` all fire eagerly before mount. This means stores are populated before any route renders.
+- **Store preloading in `pages/+onRenderClient.ts`** — `useProjectStore().loadMapData()`, `useCategoryStore().load()`, `useCountryStore().load()` all fire eagerly after mount (deferred until after first paint). This means stores are populated before any route renders.
 - **`LocationMap` component is lazy-loaded** via `defineAsyncComponent` in `HomeView.vue`. Leaflet stays out of the initial bundle.
 - **Persisted Pinia stores** — `project` store persists `{projects, mapProjects, initialized, lastFetched}` via `pinia-plugin-persistedstate`. The `category` and `country` stores explicitly set `persist: false`.
 - **Two-tier data loading**: Map data (minimal fields: name, coords, category) loads first via `preloadMapData()`. Full project data (notes, links, gallery) loads after via `load()`.
@@ -111,9 +118,9 @@ These are required at build time. No defaults.
 
 ## Deployment
 
-- **Netlify** — prerendered static pages (`/`, `/project/`) served as files, everything else falls back to the SPA redirect `/* → /index.html 200` (both `public/_redirects` and `netlify.toml`). `/sitemap.xml` is a live Netlify function backed by NocoDB.
-- Build command: `bun run build:prod` (build + bundle budget check).
-- Bundle budget thresholds (in `scripts/check-bundle-budget.cjs`): initial JS ≤ 300 kB gzipped, async chunks ≤ 150 kB, total CSS ≤ 150 kB.
+- **Netlify** — prerendered static pages (`/`, `/project/`) served as files from `dist/client`, everything else falls back to the SPA redirect `/* → /index.html 200` (both `public/_redirects` and `netlify.toml`). `/sitemap.xml` is a live Netlify function backed by NocoDB.
+- Build command: `bun run build:prod` (build + bundle budget check). Vike writes the deployable client build to `dist/client` (the server bundle in `dist/server` is only used by `vike preview`).
+- Bundle budget thresholds (in `scripts/check-bundle-budget.cjs`, scans `dist/client/assets` recursively): initial JS ≤ 300 kB gzipped, async chunks ≤ 150 kB, total CSS ≤ 500 kB.
 - Lighthouse CI runs on every PR via `@netlify/plugin-lighthouse` and GitHub Actions (`performance.yml`), with metrics posted as PR comments.
 
 ## NocoDB

@@ -20,8 +20,8 @@
        "src/*"
       ]
     },
-    "types": ["vite/client", "unplugin-icons/types/vue", "vite-plugin-pwa/vue"],
+    "types": ["vite/client", "unplugin-icons/types/vue", "vite-plugin-pwa/client"],
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "env.d.ts"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "pages/**/*.ts", "pages/**/*.vue", "env.d.ts"],
   "references": [{ "path": "./tsconfig.config.json" }]
 }

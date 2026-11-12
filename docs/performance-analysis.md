@@ -39,7 +39,7 @@ Die größten JS-Chunks:
 ### 3.1 🔴 PWA-Precache lädt alle 142 Flag-SVGs (~3,4 MB / 1,1 MB gzip)
 
 **Problem:** `vite.config.ts:90` precacht `**/*.{js,css,html,ico,png,svg,woff2}`. Der
-`flag-icons`-Import in `src/main.ts:18` zieht die CSS-Datei mit **allen** Länderflaggen
+`flag-icons`-Import in `src/app.ts` (ehemals `src/main.ts`) zieht die CSS-Datei mit **allen** Länderflaggen
 beider Varianten (4x3 und 1x1) ins Bundle — darunter riesige SVGs wie
 `rs-*.svg` (177 kB) und `bo-*.svg` (102 kB). Die App zeigt aber nur Projekte in
 Westafrica (wenige Länder). Beim ersten Besuch wird der Service-Worker-Install
