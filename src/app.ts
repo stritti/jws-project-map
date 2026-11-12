@@ -1,4 +1,4 @@
-import { createSSRApp } from "vue";
+import { createApp as createVueApp, createSSRApp } from "vue";
 import type { App as VueApp } from "vue";
 import { createPinia } from "pinia";
 import type { Pinia } from "pinia";
@@ -29,7 +29,12 @@ export interface AppContext {
 // (server/prerendering) and pages/+onRenderClient.ts (browser). vue-router
 // stays the client-side router; Vike only renders the shell around it.
 export async function createApp(): Promise<AppContext> {
-  const app = createSSRApp(App);
+  // No hydration on the client (same as the previous vite-ssg setup): the app
+  // shell overlay plus `#app { opacity: 0 }` until mount hide the client-side
+  // render, and skipping hydration avoids mismatch re-renders on URLs like
+  // /project/index.html where the client router resolves a different route
+  // than the prerendered HTML.
+  const app = import.meta.env.SSR ? createSSRApp(App) : createVueApp(App);
 
   const pinia = createPinia();
   pinia.use(piniaPluginPersistedstate);

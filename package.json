@@ -11,7 +11,7 @@
     "lint": "eslint .",
     "build-only": "vike build",
     "dev": "vike dev",
-    "preview": "vike preview",
+    "preview": "vike preview --port 4173",
     "type-check": "vue-tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
