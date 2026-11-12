@@ -19,6 +19,16 @@ interface VitePreloadErrorEvent extends Event {
 // Client-only entry: Vike runs this hook exclusively in the browser, so all
 // browser globals (window/document/service worker) are safe here.
 async function onRenderClient(_pageContext: PageContextClient) {
+  // Static hosts serve directory URLs (e.g. /project/) via /project/index.html
+  // files. When such a file URL is opened directly, the client router would
+  // resolve /project/:projectId instead of the prerendered /project/ route and
+  // swap the prerendered content for a different view (layout shift). Normalize
+  // the URL to the directory form before the router reads it.
+  const { pathname } = window.location;
+  if (pathname.endsWith("/index.html")) {
+    window.history.replaceState(null, "", pathname.slice(0, -"index.html".length));
+  }
+
   const { app, pinia, router } = await createApp();
   await router.isReady();
   app.mount("#app");

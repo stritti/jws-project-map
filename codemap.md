@@ -5,14 +5,14 @@ A Vue 3.5 + TypeScript single-page application that visualises development coope
 
 ## System Entry Points
 - `pages/+onRenderHtml.ts` — Vike server/prerender entry: renders the app (vue-router on memory history) and merges unhead tags into the `index.html` shell template.
-- `pages/+onRenderClient.ts` — Vike client entry: creates/mounts the app (Pinia, vue-i18n, unhead, vue-router on web history), preloads stores, registers the PWA service worker.
+- `pages/+onRenderClient.ts` — Vike client entry: normalizes `/…/index.html` file URLs to their directory URL (so the client router resolves the same route as the prerendered HTML), creates/mounts the app (Pinia, vue-i18n, unhead, vue-router on web history), preloads stores, registers the PWA service worker.
 - `src/app.ts` — Shared app factory used by both render hooks.
 - `src/App.vue` — Root component: `<router-view>` with persistent MainMenu (bottom navbar), SiteFooter, and SearchModal overlay.
 - `index.html` — HTML shell template (read as `?raw` by `pages/+onRenderHtml.ts`; Vike injects the client entry itself).
 - `package.json` — Dependency manifest and run scripts.
 
 ## Key Configuration
-- `vite.config.ts` — Vite 8 build config with the Vike plugin, `@` alias, SCSS, PWA plugin, component auto-import. Vike output: `dist/client` (static assets + prerendered HTML), `dist/server` (preview only).
+- `vite.config.ts` — Vite 8 build config with the Vike plugin, `@` alias, SCSS, PWA plugin, component auto-import. Vike output: `dist/client` (static assets + prerendered HTML), `dist/server` (preview only). The `environments.ssr.define` fallback gives the server/prerender build dummy NocoDB env values when the real ones are absent (client build gets none).
 - `pages/+config.ts` — Vike config: `prerender: true` for the static routes; `pages/project/@projectId/+prerender.ts` opts the dynamic route out.
 - `tsconfig.json` — TypeScript strict mode, `@` path alias, `skipLibCheck: true`.
 - `eslint.config.js` — Flat ESLint config with Vue 3 + TypeScript rules.

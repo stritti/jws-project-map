@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath, URL } from "node:url";
 
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import type { Plugin } from "vite";
 import vue from "@vitejs/plugin-vue";
 import vike from "vike/plugin";
@@ -12,17 +12,7 @@ import { VitePWA } from "vite-plugin-pwa";
 import VueDevTools from "vite-plugin-vue-devtools";
 
 const pkg = JSON.parse(readFileSync(fileURLToPath(new URL("./package.json", import.meta.url)), "utf-8"));
-
-// `vike build` also builds the server bundle, which executes in Node during
-// prerendering. There the NocoDB service singletons throw without a baseId at
-// module scope. No API calls happen during prerendering (data loads are
-// client-only), so dummy values keep the build hermetic when the real env
-// vars are absent (e.g. local builds).
-function ensurePrerenderEnv() {
-  process.env.VITE_APP_NOCODB_URL ??= "https://nocodb.invalid";
-  process.env.VITE_APP_NOCODB_TOKEN ??= "vike";
-  process.env.VITE_APP_NOCODB_BASE_ID ??= "vike";
-}
+const rootDir = fileURLToPath(new URL("./", import.meta.url));
 
 // The server bundle (dist/server) processes CSS imports in Node, where the
 // bare `@import "tailwindcss"` from src/assets/main.css does not resolve:
@@ -203,9 +193,29 @@ const config = {
   },
 };
 
-export default defineConfig(({ command }) => {
-  if (command === "build") {
-    ensurePrerenderEnv();
-  }
-  return config;
+export default defineConfig(({ mode }) => {
+  // Dummy NocoDB env for Vike's server environment only (same as the previous
+  // vite-ssg setup, which set dummies for its VITE_SSG server build): the server
+  // bundle (dist/server) executes in Node during prerendering, where the NocoDB
+  // service singletons throw without a baseId at module scope. No API calls
+  // happen during prerendering (data loads are client-only), so dummy values
+  // keep the server/prerender build hermetic when the real env vars are absent
+  // (e.g. local builds or CI). The client environment gets no dummy values:
+  // with real env vars (Netlify) the client app works, without them the
+  // prerendered HTML simply stays in place.
+  const nocodbEnv = loadEnv(mode, rootDir, "VITE_APP_NOCODB_");
+  return {
+    ...config,
+    environments: {
+      ...config.environments,
+      ssr: {
+        ...config.environments?.ssr,
+        define: {
+          "import.meta.env.VITE_APP_NOCODB_URL": JSON.stringify(nocodbEnv.VITE_APP_NOCODB_URL ?? "https://nocodb.invalid"),
+          "import.meta.env.VITE_APP_NOCODB_TOKEN": JSON.stringify(nocodbEnv.VITE_APP_NOCODB_TOKEN ?? "vike"),
+          "import.meta.env.VITE_APP_NOCODB_BASE_ID": JSON.stringify(nocodbEnv.VITE_APP_NOCODB_BASE_ID ?? "vike"),
+        },
+      },
+    },
+  };
 });

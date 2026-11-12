@@ -31,9 +31,10 @@ export interface AppContext {
 export async function createApp(): Promise<AppContext> {
   // No hydration on the client (same as the previous vite-ssg setup): the app
   // shell overlay plus `#app { opacity: 0 }` until mount hide the client-side
-  // render, and skipping hydration avoids mismatch re-renders on URLs like
-  // /project/index.html where the client router resolves a different route
-  // than the prerendered HTML.
+  // render, and skipping hydration avoids mismatch re-renders. File URLs like
+  // /project/index.html are normalized to /project/ in +onRenderClient before
+  // the router is created, so the client resolves the same route as the
+  // prerendered HTML.
   const app = import.meta.env.SSR ? createSSRApp(App) : createVueApp(App);
 
   const pinia = createPinia();
