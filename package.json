@@ -9,7 +9,7 @@
     "budget": "node scripts/check-bundle-budget.cjs",
     "build:prod": "bun run build && bun run budget",
     "lint": "eslint .",
-    "build-only": "vike build",
+    "build-only": "vike build && node scripts/postbuild-dist.cjs",
     "dev": "vike dev",
     "preview": "vike preview --port 4173",
     "type-check": "vue-tsc --noEmit",
