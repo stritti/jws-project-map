@@ -5,7 +5,8 @@ import type { Pinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 import { createHead } from "@unhead/vue/client";
 import { createHead as createSSRHead } from "@unhead/vue/server";
-import type { VueHeadClient } from "@unhead/vue";
+import type { UseHeadInput, VueHeadClient } from "@unhead/vue";
+import type { SSRHeadPayload } from "@unhead/vue/server";
 import type { Router } from "vue-router";
 
 import App from "./App.vue";
@@ -18,11 +19,17 @@ import "flag-icons/css/flag-icons.min.css";
 import "./assets/a11y.css";
 import "./assets/iframe.css";
 
+// unhead v3 types the client and SSR heads by their payload type (boolean vs
+// SSRHeadPayload); createApp() picks one based on import.meta.env.SSR.
+export type AppHead =
+  | VueHeadClient<UseHeadInput, boolean>
+  | VueHeadClient<UseHeadInput, SSRHeadPayload>;
+
 export interface AppContext {
   app: VueApp;
   pinia: Pinia;
   router: Router;
-  head: VueHeadClient;
+  head: AppHead;
 }
 
 // Shared app factory used by both Vike render hooks: pages/+onRenderHtml.ts

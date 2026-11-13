@@ -4,6 +4,8 @@ export { onRenderHtml };
 import { renderToString } from "@vue/server-renderer";
 import { dangerouslySkipEscape } from "vike/server";
 import { transformHtmlTemplate } from "@unhead/vue/server";
+import type { SSRHeadPayload } from "@unhead/vue/server";
+import type { UseHeadInput, VueHeadClient } from "@unhead/vue";
 import type { InjectFilterEntry, PageContextServer } from "vike/types";
 
 import { createApp } from "@/app";
@@ -11,6 +13,9 @@ import shellHtml from "../index.html?raw";
 
 async function onRenderHtml(pageContext: PageContextServer) {
   const { app, router, head } = await createApp();
+  // This hook runs only on the server, where createApp() installed the SSR
+  // head that transformHtmlTemplate expects (payload type SSRHeadPayload).
+  const ssrHead = head as VueHeadClient<UseHeadInput, SSRHeadPayload>;
 
   // Parameterized routes (e.g. /project/:projectId) stay client-rendered:
   // their view components pull in browser-only code (Leaflet), so they are
@@ -34,7 +39,7 @@ async function onRenderHtml(pageContext: PageContextServer) {
   // documentHtml. Replacer functions keep `$`-patterns in the injected HTML
   // literal.
   const documentHtml = await transformHtmlTemplate(
-    head,
+    ssrHead,
     shellHtml.replace('<div id="app"></div>', () => `<div id="app">${appHtml}</div>`),
   );
 
