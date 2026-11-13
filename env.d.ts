@@ -11,13 +11,12 @@ interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
-// Global version variable injected by vite-plugin-package-version
-declare const __APP_VERSION__: string;
-
-// Extend Window interface to include the version
+// Global version variable injected via `define` in vite.config.ts
 export {};
 
 declare global {
+  const __APP_VERSION__: string;
+
   interface Window {
     __APP_VERSION__: string;
   }

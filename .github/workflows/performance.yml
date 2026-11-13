@@ -27,7 +27,7 @@ jobs:
       - name: Run Lighthouse CI (static dist)
         run: |
           bunx lhci autorun \
-            --collect.staticDistDir=dist \
+            --collect.staticDistDir=dist/client \
             --upload.target=filesystem \
             --upload.outputDir=.lighthouseci
 

@@ -24,5 +24,5 @@ Application source code root. Contains all runtime code organized by architectur
 Feature-sliced: shared infrastructure in root dirs, domain logic in `features/*/`. Data flows: View → Store → Repository → Service → NocoDB API, and back via reactive Pinia state.
 
 ## Key Files
-- `main.ts` — App bootstrap: Pinia, i18n, store preloading, mount
+- `app.ts` — Shared app factory (Pinia, i18n, unhead, vue-router) used by both Vike render hooks (`pages/+onRenderHtml.ts`, `pages/+onRenderClient.ts`)
 - `App.vue` — Root component: layout shell with router-view, MainMenu, SiteFooter, SearchModal

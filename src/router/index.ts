@@ -1,8 +1,10 @@
-import type { RouteRecordRaw } from "vue-router";
+import { createMemoryHistory, createRouter, createWebHistory } from "vue-router";
+import type { RouteRecordRaw, Router } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 
-// Plain route records: the router instance itself is created by vite-ssg
-// (see src/main.ts), which swaps in a memory history during SSG.
+// Plain route records. The router instance itself is created by
+// createAppRouter() (see src/app.ts), which swaps in a memory history during
+// SSR/prerendering and a web history in the browser.
 export const routes: RouteRecordRaw[] = [
   {
     path: "/",
@@ -31,3 +33,11 @@ export const routes: RouteRecordRaw[] = [
     redirect: "/",
   },
 ];
+
+export function createAppRouter(): Router {
+  return createRouter({
+    // import.meta.env.SSR is true in Vike's server build (prerendering)
+    history: import.meta.env.SSR ? createMemoryHistory() : createWebHistory(),
+    routes,
+  });
+}

@@ -2,7 +2,8 @@ const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
 
-const DIST_DIR = path.join(__dirname, "..", "dist", "assets");
+// Vike writes the client build (the deployable static assets) to dist/client
+const DIST_DIR = path.join(__dirname, "..", "dist", "client", "assets");
 
 const INITIAL_JS_MAX = 300 * 1024;
 const ASYNC_CHUNK_MAX = 150 * 1024;
@@ -16,38 +17,57 @@ function formatKB(bytes) {
   return (bytes / 1024).toFixed(1) + " kB";
 }
 
+function collectFiles(dir, ext) {
+  const out = [];
+  if (!fs.existsSync(dir)) return out;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      out.push(...collectFiles(full, ext));
+    } else if (entry.name.endsWith(ext)) {
+      out.push(full);
+    }
+  }
+  return out;
+}
+
 function run() {
   if (!fs.existsSync(DIST_DIR)) {
-    console.warn("⚠️  dist/assets not found. Run build first.");
+    console.warn("⚠️  dist/client/assets not found. Run build first.");
     return;
   }
-
-  const files = fs.readdirSync(DIST_DIR);
 
   let initialJsSize = 0;
   let totalCssSize = 0;
 
-  const jsFiles = files.filter((f) => f.endsWith(".js"));
-  const cssFiles = files.filter((f) => f.endsWith(".css"));
+  const jsFiles = collectFiles(DIST_DIR, ".js");
+  const cssFiles = collectFiles(DIST_DIR, ".css");
 
-  jsFiles.forEach((file) => {
-    const filePath = path.join(DIST_DIR, file);
+  jsFiles.forEach((filePath) => {
+    const file = path.basename(filePath);
+    const rel = path.relative(DIST_DIR, filePath);
     const content = fs.readFileSync(filePath);
     const gzSize = gzipSize(content);
 
     const isInitial =
       file.startsWith("index-") ||
+      file.startsWith("app-") ||
+      rel.includes("entries") ||
+      file.includes("_onRenderClient") ||
       file.includes("vendor-vue-core") ||
       file.includes("vendor-vue-router") ||
       file.includes("vendor-pinia") ||
-      file.includes("vendor-tailwind") || file.includes("main");
+      file.includes("vendor-tailwind") ||
+      file.includes("rolldown-runtime") ||
+      file.includes("_plugin-vue") ||
+      file.includes("main");
 
     if (isInitial) {
       initialJsSize += gzSize;
     } else {
       if (gzSize > ASYNC_CHUNK_MAX) {
         console.warn(
-          `⚠ Async chunk budget exceeded: ${file} → ${formatKB(gzSize)} (max ${formatKB(
+          `⚠️ Async chunk budget exceeded: ${rel} → ${formatKB(gzSize)} (max ${formatKB(
             ASYNC_CHUNK_MAX,
           )})`,
         );
@@ -55,8 +75,7 @@ function run() {
     }
   });
 
-  cssFiles.forEach((file) => {
-    const filePath = path.join(DIST_DIR, file);
+  cssFiles.forEach((filePath) => {
     const content = fs.readFileSync(filePath);
     const gzSize = gzipSize(content);
     totalCssSize += gzSize;
@@ -64,7 +83,7 @@ function run() {
 
   if (initialJsSize > INITIAL_JS_MAX) {
     console.warn(
-      `⚠ Initial JS budget exceeded → ${formatKB(initialJsSize)} (max ${formatKB(
+      `⚠️ Initial JS budget exceeded → ${formatKB(initialJsSize)} (max ${formatKB(
         INITIAL_JS_MAX,
       )})`,
     );
@@ -72,7 +91,7 @@ function run() {
 
   if (totalCssSize > TOTAL_CSS_MAX) {
     console.warn(
-      `⚠ Total CSS budget exceeded → ${formatKB(totalCssSize)} (max ${formatKB(
+      `⚠️ Total CSS budget exceeded → ${formatKB(totalCssSize)} (max ${formatKB(
         TOTAL_CSS_MAX,
       )})`,
     );

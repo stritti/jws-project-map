@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
     <link rel="icon" href="/img/favicon.ico" sizes="48x48">
+    <link rel="manifest" href="/manifest.webmanifest">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon-180x180.png" sizes="180x180">
     <link rel="mask-icon" href="/img/icons/safari-pinned-tab.svg" color="#3d5e9e">
     <meta name="theme-color" content="#3d5e9e">
@@ -127,7 +128,8 @@
       <div class="spinner"></div>
     </div>
     
+    <!-- Vike injects the client entry script itself (pages/+onRenderClient.ts);
+         this file is only the HTML shell template read by pages/+onRenderHtml.ts -->
     <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
