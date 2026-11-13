@@ -7,10 +7,9 @@ Data access layer for the Projects NocoDB table. Encapsulates all NocoDB v3 API 
 Repository pattern (`project.repository.ts`). Extends `NocoDBService` with hardcoded table ID (`mdctuswlmsfvi8i`) and view ID (`vwlnl4t095iifqc9`).
 
 Key methods:
-- `fetchAll(params?)` — paginated list with field selection, sorting, view filtering
-- `fetchById(id)` — single record read
-- `fetchCount()` — record count with optional where clause
 - `fetchMapData()` — optimized query returning only coordinate/name/category fields
+- `fetchFull()` — full project records
+- `create(data)` — insert new records
 
 Pagination uses NocoDB's offset/limit model (offset must be a multiple of limit). Field filtering via `fields` query parameter reduces payload size.
 

@@ -5,10 +5,9 @@ import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import { useProjectStore } from "@/features/projects/stores/project.store";
 import { useWebFrame } from "@/composables/useWebFrame";
-import { useFilterStore } from "@/stores/filter.store";
 import { useProjectSearch } from "@/composables/useProjectSearch";
 import { useSearchFilters } from "@/composables/useSearchFilters";
-import type { ProjectState } from "@/composables/useProjectSearch";
+import { matchesProjectFilters } from "@/utils/projectFilters";
 import FilterPanel from "@/components/FilterPanel.vue";
 import ClientOnly from "@/components/ClientOnly.vue";
 import MainMenu from "../components/MainMenu.vue";
@@ -22,7 +21,7 @@ const projectStore = useProjectStore();
 
 const { mapProjects } = storeToRefs(projectStore);
 
-const { stateFilter, categoryFilter, countryFilter, filterVisible } = useSearchFilters();
+const { stateFilter, categoryFilter, countryFilter, filterVisible, activeFiltersCount } = useSearchFilters();
 
 // Map base layer (satellite or OSM; OSM is the default key-free layer)
 const baseLayer = ref<'satellite' | 'osm'>('osm');
@@ -30,28 +29,14 @@ const baseLayer = ref<'satellite' | 'osm'>('osm');
 // Marker clustering toggle
 const clusterEnabled = ref(false);
 
-const filteredMapProjects = computed(() => {
-  return mapProjects.value.filter((project) => {
-    const stateMatches = stateFilter.value.length === 0 || stateFilter.value.includes(project.state as ProjectState);
-    const categoryMatches =
-      categoryFilter.value.length === 0 ||
-      (project.category?.some((cat) => categoryFilter.value.includes(cat.id)) ?? false);
-    const countryMatches =
-      countryFilter.value.length === 0 ||
-      (project.country ? countryFilter.value.includes(project.country.id) : false);
-
-    return stateMatches && categoryMatches && countryMatches;
-  });
-});
+const filteredMapProjects = computed(() =>
+  mapProjects.value.filter((project) =>
+    matchesProjectFilters(project, stateFilter.value, categoryFilter.value, countryFilter.value),
+  ),
+);
 
 // Fuzzy search on the filtered map-tier list
 const { results: searchResults, query: searchQuery } = useProjectSearch(filteredMapProjects, { limit: 50 });
-
-const { activeFiltersCount, clearAllFilters: clearSharedFilters } = useSearchFilters(searchQuery);
-
-function clearAllFilters() {
-  clearSharedFilters();
-}
 
 const isSearchActive = ref(false);
 // Set as soon as a result is tapped (pointerdown fires before the input blur),

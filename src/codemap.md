@@ -15,7 +15,6 @@ Application source code root. Contains all runtime code organized by architectur
 | `router/` | Vue Router 5 route definitions |
 | `services/` | API services (NocoDB v3 CRUD, category, country) |
 | `stores/` | Global Pinia stores (category, country, filter, search, loading) |
-| `types/` | Ambient type declarations for third-party modules |
 | `views/` | Page-level route components |
 | `assets/` | SCSS stylesheets (Bootstrap custom build, a11y, design tokens) |
 | `locales/` | i18n JSON files (de, en, fr) — excluded from codemap |

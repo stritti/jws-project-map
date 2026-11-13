@@ -359,18 +359,15 @@ watch(locations, (newLocations) => {
   if (newLocations.length > 0 && map.value?.leafletObject) {
     syncMapViewportIfNeeded();
   }
+  if (selectedLocationId.value && !newLocations.some((location) => location.id === selectedLocationId.value)) {
+    selectedLocationId.value = null;
+    isOpened.value = false;
+  }
 });
 
 watch(viewportSignature, () => {
   if (locations.value.length > 0 && map.value?.leafletObject) {
     syncMapViewportIfNeeded();
-  }
-});
-
-watch(locations, () => {
-  if (selectedLocationId.value && !locations.value.some((location) => location.id === selectedLocationId.value)) {
-    selectedLocationId.value = null;
-    isOpened.value = false;
   }
 });
 

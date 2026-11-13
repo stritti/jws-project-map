@@ -157,12 +157,12 @@ const stateOptions = computed(() => [
   { value: PROJECT_STATES.FINISHED as ProjectState, label: t("search.chips.finished") },
 ]);
 
-// Handle filter-chip click: update local state + emit both events (Codex #P2)
+// Handle filter-chip click: update local state; the watcher below emits
+// "update:stateFilter", and "state-change" notifies @state-change listeners.
 function onChipClick(value: ProjectState) {
   if (stateFilter.value === value) return;
 
   stateFilter.value = value;
-  emit("update:stateFilter", value);
   emit("state-change", value);
 }
 

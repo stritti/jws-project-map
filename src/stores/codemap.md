@@ -6,8 +6,9 @@ Global Pinia stores for shared state that is not specific to a single feature mo
 ## Design
 Five Pinia stores, all using Composition API (`defineStore` + `setup()` function):
 
-- **category.store.ts** — Loads categories from NocoDB, provides locale-aware category names. `persist: false`.
-- **country.store.ts** — Loads countries from NocoDB, provides locale-aware country names. `persist: false`.
+- **lookup.store.ts** — `createLookupState()` factory with the shared load-once guard, `getById`, and locale-aware `getDisplayName`.
+- **category.store.ts** — Categories store built on `createLookupState`. `persist: false`.
+- **country.store.ts** — Countries store built on `createLookupState`. `persist: false`.
 - **filter.store.ts** — Reactive filter state (selected statuses, categories, countries, search query). No persistence.
 - **search.store.ts** — Search query state and results for the global SearchModal.
 - **loading.store.ts** — Simple loading flag used across views for spinner/loading state.

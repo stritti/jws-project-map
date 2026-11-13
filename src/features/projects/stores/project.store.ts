@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { PROJECT_STATES } from "@/constants/projectStates";
 import projectService from "@/features/projects/services/project.service";
 import { useLoadingStore } from "@/stores/loading.store";
+import { matchesProjectFilters } from "@/utils/projectFilters";
 import type { Project } from "@/interfaces/Project";
 
 // Merge the freshly loaded projects into an existing list in place: projects
@@ -38,23 +39,8 @@ export const useProjectStore = defineStore("project", () => {
   let loadPromise: Promise<void> | null = null;
   let mapLoadPromise: Promise<void> | null = null;
 
-  const getAll = computed(() => projects.value);
-  const getMapAll = computed(() => mapProjects.value);
   const getById = (id: number): Project | undefined =>
     projects.value.find((project) => project.id === id);
-  const projectsByState = computed<Record<string, Project[]>>(() => {
-    const result: Record<string, Project[]> = {
-      [PROJECT_STATES.FINISHED]: [],
-      [PROJECT_STATES.UNDER_CONSTRUCTION]: [],
-      [PROJECT_STATES.PLANNED]: [],
-    };
-    projects.value.forEach((project) => {
-      if (project.state && result[project.state]) {
-        result[project.state].push(project);
-      }
-    });
-    return result;
-  });
   const projectsFinished = computed(() =>
     projects.value.filter((p) => p.state === PROJECT_STATES.FINISHED),
   );
@@ -158,14 +144,8 @@ export const useProjectStore = defineStore("project", () => {
     categoryFilter: Array<number>,
     countryFilter: Array<number>,
   ): void {
-    filteredList.value = projects.value.filter(
-      (project) =>
-        (stateFilter.length === 0 || stateFilter.includes(project.state)) &&
-        (categoryFilter.length === 0 ||
-          (project.category?.some((cat) => categoryFilter.includes(cat.id)) ??
-            false)) &&
-        (countryFilter.length === 0 ||
-          (project.country && countryFilter.includes(project.country.id))),
+    filteredList.value = projects.value.filter((project) =>
+      matchesProjectFilters(project, stateFilter, categoryFilter, countryFilter),
     );
   }
 
@@ -179,10 +159,7 @@ export const useProjectStore = defineStore("project", () => {
     mapLoading,
     error,
     mapError,
-    getAll,
-    getMapAll,
     getById,
-    projectsByState,
     projectsFinished,
     projectsUnderConstruction,
     projectsPlanned,

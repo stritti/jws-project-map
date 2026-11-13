@@ -12,9 +12,5 @@ export const useSearchStore = defineStore("search", () => {
     isSearchVisible.value = false;
   }
 
-  function toggleSearch(): void {
-    isSearchVisible.value = !isSearchVisible.value;
-  }
-
-  return { isSearchVisible, openSearch, closeSearch, toggleSearch };
+  return { isSearchVisible, openSearch, closeSearch };
 });

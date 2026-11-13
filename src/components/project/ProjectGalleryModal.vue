@@ -50,25 +50,25 @@
       <Transition name="slide-fade" mode="out-in">
         <div :key="currentIndex" class="gallery-slide">
           <div class="gallery-content" :style="dragStyle">
-            <template v-if="currentItem.mimetype.startsWith('image')">
+            <template v-if="activeItem.mimetype.startsWith('image')">
               <img
-                :src="currentItem.signedUrl"
-                :alt="currentItem.name || t('a11y.imageNotAvailable', 'Image not available')"
+                :src="activeItem.signedUrl"
+                :alt="activeItem.name || t('a11y.imageNotAvailable', 'Image not available')"
                 class="gallery-image" 
                 loading="lazy"
               />
             </template>
-            <template v-else-if="currentItem.mimetype.startsWith('video')">
+            <template v-else-if="activeItem.mimetype.startsWith('video')">
               <div class="gallery-video">
                 <video
                   ref="videoRef"
-                  :src="currentItem.signedUrl"
-                  :type="currentItem.mimetype"
+                  :src="activeItem.signedUrl"
+                  :type="activeItem.mimetype"
                   controls
                   preload="metadata"
                   class="native-video-player"
                   style="width: 100%; height: 100%; object-fit: contain;"
-                  :aria-label="currentItem.name || t('a11y.imageNotAvailable')"
+                  :aria-label="activeItem.name || t('a11y.imageNotAvailable')"
                 >
                   Your browser does not support the video tag.
                 </video>
@@ -76,7 +76,7 @@
             </template>
           </div>
           <div class="gallery-caption" aria-live="polite">
-            {{ currentItem.name }}
+            {{ activeItem.name }}
           </div>
         </div>
       </Transition>
@@ -93,7 +93,7 @@
 import { ref, watch, nextTick, computed, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Attachment } from '@/interfaces/Attachment'
-import { useFocusRestore } from '@/composables/useAccessibility'
+import { trapTabFocus, useFocusRestore } from '@/composables/useAccessibility'
 import { useScrollLock } from '@/composables/useScrollLock'
 import { resolveSwipe } from '@/utils/swipe'
 
@@ -116,7 +116,7 @@ const videoRef = ref<HTMLVideoElement | null>(null)
 const galleryRef = ref<HTMLElement | null>(null)
 const closeBtn = ref<HTMLElement | null>(null)
 
-const currentItem = computed(() => {
+const activeItem = computed(() => {
   return props.galleryItems[currentIndex.value] || props.galleryItems[0]
 })
 
@@ -136,8 +136,6 @@ function goPrev() {
   } else {
     currentIndex.value = props.galleryItems.length - 1
   }
-  // Announce position change for screen readers
-  announcePosition()
 }
 
 function goNext() {
@@ -147,12 +145,6 @@ function goNext() {
   } else {
     currentIndex.value = 0
   }
-  // Announce position change for screen readers
-  announcePosition()
-}
-
-function announcePosition() {
-  // This will be picked up by the aria-live region
 }
 
 /**
@@ -268,20 +260,11 @@ function closeModal() {
 }
 
 function trapFocus(e: KeyboardEvent) {
-  if (e.key !== 'Tab' || !galleryRef.value) return
-  const focusable = galleryRef.value.querySelectorAll<HTMLElement>(
+  trapTabFocus(
+    e,
+    galleryRef.value,
     'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
   )
-  if (focusable.length === 0) return
-  const first = focusable[0]
-  const last = focusable[focusable.length - 1]
-  if (e.shiftKey && document.activeElement === first) {
-    e.preventDefault()
-    last.focus()
-  } else if (!e.shiftKey && document.activeElement === last) {
-    e.preventDefault()
-    first.focus()
-  }
 }
 
 function onKeydown(e: KeyboardEvent) {
@@ -298,11 +281,9 @@ function onKeydown(e: KeyboardEvent) {
   } else if (e.key === 'Home') {
     e.preventDefault()
     currentIndex.value = 0
-    announcePosition()
   } else if (e.key === 'End') {
     e.preventDefault()
     currentIndex.value = props.galleryItems.length - 1
-    announcePosition()
   }
 }
 

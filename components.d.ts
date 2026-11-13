@@ -17,7 +17,6 @@ declare module 'vue' {
     ClientOnly: typeof import('./src/components/ClientOnly.vue')['default']
     CountryLabel: typeof import('./src/components/CountryLabel.vue')['default']
     FilterPanel: typeof import('./src/components/FilterPanel.vue')['default']
-    FloatingMeta: typeof import('./src/components/FloatingMeta.vue')['default']
     IBiArrowClockwise: typeof import('~icons/bi/arrow-clockwise')['default']
     IBiArrowLeft: typeof import('~icons/bi/arrow-left')['default']
     IBiArrowRepeat: typeof import('~icons/bi/arrow-repeat')['default']

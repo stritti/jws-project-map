@@ -90,6 +90,7 @@
 import { nextTick, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { reloadAppWithCacheReset } from "@/utils/reloadApp";
+import { trapTabFocus } from "@/composables/useAccessibility";
 import { useAppVersion } from "@/composables/useAppVersion";
 
 const { t } = useI18n();
@@ -118,26 +119,8 @@ function hide() {
 
 // Trap focus inside modal while open
 function onKeydown(e: KeyboardEvent) {
-  if (e.key !== 'Tab' || !isVisible.value) return;
-
-  const modal = modalRef.value;
-  if (!modal) return;
-
-  const focusable = modal.querySelectorAll<HTMLElement>(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
-  );
-  if (focusable.length === 0) return;
-
-  const first = focusable[0];
-  const last = focusable[focusable.length - 1];
-
-  if (e.shiftKey && document.activeElement === first) {
-    e.preventDefault();
-    last.focus();
-  } else if (!e.shiftKey && document.activeElement === last) {
-    e.preventDefault();
-    first.focus();
-  }
+  if (!isVisible.value) return;
+  trapTabFocus(e, modalRef.value);
 }
 
 // Handle escape key

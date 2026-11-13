@@ -79,7 +79,7 @@
 import { ref, computed, nextTick, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { setLocale, type Locale } from "@/plugins/i18n";
-import { useProjectStore } from "@/features/projects/stores/project.store";
+import { trapTabFocus } from "@/composables/useAccessibility";
 
 import IBiThreeDots from "~icons/bi/three-dots";
 import IBiInfoCircle from "~icons/bi/info-circle";
@@ -102,11 +102,6 @@ const moreMenuRef = ref<HTMLElement | null>(null);
 const morePanelRef = ref<HTMLElement | null>(null);
 const moreFocusIndex = ref(-1);
 const morePanelId = ref(`more-menu-panel-${Math.random().toString(36).substr(2, 9)}`);
-
-const isMobileView = computed(() => {
-  if (typeof window === 'undefined') return false;
-  return window.innerWidth < 768;
-});
 
 const panelPosition = ref({ right: "0px", bottom: "0px", top: "" });
 const teleported = computed(() => props.teleport && moreOpen.value);
@@ -185,17 +180,7 @@ function onMorePanelKeydown(e: KeyboardEvent) {
     e.preventDefault();
     closeMore();
   } else if (e.key === 'Tab') {
-    const options = morePanelRef.value?.querySelectorAll<HTMLElement>('.more-option');
-    if (!options || options.length === 0) return;
-    const first = options[0];
-    const last = options[options.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
-    }
+    trapTabFocus(e, morePanelRef.value, '.more-option');
   }
 }
 

@@ -28,6 +28,36 @@ export function announceToScreenReader(message: string): void {
 }
 
 // 	 Focus restore helper 																													
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
+/**
+ * Keep Tab focus cycling inside a modal/dialog container: wraps focus from
+ * the last focusable element back to the first and vice versa.
+ * Call from a keydown handler, e.g. `@keydown.tab="trapTabFocus($event, containerRef)"`.
+ */
+export function trapTabFocus(
+  event: KeyboardEvent,
+  container: HTMLElement | null,
+  selector: string = FOCUSABLE_SELECTOR,
+): void {
+  if (event.key !== 'Tab' || !container) return
+
+  const focusable = container.querySelectorAll<HTMLElement>(selector)
+  if (focusable.length === 0) return
+
+  const first = focusable[0]
+  const last = focusable[focusable.length - 1]
+
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault()
+    last.focus()
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault()
+    first.focus()
+  }
+}
+
 /**
  * Helper to restore focus to the element that triggered a modal/dialog.
  * Call setTrigger() before opening the modal, and restoreFocus() when closing it.

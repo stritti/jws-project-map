@@ -41,6 +41,5 @@ export const useFilterStore = defineStore("filter", () => {
     categoryFilter,
     countryFilter,
     filterVisible,
-    applyFilters,
   };
 });

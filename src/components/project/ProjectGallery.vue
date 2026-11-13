@@ -78,26 +78,17 @@ const erroredImages = ref(new Set<string>());
 
 // Include both gallery and teaser images
 const galleryItems = computed(() => {
-  const items: Attachment[] = [];
-  
-  // Add gallery attachments
-  if (props.project.gallery && props.project.gallery.length > 0) {
-    items.push(...props.project.gallery);
-  }
-  
-  // Add teaser images if no gallery
-  if (props.project.teaserImg && props.project.teaserImg.length > 0) {
-    props.project.teaserImg.forEach((img) => {
-      items.push({
-        ...img,
-        name: img.name || props.project.name + ' teaser',
-        mimetype: 'image',
-        signedUrl: img.signedUrl,
-        thumbnails: img.thumbnails || {},
-      });
+  const items: Attachment[] = [...(props.project.gallery ?? [])];
+
+  // Teaser images are also shown in the gallery
+  for (const img of props.project.teaserImg ?? []) {
+    items.push({
+      ...img,
+      name: img.name || `${props.project.name} teaser`,
+      mimetype: 'image',
     });
   }
-  
+
   return items;
 });
 
