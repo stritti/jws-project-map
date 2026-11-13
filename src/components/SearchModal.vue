@@ -85,11 +85,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onBeforeUnmount, onMounted, onUnmounted } from "vue";
+import { ref, nextTick, onBeforeUnmount } from "vue";
 import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
-import { useSearchStore } from "@/stores/search.store";
-
 const { t } = useI18n();
 
 const emit = defineEmits<{
@@ -101,7 +99,7 @@ import { useProjectSearch } from "@/composables/useProjectSearch";
 import { useWebFrame } from "@/composables/useWebFrame";
 import MainMenu from "./MainMenu.vue";
 import ProjectSearchResult from "@/components/project/ProjectSearchResult.vue";
-import { useFocusRestore } from "@/composables/useAccessibility";
+import { trapTabFocus, useFocusRestore } from "@/composables/useAccessibility";
 import { useScrollLock } from "@/composables/useScrollLock";
 
 const projectStore = useProjectStore();
@@ -140,47 +138,12 @@ function navigate(project: { id: number; name: string }) {
   navigateToProject(project);
 }
 
-// Ctrl+K / Cmd+K keyboard shortcut
-function handleKeydown(e: KeyboardEvent) {
-  // Don't open if user is currently typing in another input
-  if (
-    document.activeElement?.tagName === "INPUT" ||
-    document.activeElement?.tagName === "TEXTAREA"
-  ) {
-    return;
-  }
-
-  if ((e.ctrlKey || e.metaKey) && e.key === "k") {
-    e.preventDefault();
-    useSearchStore().openSearch();
-  }
-}
-
-// Trap focus inside modal
+// Trap focus inside modal (the global Ctrl+K shortcut is handled in App.vue)
 function trapFocus(e: KeyboardEvent) {
-  if (e.key !== 'Tab' || !isVisible.value) return;
-
-  const modal = e.currentTarget as HTMLElement;
-  const focusable = modal.querySelectorAll<HTMLElement>(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
-  );
-  
-  if (focusable.length === 0) return;
-
-  const first = focusable[0];
-  const last = focusable[focusable.length - 1];
-
-  if (e.shiftKey && document.activeElement === first) {
-    e.preventDefault();
-    last.focus();
-  } else if (!e.shiftKey && document.activeElement === last) {
-    e.preventDefault();
-    first.focus();
-  }
+  if (!isVisible.value) return;
+  trapTabFocus(e, e.currentTarget as HTMLElement);
 }
 
-onMounted(() => window.addEventListener("keydown", handleKeydown));
-onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
 // Never leave the document locked when the modal is torn down while open.
 onBeforeUnmount(unlockScroll);
 

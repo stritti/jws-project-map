@@ -18,21 +18,17 @@ const props = withDefaults(
 
 const countryStore = useCountryStore();
 
-const countryLabel = computed<string>(() => {
-  if (props.countryId && countryStore.getById(props.countryId)) {
-    return countryStore.getDisplayName(props.countryId);
-  } else {
-    return "";
-  }
-});
+const country = computed(() =>
+  props.countryId ? countryStore.getById(props.countryId) : undefined,
+);
 
-const countryClass = computed(() => {
-  if (props.countryId && countryStore.getById(props.countryId)) {
-    return `fi fis fi-${countryStore.getById(props.countryId)?.code}`;
-  } else {
-    return "";
-  }
-});
+const countryLabel = computed<string>(() =>
+  country.value ? countryStore.getDisplayName(country.value.id) : "",
+);
+
+const countryClass = computed(() =>
+  country.value ? `fi fis fi-${country.value.code}` : "",
+);
 </script>
 
 <style lang="postcss" scoped>

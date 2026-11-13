@@ -131,14 +131,20 @@ const { filteredList: filteredProjectList, projects } =
 // Show skeleton only while no data has arrived yet; once projects are available
 // images can load asynchronously without blocking the list.
 const isDataLoading = computed(() => showLoadingSpinner.value && projects.value.length === 0);
-const { categories } = storeToRefs(categoryStore);
-const { countries } = storeToRefs(countryStore);
-
-// Derive refs from shared filter store for template bindings
-const { stateFilter, categoryFilter, countryFilter, filterVisible } = useSearchFilters();
 
 // Real-time fuzzy search on the store's filtered list
 const { query: searchQuery, results: searchResults } = useProjectSearch(filteredProjectList, { limit: 200 });
+
+// Derive refs from shared filter store for template bindings
+const {
+  stateFilter,
+  categoryFilter,
+  countryFilter,
+  filterVisible,
+  activeFiltersCount,
+  clearAllFilters: clearSharedFilters,
+  handleStateFilterChange,
+} = useSearchFilters(searchQuery);
 
 // Combine fuzzy search and store filters
 const finalProjectList = computed(() => {
@@ -195,54 +201,15 @@ onUnmounted(() => {
   window.removeEventListener("scroll", onScroll);
 });
 
-function handleStateFilterChange(state: ProjectState) {
-  stateFilterSearch.value = state;
-  if (state === "all") {
-    filterStore.stateFilter = [];
-  } else {
-    filterStore.stateFilter = [state];
-  }
-}
-
-const { activeFiltersCount, clearAllFilters: clearSharedFilters } = useSearchFilters(searchQuery);
-
 function clearAllFilters() {
   clearSharedFilters();
   stateFilterSearch.value = "all";
 }
 
-const projectList = computed(() =>
-  projects.value.map((project) => ({
-    text: project.name,
-    value: project.id,
-    ...project,
-  })),
-);
-
-const categoryList = computed(() =>
-  categories.value.map((category) => ({
-    text: categoryStore.getDisplayName(category.id),
-    value: Number(category.id),
-    ...category,
-  })),
-);
-
-const countryList = computed(() =>
-  countries.value.map((country) => ({
-    text: countryStore.getDisplayName(country.id),
-    value: Number(country.id),
-    ...country,
-  })),
-);
-
-const projectCount = computed(() => projectList.value.length);
-const projectsPlannedCount = computed(
-  () => projectStore.projects.filter((p) => p.state === PROJECT_STATES.PLANNED).length,
-);
+const projectCount = computed(() => projects.value.length);
+const projectsPlannedCount = computed(() => projectStore.projectsPlanned.length);
 const projectsUnderConstructionCount = computed(
-  () =>
-    projectStore.projects.filter((p) => p.state === PROJECT_STATES.UNDER_CONSTRUCTION)
-      .length,
+  () => projectStore.projectsUnderConstruction.length,
 );
 
 onBeforeMount(() => {

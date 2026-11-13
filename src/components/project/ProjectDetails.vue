@@ -1,6 +1,6 @@
 <template>
   <Transition name="slide-up">
-    <div v-if="project && isOpened" class="project-card-overlay" @click="onCardClick">
+    <div v-if="project && isOpened" class="project-card-overlay" @click="goToDetail">
       <div class="project-card-container" role="dialog" aria-modal="true" aria-labelledby="project-details-title">
         <!-- Close button — stop propagation to prevent navigation -->
         <button 
@@ -66,12 +66,6 @@ const emit = defineEmits<{
 
 function onClose(): void {
   emit("close");
-}
-
-function onCardClick(): void {
-  if (props.project) {
-    navigateToProject(props.project);
-  }
 }
 
 function goToDetail(): void {

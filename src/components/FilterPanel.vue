@@ -93,51 +93,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useFilterStore } from '@/stores/filter.store'
-import { useCategoryStore } from '@/stores/category.store'
-import { useCountryStore } from '@/stores/country.store'
-import { storeToRefs } from 'pinia'
+import { useSearchFilters } from '@/composables/useSearchFilters'
 
 import IBiFunnel from "~icons/bi/funnel";
 import IBiX from "~icons/bi/x";
 import IBiCheck from "~icons/bi/check";
 
 const { t } = useI18n({ useScope: 'global' })
-const filterStore = useFilterStore()
-const categoryStore = useCategoryStore()
-const countryStore = useCountryStore()
-
-const { categories } = storeToRefs(categoryStore)
-const { countries } = storeToRefs(countryStore)
-const { stateFilter, categoryFilter, countryFilter } = storeToRefs(filterStore)
 
 const emit = defineEmits<{
   (e: 'close'): void
 }>()
 
-const stateOptions = computed(() => [
-  { text: t('project.state.finished'), value: 'finished' },
-  { text: t('project.state.underConstruction'), value: 'under construction' },
-  { text: t('project.state.planned'), value: 'planned' },
-])
-
-const categoryList = computed(() =>
-  categories.value.map((category) => ({
-    text: categoryStore.getDisplayName(category.id),
-    value: Number(category.id),
-    ...category,
-  })),
-)
-
-const countryList = computed(() =>
-  countries.value.map((country) => ({
-    text: countryStore.getDisplayName(country.id),
-    value: Number(country.id),
-    ...country,
-  })),
-)
+const { stateOptions, categoryList, countryList, stateFilter, categoryFilter, countryFilter } = useSearchFilters()
 </script>
 
 <style lang="postcss" scoped>

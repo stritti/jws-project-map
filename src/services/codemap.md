@@ -4,10 +4,11 @@
 Shared service layer for external API integration. Provides generic NocoDB v3 CRUD operations and domain-specific services for categories and countries.
 
 ## Design
-Three services:
+Four services:
 - **nocodb.service.ts** — Generic `NocoDBService` class. Handles `list` (with pagination, sorting, field filtering, viewId), `read`, `create`, `update`, `delete`, `count`. `list()` auto-converts offset/page (offset must be multiple of limit).
-- **category.service.ts** — Extends NocoDBService for the Categories table. Fetches locale-aware category list.
-- **country.service.ts** — Extends NocoDBService for the Countries table. Fetches locale-aware country list.
+- **lookup.service.ts** — Shared `fetchLocalizedLookup()` for the small lookup tables (categories, countries): sorted list from a view with `name_<locale>` mapping.
+- **category.service.ts** — Categories table via `fetchLocalizedLookup`, adds `color`.
+- **country.service.ts** — Countries table via `fetchLocalizedLookup`, adds `code`.
 
 All use the shared native-fetch `httpClient` instance.
 

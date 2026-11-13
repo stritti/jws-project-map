@@ -22,39 +22,26 @@ const displayName = computed(() => categoryStore.getDisplayName(props.categoryId
 
 const categoryStyle = computed(() => {
   const category = categoryStore.getById(props.categoryId);
-  if (category && category.color) {
-    // Category colours come from NocoDB and are not curated, so the foreground
-    // is chosen by measured contrast — hard-coded white is unreadable on light
-    // category colours (white on #ff6a00 is 2.9:1).
-    return `
-      background-color: ${category.color};
-      color: ${readableTextColor(category.color)};
-      border-radius: var(--shape-round-full);
-      padding: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit));
-      font-size: var(--font-size-label-sm);
-      font-weight: var(--font-weight-label-sm);
-      line-height: var(--line-height-label-sm);
-      letter-spacing: var(--letter-spacing-label-sm);
-      white-space: nowrap;
-      display: inline-flex;
-      align-items: center;
-    `;
-  } else {
-    // Inactive state: use Surface Variant for background, On Surface Variant for text
-    return `
-      background-color: var(--color-surface-variant);
-      color: var(--color-on-surface-variant);
-      border-radius: var(--shape-round-full);
-      padding: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit));
-      font-size: var(--font-size-label-sm);
-      font-weight: var(--font-weight-label-sm);
-      line-height: var(--line-height-label-sm);
-      letter-spacing: var(--letter-spacing-label-sm);
-      white-space: nowrap;
-      display: inline-flex;
-      align-items: center;
-    `;
-  }
+  // Category colours come from NocoDB and are not curated, so the foreground
+  // is chosen by measured contrast — hard-coded white is unreadable on light
+  // category colours (white on #ff6a00 is 2.9:1).
+  const backgroundColor = category?.color ?? "var(--color-surface-variant)";
+  const color = category?.color
+    ? readableTextColor(category.color)
+    : "var(--color-on-surface-variant)";
+  return `
+    background-color: ${backgroundColor};
+    color: ${color};
+    border-radius: var(--shape-round-full);
+    padding: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit));
+    font-size: var(--font-size-label-sm);
+    font-weight: var(--font-weight-label-sm);
+    line-height: var(--line-height-label-sm);
+    letter-spacing: var(--letter-spacing-label-sm);
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+  `;
 });
 </script>
 
