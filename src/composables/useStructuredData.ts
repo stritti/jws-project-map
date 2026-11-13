@@ -54,7 +54,7 @@ export function useStructuredData(project: Ref<Project | undefined>) {
     return [
       {
         key: "jsonld-structured-data",
-        type: "application/ld+json",
+        type: "application/ld+json" as const,
         innerHTML: buildJsonLd(p),
       },
     ];
