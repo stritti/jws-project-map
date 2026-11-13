@@ -12,6 +12,14 @@
 
 * **a11y:** comprehensive accessibility improvements with axe-core checks ([#892](https://github.com/stritti/jws-project-map/issues/892)) ([15f5010](https://github.com/stritti/jws-project-map/commit/15f50109aba42d896c697818e453b8750ebedfb6))
 
+## [1.6.0](https://github.com/stritti/jws-project-map/compare/v1.5.0...v1.6.0) (2026-11-13)
+
+
+### Features
+
+* migrate SSG/SSR shell from vite-ssg to Vike (vikejs/vike) ([#1102](https://github.com/stritti/jws-project-map/issues/1102)) ([bb38d26](https://github.com/stritti/jws-project-map/commit/bb38d2644c48e391e424bd98e04a0a7d25fcf584))
+* migrate to vite-ssg (prerendered static routes) + SEO head via unhead ([#1099](https://github.com/stritti/jws-project-map/issues/1099)) ([31d3662](https://github.com/stritti/jws-project-map/commit/31d3662ace86a01f9f1734a64b01bce256436f80))
+
 ## [1.5.0](https://github.com/stritti/jws-project-map/compare/v1.4.0...v1.5.0) (2026-11-09)
 
 
