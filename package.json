@@ -73,7 +73,7 @@
     "commitizen": "^4.3.0",
     "cz-conventional-changelog": "^3.3.0",
     "esbuild": "^0.28.2",
-    "eslint": "^10.14.0",
+    "eslint": "^10.15.0",
     "eslint-plugin-vue": "^10.12.1",
     "git-cz": "^4.9.0",
     "jsdom": "^31.0.0",
