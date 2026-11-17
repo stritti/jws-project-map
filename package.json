@@ -78,9 +78,9 @@
     "git-cz": "^4.9.0",
     "jsdom": "^31.0.1",
     "npm-run-all": "^4.1.5",
-    "postcss": "^8.5.32",
+    "postcss": "^8.5.33",
     "prettier": "^3.10.1",
-    "rollup": "^4.68.2",
+    "rollup": "^4.68.3",
     "release-please": "^17.1.0",
     "sharp": "^0.35.5",
     "tailwindcss": "^4.3.5",
@@ -97,7 +97,7 @@
     "workbox-build": "^7.1.0"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "^4.68.2"
+    "@rollup/rollup-linux-x64-gnu": "^4.68.3"
   },
   "config": {
     "commitizen": {
