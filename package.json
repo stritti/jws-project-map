@@ -31,7 +31,7 @@
     "@vue/server-renderer": "^3.5.45",
     "baseline-browser-mapping": "^2.11.37",
     "caniuse-lite": "^1.0.30001826",
-    "dompurify": "^3.4.17",
+    "dompurify": "^3.4.18",
     "flag-icons": "^7.5.0",
     "fuse.js": "^7.5.0",
     "leaflet": "^1.9.4",
