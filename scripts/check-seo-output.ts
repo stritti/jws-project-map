@@ -8,7 +8,8 @@
 //
 // Usage: bun scripts/check-seo-output.ts   (after `bun run build`)
 // The site URL defaults to the production URL; VITE_SITE_URL overrides it,
-// the same as in src/composables/useCanonicalUrl.ts.
+// the same as in src/composables/useCanonicalUrl.ts, read from the
+// environment or the production-mode .env files like the build does.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { JSDOM } from "jsdom";
@@ -217,7 +218,11 @@ export function checkSeoOutput(distDir: string, siteUrl = DEFAULT_SITE_URL): Map
 
 if (import.meta.main) {
   const distDir = join(import.meta.dir, "..", "dist", "client");
-  const siteUrl = process.env.VITE_SITE_URL ?? DEFAULT_SITE_URL;
+  // Same env as `vike build` (production mode: .env, .env.production, *.local);
+  // Vite's loadEnv lets VITE_* variables already in process.env win.
+  const { loadEnv } = await import("vite");
+  const env = loadEnv(process.env.MODE ?? "production", join(import.meta.dir, ".."), "VITE_");
+  const siteUrl = env.VITE_SITE_URL ?? DEFAULT_SITE_URL;
   const results = checkSeoOutput(distDir, siteUrl);
   let failed = 0;
   for (const [route, errors] of results) {
