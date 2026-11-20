@@ -79,7 +79,11 @@
         opacity: 0;
         pointer-events: none;
       }
-      .app-shell h1 {
+      /* Not an <h1>: the prerendered page already has its own heading, and the
+         shell is only a loading overlay (scripts/check-seo-output.ts checks
+         for exactly one <h1>). Margins match the former h1 defaults. */
+      .app-shell-title {
+        margin: 0.67em 0 0;
         color: var(--jws-primary);
         font-size: 2.5rem;
         font-weight: 700;
@@ -91,7 +95,7 @@
         line-height: 1.2;
       }
       @media screen and (max-width: 768px) {
-        .app-shell h1 { font-size: 1.5rem; }
+        .app-shell-title { font-size: 1.5rem; }
       }
       .spinner {
         position: relative;
@@ -124,7 +128,7 @@
     
     <!-- App shell that shows immediately -->
     <div id="app-shell" class="app-shell" role="status" aria-live="polite">
-      <h1>JWF + Humanaktiv: Projects in Westafrica</h1>
+      <p class="app-shell-title">JWF + Humanaktiv: Projects in West Africa</p>
       <div class="spinner"></div>
     </div>
     

@@ -14,6 +14,16 @@ package = "@netlify/plugin-lighthouse"
   to = "/.netlify/functions/sitemap"
   status = 200
 
+# Project detail pages are client-rendered: serve them the neutral shell
+# (scripts/postbuild-dist.cjs) instead of the home page, so they don't carry
+# the home page's title and canonical. /project/ itself is a prerendered file
+# and is served as is (redirects without force don't shadow existing files).
+# public/_redirects is processed first and carries the same two rules.
+[[redirects]]
+  from = "/project/*"
+  to = "/project-shell.html"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
