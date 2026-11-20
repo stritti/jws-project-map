@@ -1,4 +1,7 @@
-# Processed before the [[redirects]] in netlify.toml; keep the two in sync.
+# Processed before the [[redirects]] in netlify.toml, so every rule there
+# must be repeated here above the /* fallback; keep the two in sync.
+# Live sitemap (netlify/functions/sitemap.mjs).
+/sitemap.xml  /.netlify/functions/sitemap  200
 # Client-rendered project detail pages get the neutral shell
 # (scripts/postbuild-dist.cjs) instead of the home page.
 /project/*  /project-shell.html  200
