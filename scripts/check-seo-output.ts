@@ -121,6 +121,13 @@ export function checkSeoHtml(html: string, expectedCanonical: string): string[] 
     errors.push(`robots meta blocks indexing: "${robots}"`);
   }
 
+  // One <h1> per page: the index.html loading shell sits next to the
+  // prerendered page, so a heading there would give every page a second one.
+  const h1Count = document.body.querySelectorAll("h1").length;
+  if (h1Count !== 1) {
+    errors.push(`expected 1 <h1>, found ${h1Count}`);
+  }
+
   document.querySelectorAll('script[type="application/ld+json"]').forEach((script, i) => {
     try {
       JSON.parse(script.textContent ?? "");

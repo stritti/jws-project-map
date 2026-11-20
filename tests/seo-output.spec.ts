@@ -31,7 +31,7 @@ function page(overrides: { head?: string; canonical?: string; lang?: string } = 
     <meta name="twitter:description" content="Projects in West Africa">
     <meta name="twitter:image" content="${SITE}/img/logo.png">
     <link rel="canonical" href="${canonical}">`;
-  return `<!doctype html><html lang="${lang}"><head>${head}</head><body><div id="app"></div>
+  return `<!doctype html><html lang="${lang}"><head>${head}</head><body><div id="app"><h1>Projects in West Africa</h1></div>
     <script id="vike_pageContext" type="application/json">{}</script></body></html>`;
 }
 
@@ -64,6 +64,12 @@ describe("checkSeoHtml", () => {
     const errors = checkSeoHtml(page({ canonical: SITE }), `${SITE}/project`);
     expect(errors).toContain(`canonical is "${SITE}", expected "${SITE}/project"`);
     expect(errors).toContain(`og:url is "${SITE}", expected "${SITE}/project"`);
+  });
+
+  it("reports a missing or second <h1>", () => {
+    expect(checkSeoHtml(page().replace("<h1>Projects in West Africa</h1>", ""), SITE)).toContain("expected 1 <h1>, found 0");
+    const withShellHeading = page().replace("<body>", "<body><div id=\"app-shell\"><h1>Loading</h1></div>");
+    expect(checkSeoHtml(withShellHeading, SITE)).toContain("expected 1 <h1>, found 2");
   });
 
   it("reports duplicated tags from a broken head merge", () => {
