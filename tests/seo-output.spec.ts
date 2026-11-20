@@ -5,6 +5,9 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   DEFAULT_SITE_URL,
   canonicalUrlFor,
+  PROJECT_SHELL_FILE,
+  PROJECT_SHELL_ROUTE,
+  checkProjectShellHtml,
   checkSeoHtml,
   checkSeoOutput,
   routeForFile,
@@ -92,6 +95,27 @@ describe("checkSeoHtml", () => {
   });
 });
 
+describe("checkProjectShellHtml", () => {
+  const shell = page()
+    .replace(/<link rel="canonical"[^>]*>/, "")
+    .replace(/<meta property="og:url"[^>]*>/, "")
+    .replace("<title>Map — JWS Project Map</title>", "<title>Project — JWS Project Map</title>")
+    .replace("<h1>Projects in West Africa</h1>", "");
+
+  it("accepts a neutral shell", () => {
+    expect(checkProjectShellHtml(shell, "Map — JWS Project Map")).toEqual([]);
+  });
+
+  it("rejects the home page served as the shell", () => {
+    const errors = checkProjectShellHtml(page(), "Map — JWS Project Map");
+    expect(errors).toContain('<title> is the home page\'s title "Map — JWS Project Map"');
+    expect(errors).toContain("has a canonical link");
+    expect(errors).toContain("has an og:url");
+    expect(errors).toContain("#app is not empty");
+    expect(errors).toContain("contains an <h1>");
+  });
+});
+
 describe("checkSeoOutput", () => {
   let dir: string | undefined;
   afterEach(() => {
@@ -107,9 +131,16 @@ describe("checkSeoOutput", () => {
     expect(results.get("/")).toEqual([]);
     expect(results.has("/iframe-preview")).toBe(false);
     expect(results.get("/project")).toEqual(["route was not prerendered"]);
+    expect(results.get(PROJECT_SHELL_ROUTE)).toEqual([`${PROJECT_SHELL_FILE} was not written`]);
 
     mkdirSync(join(dir, "project"));
     writeFileSync(join(dir, "project", "index.html"), page({ canonical: `${SITE}/project` }));
     expect(checkSeoOutput(dir).get("/project")).toEqual([]);
+
+    // the shell is checked as a shell, not as a prerendered route
+    writeFileSync(join(dir, PROJECT_SHELL_FILE), page());
+    const withShell = checkSeoOutput(dir);
+    expect(withShell.has("/project-shell")).toBe(false);
+    expect(withShell.get(PROJECT_SHELL_ROUTE)).toContain("has a canonical link");
   });
 });

@@ -19,6 +19,11 @@ export const DEFAULT_SITE_URL = "https://jws-projects-map.netlify.app";
 // client-rendered on purpose (pages/project/@projectId/+prerender.ts).
 export const REQUIRED_ROUTES = ["/", "/project"];
 
+// Neutral shell served for client-rendered /project/:projectId URLs
+// (written by scripts/postbuild-dist.cjs, routed in netlify.toml).
+export const PROJECT_SHELL_FILE = "project-shell.html";
+export const PROJECT_SHELL_ROUTE = "/project/:projectId (shell)";
+
 // Head tags every prerendered page must carry exactly once, with content.
 const REQUIRED_META: Array<[attr: "name" | "property", key: string]> = [
   ["name", "description"],
@@ -139,6 +144,35 @@ export function checkSeoHtml(html: string, expectedCanonical: string): string[] 
   return errors;
 }
 
+/**
+ * Problems in the neutral project shell (empty = OK). It serves every project
+ * URL, so it must not claim one canonical URL, must not reuse the home
+ * page's title, and must not carry the home page's content.
+ */
+export function checkProjectShellHtml(html: string, homeTitle?: string): string[] {
+  const { document } = new JSDOM(html).window;
+  const head = document.head;
+  const errors: string[] = [];
+
+  if (!document.documentElement.getAttribute("lang")?.trim()) {
+    errors.push("<html> has no lang attribute");
+  }
+  const title = head.querySelector("title")?.textContent?.trim() ?? "";
+  if (!title) errors.push("<title> is missing or empty");
+  if (homeTitle && title === homeTitle) errors.push(`<title> is the home page's title "${title}"`);
+  if (head.querySelector('link[rel="canonical"]')) errors.push("has a canonical link");
+  if (head.querySelector('meta[property="og:url"]')) errors.push("has an og:url");
+  if (!head.querySelector('meta[name="description"]')?.getAttribute("content")?.trim()) {
+    errors.push('<meta name="description"> is missing or empty');
+  }
+  if (/noindex/i.test(head.querySelector('meta[name="robots"]')?.getAttribute("content") ?? "")) {
+    errors.push("robots meta blocks indexing");
+  }
+  if (document.getElementById("app")?.children.length) errors.push("#app is not empty");
+  if (document.body.querySelector("h1")) errors.push("contains an <h1>");
+  return errors;
+}
+
 function collectHtmlFiles(dir: string): string[] {
   const out: string[] = [];
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -159,6 +193,7 @@ export function checkSeoOutput(distDir: string, siteUrl = DEFAULT_SITE_URL): Map
   const routes = new Map<string, string>();
   for (const file of existsSync(distDir) ? collectHtmlFiles(distDir) : []) {
     const html = readFileSync(file, "utf8");
+    if (relative(distDir, file) === PROJECT_SHELL_FILE) continue;
     if (html.includes(VIKE_PAGE_MARKER)) routes.set(routeForFile(relative(distDir, file)), html);
   }
 
@@ -167,6 +202,15 @@ export function checkSeoOutput(distDir: string, siteUrl = DEFAULT_SITE_URL): Map
   }
   for (const [route, html] of routes) {
     results.set(route, checkSeoHtml(html, canonicalUrlFor(route, siteUrl)));
+  }
+
+  const shellFile = join(distDir, PROJECT_SHELL_FILE);
+  if (!existsSync(shellFile)) {
+    results.set(PROJECT_SHELL_ROUTE, [`${PROJECT_SHELL_FILE} was not written`]);
+  } else {
+    const homeHtml = routes.get("/");
+    const homeTitle = homeHtml ? new JSDOM(homeHtml).window.document.title.trim() : undefined;
+    results.set(PROJECT_SHELL_ROUTE, checkProjectShellHtml(readFileSync(shellFile, "utf8"), homeTitle));
   }
   return results;
 }

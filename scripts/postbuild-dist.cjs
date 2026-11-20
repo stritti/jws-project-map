@@ -13,11 +13,36 @@
 //    ("index.html") makes the SW throw at install time when index.html is
 //    not precached. Vike's prerendered pages must therefore be added to the
 //    precache manifest afterwards, with md5 revisions (workbox format).
+//
+// 3. Write project-shell.html, the neutral shell served for client-rendered
+//    project detail URLs (netlify.toml: /project/* → /project-shell.html).
+//    It is the prerendered home page without its content and without the
+//    home page's canonical/og:url, and with a generic title, so crawlers that
+//    don't run JavaScript don't see every project as a copy of the home page.
+//    The client renders the project into the empty #app as before.
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const { JSDOM } = require("jsdom");
 
 const DIST_CLIENT = path.join(__dirname, "..", "dist", "client");
+const PROJECT_SHELL = "project-shell.html";
+const PROJECT_SHELL_TITLE = "Project — JWS Project Map";
+
+function writeProjectShell(homeFile) {
+  const dom = new JSDOM(fs.readFileSync(homeFile, "utf-8"));
+  const { document } = dom.window;
+  document.querySelectorAll('link[rel="canonical"], meta[property="og:url"]').forEach((el) => el.remove());
+  document.title = PROJECT_SHELL_TITLE;
+  for (const sel of ['meta[property="og:title"]', 'meta[name="twitter:title"]']) {
+    document.querySelector(sel)?.setAttribute("content", PROJECT_SHELL_TITLE);
+  }
+  const app = document.getElementById("app");
+  if (app) app.innerHTML = "";
+  const out = path.join(DIST_CLIENT, PROJECT_SHELL);
+  fs.writeFileSync(out, dom.serialize());
+  return out;
+}
 
 function collectFiles(dir, ext) {
   const out = [];
@@ -51,6 +76,11 @@ function run() {
     }
   }
 
+  // 3. neutral shell for project detail URLs, built from the processed home
+  //    page and written before step 2 so the shell is precached as well
+  const homeFile = path.join(DIST_CLIENT, "index.html");
+  if (fs.existsSync(homeFile)) htmlFiles.push(writeProjectShell(homeFile));
+
   // 2. precache the (prerendered) HTML files in the generated service worker
   const swPath = path.join(DIST_CLIENT, "sw.js");
   let precachedCount = 0;
@@ -77,7 +107,7 @@ function run() {
   }
 
   console.log(
-    `✅ postbuild: stripped async from ${strippedCount} HTML file(s), precached ${precachedCount} HTML file(s) in sw.js`,
+    `✅ postbuild: stripped async from ${strippedCount} HTML file(s), wrote ${PROJECT_SHELL}, precached ${precachedCount} HTML file(s) in sw.js`,
   );
 }
 
