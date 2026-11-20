@@ -18,6 +18,7 @@ package = "@netlify/plugin-lighthouse"
 # (scripts/postbuild-dist.cjs) instead of the home page, so they don't carry
 # the home page's title and canonical. /project/ itself is a prerendered file
 # and is served as is (redirects without force don't shadow existing files).
+# public/_redirects is processed first and carries the same two rules.
 [[redirects]]
   from = "/project/*"
   to = "/project-shell.html"

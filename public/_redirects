@@ -1,1 +1,5 @@
-/* /index.html 200
+# Processed before the [[redirects]] in netlify.toml; keep the two in sync.
+# Client-rendered project detail pages get the neutral shell
+# (scripts/postbuild-dist.cjs) instead of the home page.
+/project/*  /project-shell.html  200
+/*  /index.html  200
