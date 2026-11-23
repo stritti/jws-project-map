@@ -42,7 +42,7 @@
     "pinia-plugin-persistedstate": "^4.7.1",
     "vike": "^0.4.270",
     "vue": "^3.5.45",
-    "vue-i18n": "^11.4.20",
+    "vue-i18n": "^11.4.23",
     "vue-leaflet-markercluster": "^0.6.1",
     "vue-router": "^5.5.1",
     "vue3-markdown-it": "^1.0.10"
