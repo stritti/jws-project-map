@@ -37,6 +37,9 @@ jobs:
       - name: Build project
         run: bun run build
 
+      - name: Check SEO tags in prerendered HTML
+        run: bun run seo-check
+
       - name: Run tests
         # `github.event.inputs` is empty outside workflow_dispatch, so this
         # runs on every push and pull request and can only be skipped by hand.
