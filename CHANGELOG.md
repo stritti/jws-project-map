@@ -12,6 +12,13 @@
 
 * **a11y:** comprehensive accessibility improvements with axe-core checks ([#892](https://github.com/stritti/jws-project-map/issues/892)) ([15f5010](https://github.com/stritti/jws-project-map/commit/15f50109aba42d896c697818e453b8750ebedfb6))
 
+## [1.6.1](https://github.com/stritti/jws-project-map/compare/v1.6.0...v1.6.1) (2026-11-27)
+
+
+### Bug Fixes
+
+* **seo:** check prerendered head tags, single h1, neutral shell for project pages ([#1117](https://github.com/stritti/jws-project-map/issues/1117)) ([bf18f2d](https://github.com/stritti/jws-project-map/commit/bf18f2d1864980562ad67aa769b68cdf4e3c32a0))
+
 ## [1.6.0](https://github.com/stritti/jws-project-map/compare/v1.5.0...v1.6.0) (2026-11-13)
 
 
